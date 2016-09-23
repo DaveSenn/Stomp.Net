@@ -1,0 +1,80 @@
+#---------------------------------
+# Repository (GitHub)
+#---------------------------------
+
+# Set clone depth to speed up clone
+clone_depth: 10
+# Folder to clone the repository to
+clone_folder: C:\_git\Stomp.Net
+
+# Skipping commits with noCI in commit message
+skip_commits:
+  message: \bnoCI\b
+
+#---------------------------------
+# Notifications
+#---------------------------------
+notifications:
+  # Slack
+  - provider: Slack
+    auth_token:
+      secure: Vr01F/A4n7oVgaBKuoKtJfRw4O0GDI/TdlktqvEVHm1Q2D8qkJRQ5Cp9CxIaPklQWY8yfl7EkExMNMdhHj8sDYZygO9FnbOFgtPlyWeGKWg=
+    channel: '#build'
+
+#---------------------------------
+# Before build
+#---------------------------------
+
+# Version format
+version: 1.0.{build}
+
+# Patch assembly info
+assembly_info:
+  patch: true
+  file: AssemblyInfo.*
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+
+# Cache configuration
+cache:
+  # Cache NuGet packages until packages.config changes
+  - .Src\packages -> **\packages.config
+
+#---------------------------------
+# Build configuration
+#---------------------------------
+
+# Build OS
+os: Visual Studio 2015
+
+# Build configuration
+configuration: Release
+
+# Build platform
+platform: Any CPU
+
+#---------------------------------
+# Build
+#---------------------------------
+
+# Script to build all the solution
+build_script:
+- ps: .Build\Build.ps1
+
+#---------------------------------
+# After build
+#---------------------------------
+
+# Define artifacts
+artifacts:
+  - path: .Output
+  - path: '.Output\NuGet\*.nupkg'
+    name: NuGetPackage.nupkg
+
+# Deploy to NuGet
+#deploy:
+#  provider: NuGet
+#  api_key:
+#    secure: EuMTEOZnx2khhY8a77sGO/tC4STC3rZe2eABB2Bq33dXoIHnATxMnMnMoOohn7eQ
+#  artifact: /.*\.nupkg/

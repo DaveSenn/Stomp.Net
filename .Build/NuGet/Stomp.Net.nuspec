@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Stomp.Net</id>
+    <version>$version$</version>
+    <authors>Dave Senn</authors>
+	<title>Stomp.Net</title>
+    <licenseUrl>https://raw.githubusercontent.com/DaveSenn/Stomp.Net/master/License.txt</licenseUrl>
+    <projectUrl>https://github.com/DaveSenn/Stomp.Net</projectUrl>
+	<iconUrl>https://raw.githubusercontent.com/DaveSenn/Stomp.Net/master/.Art/logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>C# STOMP library.</description>
+    <copyright>Copyright © Dave Senn 2016</copyright>
+    <tags>C# STOMP</tags>
+  </metadata>
+</package>
