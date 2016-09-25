@@ -9,11 +9,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle( "Stomp.Net" )]
+[assembly: AssemblyTitle( "Stomp.Net.Example.Producer" )]
 [assembly: AssemblyDescription( "" )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "" )]
-[assembly: AssemblyProduct( "Stomp.Net" )]
+[assembly: AssemblyProduct( "Stomp.Net.Example.Producer" )]
 [assembly: AssemblyCopyright( "Copyright ©  2016" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
@@ -26,7 +26,7 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
-[assembly: Guid( "0f77afe3-b490-49df-b5f2-4e4bd3236af7" )]
+[assembly: Guid( "d2e67615-a804-489c-ad95-2658671d86eb" )]
 
 // Version information for an assembly consists of the following four values:
 //

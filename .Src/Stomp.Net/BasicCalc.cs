@@ -7,19 +7,18 @@ using System;
 namespace Stomp.Net
 {
     /// <summary>
-    /// Bla
+    ///     Bla
     /// </summary>
     public class BasicCalc
     {
         /// <summary>
-        /// Blub
+        ///     Blub
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns></returns>
         public Int32 Add( Int32 a, Int32 b )
         {
-            
             return a + b;
         }
     }
