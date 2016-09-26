@@ -105,7 +105,7 @@ namespace Stomp.Net.Example.Selectors
             {
                 new Thread( () =>
                             {
-                                var brokerUri = "stomp:tcp://" + Host + ":" + Port;
+                                var brokerUri = "tcp://" + Host + ":" + Port;
                                 brokerUri += "?transport.useInactivityMonitor=true&amp;trace=true";
                                 var factory = new ConnectionFactory( brokerUri );
 

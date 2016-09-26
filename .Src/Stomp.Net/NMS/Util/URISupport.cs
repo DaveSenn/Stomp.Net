@@ -238,6 +238,7 @@ namespace Apache.NMS.Util
                 return parameters;
 
             // Strip the initial "?"
+            // ReSharper disable once PossibleNullReferenceException
             if ( query.StartsWith( "?", StringComparison.Ordinal ) )
                 query = query.Substring( 1 );
 
@@ -257,7 +258,70 @@ namespace Apache.NMS.Util
 
             return parameters;
         }
-        
+
+        /// <summary>
+        ///     Sets the public properties of a target object using a string map.
+        ///     This method uses .Net reflection to identify public properties of
+        ///     the target object matching the keys from the passed map.
+        /// </summary>
+        /// <param name="target">The object whose properties will be set.</param>
+        /// <param name="map">Map of key/value pairs.</param>
+        /// <param name="prefix">
+        ///     Key value prefix. This is perpended to the property name
+        ///     before searching for a matching key value.
+        /// </param>
+        public static void SetProperties( [NotNull] Object target, [NotNull] Dictionary<String, String> map, [NotNull] String prefix )
+        {
+            target.ThrowIfNull( nameof( target ) );
+            map.ThrowIfNull( nameof( map ) );
+            prefix.ThrowIfNull( nameof( prefix ) );
+
+            var type = target.GetType();
+            var matches = new List<String>();
+
+            foreach ( var key in map.Keys )
+            {
+                // CHeck if it matches the given prefix
+                if ( !key.StartsWith( prefix, StringComparison.InvariantCultureIgnoreCase ) )
+                    continue;
+                
+                var bareKey = key.Substring( prefix.Length );
+                var prop = type.GetProperty( bareKey,
+                                             BindingFlags.FlattenHierarchy
+                                             | BindingFlags.Public
+                                             | BindingFlags.Instance
+                                             | BindingFlags.IgnoreCase );
+
+                if ( null != prop )
+                {
+                    prop.SetValue( target, Convert.ChangeType( map[key], prop.PropertyType, CultureInfo.InvariantCulture ), null );
+                }
+                else
+                {
+                    var field = type.GetField( bareKey,
+                                               BindingFlags.FlattenHierarchy
+                                               | BindingFlags.Public
+                                               | BindingFlags.Instance
+                                               | BindingFlags.IgnoreCase );
+                    if ( null != field )
+                        field.SetValue( target, Convert.ChangeType( map[key], field.FieldType, CultureInfo.InvariantCulture ) );
+                    else
+                        throw new NMSException( String.Format( "No such property or field: {0} on class: {1}",
+                                                               bareKey,
+                                                               target.GetType()
+                                                                     .Name ) );
+                }
+
+                // store for later removal.
+                matches.Add( key );
+            }
+
+            // Remove all the properties we set so they are used again later.
+            foreach ( var match in matches )
+                map.Remove( match );
+        }
+
+
         #endregion
 
         /// <summary>
@@ -301,62 +365,7 @@ namespace Apache.NMS.Util
             }
         }
 
-        /// <summary>
-        ///     Sets the public properties of a target object using a string map.
-        ///     This method uses .Net reflection to identify public properties of
-        ///     the target object matching the keys from the passed map.
-        /// </summary>
-        /// <param name="target">The object whose properties will be set.</param>
-        /// <param name="map">Map of key/value pairs.</param>
-        /// <param name="prefix">
-        ///     Key value prefix.  This is prepended to the property name
-        ///     before searching for a matching key value.
-        /// </param>
-        public static void SetProperties( Object target, Dictionary<String, String> map, String prefix )
-        {
-            var type = target.GetType();
-
-            var matches = new List<String>();
-
-            foreach ( String key in map.Keys )
-                if ( key.StartsWith( prefix, StringComparison.InvariantCultureIgnoreCase ) )
-                {
-                    var bareKey = key.Substring( prefix.Length );
-                    var prop = type.GetProperty( bareKey,
-                                                 BindingFlags.FlattenHierarchy
-                                                 | BindingFlags.Public
-                                                 | BindingFlags.Instance
-                                                 | BindingFlags.IgnoreCase );
-
-                    if ( null != prop )
-                    {
-                        prop.SetValue( target, Convert.ChangeType( map[key], prop.PropertyType, CultureInfo.InvariantCulture ), null );
-                    }
-                    else
-                    {
-                        var field = type.GetField( bareKey,
-                                                   BindingFlags.FlattenHierarchy
-                                                   | BindingFlags.Public
-                                                   | BindingFlags.Instance
-                                                   | BindingFlags.IgnoreCase );
-                        if ( null != field )
-                            field.SetValue( target, Convert.ChangeType( map[key], field.FieldType, CultureInfo.InvariantCulture ) );
-                        else
-                            throw new NMSException( String.Format( "No such property or field: {0} on class: {1}",
-                                                                   bareKey,
-                                                                   target.GetType()
-                                                                         .Name ) );
-                    }
-
-                    // store for later removal.
-                    matches.Add( key );
-                }
-
-            // Remove all the properties we set so they are used again later.
-            foreach ( var match in matches )
-                map.Remove( match );
-        }
-
+       
         public static String StripPrefix( String value, String prefix ) 
             => value.StartsWith( prefix, StringComparison.InvariantCultureIgnoreCase ) ? value.Substring( prefix.Length ) : value;
 
