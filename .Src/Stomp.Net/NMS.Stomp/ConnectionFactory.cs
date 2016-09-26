@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Specialized;
+using System.Linq;
 using Apache.NMS.Policies;
 using Apache.NMS.Stomp.Transport;
 using Apache.NMS.Stomp.Util;
@@ -118,17 +119,18 @@ namespace Apache.NMS.Stomp
                 // var query = brokerUri.Query.Substring( brokerUri.Query.LastIndexOf( ")", StringComparison.Ordinal ) + 1 );
 
                 var queryParameters = URISupport.ParseQuery(brokerUri.Query);
+                // Remove the connection properties ...TODO: why?
+                var connectionProperties = URISupport.ExtractProperties( queryParameters, "connection." );
+                // Remove the NMS properties ...TODO: why?
+                var nmsProperties = URISupport.ExtractProperties( queryParameters, "nms." );
 
-                var connection = URISupport.ExtractProperties( queryParameters, "connection." );
-                var nms = URISupport.ExtractProperties( queryParameters, "nms." );
+                if ( connectionProperties.Any() )
+                    URISupport.SetProperties( this, connectionProperties, "connection." );
 
-                if ( connection != null )
-                    URISupport.SetProperties( this, connection, "connection." );
-
-                if ( nms != null )
+                if ( nmsProperties.Any())
                 {
-                    URISupport.SetProperties( PrefetchPolicy, nms, "nms.PrefetchPolicy." );
-                    URISupport.SetProperties( RedeliveryPolicy, nms, "nms.RedeliveryPolicy." );
+                    URISupport.SetProperties( PrefetchPolicy, nmsProperties, "nms.PrefetchPolicy." );
+                    URISupport.SetProperties( RedeliveryPolicy, nmsProperties, "nms.RedeliveryPolicy." );
                 }
 
                 brokerUri = URISupport.CreateRemainingUri( brokerUri, queryParameters );

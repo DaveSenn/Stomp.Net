@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Extend;
+using JetBrains.Annotations;
 #if !NETCF
 using System.Web;
 
@@ -134,27 +135,7 @@ namespace Apache.NMS.Util
             return new Uri( strippedUri + query );
         }
 
-        public static Dictionary<String, String> ExtractProperties( Dictionary<String, String> props, String prefix )
-        {
-            if ( props == null )
-                throw new Exception( "Properties Object was null" );
-
-            var result = new Dictionary<String, String>();
-            var matches = new List<String>();
-
-            foreach ( String key in props.Keys )
-                if ( key.StartsWith( prefix, StringComparison.InvariantCultureIgnoreCase ) )
-                {
-                    var value = props[key];
-                    result[key] = value;
-                    matches.Add( key );
-                }
-
-            foreach ( var match in matches )
-                props.Remove( match );
-
-            return result;
-        }
+       
 
         public static Dictionary<String, String> GetProperties( Dictionary<String, String> props, String prefix )
         {
@@ -213,6 +194,33 @@ namespace Apache.NMS.Util
         #region Refactored
 
         /// <summary>
+        /// Removes all key/value pairs from the given dictionary, where the key starts with the given prefix.
+        /// </summary>
+        /// <param name="properties">A collection of key/value pairs.</param>
+        /// <param name="prefix">The key-prefix to search for.</param>
+        /// <returns>Returns the removed values.</returns>
+        [NotNull]
+        public static Dictionary<String, String> ExtractProperties([NotNull]Dictionary<String, String> properties, [NotNull]String prefix)
+        {
+            properties.ThrowIfNull( nameof(properties) );
+            prefix.ThrowIfNull(nameof(prefix));
+
+            var result = new Dictionary<String, String>();
+
+            foreach (var key in properties.Keys)
+                if (key.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var value = properties[key];
+                    result[key] = value;
+                }
+
+            foreach (var match in result)
+                properties.Remove(match.Key);
+
+            return result;
+        }
+
+        /// <summary>
         ///     Parse a Uri query string of the form ?x=y&amp;z=0
         ///     into a map of name/value pairs.
         /// </summary>
@@ -220,7 +228,8 @@ namespace Apache.NMS.Util
         ///     The query string to parse. This string should not contain
         ///     Uri escape characters.
         /// </param>
-        public static Dictionary<String, String> ParseQuery( String query )
+        [NotNull]
+        public static Dictionary<String, String> ParseQuery([CanBeNull] String query )
         {
             var parameters = new Dictionary<String, String>();
 

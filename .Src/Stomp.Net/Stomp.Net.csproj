@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicCalc.cs" />
+    <Compile Include="Properties\JetBrains.Annotations.cs" />
     <Compile Include="NMS.Stomp\BrokerException.cs" />
     <Compile Include="NMS.Stomp\Commands\BaseCommand.cs" />
     <Compile Include="NMS.Stomp\Commands\BaseDataStructure.cs" />
