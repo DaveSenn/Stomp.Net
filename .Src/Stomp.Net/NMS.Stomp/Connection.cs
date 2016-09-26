@@ -1,5 +1,3 @@
-
-
 #region Usings
 
 using System;
@@ -32,6 +30,8 @@ namespace Apache.NMS.Stomp
         private readonly Atomic<Boolean> closed = new Atomic<Boolean>( false );
         private readonly Atomic<Boolean> closing = new Atomic<Boolean>( false );
         private readonly Atomic<Boolean> connected = new Atomic<Boolean>( false );
+
+        private readonly Object connectedLock = new Object();
         private readonly IDictionary dispatchers = Hashtable.Synchronized( new Hashtable() );
         private readonly ThreadPoolExecutor executor = new ThreadPoolExecutor();
         private readonly ConnectionInfo info;
@@ -39,8 +39,6 @@ namespace Apache.NMS.Stomp
         private readonly IList sessions = ArrayList.Synchronized( new ArrayList() );
         private readonly Atomic<Boolean> started = new Atomic<Boolean>( false );
         private readonly Atomic<Boolean> transportFailed = new Atomic<Boolean>( false );
-
-        private readonly Object connectedLock = new Object();
 
         private Boolean disposed;
         private Int32 localTransactionCounter;

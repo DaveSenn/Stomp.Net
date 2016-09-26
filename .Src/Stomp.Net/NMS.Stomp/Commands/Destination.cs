@@ -1,10 +1,7 @@
-
-
 #region Usings
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using Apache.NMS.Util;
 
 #endregion
@@ -41,10 +38,6 @@ namespace Apache.NMS.Stomp.Commands
         ///     Topic Destination object
         /// </summary>
         public const Int32 STOMP_TOPIC = 1;
-
-        #endregion
-
-        #region Fields
 
         #endregion
 

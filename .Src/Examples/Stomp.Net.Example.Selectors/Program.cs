@@ -55,13 +55,17 @@ namespace Stomp.Net.Example.Selectors
 
         private static void Send( String selectorValue, Int32 messageCount )
         {
-            //var brokerUri = "stomp:tcp://" + Host + ":" + Port;
             var brokerUri = "tcp://" + Host + ":" + Port;
             brokerUri += "?transport.useInactivityMonitor=true&amp;trace=true";
-            var factory = new ConnectionFactory( brokerUri );
+            var factory = new ConnectionFactory( brokerUri,
+                                                 new StompConnectionSettings
+                                                 {
+                                                     UserName = User,
+                                                     Password = Password
+                                                 } );
 
             // Create connection for both requests and responses
-            var connection = factory.CreateConnection( User, Password );
+            var connection = factory.CreateConnection();
             connection.Start();
 
             // Create session for both requests and responses
@@ -102,34 +106,37 @@ namespace Stomp.Net.Example.Selectors
             #endregion
 
             private void Create( String selectorKey, String selector )
-            {
-                new Thread( () =>
-                            {
-                                var brokerUri = "tcp://" + Host + ":" + Port;
-                                brokerUri += "?transport.useInactivityMonitor=true&amp;trace=true";
-                                var factory = new ConnectionFactory( brokerUri );
+                => new Thread( () =>
+                               {
+                                   var brokerUri = "tcp://" + Host + ":" + Port;
+                                   brokerUri += "?transport.useInactivityMonitor=true&amp;trace=true";
+                                   var factory = new ConnectionFactory( brokerUri,
+                                                                        new StompConnectionSettings
+                                                                        {
+                                                                            UserName = User,
+                                                                            Password = Password
+                                                                        } );
 
-                                // Create connection for both requests and responses
-                                using ( var connection = factory.CreateConnection( User, Password ) )
-                                {
-                                    connection.Start();
+                                   // Create connection for both requests and responses
+                                   using ( var connection = factory.CreateConnection() )
+                                   {
+                                       connection.Start();
 
-                                    // Create session for both requests and responses
-                                    using ( var session = connection.CreateSession( AcknowledgementMode.IndividualAcknowledge ) )
-                                    {
-                                        String selectorString = $"{selectorKey} = '{selector}'";
-                                        Console.WriteLine( $"Create consumer with selector {selectorString}" );
-                                        IDestination responseQ = session.GetQueue( QueueName );
-                                        var consumer = session.CreateConsumer( responseQ, selectorString );
+                                       // Create session for both requests and responses
+                                       using ( var session = connection.CreateSession( AcknowledgementMode.IndividualAcknowledge ) )
+                                       {
+                                           String selectorString = $"{selectorKey} = '{selector}'";
+                                           Console.WriteLine( $"Create consumer with selector {selectorString}" );
+                                           IDestination responseQ = session.GetQueue( QueueName );
+                                           var consumer = session.CreateConsumer( responseQ, selectorString );
 
-                                        consumer.Listener += x => { Console.WriteLine( $"{selector}\tReceived message => {x.Properties[selectorKey]}" ); };
+                                           consumer.Listener += x => Console.WriteLine( $"{selector}\tReceived message => {x.Properties[selectorKey]}" );
 
-                                        while ( _running )
-                                            Thread.Sleep( 1000 );
-                                    }
-                                }
-                            } ).Start();
-            }
+                                           while ( _running )
+                                               Thread.Sleep( 1000 );
+                                       }
+                                   }
+                               } ).Start();
 
             #region Implementation of IDisposable
 

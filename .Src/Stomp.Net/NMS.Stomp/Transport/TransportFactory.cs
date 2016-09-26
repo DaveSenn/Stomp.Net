@@ -50,7 +50,7 @@ namespace Apache.NMS.Stomp.Transport
             return tf.CreateTransport( location );
         }
 
-        public static void HandleException( Exception ex ) 
+        public static void HandleException( Exception ex )
             => OnException?.Invoke( ex );
 
         public static event ExceptionListener OnException;

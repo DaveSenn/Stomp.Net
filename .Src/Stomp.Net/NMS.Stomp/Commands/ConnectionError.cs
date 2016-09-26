@@ -26,10 +26,6 @@ namespace Apache.NMS.Stomp.Commands
 {
     public class ConnectionError : BaseCommand
     {
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public BrokerError Exception { get; set; }

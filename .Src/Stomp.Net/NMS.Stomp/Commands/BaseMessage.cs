@@ -33,10 +33,6 @@ namespace Apache.NMS.Stomp.Commands
 
         #endregion
 
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public ProducerId ProducerId { get; set; }

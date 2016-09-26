@@ -1,15 +1,13 @@
-
+#region Usings
 
 using System;
+
+#endregion
 
 namespace Apache.NMS
 {
     public sealed class Tracer
     {
-        #region Constants
-
-        #endregion
-
         #region Properties
 
         public static ITrace Trace { get; set; } = null;

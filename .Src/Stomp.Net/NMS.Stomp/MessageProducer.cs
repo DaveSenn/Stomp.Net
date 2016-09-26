@@ -1,5 +1,3 @@
-
-
 #region Usings
 
 using System;
@@ -86,7 +84,8 @@ namespace Apache.NMS.Stomp
 
         public void Send( IDestination destination, IMessage message ) => Send( destination, message, DeliveryMode, Priority, TimeToLive );
 
-        public void Send( IMessage message, MsgDeliveryMode deliveryMode, MsgPriority priority, TimeSpan timeToLive ) => Send( info.Destination, message, deliveryMode, priority, timeToLive );
+        public void Send( IMessage message, MsgDeliveryMode deliveryMode, MsgPriority priority, TimeSpan timeToLive )
+            => Send( info.Destination, message, deliveryMode, priority, timeToLive );
 
         public void Send( IDestination destination, IMessage message, MsgDeliveryMode deliveryMode, MsgPriority priority, TimeSpan timeToLive )
         {

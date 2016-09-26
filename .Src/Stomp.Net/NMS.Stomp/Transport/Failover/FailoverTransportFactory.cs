@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using Apache.NMS.Util;
 
 #endregion
@@ -49,7 +48,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
             return transport;
         }
 
-        public FailoverTransport CreateTransport(Dictionary<String, String> parameters )
+        public FailoverTransport CreateTransport( Dictionary<String, String> parameters )
         {
             var transport = new FailoverTransport();
             URISupport.SetProperties( transport, parameters, "" );

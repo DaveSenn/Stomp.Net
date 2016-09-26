@@ -26,10 +26,6 @@ namespace Apache.NMS.Stomp.Commands
 {
     public class MessageAck : BaseCommand
     {
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public Destination Destination { get; set; }

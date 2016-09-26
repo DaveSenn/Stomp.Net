@@ -1,5 +1,3 @@
-
-
 namespace Apache.NMS.Stomp
 {
     public interface ISynchronization

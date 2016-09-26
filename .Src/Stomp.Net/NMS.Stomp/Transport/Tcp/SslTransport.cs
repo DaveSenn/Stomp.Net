@@ -1,5 +1,3 @@
-
-
 #if !NETCF
 
 #region Usings
@@ -165,9 +163,9 @@ namespace Apache.NMS.Stomp.Transport.Tcp
         }
 
         private Boolean ValidateServerCertificate( Object sender,
-                                                X509Certificate certificate,
-                                                X509Chain chain,
-                                                SslPolicyErrors sslPolicyErrors )
+                                                   X509Certificate certificate,
+                                                   X509Chain chain,
+                                                   SslPolicyErrors sslPolicyErrors )
         {
             Tracer.DebugFormat( "ValidateServerCertificate: Issued By {0}", certificate.Issuer );
             if ( sslPolicyErrors == SslPolicyErrors.None )

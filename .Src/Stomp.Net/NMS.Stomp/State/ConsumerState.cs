@@ -26,10 +26,6 @@ namespace Apache.NMS.Stomp.State
 {
     public class ConsumerState
     {
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public ConsumerInfo Info { get; }

@@ -1,5 +1,3 @@
-
-
 #region Usings
 
 using System;
@@ -11,10 +9,6 @@ namespace Apache.NMS.Stomp.Transport.Tcp
 {
     public class SslTransportFactory : TcpTransportFactory
     {
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public String ServerName { get; set; }

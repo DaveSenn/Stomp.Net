@@ -26,10 +26,6 @@ namespace Apache.NMS.Stomp.Commands
 {
     public class ConnectionInfo : BaseCommand
     {
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public ConnectionId ConnectionId { get; set; }

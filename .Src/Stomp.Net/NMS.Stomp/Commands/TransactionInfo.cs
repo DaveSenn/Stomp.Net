@@ -34,10 +34,6 @@ namespace Apache.NMS.Stomp.Commands
 
         #endregion
 
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public ConnectionId ConnectionId { get; set; }

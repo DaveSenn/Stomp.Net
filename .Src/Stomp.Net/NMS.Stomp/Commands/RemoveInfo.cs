@@ -26,10 +26,6 @@ namespace Apache.NMS.Stomp.Commands
 {
     public class RemoveInfo : BaseCommand
     {
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public DataStructure ObjectId { get; set; }

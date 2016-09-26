@@ -1,5 +1,3 @@
-
-
 #if !NETCF
 
 #region Usings

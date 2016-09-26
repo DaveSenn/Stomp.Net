@@ -1,5 +1,3 @@
-
-
 #region Usings
 
 using System;
@@ -17,10 +15,6 @@ namespace Apache.NMS.Stomp
     [Serializable]
     public class BrokerException : NMSException
     {
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public BrokerError BrokerError { get; }

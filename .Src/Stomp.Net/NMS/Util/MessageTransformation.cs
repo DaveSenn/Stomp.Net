@@ -15,7 +15,11 @@
  * limitations under the License.
 */
 
+#region Usings
+
 using System;
+
+#endregion
 
 namespace Apache.NMS.Util
 {
@@ -25,10 +29,6 @@ namespace Apache.NMS.Util
     /// </summary>
     public abstract class MessageTransformation
     {
-        #region Ctor
-
-        #endregion
-
         /// <summary>
         ///     Copies the standard NMS and user defined properties from the givem
         ///     message to the specified message, this method makes no attempt to convert

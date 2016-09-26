@@ -1,5 +1,3 @@
-
-
 #region Usings
 
 using Apache.NMS.Stomp.Commands;

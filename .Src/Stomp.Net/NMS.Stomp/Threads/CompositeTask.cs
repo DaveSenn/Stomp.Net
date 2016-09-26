@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 
+#region Usings
+
 using System;
+
+#endregion
 
 namespace Apache.NMS.Stomp.Threads
 {

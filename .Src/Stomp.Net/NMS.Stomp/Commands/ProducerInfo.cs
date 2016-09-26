@@ -26,10 +26,6 @@ namespace Apache.NMS.Stomp.Commands
 {
     public class ProducerInfo : BaseCommand
     {
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public ProducerId ProducerId { get; set; }

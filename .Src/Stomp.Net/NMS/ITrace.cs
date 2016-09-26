@@ -1,6 +1,8 @@
-
+#region Usings
 
 using System;
+
+#endregion
 
 namespace Apache.NMS
 {

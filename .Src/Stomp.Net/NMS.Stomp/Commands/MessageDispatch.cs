@@ -26,10 +26,6 @@ namespace Apache.NMS.Stomp.Commands
 {
     public class MessageDispatch : BaseCommand
     {
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public ConsumerId ConsumerId { get; set; }

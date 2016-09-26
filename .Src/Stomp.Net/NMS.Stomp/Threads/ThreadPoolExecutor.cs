@@ -35,11 +35,12 @@ namespace Apache.NMS.Stomp.Threads
     {
         #region Fields
 
-        private Boolean closing;
         private readonly ManualResetEvent executionComplete = new ManualResetEvent( true );
-        private Boolean running;
         private readonly Mutex syncRoot = new Mutex();
         private readonly Queue<Future> workQueue = new Queue<Future>();
+
+        private Boolean closing;
+        private Boolean running;
 
         #endregion
 

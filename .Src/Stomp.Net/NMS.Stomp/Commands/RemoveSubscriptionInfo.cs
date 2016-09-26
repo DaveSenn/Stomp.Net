@@ -36,10 +36,6 @@ namespace Apache.NMS.Stomp.Commands
 
     public class RemoveSubscriptionInfo : BaseCommand
     {
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public ConnectionId ConnectionId { get; set; }

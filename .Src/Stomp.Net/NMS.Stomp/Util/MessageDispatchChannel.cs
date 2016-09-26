@@ -1,5 +1,3 @@
-
-
 #region Usings
 
 using System;
@@ -77,10 +75,6 @@ namespace Apache.NMS.Stomp.Util
                     return channel.Count;
             }
         }
-
-        #endregion
-
-        #region Ctor
 
         #endregion
 

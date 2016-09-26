@@ -1,5 +1,3 @@
-
-
 #region Usings
 
 using System;
@@ -52,10 +50,6 @@ namespace Apache.NMS.Stomp.Protocol
         {
             get { return MaxInactivityDuration > 3 ? MaxInactivityDuration / 3 : MaxInactivityDuration; }
         }
-
-        #endregion
-
-        #region Ctor
 
         #endregion
 

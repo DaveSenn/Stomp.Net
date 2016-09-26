@@ -1,5 +1,3 @@
-
-
 #region Usings
 
 using System;
@@ -11,10 +9,6 @@ namespace Apache.NMS.Stomp.Commands
 {
     public abstract class BaseCommand : BaseDataStructure, Command, ICloneable
     {
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public virtual Boolean IsBrokerInfo

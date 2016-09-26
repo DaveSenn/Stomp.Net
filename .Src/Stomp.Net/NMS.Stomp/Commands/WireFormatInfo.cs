@@ -27,10 +27,6 @@ namespace Apache.NMS.Stomp.Commands
 {
     public class WireFormatInfo : BaseCommand
     {
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public Int64 WriteCheckInterval { get; set; } = 0;
@@ -48,10 +44,6 @@ namespace Apache.NMS.Stomp.Commands
         {
             get { return true; }
         }
-
-        #endregion
-
-        #region Ctor
 
         #endregion
 

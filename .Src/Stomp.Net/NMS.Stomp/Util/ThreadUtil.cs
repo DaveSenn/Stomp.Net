@@ -1,5 +1,3 @@
-
-
 #region Usings
 
 using System;

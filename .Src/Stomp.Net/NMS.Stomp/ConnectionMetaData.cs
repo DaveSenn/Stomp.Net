@@ -1,5 +1,3 @@
-
-
 #region Usings
 
 using System;
@@ -14,10 +12,6 @@ namespace Apache.NMS.Stomp
     /// </summary>
     public class ConnectionMetaData : IConnectionMetaData
     {
-        #region Fields
-
-        #endregion
-
         #region Ctor
 
         public ConnectionMetaData()

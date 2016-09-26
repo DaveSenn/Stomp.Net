@@ -50,6 +50,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicCalc.cs" />
+    <Compile Include="Definition\Connection\StompConnectionSettings.cs" />
+    <Compile Include="Definition\StompNetConfiguration.cs" />
     <Compile Include="Properties\JetBrains.Annotations.cs" />
     <Compile Include="NMS.Stomp\BrokerException.cs" />
     <Compile Include="NMS.Stomp\Commands\BaseCommand.cs" />
@@ -95,7 +97,7 @@
     <Compile Include="NMS.Stomp\Commands\WireFormatInfo.cs" />
     <Compile Include="NMS.Stomp\Connection.cs" />
     <Compile Include="NMS.Stomp\ConnectionClosedException.cs" />
-    <Compile Include="NMS.Stomp\ConnectionFactory.cs" />
+    <Compile Include="Connection\ConnectionFactory.cs" />
     <Compile Include="NMS.Stomp\ConnectionMetaData.cs" />
     <Compile Include="NMS.Stomp\IDispatcher.cs" />
     <Compile Include="NMS.Stomp\IOException.cs" />
@@ -149,7 +151,7 @@
     <Compile Include="NMS.Stomp\Util\ThreadUtil.cs" />
     <Compile Include="NMS\IBytesMessage.cs" />
     <Compile Include="NMS\IConnection.cs" />
-    <Compile Include="NMS\IConnectionFactory.cs" />
+    <Compile Include="Definition\Connection\IConnectionFactory.cs" />
     <Compile Include="NMS\IConnectionMetaData.cs" />
     <Compile Include="NMS\IDestination.cs" />
     <Compile Include="NMS\IllegalStateException.cs" />
@@ -158,7 +160,6 @@
     <Compile Include="NMS\IMessageConsumer.cs" />
     <Compile Include="NMS\IMessageProducer.cs" />
     <Compile Include="NMS\INetTxConnection.cs" />
-    <Compile Include="NMS\INetTxConnectionFactory.cs" />
     <Compile Include="NMS\INetTxSession.cs" />
     <Compile Include="NMS\InvalidClientIDException.cs" />
     <Compile Include="NMS\InvalidDestinationException.cs" />
@@ -211,6 +212,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

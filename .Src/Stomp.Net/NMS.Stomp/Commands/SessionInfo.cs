@@ -26,10 +26,6 @@ namespace Apache.NMS.Stomp.Commands
 {
     public class SessionInfo : BaseCommand
     {
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public SessionId SessionId { get; set; }

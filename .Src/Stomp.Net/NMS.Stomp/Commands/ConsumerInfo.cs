@@ -32,10 +32,6 @@ namespace Apache.NMS.Stomp.Commands
 
         #endregion
 
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public ConsumerId ConsumerId { get; set; }

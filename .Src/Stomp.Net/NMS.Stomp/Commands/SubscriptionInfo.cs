@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
+#region Usings
+
 using System;
+
+#endregion
 
 namespace Apache.NMS.Stomp.Commands
 {
     public class SubscriptionInfo : BaseDataStructure
     {
-        #region Fields
-
-        #endregion
-
         #region Properties
 
         public String ClientId { get; set; }
