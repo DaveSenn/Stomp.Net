@@ -51,19 +51,10 @@ namespace Apache.NMS.Stomp.Commands
             return o;
         }
 
-        public override Destination CreateDestination( String name )
-        {
-            return new TempTopic( name );
-        }
+        public override Destination CreateDestination( String name ) => new TempTopic( name );
 
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.TempTopicType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.TempTopicType;
 
-        public override Int32 GetDestinationType()
-        {
-            return STOMP_TEMPORARY_TOPIC;
-        }
+        public override Int32 GetDestinationType() => STOMP_TEMPORARY_TOPIC;
     }
 }

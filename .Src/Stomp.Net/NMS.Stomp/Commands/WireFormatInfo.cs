@@ -59,29 +59,20 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.TransactionInfoType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.TransactionInfoType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString()
-        {
-            return GetType()
-                       .Name + "[" +
-                   "WriteCheckInterval=" + WriteCheckInterval + ", " +
-                   "ReadCheckInterval=" + ReadCheckInterval + ", " +
-                   "Session=" + Session + ", " +
-                   "Version=" + Version +
-                   "]";
-        }
+        public override String ToString() => GetType()
+                                                 .Name + "[" +
+                                             "WriteCheckInterval=" + WriteCheckInterval + ", " +
+                                             "ReadCheckInterval=" + ReadCheckInterval + ", " +
+                                             "Session=" + Session + ", " +
+                                             "Version=" + Version +
+                                             "]";
 
-        public override Response visit( ICommandVisitor visitor )
-        {
-            return null;
-        }
+        public override Response visit( ICommandVisitor visitor ) => null;
     }
 }

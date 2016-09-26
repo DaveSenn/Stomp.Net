@@ -44,22 +44,16 @@ namespace Apache.NMS.Stomp.Commands
 
         #endregion
 
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.RemoveInfoType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.RemoveInfoType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString()
-        {
-            return GetType()
-                       .Name + "[" +
-                   "ObjectId=" + ObjectId +
-                   "]";
-        }
+        public override String ToString() => GetType()
+                                                 .Name + "[" +
+                                             "ObjectId=" + ObjectId +
+                                             "]";
 
         /// <summery>
         ///     Allows a Visitor to visit this command and return a response to the

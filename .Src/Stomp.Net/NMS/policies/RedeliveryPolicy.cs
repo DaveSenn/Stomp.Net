@@ -66,14 +66,7 @@ namespace Apache.NMS.Policies
         /// <summery>
         ///     Clone this object and return a new instance that the caller now owns.
         /// </summery>
-        public Object Clone()
-        {
-            // Since we are a derived class use the base's Clone()
-            // to perform the shallow copy. Since it is shallow it
-            // will include our derived class. Since we are derived,
-            // this method is an override.
-            return MemberwiseClone();
-        }
+        public Object Clone() => MemberwiseClone();
 
         #region IRedeliveryPolicy Members
 

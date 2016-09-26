@@ -82,20 +82,11 @@ namespace Apache.NMS.Stomp
 
         public TimeSpan RequestTimeout { get; set; }
 
-        public void Send( IMessage message )
-        {
-            Send( info.Destination, message, DeliveryMode, Priority, TimeToLive );
-        }
+        public void Send( IMessage message ) => Send( info.Destination, message, DeliveryMode, Priority, TimeToLive );
 
-        public void Send( IDestination destination, IMessage message )
-        {
-            Send( destination, message, DeliveryMode, Priority, TimeToLive );
-        }
+        public void Send( IDestination destination, IMessage message ) => Send( destination, message, DeliveryMode, Priority, TimeToLive );
 
-        public void Send( IMessage message, MsgDeliveryMode deliveryMode, MsgPriority priority, TimeSpan timeToLive )
-        {
-            Send( info.Destination, message, deliveryMode, priority, timeToLive );
-        }
+        public void Send( IMessage message, MsgDeliveryMode deliveryMode, MsgPriority priority, TimeSpan timeToLive ) => Send( info.Destination, message, deliveryMode, priority, timeToLive );
 
         public void Send( IDestination destination, IMessage message, MsgDeliveryMode deliveryMode, MsgPriority priority, TimeSpan timeToLive )
         {
@@ -204,45 +195,24 @@ namespace Apache.NMS.Stomp
 
         #region Message Creation Factory Methods.
 
-        public IMessage CreateMessage()
-        {
-            return session.CreateMessage();
-        }
+        public IMessage CreateMessage() => session.CreateMessage();
 
-        public ITextMessage CreateTextMessage()
-        {
-            return session.CreateTextMessage();
-        }
+        public ITextMessage CreateTextMessage() => session.CreateTextMessage();
 
-        public ITextMessage CreateTextMessage( String text )
-        {
-            return session.CreateTextMessage( text );
-        }
+        public ITextMessage CreateTextMessage( String text ) => session.CreateTextMessage( text );
 
-        public IMapMessage CreateMapMessage()
-        {
-            return session.CreateMapMessage();
-        }
+        public IMapMessage CreateMapMessage() => session.CreateMapMessage();
 
         public IObjectMessage CreateObjectMessage( Object body )
         {
             throw new NotSupportedException( "No Object Message in Stomp" );
         }
 
-        public IBytesMessage CreateBytesMessage()
-        {
-            return session.CreateBytesMessage();
-        }
+        public IBytesMessage CreateBytesMessage() => session.CreateBytesMessage();
 
-        public IBytesMessage CreateBytesMessage( Byte[] body )
-        {
-            return session.CreateBytesMessage( body );
-        }
+        public IBytesMessage CreateBytesMessage( Byte[] body ) => session.CreateBytesMessage( body );
 
-        public IStreamMessage CreateStreamMessage()
-        {
-            return session.CreateStreamMessage();
-        }
+        public IStreamMessage CreateStreamMessage() => session.CreateStreamMessage();
 
         #endregion
     }

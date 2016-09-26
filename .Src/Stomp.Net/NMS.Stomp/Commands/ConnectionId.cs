@@ -61,19 +61,13 @@ namespace Apache.NMS.Stomp.Commands
             return false;
         }
 
-        public virtual Boolean Equals( ConnectionId that )
-        {
-            return Equals( Value, that.Value );
-        }
+        public virtual Boolean Equals( ConnectionId that ) => Equals( Value, that.Value );
 
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.ConnectionIdType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.ConnectionIdType;
 
         public override Int32 GetHashCode()
         {
@@ -88,9 +82,6 @@ namespace Apache.NMS.Stomp.Commands
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString()
-        {
-            return Value;
-        }
+        public override String ToString() => Value;
     }
 }

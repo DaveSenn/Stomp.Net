@@ -83,10 +83,7 @@ namespace Apache.NMS.Stomp
             throw new NotSupportedException( "Stomp Cannot process Object Messages" );
         }
 
-        protected override IDestination DoTransformDestination( IDestination destination )
-        {
-            return Destination.Transform( destination );
-        }
+        protected override IDestination DoTransformDestination( IDestination destination ) => Destination.Transform( destination );
 
         protected override void DoPostProcessMessage( IMessage message )
         {

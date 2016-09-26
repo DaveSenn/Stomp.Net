@@ -61,10 +61,7 @@ namespace Apache.NMS.Util
         ///     Causes the current thread to wait until the latch has counted down to zero, unless
         ///     the thread is interrupted, or the specified waiting time elapses.
         /// </summary>
-        public Boolean await( TimeSpan timeout )
-        {
-            return mutex.WaitOne( (Int32) timeout.TotalMilliseconds, false );
-        }
+        public Boolean await( TimeSpan timeout ) => mutex.WaitOne( (Int32) timeout.TotalMilliseconds, false );
 
         /// <summary>
         ///     Decrement the count, releasing any waiting Threads when the count reaches Zero.

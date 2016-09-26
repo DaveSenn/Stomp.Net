@@ -25,99 +25,42 @@ namespace Apache.NMS.Stomp.State
 {
     public class CommandVisitorAdapter : ICommandVisitor
     {
-        public virtual Response processAddConnection( ConnectionInfo info )
-        {
-            return null;
-        }
+        public virtual Response processAddConnection( ConnectionInfo info ) => null;
 
-        public virtual Response processAddConsumer( ConsumerInfo info )
-        {
-            return null;
-        }
+        public virtual Response processAddConsumer( ConsumerInfo info ) => null;
 
-        public virtual Response processAddProducer( ProducerInfo info )
-        {
-            return null;
-        }
+        public virtual Response processAddProducer( ProducerInfo info ) => null;
 
-        public virtual Response processAddSession( SessionInfo info )
-        {
-            return null;
-        }
+        public virtual Response processAddSession( SessionInfo info ) => null;
 
-        public virtual Response processBeginTransaction( TransactionInfo info )
-        {
-            return null;
-        }
+        public virtual Response processBeginTransaction( TransactionInfo info ) => null;
 
-        public virtual Response processCommitTransaction( TransactionInfo info )
-        {
-            return null;
-        }
+        public virtual Response processCommitTransaction( TransactionInfo info ) => null;
 
-        public virtual Response processConnectionError( ConnectionError error )
-        {
-            return null;
-        }
+        public virtual Response processConnectionError( ConnectionError error ) => null;
 
-        public virtual Response processKeepAliveInfo( KeepAliveInfo info )
-        {
-            return null;
-        }
+        public virtual Response processKeepAliveInfo( KeepAliveInfo info ) => null;
 
-        public virtual Response processMessage( BaseMessage send )
-        {
-            return null;
-        }
+        public virtual Response processMessage( BaseMessage send ) => null;
 
-        public virtual Response processMessageAck( MessageAck ack )
-        {
-            return null;
-        }
+        public virtual Response processMessageAck( MessageAck ack ) => null;
 
-        public virtual Response processMessageDispatch( MessageDispatch dispatch )
-        {
-            return null;
-        }
+        public virtual Response processMessageDispatch( MessageDispatch dispatch ) => null;
 
-        public virtual Response processRemoveConnection( ConnectionId id )
-        {
-            return null;
-        }
+        public virtual Response processRemoveConnection( ConnectionId id ) => null;
 
-        public virtual Response processRemoveConsumer( ConsumerId id )
-        {
-            return null;
-        }
+        public virtual Response processRemoveConsumer( ConsumerId id ) => null;
 
-        public virtual Response processRemoveProducer( ProducerId id )
-        {
-            return null;
-        }
+        public virtual Response processRemoveProducer( ProducerId id ) => null;
 
-        public virtual Response processRemoveSession( SessionId id )
-        {
-            return null;
-        }
+        public virtual Response processRemoveSession( SessionId id ) => null;
 
-        public virtual Response processRemoveSubscriptionInfo( RemoveSubscriptionInfo info )
-        {
-            return null;
-        }
+        public virtual Response processRemoveSubscriptionInfo( RemoveSubscriptionInfo info ) => null;
 
-        public virtual Response processResponse( Response response )
-        {
-            return null;
-        }
+        public virtual Response processResponse( Response response ) => null;
 
-        public virtual Response processRollbackTransaction( TransactionInfo info )
-        {
-            return null;
-        }
+        public virtual Response processRollbackTransaction( TransactionInfo info ) => null;
 
-        public virtual Response processShutdownInfo( ShutdownInfo info )
-        {
-            return null;
-        }
+        public virtual Response processShutdownInfo( ShutdownInfo info ) => null;
     }
 }

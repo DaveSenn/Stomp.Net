@@ -135,10 +135,7 @@ namespace Apache.NMS.Stomp.Transport
             base.OnException( sender, command );
         }
 
-        internal Int32 GetNextCommandId()
-        {
-            return Interlocked.Increment( ref nextCommandId );
-        }
+        internal Int32 GetNextCommandId() => Interlocked.Increment( ref nextCommandId );
 
         private void Dispose( Exception error )
         {

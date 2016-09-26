@@ -17,9 +17,6 @@ namespace Stomp.Net
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        public Int32 Add( Int32 a, Int32 b )
-        {
-            return a + b;
-        }
+        public Int32 Add( Int32 a, Int32 b ) => a + b;
     }
 }

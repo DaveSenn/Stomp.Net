@@ -61,24 +61,15 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.SessionInfoType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.SessionInfoType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString()
-        {
-            return GetType()
-                       .Name + "[" + "SessionId=" + SessionId + "]";
-        }
+        public override String ToString() => GetType()
+                                                 .Name + "[" + "SessionId=" + SessionId + "]";
 
-        public override Response visit( ICommandVisitor visitor )
-        {
-            return visitor.processAddSession( this );
-        }
+        public override Response visit( ICommandVisitor visitor ) => visitor.processAddSession( this );
     }
 }

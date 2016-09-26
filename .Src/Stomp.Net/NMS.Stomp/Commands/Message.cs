@@ -266,10 +266,7 @@ namespace Apache.NMS.Stomp.Commands
             return thisMsg != null && oMsg != null && oMsg.Equals( thisMsg );
         }
 
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.MessageType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.MessageType;
 
         public override Int32 GetHashCode()
         {
@@ -278,26 +275,17 @@ namespace Apache.NMS.Stomp.Commands
             return id != null ? id.GetHashCode() : base.GetHashCode();
         }
 
-        public Object GetObjectProperty( String name )
-        {
-            return Properties[name];
-        }
+        public Object GetObjectProperty( String name ) => Properties[name];
 
         // MarshallAware interface
-        public override Boolean IsMarshallAware()
-        {
-            return true;
-        }
+        public override Boolean IsMarshallAware() => true;
 
         public void SetObjectProperty( String name, Object value )
         {
             Properties[name] = value;
         }
 
-        public static Message Transform( IMessage message )
-        {
-            return (Message) message;
-        }
+        public static Message Transform( IMessage message ) => (Message) message;
 
         protected void FailIfReadOnlyBody()
         {

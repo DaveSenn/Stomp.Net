@@ -206,12 +206,9 @@ namespace Apache.NMS.Util
             return rc;
         }
 
-        public static StringDictionary ParseParameters( Uri uri )
-        {
-            return uri.Query == null
-                ? EmptyMap
-                : ParseQuery( StripPrefix( uri.Query, "?" ) );
-        }
+        public static StringDictionary ParseParameters( Uri uri ) => uri.Query == null
+            ? EmptyMap
+            : ParseQuery( StripPrefix( uri.Query, "?" ) );
 
         /// <summary>
         ///     Parse a Uri query string of the form ?x=y&amp;z=0
@@ -247,11 +244,7 @@ namespace Apache.NMS.Util
 
             return map;
         }
-
-        public static Uri RemoveQuery( Uri original )
-        {
-            return CreateUriWithQuery( original, null );
-        }
+        
 
         /// <summary>
         ///     Sets the public properties of a target object using a string map.

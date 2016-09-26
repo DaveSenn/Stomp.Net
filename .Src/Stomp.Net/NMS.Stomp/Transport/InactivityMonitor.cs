@@ -361,10 +361,7 @@ namespace Apache.NMS.Stomp.Transport
         /// </summary>
         /// <param name="elapsed"></param>
         /// <returns></returns>
-        public Boolean AllowReadCheck( TimeSpan elapsed )
-        {
-            return elapsed.TotalMilliseconds > ReadCheckTime;
-        }
+        public Boolean AllowReadCheck( TimeSpan elapsed ) => elapsed.TotalMilliseconds > ReadCheckTime;
 
         #endregion
 

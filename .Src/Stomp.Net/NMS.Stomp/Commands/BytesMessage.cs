@@ -434,10 +434,7 @@ namespace Apache.NMS.Stomp.Commands
             return base.Clone();
         }
 
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.BytesMessageType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.BytesMessageType;
 
         public override void OnSend()
         {

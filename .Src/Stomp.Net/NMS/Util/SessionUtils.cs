@@ -37,10 +37,7 @@ namespace Apache.NMS.Util
         ///     </list>
         /// </param>
         /// <returns></returns>
-        public static void DeleteDestination( ISession session, String destinationName )
-        {
-            DeleteDestination( session, destinationName, DestinationType.Queue );
-        }
+        public static void DeleteDestination( ISession session, String destinationName ) => DeleteDestination( session, destinationName, DestinationType.Queue );
 
         /// <summary>
         ///     Delete the named destination by parsing the embedded type prefix.
@@ -65,15 +62,9 @@ namespace Apache.NMS.Util
                 session.DeleteDestination( destination );
         }
 
-        public static void DeleteQueue( ISession session, String queueName )
-        {
-            DeleteDestination( session, queueName, DestinationType.Queue );
-        }
+        public static void DeleteQueue( ISession session, String queueName ) => DeleteDestination( session, queueName, DestinationType.Queue );
 
-        public static void DeleteTopic( ISession session, String topicName )
-        {
-            DeleteDestination( session, topicName, DestinationType.Topic );
-        }
+        public static void DeleteTopic( ISession session, String topicName ) => DeleteDestination( session, topicName, DestinationType.Topic );
 
         /// <summary>
         ///     Get the destination by parsing the embedded type prefix.  Default is Queue if no prefix is
@@ -90,10 +81,7 @@ namespace Apache.NMS.Util
         ///     </list>
         /// </param>
         /// <returns></returns>
-        public static IDestination GetDestination( ISession session, String destinationName )
-        {
-            return GetDestination( session, destinationName, DestinationType.Queue );
-        }
+        public static IDestination GetDestination( ISession session, String destinationName ) => GetDestination( session, destinationName, DestinationType.Queue );
 
         /// <summary>
         ///     Get the destination by parsing the embedded type prefix.
@@ -165,14 +153,8 @@ namespace Apache.NMS.Util
             return destination;
         }
 
-        public static IQueue GetQueue( ISession session, String queueName )
-        {
-            return GetDestination( session, queueName, DestinationType.Queue ) as IQueue;
-        }
+        public static IQueue GetQueue( ISession session, String queueName ) => GetDestination( session, queueName, DestinationType.Queue ) as IQueue;
 
-        public static ITopic GetTopic( ISession session, String topicName )
-        {
-            return GetDestination( session, topicName, DestinationType.Topic ) as ITopic;
-        }
+        public static ITopic GetTopic( ISession session, String topicName ) => GetDestination( session, topicName, DestinationType.Topic ) as ITopic;
     }
 }

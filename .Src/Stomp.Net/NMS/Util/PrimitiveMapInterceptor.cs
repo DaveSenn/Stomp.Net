@@ -93,10 +93,7 @@ namespace Apache.NMS.Util
                 throw new MessageNotWriteableException( "Properties are in Read-Only mode." );
         }
 
-        protected virtual Object GetObjectProperty( String name )
-        {
-            return properties[name];
-        }
+        protected virtual Object GetObjectProperty( String name ) => properties[name];
 
         protected virtual void SetObjectProperty( String name, Object value )
         {
@@ -123,10 +120,7 @@ namespace Apache.NMS.Util
             properties.Clear();
         }
 
-        public Boolean Contains( Object key )
-        {
-            return properties.Contains( key );
-        }
+        public Boolean Contains( Object key ) => properties.Contains( key );
 
         public void Remove( Object key )
         {
@@ -168,10 +162,7 @@ namespace Apache.NMS.Util
             return value.ToString();
         }
 
-        public void SetString( String key, String value )
-        {
-            SetObjectProperty( key, value );
-        }
+        public void SetString( String key, String value ) => SetObjectProperty( key, value );
 
         public Boolean GetBool( String key )
         {
@@ -192,10 +183,7 @@ namespace Apache.NMS.Util
             }
         }
 
-        public void SetBool( String key, Boolean value )
-        {
-            SetObjectProperty( key, value );
-        }
+        public void SetBool( String key, Boolean value ) => SetObjectProperty( key, value );
 
         public Byte GetByte( String key )
         {
@@ -216,10 +204,7 @@ namespace Apache.NMS.Util
             }
         }
 
-        public void SetByte( String key, Byte value )
-        {
-            SetObjectProperty( key, value );
-        }
+        public void SetByte( String key, Byte value ) => SetObjectProperty( key, value );
 
         public Char GetChar( String key )
         {
@@ -245,10 +230,7 @@ namespace Apache.NMS.Util
             }
         }
 
-        public void SetChar( String key, Char value )
-        {
-            SetObjectProperty( key, value );
-        }
+        public void SetChar( String key, Char value ) => SetObjectProperty( key, value );
 
         public Int16 GetShort( String key )
         {
@@ -269,10 +251,7 @@ namespace Apache.NMS.Util
             }
         }
 
-        public void SetShort( String key, Int16 value )
-        {
-            SetObjectProperty( key, value );
-        }
+        public void SetShort( String key, Int16 value ) => SetObjectProperty( key, value );
 
         public Int32 GetInt( String key )
         {
@@ -293,10 +272,7 @@ namespace Apache.NMS.Util
             }
         }
 
-        public void SetInt( String key, Int32 value )
-        {
-            SetObjectProperty( key, value );
-        }
+        public void SetInt( String key, Int32 value ) => SetObjectProperty( key, value );
 
         public Int64 GetLong( String key )
         {
@@ -317,10 +293,7 @@ namespace Apache.NMS.Util
             }
         }
 
-        public void SetLong( String key, Int64 value )
-        {
-            SetObjectProperty( key, value );
-        }
+        public void SetLong( String key, Int64 value ) => SetObjectProperty( key, value );
 
         public Single GetFloat( String key )
         {
@@ -341,10 +314,7 @@ namespace Apache.NMS.Util
             }
         }
 
-        public void SetFloat( String key, Single value )
-        {
-            SetObjectProperty( key, value );
-        }
+        public void SetFloat( String key, Single value ) => SetObjectProperty( key, value );
 
         public Double GetDouble( String key )
         {
@@ -365,15 +335,9 @@ namespace Apache.NMS.Util
             }
         }
 
-        public void SetDouble( String key, Double value )
-        {
-            SetObjectProperty( key, value );
-        }
+        public void SetDouble( String key, Double value ) => SetObjectProperty( key, value );
 
-        public void SetBytes( String key, Byte[] value )
-        {
-            SetBytes( key, value, 0, value.Length );
-        }
+        public void SetBytes( String key, Byte[] value ) => SetBytes( key, value, 0, value.Length );
 
         public void SetBytes( String key, Byte[] value, Int32 offset, Int32 length )
         {
@@ -399,25 +363,13 @@ namespace Apache.NMS.Util
             }
         }
 
-        public IList GetList( String key )
-        {
-            return (IList) GetObjectProperty( key );
-        }
+        public IList GetList( String key ) => (IList) GetObjectProperty( key );
 
-        public void SetList( String key, IList list )
-        {
-            SetObjectProperty( key, list );
-        }
+        public void SetList( String key, IList list ) => SetObjectProperty( key, list );
 
-        public IDictionary GetDictionary( String key )
-        {
-            return (IDictionary) GetObjectProperty( key );
-        }
+        public IDictionary GetDictionary( String key ) => (IDictionary) GetObjectProperty( key );
 
-        public void SetDictionary( String key, IDictionary dictionary )
-        {
-            SetObjectProperty( key, dictionary );
-        }
+        public void SetDictionary( String key, IDictionary dictionary ) => SetObjectProperty( key, dictionary );
 
         #endregion
     }

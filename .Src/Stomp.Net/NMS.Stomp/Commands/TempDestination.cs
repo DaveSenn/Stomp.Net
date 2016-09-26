@@ -55,29 +55,19 @@ namespace Apache.NMS.Stomp.Commands
         /// </summary>
         /// <returns>An Destination</returns>
         /// <param name="name">A  String</param>
-        public override Destination CreateDestination( String name )
-        {
-            // TODO: Implement this method
-            return null;
-        }
+        public override Destination CreateDestination( String name ) => null;
 
         public void Delete()
         {
             throw new NotSupportedException( "Stomp Cannot Delete Temporary Destinations" );
         }
 
-        public override Byte GetDataStructureType()
-        {
-            return ID_ActiveMQTempDestination;
-        }
+        public override Byte GetDataStructureType() => ID_ActiveMQTempDestination;
 
         /// <summary>
         ///     Method GetDestinationType
         /// </summary>
         /// <returns>An int</returns>
-        public override Int32 GetDestinationType()
-        {
-            return DataStructureTypes.TempDestinationType;
-        }
+        public override Int32 GetDestinationType() => DataStructureTypes.TempDestinationType;
     }
 }

@@ -44,15 +44,10 @@ namespace Apache.NMS.Util
         ///     Method ReadChar
         /// </summary>
         /// <returns>A char</returns>
-        public override Char ReadChar()
-        {
-            return (Char) (
-                ( (Char) ReadByte() << 8 ) |
-                (Char) ReadByte()
-            );
-
-            //			return EndianSupport.SwitchEndian(base.ReadChar());
-        }
+        public override Char ReadChar() => (Char) (
+            ( (Char) ReadByte() << 8 ) |
+            (Char) ReadByte()
+        );
 
         /// <summary>
         ///     Method ReadChars
@@ -68,19 +63,13 @@ namespace Apache.NMS.Util
             return rc;
         }
 
-        public override Double ReadDouble()
-        {
-            return EndianSupport.SwitchEndian( base.ReadDouble() );
-        }
+        public override Double ReadDouble() => EndianSupport.SwitchEndian( base.ReadDouble() );
 
         /// <summary>
         ///     Method ReadInt16
         /// </summary>
         /// <returns>A short</returns>
-        public override Int16 ReadInt16()
-        {
-            return EndianSupport.SwitchEndian( base.ReadInt16() );
-        }
+        public override Int16 ReadInt16() => EndianSupport.SwitchEndian( base.ReadInt16() );
 
         /// <summary>
         ///     Method ReadInt32
@@ -97,24 +86,15 @@ namespace Apache.NMS.Util
         ///     Method ReadInt64
         /// </summary>
         /// <returns>A long</returns>
-        public override Int64 ReadInt64()
-        {
-            return EndianSupport.SwitchEndian( base.ReadInt64() );
-        }
+        public override Int64 ReadInt64() => EndianSupport.SwitchEndian( base.ReadInt64() );
 
-        public override Single ReadSingle()
-        {
-            return EndianSupport.SwitchEndian( base.ReadSingle() );
-        }
+        public override Single ReadSingle() => EndianSupport.SwitchEndian( base.ReadSingle() );
 
         /// <summary>
         ///     Method ReadString
         /// </summary>
         /// <returns>A string</returns>
-        public override String ReadString()
-        {
-            return ReadString16();
-        }
+        public override String ReadString() => ReadString16();
 
         /// <summary>
         ///     Method ReadString16, reads a String value encoded in the Java modified
@@ -154,34 +134,21 @@ namespace Apache.NMS.Util
         ///     Method ReadUInt16
         /// </summary>
         /// <returns>An ushort</returns>
-        public override UInt16 ReadUInt16()
-        {
-            return EndianSupport.SwitchEndian( base.ReadUInt16() );
-        }
+        public override UInt16 ReadUInt16() => EndianSupport.SwitchEndian( base.ReadUInt16() );
 
         /// <summary>
         ///     Method ReadUInt32
         /// </summary>
         /// <returns>An uint</returns>
-        public override UInt32 ReadUInt32()
-        {
-            return EndianSupport.SwitchEndian( base.ReadUInt32() );
-        }
+        public override UInt32 ReadUInt32() => EndianSupport.SwitchEndian( base.ReadUInt32() );
 
         /// <summary>
         ///     Method ReadUInt64
         /// </summary>
         /// <returns>An ulong</returns>
-        public override UInt64 ReadUInt64()
-        {
-            return EndianSupport.SwitchEndian( base.ReadUInt64() );
-        }
+        public override UInt64 ReadUInt64() => EndianSupport.SwitchEndian( base.ReadUInt64() );
 
-        protected static Exception CreateDataFormatException()
-        {
-            // TODO: implement a better exception
-            return new IOException( "Data format error!" );
-        }
+        protected static Exception CreateDataFormatException() => new IOException( "Data format error!" );
 
         private String doReadString( Int32 utfLength )
         {

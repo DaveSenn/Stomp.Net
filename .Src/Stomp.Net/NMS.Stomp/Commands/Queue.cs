@@ -51,19 +51,10 @@ namespace Apache.NMS.Stomp.Commands
             return o;
         }
 
-        public override Destination CreateDestination( String name )
-        {
-            return new Queue( name );
-        }
+        public override Destination CreateDestination( String name ) => new Queue( name );
 
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.QueueType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.QueueType;
 
-        public override Int32 GetDestinationType()
-        {
-            return STOMP_QUEUE;
-        }
+        public override Int32 GetDestinationType() => STOMP_QUEUE;
     }
 }

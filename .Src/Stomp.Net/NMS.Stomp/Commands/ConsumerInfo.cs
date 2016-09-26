@@ -78,38 +78,29 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType()
-        {
-            return ID_CONSUMERINFO;
-        }
+        public override Byte GetDataStructureType() => ID_CONSUMERINFO;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString()
-        {
-            return GetType()
-                       .Name + "[" +
-                   "ConsumerId=" + ConsumerId + ", " +
-                   "Destination=" + Destination + ", " +
-                   "Ack Mode=" + AckMode + ", " +
-                   "PrefetchSize=" + PrefetchSize + ", " +
-                   "MaximumPendingMessageLimit=" + MaximumPendingMessageLimit + ", " +
-                   "DispatchAsync=" + DispatchAsync + ", " +
-                   "Selector=" + Selector + ", " +
-                   "SubscriptionName=" + SubscriptionName + ", " +
-                   "NoLocal=" + NoLocal + ", " +
-                   "Exclusive=" + Exclusive + ", " +
-                   "Retroactive=" + Retroactive + ", " +
-                   "Priority=" + Priority + ", " +
-                   "Transformation" + Transformation +
-                   "]";
-        }
+        public override String ToString() => GetType()
+                                                 .Name + "[" +
+                                             "ConsumerId=" + ConsumerId + ", " +
+                                             "Destination=" + Destination + ", " +
+                                             "Ack Mode=" + AckMode + ", " +
+                                             "PrefetchSize=" + PrefetchSize + ", " +
+                                             "MaximumPendingMessageLimit=" + MaximumPendingMessageLimit + ", " +
+                                             "DispatchAsync=" + DispatchAsync + ", " +
+                                             "Selector=" + Selector + ", " +
+                                             "SubscriptionName=" + SubscriptionName + ", " +
+                                             "NoLocal=" + NoLocal + ", " +
+                                             "Exclusive=" + Exclusive + ", " +
+                                             "Retroactive=" + Retroactive + ", " +
+                                             "Priority=" + Priority + ", " +
+                                             "Transformation" + Transformation +
+                                             "]";
 
-        public override Response visit( ICommandVisitor visitor )
-        {
-            return visitor.processAddConsumer( this );
-        }
+        public override Response visit( ICommandVisitor visitor ) => visitor.processAddConsumer( this );
     }
 }

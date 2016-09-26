@@ -76,10 +76,7 @@ namespace Apache.NMS.Stomp
 
         #endregion
 
-        public Object Clone()
-        {
-            return MemberwiseClone();
-        }
+        public Object Clone() => MemberwiseClone();
 
         public void SetAll( Int32 value )
         {
@@ -89,9 +86,6 @@ namespace Apache.NMS.Stomp
             durableTopicPrefetch = value;
         }
 
-        private static Int32 RestrictToMaximum( Int32 value )
-        {
-            return Math.Min( value, MAX_PREFETCH_SIZE );
-        }
+        private static Int32 RestrictToMaximum( Int32 value ) => Math.Min( value, MAX_PREFETCH_SIZE );
     }
 }

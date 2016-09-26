@@ -27,20 +27,14 @@ namespace Apache.NMS.Stomp.Transport.Failover
 {
     public class FailoverTransportFactory : ITransportFactory
     {
-        public ITransport CompositeConnect( Uri location )
-        {
-            return CreateTransport( URISupport.ParseComposite( location ) );
-        }
+        public ITransport CompositeConnect( Uri location ) => CreateTransport( URISupport.ParseComposite( location ) );
 
         public ITransport CompositeConnect( Uri location, SetTransport setTransport )
         {
             throw new NMSConnectionException( "Asynchronous composite connection not supported with Failover transport." );
         }
 
-        public ITransport CreateTransport( Uri location )
-        {
-            return doConnect( location );
-        }
+        public ITransport CreateTransport( Uri location ) => doConnect( location );
 
         /// <summary>
         /// </summary>

@@ -110,10 +110,7 @@ namespace Apache.NMS.Stomp.Transport.Tcp
                 }
         }
 
-        public void Stop()
-        {
-            Close();
-        }
+        public void Stop() => Close();
 
         public FutureResponse AsyncRequest( Command command )
         {
@@ -309,10 +306,7 @@ namespace Apache.NMS.Stomp.Transport.Tcp
             }
         }
 
-        protected virtual Stream CreateSocketStream()
-        {
-            return new NetworkStream( socket );
-        }
+        protected virtual Stream CreateSocketStream() => new NetworkStream( socket );
 
         protected void Dispose( Boolean disposing )
         {

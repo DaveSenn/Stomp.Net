@@ -49,10 +49,7 @@ namespace Apache.NMS.Stomp.Threads
 
         #endregion
 
-        public void QueueUserWorkItem( WaitCallback worker )
-        {
-            QueueUserWorkItem( worker, null );
-        }
+        public void QueueUserWorkItem( WaitCallback worker ) => QueueUserWorkItem( worker, null );
 
         public void QueueUserWorkItem( WaitCallback worker, Object arg )
         {

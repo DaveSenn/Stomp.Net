@@ -61,10 +61,7 @@ namespace Apache.NMS.Stomp.Commands
             }
         }
 
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.TextMessageType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.TextMessageType;
 
         public override Int32 Size()
         {

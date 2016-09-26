@@ -862,15 +862,9 @@ namespace Apache.NMS.Stomp
 
             #endregion
 
-            public void AfterCommit()
-            {
-                consumer.DoClose();
-            }
+            public void AfterCommit() => consumer.DoClose();
 
-            public void AfterRollback()
-            {
-                consumer.DoClose();
-            }
+            public void AfterRollback() => consumer.DoClose();
 
             public void BeforeEnd()
             {

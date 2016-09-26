@@ -55,15 +55,9 @@ namespace Apache.NMS.Util
 
         #endregion
 
-        public void Clear()
-        {
-            dictionary.Clear();
-        }
+        public void Clear() => dictionary.Clear();
 
-        public Boolean Contains( Object key )
-        {
-            return dictionary.Contains( key );
-        }
+        public Boolean Contains( Object key ) => dictionary.Contains( key );
 
         public Int32 Count
         {
@@ -178,25 +172,13 @@ namespace Apache.NMS.Util
             }
         }
 
-        public void Remove( Object key )
-        {
-            dictionary.Remove( key );
-        }
+        public void Remove( Object key ) => dictionary.Remove( key );
 
-        public void SetBool( String key, Boolean value )
-        {
-            SetValue( key, value );
-        }
+        public void SetBool( String key, Boolean value ) => SetValue( key, value );
 
-        public void SetByte( String key, Byte value )
-        {
-            SetValue( key, value );
-        }
+        public void SetByte( String key, Byte value ) => SetValue( key, value );
 
-        public void SetBytes( String key, Byte[] value )
-        {
-            SetBytes( key, value, 0, value.Length );
-        }
+        public void SetBytes( String key, Byte[] value ) => SetBytes( key, value, 0, value.Length );
 
         public void SetBytes( String key, Byte[] value, Int32 offset, Int32 length )
         {
@@ -205,50 +187,23 @@ namespace Apache.NMS.Util
             SetValue( key, copy );
         }
 
-        public void SetChar( String key, Char value )
-        {
-            SetValue( key, value );
-        }
+        public void SetChar( String key, Char value ) => SetValue( key, value );
 
-        public void SetDictionary( String key, IDictionary value )
-        {
-            SetValue( key, value );
-        }
+        public void SetDictionary( String key, IDictionary value ) => SetValue( key, value );
 
-        public void SetDouble( String key, Double value )
-        {
-            SetValue( key, value );
-        }
+        public void SetDouble( String key, Double value ) => SetValue( key, value );
 
-        public void SetFloat( String key, Single value )
-        {
-            SetValue( key, value );
-        }
+        public void SetFloat( String key, Single value ) => SetValue( key, value );
 
-        public void SetInt( String key, Int32 value )
-        {
-            SetValue( key, value );
-        }
+        public void SetInt( String key, Int32 value ) => SetValue( key, value );
 
-        public void SetList( String key, IList value )
-        {
-            SetValue( key, value );
-        }
+        public void SetList( String key, IList value ) => SetValue( key, value );
 
-        public void SetLong( String key, Int64 value )
-        {
-            SetValue( key, value );
-        }
+        public void SetLong( String key, Int64 value ) => SetValue( key, value );
 
-        public void SetShort( String key, Int16 value )
-        {
-            SetValue( key, value );
-        }
+        public void SetShort( String key, Int16 value ) => SetValue( key, value );
 
-        public void SetString( String key, String value )
-        {
-            SetValue( key, value );
-        }
+        public void SetString( String key, String value ) => SetValue( key, value );
 
         public ICollection Values
         {
@@ -540,10 +495,7 @@ namespace Apache.NMS.Util
             return UnmarshalPrimitiveMap( new EndianBinaryReader( new MemoryStream( data ) ) );
         }
 
-        public static IDictionary UnmarshalPrimitiveMap( Stream source )
-        {
-            return UnmarshalPrimitiveMap( new EndianBinaryReader( source ) );
-        }
+        public static IDictionary UnmarshalPrimitiveMap( Stream source ) => UnmarshalPrimitiveMap( new EndianBinaryReader( source ) );
 
         public static IDictionary UnmarshalPrimitiveMap( BinaryReader dataIn )
         {
@@ -579,10 +531,7 @@ namespace Apache.NMS.Util
                 throw new NMSException( "Expected type: " + type.Name + " but was: " + value );
         }
 
-        protected virtual Object GetValue( String key )
-        {
-            return dictionary[key];
-        }
+        protected virtual Object GetValue( String key ) => dictionary[key];
 
         protected virtual void SetValue( String key, Object value )
         {

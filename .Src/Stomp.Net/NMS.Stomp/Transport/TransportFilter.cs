@@ -68,20 +68,14 @@ namespace Apache.NMS.Stomp.Transport
             next.Start();
         }
 
-        public virtual void Stop()
-        {
-            next.Stop();
-        }
+        public virtual void Stop() => next.Stop();
 
         /// <summary>
         ///     Method AsyncRequest
         /// </summary>
         /// <returns>A FutureResponse</returns>
         /// <param name="command">A  Command</param>
-        public virtual FutureResponse AsyncRequest( Command command )
-        {
-            return next.AsyncRequest( command );
-        }
+        public virtual FutureResponse AsyncRequest( Command command ) => next.AsyncRequest( command );
 
         /// <summary>
         ///     Timeout in milliseconds to wait for sending asynchronous messages or commands.
@@ -138,10 +132,7 @@ namespace Apache.NMS.Stomp.Transport
         ///     Method Oneway
         /// </summary>
         /// <param name="command">A  Command</param>
-        public virtual void Oneway( Command command )
-        {
-            next.Oneway( command );
-        }
+        public virtual void Oneway( Command command ) => next.Oneway( command );
 
         public Uri RemoteAddress
         {
@@ -153,10 +144,7 @@ namespace Apache.NMS.Stomp.Transport
         /// </summary>
         /// <returns>A Response</returns>
         /// <param name="command">A  Command</param>
-        public virtual Response Request( Command command )
-        {
-            return Request( command, TimeSpan.FromMilliseconds( System.Threading.Timeout.Infinite ) );
-        }
+        public virtual Response Request( Command command ) => Request( command, TimeSpan.FromMilliseconds( System.Threading.Timeout.Infinite ) );
 
         /// <summary>
         ///     Method Request with time out for Response.
@@ -164,10 +152,7 @@ namespace Apache.NMS.Stomp.Transport
         /// <returns>A Response</returns>
         /// <param name="command">A  Command</param>
         /// <param name="timeout">Timeout in milliseconds</param>
-        public virtual Response Request( Command command, TimeSpan timeout )
-        {
-            return next.Request( command, timeout );
-        }
+        public virtual Response Request( Command command, TimeSpan timeout ) => next.Request( command, timeout );
 
         public ResumedHandler Resumed
         {
@@ -197,15 +182,9 @@ namespace Apache.NMS.Stomp.Transport
             IsDisposed = true;
         }
 
-        protected virtual void OnCommand( ITransport sender, Command command )
-        {
-            commandHandler( sender, command );
-        }
+        protected virtual void OnCommand( ITransport sender, Command command ) => commandHandler( sender, command );
 
-        protected virtual void OnException( ITransport sender, Exception command )
-        {
-            exceptionHandler( sender, command );
-        }
+        protected virtual void OnException( ITransport sender, Exception command ) => exceptionHandler( sender, command );
 
         protected virtual void OnInterrupted( ITransport sender )
         {

@@ -75,10 +75,7 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.MessageDispatchType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.MessageDispatchType;
 
         public override Int32 GetHashCode()
         {
@@ -96,20 +93,14 @@ namespace Apache.NMS.Stomp.Commands
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString()
-        {
-            return GetType()
-                       .Name + "[" +
-                   "ConsumerId=" + ConsumerId + ", " +
-                   "Destination=" + Destination + ", " +
-                   "Message=" + Message + ", " +
-                   "RedeliveryCounter=" + RedeliveryCounter +
-                   "]";
-        }
+        public override String ToString() => GetType()
+                                                 .Name + "[" +
+                                             "ConsumerId=" + ConsumerId + ", " +
+                                             "Destination=" + Destination + ", " +
+                                             "Message=" + Message + ", " +
+                                             "RedeliveryCounter=" + RedeliveryCounter +
+                                             "]";
 
-        public override Response visit( ICommandVisitor visitor )
-        {
-            return visitor.processMessageDispatch( this );
-        }
+        public override Response visit( ICommandVisitor visitor ) => visitor.processMessageDispatch( this );
     }
 }

@@ -60,32 +60,23 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.MessageAckType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.MessageAckType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString()
-        {
-            return GetType()
-                       .Name + "[" +
-                   "Destination=" + Destination + ", " +
-                   "TransactionId=" + TransactionId + ", " +
-                   "ConsumerId=" + ConsumerId + ", " +
-                   "AckType=" + AckType + ", " +
-                   "FirstMessageId=" + FirstMessageId + ", " +
-                   "LastMessageId=" + LastMessageId + ", " +
-                   "MessageCount=" + MessageCount +
-                   "]";
-        }
+        public override String ToString() => GetType()
+                                                 .Name + "[" +
+                                             "Destination=" + Destination + ", " +
+                                             "TransactionId=" + TransactionId + ", " +
+                                             "ConsumerId=" + ConsumerId + ", " +
+                                             "AckType=" + AckType + ", " +
+                                             "FirstMessageId=" + FirstMessageId + ", " +
+                                             "LastMessageId=" + LastMessageId + ", " +
+                                             "MessageCount=" + MessageCount +
+                                             "]";
 
-        public override Response visit( ICommandVisitor visitor )
-        {
-            return visitor.processMessageAck( this );
-        }
+        public override Response visit( ICommandVisitor visitor ) => visitor.processMessageAck( this );
     }
 }

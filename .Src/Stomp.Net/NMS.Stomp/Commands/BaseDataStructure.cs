@@ -14,24 +14,11 @@ namespace Apache.NMS.Stomp.Commands
     /// </summary>
     public abstract class BaseDataStructure : DataStructure, ICloneable
     {
-        public virtual Byte GetDataStructureType()
-        {
-            return 0;
-        }
+        public virtual Byte GetDataStructureType() => 0;
 
-        public virtual Boolean IsMarshallAware()
-        {
-            return false;
-        }
+        public virtual Boolean IsMarshallAware() => false;
 
-        public virtual Object Clone()
-        {
-            // Since we are the lowest level base class, do a
-            // shallow copy which will include the derived classes.
-            // From here we would do deep cloning of other objects
-            // if we had any.
-            return MemberwiseClone();
-        }
+        public virtual Object Clone() => MemberwiseClone();
 
         public virtual void AfterMarshall( StompWireFormat wireFormat )
         {
@@ -49,10 +36,7 @@ namespace Apache.NMS.Stomp.Commands
         {
         }
 
-        public virtual Byte[] GetMarshalledForm( StompWireFormat wireFormat )
-        {
-            return null;
-        }
+        public virtual Byte[] GetMarshalledForm( StompWireFormat wireFormat ) => null;
 
         // Helper methods
         public Int32 HashCode( Object value )

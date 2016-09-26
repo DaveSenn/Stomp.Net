@@ -106,10 +106,7 @@ namespace Apache.NMS.Stomp.Commands
             return o;
         }
 
-        public Boolean IsExpired()
-        {
-            return Expiration == 0 ? false : DateTime.UtcNow > DateUtils.ToDateTimeUtc( Expiration );
-        }
+        public Boolean IsExpired() => Expiration == 0 ? false : DateTime.UtcNow > DateUtils.ToDateTimeUtc( Expiration );
 
         public virtual void OnMessageRollback()
         {
@@ -138,34 +135,28 @@ namespace Apache.NMS.Stomp.Commands
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString()
-        {
-            return GetType()
-                       .Name + "[" +
-                   "ProducerId=" + ProducerId + ", " +
-                   "Destination=" + Destination + ", " +
-                   "TransactionId=" + TransactionId + ", " +
-                   "MessageId=" + MessageId + ", " +
-                   "OriginalTransactionId=" + OriginalTransactionId + ", " +
-                   "GroupID=" + GroupID + ", " +
-                   "GroupSequence=" + GroupSequence + ", " +
-                   "CorrelationId=" + CorrelationId + ", " +
-                   "Persistent=" + Persistent + ", " +
-                   "Expiration=" + Expiration + ", " +
-                   "Priority=" + Priority + ", " +
-                   "ReplyTo=" + ReplyTo + ", " +
-                   "Timestamp=" + Timestamp + ", " +
-                   "Type=" + Type + ", " +
-                   "Content=" + Content + ", " +
-                   "MarshalledProperties=" + MarshalledProperties + ", " +
-                   "TargetConsumerId=" + TargetConsumerId + ", " +
-                   "RedeliveryCounter=" + RedeliveryCounter +
-                   "]";
-        }
+        public override String ToString() => GetType()
+                                                 .Name + "[" +
+                                             "ProducerId=" + ProducerId + ", " +
+                                             "Destination=" + Destination + ", " +
+                                             "TransactionId=" + TransactionId + ", " +
+                                             "MessageId=" + MessageId + ", " +
+                                             "OriginalTransactionId=" + OriginalTransactionId + ", " +
+                                             "GroupID=" + GroupID + ", " +
+                                             "GroupSequence=" + GroupSequence + ", " +
+                                             "CorrelationId=" + CorrelationId + ", " +
+                                             "Persistent=" + Persistent + ", " +
+                                             "Expiration=" + Expiration + ", " +
+                                             "Priority=" + Priority + ", " +
+                                             "ReplyTo=" + ReplyTo + ", " +
+                                             "Timestamp=" + Timestamp + ", " +
+                                             "Type=" + Type + ", " +
+                                             "Content=" + Content + ", " +
+                                             "MarshalledProperties=" + MarshalledProperties + ", " +
+                                             "TargetConsumerId=" + TargetConsumerId + ", " +
+                                             "RedeliveryCounter=" + RedeliveryCounter +
+                                             "]";
 
-        public override Response visit( ICommandVisitor visitor )
-        {
-            return visitor.processMessage( this );
-        }
+        public override Response visit( ICommandVisitor visitor ) => visitor.processMessage( this );
     }
 }

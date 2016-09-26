@@ -45,9 +45,6 @@ namespace Apache.NMS.Stomp.State
 
         #endregion
 
-        public override String ToString()
-        {
-            return Info.ToString();
-        }
+        public override String ToString() => Info.ToString();
     }
 }

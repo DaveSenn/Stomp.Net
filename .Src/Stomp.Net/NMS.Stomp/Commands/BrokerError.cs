@@ -70,10 +70,7 @@ namespace Apache.NMS.Stomp.Commands
 
         #endregion
 
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.ErrorType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.ErrorType;
 
         public void PrintStackTrace( TextWriter writer )
         {

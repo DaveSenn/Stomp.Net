@@ -80,10 +80,7 @@ namespace Apache.NMS.Stomp.Transport.Tcp
 
         #region ITransportFactory Members
 
-        public ITransport CompositeConnect( Uri location )
-        {
-            return CompositeConnect( location, null );
-        }
+        public ITransport CompositeConnect( Uri location ) => CompositeConnect( location, null );
 
         public ITransport CompositeConnect( Uri location, SetTransport setTransport )
         {
@@ -138,10 +135,7 @@ namespace Apache.NMS.Stomp.Transport.Tcp
         ///     Override in a subclass to create the specific type of transport that is
         ///     being implemented.
         /// </summary>
-        protected virtual ITransport DoCreateTransport( Uri location, Socket socket, IWireFormat wireFormat )
-        {
-            return new TcpTransport( location, socket, wireFormat );
-        }
+        protected virtual ITransport DoCreateTransport( Uri location, Socket socket, IWireFormat wireFormat ) => new TcpTransport( location, socket, wireFormat );
 
         // DISCUSSION: Caching host entries may not be the best strategy when using the
         // failover protocol.  The failover protocol needs to be very dynamic when looking

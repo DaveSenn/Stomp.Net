@@ -84,9 +84,6 @@ namespace Apache.NMS.Stomp.Commands
             Content = body == null ? null : wireFormat.MapMarshaler.Marshal( body );
         }
 
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.MapMessageType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.MapMessageType;
     }
 }

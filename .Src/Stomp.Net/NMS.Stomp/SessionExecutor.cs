@@ -88,20 +88,11 @@ namespace Apache.NMS.Stomp
             return true;
         }
 
-        public void Clear()
-        {
-            messageQueue.Clear();
-        }
+        public void Clear() => messageQueue.Clear();
 
-        public void ClearMessagesInProgress()
-        {
-            messageQueue.Clear();
-        }
+        public void ClearMessagesInProgress() => messageQueue.Clear();
 
-        public void Close()
-        {
-            messageQueue.Close();
-        }
+        public void Close() => messageQueue.Close();
 
         public void Dispatch( MessageDispatch dispatch )
         {

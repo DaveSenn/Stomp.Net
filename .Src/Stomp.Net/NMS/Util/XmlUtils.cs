@@ -50,10 +50,7 @@ namespace Apache.NMS.Util
         /// </summary>
         /// <param name="text">Text to be encoded.</param>
         /// <returns>Text with invalid xml characters removed.</returns>
-        public static String CleanInvalidXmlChars( String text )
-        {
-            return regexInvalidXMLChars.Replace( text, "" );
-        }
+        public static String CleanInvalidXmlChars( String text ) => regexInvalidXMLChars.Replace( text, "" );
 
         public static Object Deserialize( Type objType, String text )
         {
@@ -111,19 +108,10 @@ namespace Apache.NMS.Util
             }
         }
 
-        private static void serializer_UnknownAttribute( Object sender, XmlAttributeEventArgs e )
-        {
-            Tracer.ErrorFormat( "Unknown attribute: {0}='{1}'", e.Attr.Name, e.Attr.Value );
-        }
+        private static void serializer_UnknownAttribute( Object sender, XmlAttributeEventArgs e ) => Tracer.ErrorFormat( "Unknown attribute: {0}='{1}'", e.Attr.Name, e.Attr.Value );
 
-        private static void serializer_UnknownElement( Object sender, XmlElementEventArgs e )
-        {
-            Tracer.ErrorFormat( "Unknown Element: {0}\t{1}", e.Element.Name, e.Element.Value );
-        }
+        private static void serializer_UnknownElement( Object sender, XmlElementEventArgs e ) => Tracer.ErrorFormat( "Unknown Element: {0}\t{1}", e.Element.Name, e.Element.Value );
 
-        private static void serializer_UnknownNode( Object sender, XmlNodeEventArgs e )
-        {
-            Tracer.ErrorFormat( "Unknown Node: {0}\t{1}", e.Name, e.Text );
-        }
+        private static void serializer_UnknownNode( Object sender, XmlNodeEventArgs e ) => Tracer.ErrorFormat( "Unknown Node: {0}\t{1}", e.Name, e.Text );
     }
 }

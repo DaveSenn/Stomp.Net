@@ -127,10 +127,7 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.ConsumerIdType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.ConsumerIdType;
 
         public override Int32 GetHashCode()
         {

@@ -52,10 +52,7 @@ namespace Apache.NMS.Stomp
         /// <summary>
         ///     Method AddSynchronization
         /// </summary>
-        public void AddSynchronization( ISynchronization synchronization )
-        {
-            synchronizations.Add( synchronization );
-        }
+        public void AddSynchronization( ISynchronization synchronization ) => synchronizations.Add( synchronization );
 
         public void Begin()
         {
@@ -94,10 +91,7 @@ namespace Apache.NMS.Stomp
             synchronizations.Clear();
         }
 
-        public void RemoveSynchronization( ISynchronization synchronization )
-        {
-            synchronizations.Remove( synchronization );
-        }
+        public void RemoveSynchronization( ISynchronization synchronization ) => synchronizations.Remove( synchronization );
 
         public void ResetTransactionInProgress()
         {

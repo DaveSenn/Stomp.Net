@@ -35,19 +35,13 @@ namespace Apache.NMS.Util
         ///     Method Write
         /// </summary>
         /// <param name="value">A  long</param>
-        public override void Write( Int64 value )
-        {
-            base.Write( EndianSupport.SwitchEndian( value ) );
-        }
+        public override void Write( Int64 value ) => base.Write( EndianSupport.SwitchEndian( value ) );
 
         /// <summary>
         ///     Method Write
         /// </summary>
         /// <param name="value">An ushort</param>
-        public override void Write( UInt16 value )
-        {
-            base.Write( EndianSupport.SwitchEndian( value ) );
-        }
+        public override void Write( UInt16 value ) => base.Write( EndianSupport.SwitchEndian( value ) );
 
         /// <summary>
         ///     Method Write
@@ -77,19 +71,13 @@ namespace Apache.NMS.Util
         ///     Method Write
         /// </summary>
         /// <param name="chars">A  char[]</param>
-        public override void Write( Char[] chars )
-        {
-            Write( chars, 0, chars.Length );
-        }
+        public override void Write( Char[] chars ) => Write( chars, 0, chars.Length );
 
         /// <summary>
         ///     Method Write
         /// </summary>
         /// <param name="value">An uint</param>
-        public override void Write( UInt32 value )
-        {
-            base.Write( EndianSupport.SwitchEndian( value ) );
-        }
+        public override void Write( UInt32 value ) => base.Write( EndianSupport.SwitchEndian( value ) );
 
         /// <summary>
         ///     Method Write
@@ -105,47 +93,32 @@ namespace Apache.NMS.Util
         ///     Method Write
         /// </summary>
         /// <param name="value">An ulong</param>
-        public override void Write( UInt64 value )
-        {
-            base.Write( EndianSupport.SwitchEndian( value ) );
-        }
+        public override void Write( UInt64 value ) => base.Write( EndianSupport.SwitchEndian( value ) );
 
         /// <summary>
         ///     Method Write
         /// </summary>
         /// <param name="value">A  short</param>
-        public override void Write( Int16 value )
-        {
-            base.Write( EndianSupport.SwitchEndian( value ) );
-        }
+        public override void Write( Int16 value ) => base.Write( EndianSupport.SwitchEndian( value ) );
 
         /// <summary>
         ///     Method Write, writes a string to the output using the WriteString16
         ///     method.
         /// </summary>
         /// <param name="text">A  string</param>
-        public override void Write( String text )
-        {
-            WriteString16( text );
-        }
+        public override void Write( String text ) => WriteString16( text );
 
         /// <summary>
         ///     Method Write
         /// </summary>
         /// <param name="value">A  double</param>
-        public override void Write( Single value )
-        {
-            base.Write( EndianSupport.SwitchEndian( value ) );
-        }
+        public override void Write( Single value ) => base.Write( EndianSupport.SwitchEndian( value ) );
 
         /// <summary>
         ///     Method Write
         /// </summary>
         /// <param name="value">A  double</param>
-        public override void Write( Double value )
-        {
-            base.Write( EndianSupport.SwitchEndian( value ) );
-        }
+        public override void Write( Double value ) => base.Write( EndianSupport.SwitchEndian( value ) );
 
         /// <summary>
         ///     Method WriteString16, writes a string to the output using the Java

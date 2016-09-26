@@ -240,10 +240,7 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        internal void SendAck( MessageAck ack )
-        {
-            SendAck( ack, false );
-        }
+        internal void SendAck( MessageAck ack ) => SendAck( ack, false );
 
         internal void SendAck( MessageAck ack, Boolean lazy )
         {
@@ -528,10 +525,7 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        public IMessageProducer CreateProducer()
-        {
-            return CreateProducer( null );
-        }
+        public IMessageProducer CreateProducer() => CreateProducer( null );
 
         public IMessageProducer CreateProducer( IDestination destination )
         {
@@ -556,15 +550,9 @@ namespace Apache.NMS.Stomp
             return producer;
         }
 
-        public IMessageConsumer CreateConsumer( IDestination destination )
-        {
-            return CreateConsumer( destination, null, false );
-        }
+        public IMessageConsumer CreateConsumer( IDestination destination ) => CreateConsumer( destination, null, false );
 
-        public IMessageConsumer CreateConsumer( IDestination destination, String selector )
-        {
-            return CreateConsumer( destination, selector, false );
-        }
+        public IMessageConsumer CreateConsumer( IDestination destination, String selector ) => CreateConsumer( destination, selector, false );
 
         public IMessageConsumer CreateConsumer( IDestination destination, String selector, Boolean noLocal )
         {
@@ -658,15 +646,9 @@ namespace Apache.NMS.Stomp
             throw new NotSupportedException( "Not supported with Stomp Protocol" );
         }
 
-        public IQueue GetQueue( String name )
-        {
-            return new Queue( name );
-        }
+        public IQueue GetQueue( String name ) => new Queue( name );
 
-        public ITopic GetTopic( String name )
-        {
-            return new Topic( name );
-        }
+        public ITopic GetTopic( String name ) => new Topic( name );
 
         public ITemporaryQueue CreateTemporaryQueue()
         {
@@ -712,10 +694,7 @@ namespace Apache.NMS.Stomp
             return ConfigureMessage( answer ) as IMapMessage;
         }
 
-        public IBytesMessage CreateBytesMessage()
-        {
-            return ConfigureMessage( new BytesMessage() ) as IBytesMessage;
-        }
+        public IBytesMessage CreateBytesMessage() => ConfigureMessage( new BytesMessage() ) as IBytesMessage;
 
         public IBytesMessage CreateBytesMessage( Byte[] body )
         {

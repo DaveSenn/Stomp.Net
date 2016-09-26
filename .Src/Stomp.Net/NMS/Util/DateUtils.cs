@@ -40,24 +40,12 @@ namespace Apache.NMS.Util
 
         #endregion
 
-        public static DateTime ToDateTime( Int64 javaTime )
-        {
-            return DateTime.FromFileTime( ( javaTime + epochDiff ) * TimeSpan.TicksPerMillisecond );
-        }
+        public static DateTime ToDateTime( Int64 javaTime ) => DateTime.FromFileTime( ( javaTime + epochDiff ) * TimeSpan.TicksPerMillisecond );
 
-        public static DateTime ToDateTimeUtc( Int64 javaTime )
-        {
-            return DateTime.FromFileTimeUtc( ( javaTime + epochDiff ) * TimeSpan.TicksPerMillisecond );
-        }
+        public static DateTime ToDateTimeUtc( Int64 javaTime ) => DateTime.FromFileTimeUtc( ( javaTime + epochDiff ) * TimeSpan.TicksPerMillisecond );
 
-        public static Int64 ToJavaTime( DateTime dateTime )
-        {
-            return dateTime.ToFileTime() / TimeSpan.TicksPerMillisecond - epochDiff;
-        }
+        public static Int64 ToJavaTime( DateTime dateTime ) => dateTime.ToFileTime() / TimeSpan.TicksPerMillisecond - epochDiff;
 
-        public static Int64 ToJavaTimeUtc( DateTime dateTime )
-        {
-            return dateTime.ToFileTimeUtc() / TimeSpan.TicksPerMillisecond - epochDiff;
-        }
+        public static Int64 ToJavaTimeUtc( DateTime dateTime ) => dateTime.ToFileTimeUtc() / TimeSpan.TicksPerMillisecond - epochDiff;
     }
 }

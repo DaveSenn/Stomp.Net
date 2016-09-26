@@ -95,10 +95,7 @@ namespace Apache.NMS.Stomp.Protocol
 
         #endregion
 
-        public void ClearProperties()
-        {
-            Properties.Clear();
-        }
+        public void ClearProperties() => Properties.Clear();
 
         public void FromStream( BinaryReader dataIn )
         {
@@ -111,10 +108,7 @@ namespace Apache.NMS.Stomp.Protocol
             }
         }
 
-        public String GetProperty( String name )
-        {
-            return GetProperty( name, null );
-        }
+        public String GetProperty( String name ) => GetProperty( name, null );
 
         public String GetProperty( String name, String fallback )
         {
@@ -124,10 +118,7 @@ namespace Apache.NMS.Stomp.Protocol
             return fallback;
         }
 
-        public Boolean HasProperty( String name )
-        {
-            return Properties.Contains( name );
-        }
+        public Boolean HasProperty( String name ) => Properties.Contains( name );
 
         public String RemoveProperty( String name )
         {

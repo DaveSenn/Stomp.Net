@@ -150,10 +150,7 @@ namespace Apache.NMS.Stomp.Commands
             return false;
         }
 
-        public override Int32 GetHashCode()
-        {
-            return CommandId * 37 + GetDataStructureType();
-        }
+        public override Int32 GetHashCode() => CommandId * 37 + GetDataStructureType();
 
         public override String ToString()
         {

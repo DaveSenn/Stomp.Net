@@ -51,19 +51,10 @@ namespace Apache.NMS.Stomp.Commands
             return o;
         }
 
-        public override Destination CreateDestination( String name )
-        {
-            return new TempQueue( name );
-        }
+        public override Destination CreateDestination( String name ) => new TempQueue( name );
 
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.TempQueueType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.TempQueueType;
 
-        public override Int32 GetDestinationType()
-        {
-            return STOMP_TEMPORARY_QUEUE;
-        }
+        public override Int32 GetDestinationType() => STOMP_TEMPORARY_QUEUE;
     }
 }

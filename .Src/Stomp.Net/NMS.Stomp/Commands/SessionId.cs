@@ -92,10 +92,7 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.SessionIdType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.SessionIdType;
 
         public override Int32 GetHashCode()
         {
@@ -111,9 +108,6 @@ namespace Apache.NMS.Stomp.Commands
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString()
-        {
-            return ConnectionId + ":" + Value;
-        }
+        public override String ToString() => ConnectionId + ":" + Value;
     }
 }

@@ -73,21 +73,15 @@ namespace Apache.NMS.Stomp.Commands
             return false;
         }
 
-        public virtual Boolean Equals( MessageId that )
-        {
-            return Equals( ProducerId, that.ProducerId )
-                   && Equals( ProducerSequenceId, that.ProducerSequenceId )
-                   && Equals( BrokerSequenceId, that.BrokerSequenceId );
-        }
+        public virtual Boolean Equals( MessageId that ) => Equals( ProducerId, that.ProducerId )
+                                                           && Equals( ProducerSequenceId, that.ProducerSequenceId )
+                                                           && Equals( BrokerSequenceId, that.BrokerSequenceId );
 
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType()
-        {
-            return DataStructureTypes.MessageIdType;
-        }
+        public override Byte GetDataStructureType() => DataStructureTypes.MessageIdType;
 
         public override Int32 GetHashCode()
         {

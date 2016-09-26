@@ -117,10 +117,7 @@ namespace Apache.NMS.Stomp.State
                 consumers.Clear();
         }
 
-        public override String ToString()
-        {
-            return Info.ToString();
-        }
+        public override String ToString() => Info.ToString();
 
         private void checkShutdown()
         {

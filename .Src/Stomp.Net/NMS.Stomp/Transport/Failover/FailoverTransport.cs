@@ -489,10 +489,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
             }
         }
 
-        public void Reconnect( Uri uri )
-        {
-            Add( new[] { uri } );
-        }
+        public void Reconnect( Uri uri ) => Add( new[] { uri } );
 
         public void Reconnect()
         {
@@ -520,10 +517,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
                 }
         }
 
-        public override String ToString()
-        {
-            return ConnectedTransportURI == null ? "unconnected" : ConnectedTransportURI.ToString();
-        }
+        public override String ToString() => ConnectedTransportURI == null ? "unconnected" : ConnectedTransportURI.ToString();
 
         protected void RestoreTransport( ITransport t )
         {
@@ -669,10 +663,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
         /// </summary>
         /// <param name="command"></param>
         /// <returns>Returns true if the command is one sent when a connection is being closed.</returns>
-        private static Boolean IsShutdownCommand( Command command )
-        {
-            return command != null && ( command.IsShutdownInfo || command is RemoveInfo );
-        }
+        private static Boolean IsShutdownCommand( Command command ) => command != null && ( command.IsShutdownInfo || command is RemoveInfo );
 
         ~FailoverTransport()
         {

@@ -132,10 +132,8 @@ namespace Apache.NMS.Stomp
 
         public ConsumerTransformerDelegate ConsumerTransformer { get; set; }
 
-        public IConnection CreateConnection()
-        {
-            return CreateConnection( UserName, Password );
-        }
+        public IConnection CreateConnection() 
+            => CreateConnection( UserName, Password );
 
         public IConnection CreateConnection( String userName, String password )
         {
@@ -147,10 +145,11 @@ namespace Apache.NMS.Stomp
 
                 var transport = TransportFactory.CreateTransport( brokerUri );
 
-                connection = new Connection( brokerUri, transport, ClientIdGenerator );
-
-                connection.UserName = userName;
-                connection.Password = password;
+                connection = new Connection( brokerUri, transport, ClientIdGenerator )
+                {
+                    UserName = userName,
+                    Password = password
+                };
 
                 ConfigureConnection( connection );
 
@@ -169,7 +168,7 @@ namespace Apache.NMS.Stomp
                 {
                 }
 
-                throw e;
+                throw;
             }
             catch ( Exception e )
             {

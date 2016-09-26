@@ -249,10 +249,7 @@ namespace Apache.NMS.Stomp
         /// <summary>
         ///     Creates a new session to work on this connection
         /// </summary>
-        public ISession CreateSession()
-        {
-            return CreateSession( AcknowledgementMode );
-        }
+        public ISession CreateSession() => CreateSession( AcknowledgementMode );
 
         /// <summary>
         ///     Creates a new session to work on this connection
@@ -361,10 +358,7 @@ namespace Apache.NMS.Stomp
         /// <summary>
         ///     Creates a new temporary destination name
         /// </summary>
-        public String CreateTemporaryDestinationName()
-        {
-            return info.ConnectionId.Value + ":" + Interlocked.Increment( ref temporaryDestinationCounter );
-        }
+        public String CreateTemporaryDestinationName() => info.ConnectionId.Value + ":" + Interlocked.Increment( ref temporaryDestinationCounter );
 
         public void Oneway( Command command )
         {
@@ -385,10 +379,7 @@ namespace Apache.NMS.Stomp
         /// <summary>
         ///     Performs a synchronous request-response with the broker
         /// </summary>
-        public Response SyncRequest( Command command )
-        {
-            return SyncRequest( command, RequestTimeout );
-        }
+        public Response SyncRequest( Command command ) => SyncRequest( command, RequestTimeout );
 
         public Response SyncRequest( Command command, TimeSpan requestTimeout )
         {
@@ -517,10 +508,7 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        protected void OnTransportException( ITransport sender, Exception exception )
-        {
-            OnException( exception );
-        }
+        protected void OnTransportException( ITransport sender, Exception exception ) => OnException( exception );
 
         protected void OnTransportInterrupted( ITransport sender )
         {
@@ -557,10 +545,7 @@ namespace Apache.NMS.Stomp
                 }
         }
 
-        internal void addDispatcher( ConsumerId id, IDispatcher dispatcher )
-        {
-            dispatchers.Add( id, dispatcher );
-        }
+        internal void addDispatcher( ConsumerId id, IDispatcher dispatcher ) => dispatchers.Add( id, dispatcher );
 
         /// <summary>
         ///     Check and ensure that the connection objcet is connected.  If it is not
@@ -682,10 +667,7 @@ namespace Apache.NMS.Stomp
                 }
         }
 
-        internal void removeDispatcher( ConsumerId id )
-        {
-            dispatchers.Remove( id );
-        }
+        internal void removeDispatcher( ConsumerId id ) => dispatchers.Remove( id );
 
         internal void RemoveSession( Session session )
         {

@@ -188,10 +188,7 @@ namespace Apache.NMS.Stomp.State
                 _dictionary.Add( k, v );
         }
 
-        public void Clear()
-        {
-            _dictionary.Clear();
-        }
+        public void Clear() => _dictionary.Clear();
 
         public Boolean ContainsKey( TKey k )
         {

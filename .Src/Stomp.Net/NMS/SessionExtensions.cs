@@ -9,75 +9,48 @@ namespace Apache.NMS
 		/// <summary>
 		/// Extension function to create a text message from an object.  The object must be serializable to XML.
 		/// </summary>
-		public static ITextMessage CreateXmlMessage(this ISession session, object obj)
-		{
-			return NMSConvert.SerializeObjToMessage(session.CreateTextMessage(), obj);
-		}
+		public static ITextMessage CreateXmlMessage(this ISession session, object obj) => NMSConvert.SerializeObjToMessage(session.CreateTextMessage(), obj);
 
-		/// <summary>
+	    /// <summary>
 		/// Extension function to get the destination by parsing the embedded type prefix.  Default is Queue if no prefix is
 		/// embedded in the destinationName.
 		/// </summary>
-		public static IDestination GetDestination(this ISession session, string destinationName)
-		{
-			return SessionUtil.GetDestination(session, destinationName);
-		}
+		public static IDestination GetDestination(this ISession session, string destinationName) => SessionUtil.GetDestination(session, destinationName);
 
-		/// <summary>
+	    /// <summary>
 		/// Extension function to get the destination by parsing the embedded type prefix.
 		/// </summary>
-		public static IDestination GetDestination(this ISession session, string destinationName, DestinationType defaultType)
-		{
-			return SessionUtil.GetDestination(session, destinationName, defaultType);
-		}
+		public static IDestination GetDestination(this ISession session, string destinationName, DestinationType defaultType) => SessionUtil.GetDestination(session, destinationName, defaultType);
 
-		/// <summary>
+	    /// <summary>
 		/// Extension function to get the destination by parsing the embedded type prefix.
 		/// </summary>
-		public static IQueue GetQueue(this ISession session, string queueName)
-		{
-			return SessionUtil.GetQueue(session, queueName);
-		}
+		public static IQueue GetQueue(this ISession session, string queueName) => SessionUtil.GetQueue(session, queueName);
 
-		/// <summary>
+	    /// <summary>
 		/// Extension function to get the destination by parsing the embedded type prefix.
 		/// </summary>
-		public static ITopic GetTopic(this ISession session, string topicName)
-		{
-			return SessionUtil.GetTopic(session, topicName);
-		}
+		public static ITopic GetTopic(this ISession session, string topicName) => SessionUtil.GetTopic(session, topicName);
 
-		/// <summary>
+	    /// <summary>
 		/// Extension function to delete the named destination by parsing the embedded type prefix.  Default is Queue if no prefix is
 		/// embedded in the destinationName.
 		/// </summary>
-		public static void DeleteDestination(this ISession session, string destinationName)
-		{
-			SessionUtil.DeleteDestination(session, destinationName);
-		}
+		public static void DeleteDestination(this ISession session, string destinationName) => SessionUtil.DeleteDestination(session, destinationName);
 
-		/// <summary>
+	    /// <summary>
 		/// Extension function to delete the named destination by parsing the embedded type prefix.
 		/// </summary>
-		public static void DeleteDestination(this ISession session, string destinationName, DestinationType defaultType)
-		{
-			SessionUtil.DeleteDestination(session, destinationName, defaultType);
-		}
+		public static void DeleteDestination(this ISession session, string destinationName, DestinationType defaultType) => SessionUtil.DeleteDestination(session, destinationName, defaultType);
 
-		/// <summary>
+	    /// <summary>
 		/// Extension function to delete the named destination by parsing the embedded type prefix.
 		/// </summary>
-		public static void DeleteQueue(this ISession session, string queueName)
-		{
-			SessionUtil.DeleteDestination(session, queueName);
-		}
+		public static void DeleteQueue(this ISession session, string queueName) => SessionUtil.DeleteDestination(session, queueName);
 
-		/// <summary>
+	    /// <summary>
 		/// Extension function to delete the named destination by parsing the embedded type prefix.
 		/// </summary>
-		public static void DeleteTopic(this ISession session, string topicName)
-		{
-			SessionUtil.DeleteDestination(session, topicName);
-		}
+		public static void DeleteTopic(this ISession session, string topicName) => SessionUtil.DeleteDestination(session, topicName);
 	}
 }
