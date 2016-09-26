@@ -1,5 +1,3 @@
-
-
 #region Usings
 
 using System;
@@ -7,8 +5,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Text;
+using Extend;
 #if !NETCF
 using System.Web;
 
@@ -26,9 +26,9 @@ namespace Apache.NMS.Util
     {
         #region Properties
 
-        private static StringDictionary EmptyMap
+        private static Dictionary<String, String> EmptyMap
         {
-            get { return new StringDictionary(); }
+            get { return new Dictionary<String, String>(); }
         }
 
         #endregion
@@ -79,7 +79,7 @@ namespace Apache.NMS.Util
             return new Uri( sanitized );
         }
 
-        public static String CreateQueryString( StringDictionary options )
+        public static String CreateQueryString( Dictionary<String, String> options )
         {
             if ( options != null && options.Count > 0 )
             {
@@ -95,9 +95,9 @@ namespace Apache.NMS.Util
                     else
                         rc.Append( "&" );
 
-                    rc.Append( UrlEncode( key ) );
+                    rc.Append( HttpUtility.UrlEncode( key ) );
                     rc.Append( "=" );
-                    rc.Append( UrlEncode( value ) );
+                    rc.Append( HttpUtility.UrlEncode( value ) );
                 }
 
                 return rc.ToString();
@@ -105,7 +105,7 @@ namespace Apache.NMS.Util
             return "";
         }
 
-        public static Uri CreateRemainingUri( Uri originalUri, StringDictionary parameters )
+        public static Uri CreateRemainingUri( Uri originalUri, Dictionary<String, String> parameters )
         {
             var s = CreateQueryString( parameters );
 
@@ -134,12 +134,12 @@ namespace Apache.NMS.Util
             return new Uri( strippedUri + query );
         }
 
-        public static StringDictionary ExtractProperties( StringDictionary props, String prefix )
+        public static Dictionary<String, String> ExtractProperties( Dictionary<String, String> props, String prefix )
         {
             if ( props == null )
                 throw new Exception( "Properties Object was null" );
 
-            var result = new StringDictionary();
+            var result = new Dictionary<String, String>();
             var matches = new List<String>();
 
             foreach ( String key in props.Keys )
@@ -156,12 +156,12 @@ namespace Apache.NMS.Util
             return result;
         }
 
-        public static StringDictionary GetProperties( StringDictionary props, String prefix )
+        public static Dictionary<String, String> GetProperties( Dictionary<String, String> props, String prefix )
         {
             if ( props == null )
                 throw new Exception( "Properties Object was null" );
 
-            var result = new StringDictionary();
+            var result = new Dictionary<String, String>();
 
             foreach ( String key in props.Keys )
                 if ( key.StartsWith( prefix, StringComparison.InvariantCultureIgnoreCase ) )
@@ -206,9 +206,11 @@ namespace Apache.NMS.Util
             return rc;
         }
 
-        public static StringDictionary ParseParameters( Uri uri ) => uri.Query == null
-            ? EmptyMap
+        public static Dictionary<String, String> ParseParameters( Uri uri ) => uri.Query == null
+            ? new Dictionary<String, String>()
             : ParseQuery( StripPrefix( uri.Query, "?" ) );
+
+        #region Refactored
 
         /// <summary>
         ///     Parse a Uri query string of the form ?x=y&amp;z=0
@@ -218,33 +220,36 @@ namespace Apache.NMS.Util
         ///     The query string to parse. This string should not contain
         ///     Uri escape characters.
         /// </param>
-        public static StringDictionary ParseQuery( String query )
+        public static Dictionary<String, String> ParseQuery( String query )
         {
-            var map = new StringDictionary();
+            var parameters = new Dictionary<String, String>();
 
-            if ( String.IsNullOrEmpty( query ) )
-                return EmptyMap;
+            // Check if any parameters are specified
+            if ( query.IsEmpty() )
+                return parameters;
 
-            // strip the initial "?"
-            if ( query.StartsWith( "?" ) )
+            // Strip the initial "?"
+            if ( query.StartsWith( "?", StringComparison.Ordinal ) )
                 query = query.Substring( 1 );
 
-            // split the query into parameters
-            var parameters = query.Split( '&' );
-            foreach ( var pair in parameters )
-                if ( pair.Length > 0 )
-                {
-                    var nameValue = pair.Split( '=' );
+            // Split the query into parameters
+            var parameterStrings = query.Split( new[] { '&' }, StringSplitOptions.RemoveEmptyEntries );
+            foreach ( var nameValue in parameterStrings.Select( x => x.Split( '=' ) ) )
+            {
+                // Check for valid key/value pair
+                if ( nameValue.Length != 2 )
+                    throw new NMSException( $"Invalid URI parameters: '{query}'." );
 
-                    if ( nameValue.Length != 2 )
-                        throw new NMSException( String.Format( "Invalid Uri parameter: {0}", query ) );
+                var decodedKey = HttpUtility.UrlDecode( nameValue[0] );
+                if ( decodedKey == null )
+                    throw new NMSException( $"Invalid URI parameter key: '{nameValue[0]}' in '{query}'." );
+                parameters[decodedKey] = HttpUtility.UrlDecode( nameValue[1] );
+            }
 
-                    map[UrlDecode( nameValue[0] )] = UrlDecode( nameValue[1] );
-                }
-
-            return map;
+            return parameters;
         }
         
+        #endregion
 
         /// <summary>
         ///     Sets the public properties of a target object using a string map.
@@ -253,7 +258,7 @@ namespace Apache.NMS.Util
         /// </summary>
         /// <param name="target">The object whose properties will be set.</param>
         /// <param name="map">Map of key/value pairs.</param>
-        public static void SetProperties( Object target, StringDictionary map )
+        public static void SetProperties( Object target, Dictionary<String, String> map )
         {
             var type = target.GetType();
 
@@ -298,7 +303,7 @@ namespace Apache.NMS.Util
         ///     Key value prefix.  This is prepended to the property name
         ///     before searching for a matching key value.
         /// </param>
-        public static void SetProperties( Object target, StringDictionary map, String prefix )
+        public static void SetProperties( Object target, Dictionary<String, String> map, String prefix )
         {
             var type = target.GetType();
 
@@ -343,31 +348,8 @@ namespace Apache.NMS.Util
                 map.Remove( match );
         }
 
-        public static String StripPrefix( String value, String prefix )
-        {
-            if ( value.StartsWith( prefix, StringComparison.InvariantCultureIgnoreCase ) )
-                return value.Substring( prefix.Length );
-
-            return value;
-        }
-
-        public static String UrlDecode( String s )
-        {
-#if !NETCF
-            return HttpUtility.UrlDecode( s );
-#else
-            return Uri.UnescapeDataString(s);
-#endif
-        }
-
-        public static String UrlEncode( String s )
-        {
-#if !NETCF
-            return HttpUtility.UrlEncode( s );
-#else
-            return Uri.EscapeUriString(s);
-#endif
-        }
+        public static String StripPrefix( String value, String prefix ) 
+            => value.StartsWith( prefix, StringComparison.InvariantCultureIgnoreCase ) ? value.Substring( prefix.Length ) : value;
 
         /// <summary>
         /// </summary>
@@ -477,17 +459,13 @@ namespace Apache.NMS.Util
 
         public class CompositeData
         {
-            #region Fields
-
-            #endregion
-
             #region Properties
 
             public Uri[] Components { get; set; }
 
             public String Fragment { get; set; }
 
-            public StringDictionary Parameters { get; set; }
+            public Dictionary<String, String> Parameters { get; set; }
 
             public String Scheme { get; set; }
 

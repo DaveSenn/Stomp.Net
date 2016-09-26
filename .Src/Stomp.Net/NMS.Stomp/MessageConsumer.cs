@@ -65,19 +65,21 @@ namespace Apache.NMS.Stomp
             RedeliveryPolicy = this.session.Connection.RedeliveryPolicy;
             messageTransformation = this.session.Connection.MessageTransformation;
 
-            ConsumerInfo = new ConsumerInfo();
-            ConsumerInfo.ConsumerId = id;
-            ConsumerInfo.Destination = Destination.Transform( destination );
-            ConsumerInfo.SubscriptionName = name;
-            ConsumerInfo.Selector = selector;
-            ConsumerInfo.PrefetchSize = prefetch;
-            ConsumerInfo.MaximumPendingMessageLimit = session.Connection.PrefetchPolicy.MaximumPendingMessageLimit;
-            ConsumerInfo.NoLocal = noLocal;
-            ConsumerInfo.DispatchAsync = session.DispatchAsync;
-            ConsumerInfo.Retroactive = session.Retroactive;
-            ConsumerInfo.Exclusive = session.Exclusive;
-            ConsumerInfo.Priority = session.Priority;
-            ConsumerInfo.AckMode = session.AcknowledgementMode;
+            ConsumerInfo = new ConsumerInfo
+            {
+                ConsumerId = id,
+                Destination = Destination.Transform( destination ),
+                SubscriptionName = name,
+                Selector = selector,
+                PrefetchSize = prefetch,
+                MaximumPendingMessageLimit = session.Connection.PrefetchPolicy.MaximumPendingMessageLimit,
+                NoLocal = noLocal,
+                DispatchAsync = session.DispatchAsync,
+                Retroactive = session.Retroactive,
+                Exclusive = session.Exclusive,
+                Priority = session.Priority,
+                AckMode = session.AcknowledgementMode
+            };
 
             // If the destination contained a URI query, then use it to set public properties
             // on the ConsumerInfo

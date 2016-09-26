@@ -18,6 +18,7 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using Apache.NMS.Util;
 
@@ -48,7 +49,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
             return transport;
         }
 
-        public FailoverTransport CreateTransport( StringDictionary parameters )
+        public FailoverTransport CreateTransport(Dictionary<String, String> parameters )
         {
             var transport = new FailoverTransport();
             URISupport.SetProperties( transport, parameters, "" );

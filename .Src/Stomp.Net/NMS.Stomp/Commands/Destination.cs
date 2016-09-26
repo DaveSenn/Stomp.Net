@@ -3,6 +3,7 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using Apache.NMS.Util;
 
@@ -54,7 +55,7 @@ namespace Apache.NMS.Stomp.Commands
         ///     in the URI used to create this Destination.  A null value is returned
         ///     if no options were specified.
         /// </summary>
-        internal StringDictionary Options { get; private set; }
+        internal Dictionary<String, String> Options { get; private set; }
 
         /// <summary>
         ///     Indicates if the Desination was created by this client or was provided

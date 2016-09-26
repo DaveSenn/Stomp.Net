@@ -1,10 +1,12 @@
 #region Usings
 
 using System;
+using System.Collections.Specialized;
 using Apache.NMS.Policies;
 using Apache.NMS.Stomp.Transport;
 using Apache.NMS.Stomp.Util;
 using Apache.NMS.Util;
+using Extend;
 
 #endregion
 
@@ -103,30 +105,33 @@ namespace Apache.NMS.Stomp
             get { return brokerUri; }
             set
             {
-                brokerUri = new Uri( URISupport.StripPrefix( value.OriginalString, "stomp:" ) );
+                // brokerUri = new Uri( value.OriginalString );
+                brokerUri = value;
 
-                if ( !String.IsNullOrEmpty( brokerUri.Query ) && !brokerUri.OriginalString.EndsWith( ")" ) )
+                // Check for query parameters
+                if ( !brokerUri.Query.IsNotEmpty() || brokerUri.OriginalString.EndsWith( ")", StringComparison.Ordinal ) )
+                    return;
+
+                // Since the Uri class will return the end of a Query string found in a Composite
+                // URI we must ensure that we trim that off before we proceed.
+                // Call does not change the given URL
+                // var query = brokerUri.Query.Substring( brokerUri.Query.LastIndexOf( ")", StringComparison.Ordinal ) + 1 );
+
+                var queryParameters = URISupport.ParseQuery(brokerUri.Query);
+
+                var connection = URISupport.ExtractProperties( queryParameters, "connection." );
+                var nms = URISupport.ExtractProperties( queryParameters, "nms." );
+
+                if ( connection != null )
+                    URISupport.SetProperties( this, connection, "connection." );
+
+                if ( nms != null )
                 {
-                    // Since the Uri class will return the end of a Query string found in a Composite
-                    // URI we must ensure that we trim that off before we proceed.
-                    var query = brokerUri.Query.Substring( brokerUri.Query.LastIndexOf( ")" ) + 1 );
-
-                    var properties = URISupport.ParseQuery( query );
-
-                    var connection = URISupport.ExtractProperties( properties, "connection." );
-                    var nms = URISupport.ExtractProperties( properties, "nms." );
-
-                    if ( connection != null )
-                        URISupport.SetProperties( this, connection, "connection." );
-
-                    if ( nms != null )
-                    {
-                        URISupport.SetProperties( PrefetchPolicy, nms, "nms.PrefetchPolicy." );
-                        URISupport.SetProperties( RedeliveryPolicy, nms, "nms.RedeliveryPolicy." );
-                    }
-
-                    brokerUri = URISupport.CreateRemainingUri( brokerUri, properties );
+                    URISupport.SetProperties( PrefetchPolicy, nms, "nms.PrefetchPolicy." );
+                    URISupport.SetProperties( RedeliveryPolicy, nms, "nms.RedeliveryPolicy." );
                 }
+
+                brokerUri = URISupport.CreateRemainingUri( brokerUri, queryParameters );
             }
         }
 
