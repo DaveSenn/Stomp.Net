@@ -124,8 +124,7 @@ private String GetBuildVersion()
 	    // Get the version from the built DLL
 		var outputDll = System.IO.Directory.EnumerateFiles( outputNuGetDirectory, "*", System.IO.SearchOption.AllDirectories).First( x => x.Contains( ".dll" ) );
 		var assembly = System.Reflection.Assembly.LoadFile(  MakeAbsolute( File( outputDll ) ).ToString() );
-		var version = assembly.GetName().Version;
-		version = version.ToString();
+		version = assembly.GetName().Version.ToString();
 	}
 	
 	return version + "-alpha";
