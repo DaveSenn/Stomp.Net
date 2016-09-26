@@ -55,8 +55,6 @@ namespace Apache.NMS.Stomp.Protocol
 
         public void Marshal( Object o, BinaryWriter dataOut )
         {
-            Tracer.Debug( "StompWireFormat - Marshaling: " + o );
-
             if ( o is ConnectionInfo )
             {
                 WriteConnectionInfo( (ConnectionInfo) o, dataOut );

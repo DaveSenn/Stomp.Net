@@ -2,6 +2,7 @@
 
 using System;
 using System.Net.Sockets;
+using Extend;
 using JetBrains.Annotations;
 using Stomp.Net;
 
@@ -9,23 +10,17 @@ using Stomp.Net;
 
 namespace Apache.NMS.Stomp.Transport.Tcp
 {
+    /// <summary>
+    /// SSL transport factory.
+    /// </summary>
     public class SslTransportFactory : TcpTransportFactory
     {
-        #region Properties
+        #region Fields
 
-        public String ServerName { get; set; }
-
-        public String ClientCertSubject { get; set; }
-
-        public String ClientCertFilename { get; set; }
-
-        public String ClientCertPassword { get; set; }
-
-        public Boolean AcceptInvalidBrokerCert { get; set; } = false;
-
-        public String KeyStoreName { get; set; }
-
-        public String KeyStoreLocation { get; set; }
+        /// <summary>
+        ///     Stores the STOMP connection settings.
+        /// </summary>
+        private readonly StompConnectionSettings _stompConnectionSettings;
 
         #endregion
 
@@ -39,22 +34,24 @@ namespace Apache.NMS.Stomp.Transport.Tcp
         public SslTransportFactory( [NotNull] StompConnectionSettings stompConnectionSettings )
             : base( stompConnectionSettings )
         {
+            stompConnectionSettings.ThrowIfNull( nameof( stompConnectionSettings ) );
+
+            _stompConnectionSettings = stompConnectionSettings;
         }
 
         #endregion
 
-        
-        protected override ITransport DoCreateTransport( Uri location, Socket socket, IWireFormat wireFormat )
+        protected override ITransport CreateTransport( Uri location, Socket socket, IWireFormat wireFormat )
         {
             var transport = new SslTransport( location, socket, wireFormat )
             {
-                ClientCertSubject = ClientCertSubject,
-                ClientCertFilename = ClientCertFilename,
-                ClientCertPassword = ClientCertPassword,
-                ServerName = ServerName,
-                KeyStoreLocation = KeyStoreLocation,
-                KeyStoreName = KeyStoreName,
-                AcceptInvalidBrokerCert = AcceptInvalidBrokerCert
+                ClientCertSubject = _stompConnectionSettings.TransportSettings.SslSettings.ClientCertSubject,
+                ClientCertFilename = _stompConnectionSettings.TransportSettings.SslSettings.ClientCertFilename,
+                ClientCertPassword = _stompConnectionSettings.TransportSettings.SslSettings.ClientCertPassword,
+                ServerName = _stompConnectionSettings.TransportSettings.SslSettings.ServerName,
+                KeyStoreLocation = _stompConnectionSettings.TransportSettings.SslSettings.KeyStoreLocation,
+                KeyStoreName = _stompConnectionSettings.TransportSettings.SslSettings.KeyStoreName,
+                AcceptInvalidBrokerCert = _stompConnectionSettings.TransportSettings.SslSettings.AcceptInvalidBrokerCert
             };
 
             return transport;

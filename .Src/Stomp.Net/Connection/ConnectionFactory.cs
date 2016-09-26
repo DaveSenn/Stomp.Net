@@ -26,6 +26,11 @@ namespace Stomp.Net
         private readonly Object _syncCreateClientIdGenerator = new Object();
 
         /// <summary>
+        ///     Stores the transport factory.
+        /// </summary>
+        private readonly ITransportFactory _transportFactory;
+
+        /// <summary>
         ///     The redelivery policy.
         /// </summary>
         private IRedeliveryPolicy _redeliveryPolicy = new RedeliveryPolicy();
@@ -74,7 +79,7 @@ namespace Stomp.Net
         #endregion
 
         #region Ctor
-        
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="ConnectionFactory" /> class.
         /// </summary>
@@ -84,10 +89,34 @@ namespace Stomp.Net
         {
             BrokerUri = URISupport.CreateCompatibleUri( brokerUri );
             StompConnectionSettings = stompConnectionSettings;
+            _transportFactory = new TransportFactory( StompConnectionSettings );
         }
 
         #endregion
-        
+
+        #region Private Members
+
+        /// <summary>
+        ///     Configures the given connection.
+        /// </summary>
+        /// <param name="connection">The connection to configure.</param>
+        private void ConfigureConnection( Connection connection )
+        {
+            
+            connection.AsyncSend = StompConnectionSettings.AsyncSend;
+            connection.CopyMessageOnSend = StompConnectionSettings.CopyMessageOnSend;
+            connection.AlwaysSyncSend = StompConnectionSettings.AlwaysSyncSend;
+            connection.SendAcksAsync = StompConnectionSettings.SendAcksAsync;
+            connection.DispatchAsync = StompConnectionSettings.DispatchAsync;
+            connection.AcknowledgementMode = AcknowledgementMode;
+            connection.RequestTimeout = RequestTimeout;
+            connection.PrefetchPolicy = StompConnectionSettings.PrefetchPolicy.Clone() as PrefetchPolicy;
+            
+            connection.RedeliveryPolicy = _redeliveryPolicy.Clone() as IRedeliveryPolicy;
+        }
+
+        #endregion
+
         #region Implementation of IConnectionFactory
 
         /// <summary>
@@ -119,7 +148,7 @@ namespace Stomp.Net
 
             try
             {
-                var transport = TransportFactory.CreateTransport( BrokerUri, StompConnectionSettings );
+                var transport = _transportFactory.CreateTransport( BrokerUri );
                 connection = new Connection( BrokerUri, transport, ClientIdGenerator, StompConnectionSettings )
                 {
                     UserName = StompConnectionSettings.UserName,
@@ -161,28 +190,7 @@ namespace Stomp.Net
                 throw NMSExceptionSupport.Create( $"Could not connect to broker URL: '{BrokerUri}'. See inner exception for details.", ex );
             }
         }
-        
-        #endregion
 
-        #region Private Members
-
-        /// <summary>
-        ///     Configures the given connection.
-        /// </summary>
-        /// <param name="connection">The connection to configure.</param>
-        private void ConfigureConnection( Connection connection )
-        {
-            connection.AsyncSend = StompConnectionSettings.AsyncSend;
-            connection.CopyMessageOnSend = StompConnectionSettings.CopyMessageOnSend;
-            connection.AlwaysSyncSend = StompConnectionSettings.AlwaysSyncSend;
-            connection.SendAcksAsync = StompConnectionSettings.SendAcksAsync;
-            connection.DispatchAsync = StompConnectionSettings.DispatchAsync;
-            connection.AcknowledgementMode = AcknowledgementMode;
-            connection.RequestTimeout = RequestTimeout;
-            connection.RedeliveryPolicy = _redeliveryPolicy.Clone() as IRedeliveryPolicy;
-            connection.PrefetchPolicy = StompConnectionSettings.PrefetchPolicy.Clone() as PrefetchPolicy;
-        }
-        
         #endregion
     }
 }

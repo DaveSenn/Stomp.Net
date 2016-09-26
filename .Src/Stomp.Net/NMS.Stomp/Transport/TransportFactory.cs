@@ -21,6 +21,7 @@ using System;
 using Apache.NMS.Stomp.Transport.Failover;
 using Apache.NMS.Stomp.Transport.Tcp;
 using Extend;
+using JetBrains.Annotations;
 using Stomp.Net;
 
 #endregion
@@ -28,10 +29,35 @@ using Stomp.Net;
 namespace Apache.NMS.Stomp.Transport
 {
     /// <summary>
-    /// TODO
+    ///     Transport factory, creating transports based on the given connection type.
     /// </summary>
-    public class TransportFactory
+    public class TransportFactory : ITransportFactory
     {
+        #region Fields
+
+        /// <summary>
+        ///     The STOMP connection settings.
+        /// </summary>
+        private readonly StompConnectionSettings _stompConnectionSettings;
+
+        #endregion
+
+        #region Ctor
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="TransportFactory" /> class.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">stompConnectionSettings can not be null.</exception>
+        /// <param name="stompConnectionSettings">Some STOMP settings.</param>
+        public TransportFactory( [NotNull] StompConnectionSettings stompConnectionSettings )
+        {
+            stompConnectionSettings.ThrowIfNull( nameof( stompConnectionSettings ) );
+
+            _stompConnectionSettings = stompConnectionSettings;
+        }
+
+        #endregion
+
         #region Private Members
 
         /// <summary>
@@ -39,9 +65,8 @@ namespace Apache.NMS.Stomp.Transport
         ///     If we do not support the transport protocol, an NMSConnectionException will be thrown.
         /// </summary>
         /// <param name="location">An URI.</param>
-        /// <param name="stompConnectionSettings">Some STOMP connections settings.</param>
         /// <returns>Returns a <see cref="ITransportFactory" />.</returns>
-        private static ITransportFactory CreateTransportFactory( Uri location, StompConnectionSettings stompConnectionSettings )
+        private ITransportFactory CreateTransportFactory( Uri location )
         {
             if ( location.Scheme.IsEmpty() )
                 throw new NMSConnectionException( $"Transport scheme invalid: [{location}]" );
@@ -53,13 +78,13 @@ namespace Apache.NMS.Stomp.Transport
                 switch ( location.Scheme.ToLower() )
                 {
                     case "failover":
-                        factory = new FailoverTransportFactory(stompConnectionSettings);
+                        factory = new FailoverTransportFactory( _stompConnectionSettings );
                         break;
                     case "tcp":
-                        factory = new TcpTransportFactory(stompConnectionSettings);
+                        factory = new TcpTransportFactory( _stompConnectionSettings );
                         break;
                     case "ssl":
-                        factory = new SslTransportFactory(stompConnectionSettings);
+                        factory = new SslTransportFactory( _stompConnectionSettings );
                         break;
                     default:
                         throw new NMSConnectionException( $"The transport {location.Scheme} is not supported." );
@@ -82,20 +107,15 @@ namespace Apache.NMS.Stomp.Transport
 
         #endregion
 
-        #region Public Members
+        #region Implementation of ITransportFactory
 
-        /// <summary>
-        ///     Creates a normal transport.
-        /// </summary>
-        /// <param name="location"></param>
-        /// <param name="stompConnectionSettings">Some STOMP connections settings.</param>
-        /// <returns>the transport</returns>
-        public static ITransport CreateTransport( Uri location, StompConnectionSettings stompConnectionSettings )
-            => CreateTransportFactory( location, stompConnectionSettings )
+        public ITransport CompositeConnect( Uri location )
+            => CreateTransportFactory( location )
                 .CreateTransport( location );
 
-        public static ITransport CompositeConnect( Uri location, StompConnectionSettings stompConnectionSettings )
-            => CreateTransportFactory( location, stompConnectionSettings ).CompositeConnect( location );
+        public ITransport CreateTransport( Uri location )
+            => CreateTransportFactory( location )
+                .CompositeConnect( location );
 
         #endregion
     }

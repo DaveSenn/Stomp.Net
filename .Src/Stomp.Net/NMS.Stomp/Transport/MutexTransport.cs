@@ -15,7 +15,7 @@ namespace Apache.NMS.Stomp.Transport
     {
         #region Fields
 
-        private readonly Object transmissionLock = new Object();
+        private readonly Object _transmissionLock = new Object();
 
         #endregion
 
@@ -37,7 +37,7 @@ namespace Apache.NMS.Stomp.Transport
             }
             finally
             {
-                Monitor.Exit( transmissionLock );
+                Monitor.Exit( _transmissionLock );
             }
         }
 
@@ -50,7 +50,7 @@ namespace Apache.NMS.Stomp.Transport
             }
             finally
             {
-                Monitor.Exit( transmissionLock );
+                Monitor.Exit( _transmissionLock );
             }
         }
 
@@ -63,7 +63,7 @@ namespace Apache.NMS.Stomp.Transport
             }
             finally
             {
-                Monitor.Exit( transmissionLock );
+                Monitor.Exit( _transmissionLock );
             }
         }
 
@@ -76,20 +76,20 @@ namespace Apache.NMS.Stomp.Transport
 
                 while ( true )
                 {
-                    if ( Monitor.TryEnter( transmissionLock ) )
+                    if ( Monitor.TryEnter( _transmissionLock ) )
                         break;
 
                     if ( DateTime.Now > timeoutTime )
-                        throw new IOException( String.Format( "Oneway timed out after {0} milliseconds.", timeout ) );
+                        throw new IOException( $"Oneway timed out after {timeout} milliseconds." );
 
-                    // Back off from being overly aggressive.  Having too many threads
-                    // aggressively trying to get the lock pegs the CPU.
+                    // Back off from being overly aggressive.
+                    // Having too many threads aggressively trying to get the lock pegs the CPU.
                     Thread.Sleep( 3 * waitCount++ );
                 }
             }
             else
             {
-                Monitor.Enter( transmissionLock );
+                Monitor.Enter( _transmissionLock );
             }
         }
     }

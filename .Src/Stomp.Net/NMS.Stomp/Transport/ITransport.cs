@@ -16,10 +16,10 @@ namespace Apache.NMS.Stomp.Transport
     public delegate void ResumedHandler( ITransport sender );
 
     /// <summary>
-    ///     Represents the logical networking transport layer.  Transports implment the low
+    ///     Represents the logical networking transport layer.  Transports implement the low
     ///     level protocol specific portion of the Communication between the Client and a Broker
-    ///     such as TCP, UDP, etc.  Transports make use of WireFormat objects to handle translateing
-    ///     the cononical OpenWire Commands used in this client into binary wire level packets that
+    ///     such as TCP, UDP, etc.  Transports make use of WireFormat objects to handle translating
+    ///     the canonical OpenWire Commands used in this client into binary wire level packets that
     ///     can be sent to the Broker or Service that the Transport connects to.
     /// </summary>
     public interface ITransport : IStartable, IDisposable, IStoppable
