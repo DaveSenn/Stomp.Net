@@ -20,6 +20,7 @@
 using System;
 using Apache.NMS.Stomp.Transport.Failover;
 using Apache.NMS.Stomp.Transport.Tcp;
+using Extend;
 
 #endregion
 
@@ -27,52 +28,39 @@ namespace Apache.NMS.Stomp.Transport
 {
     public class TransportFactory
     {
-        public static ITransport AsyncCompositeConnect( Uri location, SetTransport setTransport )
-        {
-            var tf = CreateTransportFactory( location );
-            return tf.CompositeConnect( location, setTransport );
-        }
-
-        public static ITransport CompositeConnect( Uri location )
-        {
-            var tf = CreateTransportFactory( location );
-            return tf.CompositeConnect( location );
-        }
+        #region Public Members
 
         /// <summary>
         ///     Creates a normal transport.
         /// </summary>
         /// <param name="location"></param>
         /// <returns>the transport</returns>
-        public static ITransport CreateTransport( Uri location )
-        {
-            var tf = CreateTransportFactory( location );
-            return tf.CreateTransport( location );
-        }
+        public static ITransport CreateTransport(Uri location)
+            => CreateTransportFactory(location).CreateTransport(location);
 
-        public static void HandleException( Exception ex )
-            => OnException?.Invoke( ex );
+        public static ITransport CompositeConnect(Uri location)
+            => CreateTransportFactory(location).CompositeConnect(location);
 
-        public static event ExceptionListener OnException;
+        #endregion
+
+        #region Private Members
 
         /// <summary>
-        ///     Create a transport factory for the scheme.  If we do not support the transport protocol,
-        ///     an NMSConnectionException will be thrown.
+        ///     Create a transport factory for the scheme.
+        ///     If we do not support the transport protocol, an NMSConnectionException will be thrown.
         /// </summary>
-        /// <param name="location"></param>
-        /// <returns></returns>
+        /// <param name="location">An URI.</param>
+        /// <returns>Returns a <see cref="ITransportFactory" />.</returns>
         private static ITransportFactory CreateTransportFactory( Uri location )
         {
-            var scheme = location.Scheme;
+            if ( location.Scheme.IsEmpty() )
+                throw new NMSConnectionException( $"Transport scheme invalid: [{location}]" );
 
-            if ( String.IsNullOrEmpty( scheme ) )
-                throw new NMSConnectionException( String.Format( "Transport scheme invalid: [{0}]", location ) );
-
-            ITransportFactory factory = null;
+            ITransportFactory factory;
 
             try
             {
-                switch ( scheme.ToLower() )
+                switch ( location.Scheme.ToLower() )
                 {
                     case "failover":
                         factory = new FailoverTransportFactory();
@@ -84,16 +72,16 @@ namespace Apache.NMS.Stomp.Transport
                         factory = new SslTransportFactory();
                         break;
                     default:
-                        throw new NMSConnectionException( String.Format( "The transport {0} is not supported.", scheme ) );
+                        throw new NMSConnectionException( $"The transport {location.Scheme} is not supported." );
                 }
             }
             catch ( NMSConnectionException )
             {
                 throw;
             }
-            catch
+            catch ( Exception ex )
             {
-                throw new NMSConnectionException( "Error creating transport." );
+                throw new NMSConnectionException( "Error creating transport.", ex );
             }
 
             if ( null == factory )
@@ -101,5 +89,7 @@ namespace Apache.NMS.Stomp.Transport
 
             return factory;
         }
+
+        #endregion
     }
 }

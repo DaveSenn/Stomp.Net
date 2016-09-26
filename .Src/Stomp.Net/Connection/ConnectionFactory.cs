@@ -1,14 +1,13 @@
 #region Usings
 
 using System;
+using Apache.NMS;
 using Apache.NMS.Policies;
+using Apache.NMS.Stomp;
 using Apache.NMS.Stomp.Transport;
 using Apache.NMS.Stomp.Util;
 using Apache.NMS.Util;
 using Extend;
-using Stomp.Net;
-using Apache.NMS;
-using Apache.NMS.Stomp;
 
 #endregion
 
@@ -75,15 +74,7 @@ namespace Stomp.Net
         #endregion
 
         #region Ctor
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ConnectionFactory" /> class.
-        /// </summary>
-        static ConnectionFactory()
-        {
-            TransportFactory.OnException += ExceptionHandler;
-        }
-
+        
         /// <summary>
         ///     Initializes a new instance of the <see cref="ConnectionFactory" /> class.
         /// </summary>
@@ -96,17 +87,7 @@ namespace Stomp.Net
         }
 
         #endregion
-
-        #region Events
-
-        /// <summary>
-        ///     Event fired on exception.
-        /// </summary>
-        // ReSharper disable once InconsistentNaming
-        private static event ExceptionListener _onException;
-
-        #endregion
-
+        
         #region Implementation of IConnectionFactory
 
         /// <summary>
@@ -138,10 +119,7 @@ namespace Stomp.Net
 
             try
             {
-                Tracer.InfoFormat( "Connecting to: {0}", BrokerUri.ToString() );
-
                 var transport = TransportFactory.CreateTransport( BrokerUri );
-
                 connection = new Connection( BrokerUri, transport, ClientIdGenerator )
                 {
                     UserName = StompConnectionSettings.UserName,
@@ -183,20 +161,7 @@ namespace Stomp.Net
                 throw NMSExceptionSupport.Create( $"Could not connect to broker URL: '{BrokerUri}'. See inner exception for details.", ex );
             }
         }
-
-        /// <summary>
-        ///     Event fired on exception.
-        /// </summary>
-        public event ExceptionListener OnException
-        {
-            add { _onException += value; }
-            remove
-            {
-                if ( _onException != null )
-                    _onException -= value;
-            }
-        }
-
+        
         #endregion
 
         #region Private Members
@@ -217,14 +182,7 @@ namespace Stomp.Net
             connection.RedeliveryPolicy = _redeliveryPolicy.Clone() as IRedeliveryPolicy;
             connection.PrefetchPolicy = StompConnectionSettings.PrefetchPolicy.Clone() as PrefetchPolicy;
         }
-
-        /// <summary>
-        ///     Publishes the <see cref="OnException" /> event.
-        /// </summary>
-        /// <param name="ex">The exception.</param>
-        private static void ExceptionHandler( Exception ex )
-            => _onException?.Invoke( ex );
-
+        
         #endregion
     }
 }

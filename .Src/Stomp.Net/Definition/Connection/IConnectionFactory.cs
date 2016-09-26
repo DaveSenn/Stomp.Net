@@ -30,14 +30,5 @@ namespace Stomp.Net
         ///     Creates a new connection
         /// </summary>
         IConnection CreateConnection();
-
-        #region Events
-
-        /// <summary>
-        ///     Event fired on exception.
-        /// </summary>
-        event ExceptionListener OnException;
-
-        #endregion
     }
 }
