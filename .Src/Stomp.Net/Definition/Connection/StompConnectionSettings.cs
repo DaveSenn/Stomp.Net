@@ -55,6 +55,12 @@ namespace Stomp.Net
         /// </summary>
         public PrefetchPolicy PrefetchPolicy { get; } = new PrefetchPolicy();
 
+        /// <summary>
+        ///     Gets the transport settings.
+        /// </summary>
+        /// <value>The transport settings.</value>
+        public StompTransportSettings TransportSettings { get; } = new StompTransportSettings();
+
         #endregion
     }
 }

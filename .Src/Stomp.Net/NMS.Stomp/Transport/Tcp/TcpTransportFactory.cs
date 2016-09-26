@@ -5,6 +5,9 @@ using System.Net;
 using System.Net.Sockets;
 using Apache.NMS.Stomp.Protocol;
 using Apache.NMS.Util;
+using Extend;
+using JetBrains.Annotations;
+using Stomp.Net;
 
 #endregion
 
@@ -12,218 +15,35 @@ namespace Apache.NMS.Stomp.Transport.Tcp
 {
     public class TcpTransportFactory : ITransportFactory
     {
-        #region Properties
-
-        public Boolean UseLogging { get; set; }
+        #region Fields
 
         /// <summary>
-        ///     Should the Inactivity Monitor be enabled on this Transport.
+        ///     The STOMP connection settings.
         /// </summary>
-        private Boolean useInactivityMonitor = true;
-
-        public Boolean UseInactivityMonitor
-        {
-            get { return useInactivityMonitor; }
-            set { useInactivityMonitor = value; }
-        }
-
-        /// <summary>
-        ///     Size in bytes of the receive buffer.
-        /// </summary>
-        private Int32 receiveBufferSize = 8192;
-
-        public Int32 ReceiveBufferSize
-        {
-            get { return receiveBufferSize; }
-            set { receiveBufferSize = value; }
-        }
-
-        /// <summary>
-        ///     Size in bytes of send buffer.
-        /// </summary>
-        private Int32 sendBufferSize = 8192;
-
-        public Int32 SendBufferSize
-        {
-            get { return sendBufferSize; }
-            set { sendBufferSize = value; }
-        }
-
-        /// <summary>
-        ///     The time-out value, in milliseconds. The default value is 0, which indicates
-        ///     an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
-        /// </summary>
-        private Int32 receiveTimeout;
-
-        public Int32 ReceiveTimeout
-        {
-            get { return receiveTimeout; }
-            set { receiveTimeout = value; }
-        }
-
-        /// <summary>
-        ///     The time-out value, in milliseconds. If you set the property with a value between 1 and 499,
-        ///     the value will be changed to 500. The default value is 0, which indicates an infinite
-        ///     time-out period. Specifying -1 also indicates an infinite time-out period.
-        /// </summary>
-        private Int32 sendTimeout;
-
-        public Int32 SendTimeout
-        {
-            get { return sendTimeout; }
-            set { sendTimeout = value; }
-        }
+        private readonly StompConnectionSettings _stompConnectionSettings;
 
         #endregion
 
-        #region ITransportFactory Members
+        #region Ctor
 
-        public ITransport CompositeConnect( Uri location ) => CompositeConnect( location, null );
-
-        public ITransport CompositeConnect( Uri location, SetTransport setTransport )
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="TcpTransportFactory" /> class.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">stompConnectionSettings can not be null.</exception>
+        /// <param name="stompConnectionSettings">Some STOMP settings.</param>
+        public TcpTransportFactory( [NotNull] StompConnectionSettings stompConnectionSettings )
         {
-            // Extract query parameters from broker Uri
-            var map = URISupport.ParseQuery( location.Query );
+            stompConnectionSettings.ThrowIfNull( nameof( stompConnectionSettings ) );
 
-            // Set transport. properties on this (the factory)
-            URISupport.SetProperties( this, map, "transport." );
-
-            Tracer.Debug( "Opening socket to: " + location.Host + " on port: " + location.Port );
-            var socket = Connect( location.Host, location.Port );
-
-#if !NETCF
-            socket.ReceiveBufferSize = ReceiveBufferSize;
-            socket.SendBufferSize = SendBufferSize;
-            socket.ReceiveTimeout = ReceiveTimeout;
-            socket.SendTimeout = SendTimeout;
-#endif
-
-            var wireformat = new StompWireFormat();
-            // Set wireformat. properties on the wireformat owned by the tcpTransport
-            URISupport.SetProperties( wireformat, map, "wireFormat." );
-            var transport = DoCreateTransport( location, socket, wireformat );
-
-            wireformat.Transport = transport;
-
-            if ( UseLogging )
-                transport = new LoggingTransport( transport );
-
-            if ( UseInactivityMonitor )
-                transport = new InactivityMonitor( transport, wireformat );
-
-            if ( setTransport != null )
-                setTransport( transport, location );
-
-            return transport;
-        }
-
-        public ITransport CreateTransport( Uri location )
-        {
-            var transport = CompositeConnect( location );
-
-            transport = new MutexTransport( transport );
-            transport = new ResponseCorrelator( transport );
-
-            return transport;
+            _stompConnectionSettings = stompConnectionSettings;
         }
 
         #endregion
-
-        /// <summary>
-        ///     Override in a subclass to create the specific type of transport that is
-        ///     being implemented.
-        /// </summary>
-        protected virtual ITransport DoCreateTransport( Uri location, Socket socket, IWireFormat wireFormat ) => new TcpTransport( location, socket, wireFormat );
-
-        // DISCUSSION: Caching host entries may not be the best strategy when using the
-        // failover protocol.  The failover protocol needs to be very dynamic when looking
-        // up hostnames at runtime.  If old hostname->IP mappings are kept around, this may
-        // lead to runtime failures that could have been avoided by dynamically looking up
-        // the new hostname IP.
-#if CACHE_HOSTENTRIES
-		private static IDictionary<string, IPHostEntry> CachedIPHostEntries = new Dictionary<string, IPHostEntry>();
-		private static readonly object _syncLock = new object();
-#endif
-
-        public static IPHostEntry GetIPHostEntry( String host )
-        {
-            IPHostEntry ipEntry;
-
-#if CACHE_HOSTENTRIES
-			string hostUpperName = host.ToUpper();
-
-			lock (_syncLock)
-			{
-				if (!CachedIPHostEntries.TryGetValue(hostUpperName, out ipEntry))
-				{
-					try
-					{
-						ipEntry = Dns.GetHostEntry(hostUpperName);
-						CachedIPHostEntries.Add(hostUpperName, ipEntry);
-					}
-					catch
-					{
-						ipEntry = null;
-					}
-				}
-			}
-#else
-            try
-            {
-                ipEntry = Dns.GetHostEntry( host );
-            }
-            catch
-            {
-                ipEntry = null;
-            }
-#endif
-
-            return ipEntry;
-        }
-
-        private Socket ConnectSocket( IPAddress address, Int32 port )
-        {
-            if ( null != address )
-                try
-                {
-                    var socket = new Socket( address.AddressFamily, SocketType.Stream, ProtocolType.Tcp );
-
-                    if ( null != socket )
-                    {
-                        socket.Connect( new IPEndPoint( address, port ) );
-                        if ( socket.Connected )
-                            return socket;
-                    }
-                }
-                catch
-                {
-                }
-
-            return null;
-        }
-
-        public static Boolean TryParseIPAddress( String host, out IPAddress ipaddress )
-        {
-#if !NETCF
-            return IPAddress.TryParse( host, out ipaddress );
-#else
-			try
-			{
-				ipaddress = IPAddress.Parse(host);
-			}
-			catch
-			{
-				ipaddress = null;
-			}
-
-			return (null != ipaddress);
-#endif
-        }
 
         public static IPAddress GetIPAddress( String hostname, AddressFamily addressFamily )
         {
             IPAddress ipaddress = null;
-            var hostEntry = GetIPHostEntry( hostname );
+            var hostEntry = GetHostEntry( hostname );
 
             if ( null != hostEntry )
                 ipaddress = GetIPAddress( hostEntry, addressFamily );
@@ -241,6 +61,24 @@ namespace Apache.NMS.Stomp.Transport.Tcp
             return null;
         }
 
+        public static Boolean TryParseIPAddress( String host, out IPAddress ipaddress )
+        {
+#if !NETCF
+            return IPAddress.TryParse( host, out ipaddress );
+#else
+            try
+            {
+                ipaddress = IPAddress.Parse(host);
+            }
+            catch
+            {
+                ipaddress = null;
+            }
+
+            return (null != ipaddress);
+#endif
+        }
+
         protected Socket Connect( String host, Int32 port )
         {
             Socket socket = null;
@@ -256,7 +94,7 @@ namespace Apache.NMS.Stomp.Transport.Tcp
                 {
                     // Looping through the AddressList allows different type of connections to be tried
                     // (IPv6, IPv4 and whatever else may be available).
-                    var hostEntry = GetIPHostEntry( host );
+                    var hostEntry = GetHostEntry( host );
 
                     if ( null != hostEntry )
                     {
@@ -297,5 +135,100 @@ namespace Apache.NMS.Stomp.Transport.Tcp
             Tracer.DebugFormat( "Connected to {0}:{1} using {2} protocol.", host, port, ipaddress.AddressFamily.ToString() );
             return socket;
         }
+
+        /// <summary>
+        ///     Override in a subclass to create the specific type of transport that is
+        ///     being implemented.
+        /// </summary>
+        protected virtual ITransport DoCreateTransport( Uri location, Socket socket, IWireFormat wireFormat ) => new TcpTransport( location, socket, wireFormat );
+
+        private Socket ConnectSocket( IPAddress address, Int32 port )
+        {
+            if ( null != address )
+                try
+                {
+                    var socket = new Socket( address.AddressFamily, SocketType.Stream, ProtocolType.Tcp );
+
+                    if ( null != socket )
+                    {
+                        socket.Connect( new IPEndPoint( address, port ) );
+                        if ( socket.Connected )
+                            return socket;
+                    }
+                }
+                catch
+                {
+                }
+
+            return null;
+        }
+
+        #region Private Members
+
+        /// <summary>
+        ///     Gets the DNS entry of the host with the given name.
+        /// </summary>
+        /// <param name="host">The name of the host.</param>
+        /// <returns>returns the DNS entry, or null if not found.</returns>
+        [CanBeNull]
+        private static IPHostEntry GetHostEntry( [NotNull] String host )
+        {
+            try
+            {
+                return Dns.GetHostEntry( host );
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        #endregion
+
+        #region ITransportFactory Members
+
+        /*
+        public ITransport CompositeConnect( Uri location )
+            => CompositeConnect( location, null );
+        */
+
+        public ITransport CompositeConnect( Uri location )
+        {
+            // Extract query parameters from broker Uri
+            var map = URISupport.ParseQuery( location.Query );
+            
+            var socket = Connect( location.Host, location.Port );
+            socket.ReceiveBufferSize = _stompConnectionSettings.TransportSettings.ReceiveBufferSize;
+            socket.SendBufferSize = _stompConnectionSettings.TransportSettings.SendBufferSize;
+            socket.ReceiveTimeout = _stompConnectionSettings.TransportSettings.ReceiveTimeout;
+            socket.SendTimeout = _stompConnectionSettings.TransportSettings.SendTimeout;
+
+            var wireformat = new StompWireFormat();
+            // Set wireformat. properties on the wireformat owned by the tcpTransport
+            URISupport.SetProperties( wireformat, map, "wireFormat." );
+            var transport = DoCreateTransport( location, socket, wireformat );
+
+            wireformat.Transport = transport;
+
+            if (_stompConnectionSettings.TransportSettings.UseLogging )
+                transport = new LoggingTransport( transport );
+
+            if (_stompConnectionSettings.TransportSettings.UseInactivityMonitor )
+                transport = new InactivityMonitor( transport, wireformat );
+            
+            return transport;
+        }
+
+        public ITransport CreateTransport( Uri location )
+        {
+            var transport = CompositeConnect( location );
+
+            transport = new MutexTransport( transport );
+            transport = new ResponseCorrelator( transport );
+
+            return transport;
+        }
+
+        #endregion
     }
 }

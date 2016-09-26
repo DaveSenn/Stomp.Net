@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Apache.NMS;
-using Apache.NMS.Stomp;
 using Extend;
 
 #endregion
@@ -56,12 +55,15 @@ namespace Stomp.Net.Example.Selectors
         private static void Send( String selectorValue, Int32 messageCount )
         {
             var brokerUri = "tcp://" + Host + ":" + Port;
-            brokerUri += "?transport.useInactivityMonitor=true&amp;trace=true";
             var factory = new ConnectionFactory( brokerUri,
                                                  new StompConnectionSettings
                                                  {
                                                      UserName = User,
-                                                     Password = Password
+                                                     Password = Password,
+                                                     TransportSettings =
+                                                     {
+                                                         UseInactivityMonitor = true
+                                                     }
                                                  } );
 
             // Create connection for both requests and responses
@@ -109,12 +111,15 @@ namespace Stomp.Net.Example.Selectors
                 => new Thread( () =>
                                {
                                    var brokerUri = "tcp://" + Host + ":" + Port;
-                                   brokerUri += "?transport.useInactivityMonitor=true&amp;trace=true";
                                    var factory = new ConnectionFactory( brokerUri,
                                                                         new StompConnectionSettings
                                                                         {
                                                                             UserName = User,
-                                                                            Password = Password
+                                                                            Password = Password,
+                                                                            TransportSettings =
+                                                                            {
+                                                                                UseInactivityMonitor = true
+                                                                            }
                                                                         } );
 
                                    // Create connection for both requests and responses

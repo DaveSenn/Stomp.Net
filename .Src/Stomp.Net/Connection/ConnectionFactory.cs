@@ -119,8 +119,8 @@ namespace Stomp.Net
 
             try
             {
-                var transport = TransportFactory.CreateTransport( BrokerUri );
-                connection = new Connection( BrokerUri, transport, ClientIdGenerator )
+                var transport = TransportFactory.CreateTransport( BrokerUri, StompConnectionSettings );
+                connection = new Connection( BrokerUri, transport, ClientIdGenerator, StompConnectionSettings )
                 {
                     UserName = StompConnectionSettings.UserName,
                     Password = StompConnectionSettings.Password

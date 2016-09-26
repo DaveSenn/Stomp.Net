@@ -8,6 +8,9 @@ using Apache.NMS.Stomp.Threads;
 using Apache.NMS.Stomp.Transport;
 using Apache.NMS.Stomp.Util;
 using Apache.NMS.Util;
+using Extend;
+using JetBrains.Annotations;
+using Stomp.Net;
 
 #endregion
 
@@ -25,6 +28,11 @@ namespace Apache.NMS.Stomp
         #endregion
 
         #region Fields
+
+        /// <summary>
+        ///     The STOMP connection settings.
+        /// </summary>
+        private readonly StompConnectionSettings _stompConnectionSettings;
 
         private readonly IdGenerator clientIdGenerator;
         private readonly Atomic<Boolean> closed = new Atomic<Boolean>( false );
@@ -155,19 +163,23 @@ namespace Apache.NMS.Stomp
 
         #region Ctor
 
-        public Connection( Uri connectionUri, ITransport transport, IdGenerator clientIdGenerator )
+        public Connection( Uri connectionUri, ITransport transport, IdGenerator clientIdGenerator, [NotNull] StompConnectionSettings stompConnectionSettings )
         {
+            stompConnectionSettings.ThrowIfNull( nameof( stompConnectionSettings ) );
+
+            _stompConnectionSettings = stompConnectionSettings;
             BrokerUri = connectionUri;
             this.clientIdGenerator = clientIdGenerator;
 
             SetTransport( transport );
 
-            var id = new ConnectionId();
-            id.Value = CONNECTION_ID_GENERATOR.GenerateId();
+            var id = new ConnectionId { Value = CONNECTION_ID_GENERATOR.GenerateId() };
 
-            info = new ConnectionInfo();
-            info.ConnectionId = id;
-            info.Host = BrokerUri.Host;
+            info = new ConnectionInfo
+            {
+                ConnectionId = id,
+                Host = BrokerUri.Host
+            };
 
             MessageTransformation = new StompMessageTransformation( this );
         }
@@ -595,7 +607,7 @@ namespace Apache.NMS.Stomp
                                             // Shutdown the transport connection, and re-create it, but don't start it.
                                             // It will be started if the connection is re-attempted.
                                             ITransport.Stop();
-                                            var newTransport = TransportFactory.CreateTransport( BrokerUri );
+                                            var newTransport = TransportFactory.CreateTransport( BrokerUri, _stompConnectionSettings );
                                             SetTransport( newTransport );
                                             throw exception;
                                         }

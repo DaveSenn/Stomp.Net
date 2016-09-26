@@ -25,6 +25,9 @@ using Apache.NMS.Stomp.Commands;
 using Apache.NMS.Stomp.State;
 using Apache.NMS.Stomp.Threads;
 using Apache.NMS.Util;
+using Extend;
+using JetBrains.Annotations;
+using Stomp.Net;
 
 #endregion
 
@@ -61,6 +64,10 @@ namespace Apache.NMS.Stomp.Transport.Failover
         private volatile Exception failure;
         private Boolean firstConnection = true;
         private TaskRunner reconnectTask;
+        /// <summary>
+        ///     The STOMP connection settings.
+        /// </summary>
+        private readonly StompConnectionSettings _stompConnectionSettings;
 
         #endregion
 
@@ -99,8 +106,17 @@ namespace Apache.NMS.Stomp.Transport.Failover
 
         #region Ctor
 
-        public FailoverTransport()
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="FailoverTransport" /> class.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">stompConnectionSettings can not be null.</exception>
+        /// <param name="stompConnectionSettings">Some STOMP settings.</param>
+        public FailoverTransport([NotNull] StompConnectionSettings stompConnectionSettings)
         {
+            stompConnectionSettings.ThrowIfNull(nameof(stompConnectionSettings));
+
+            _stompConnectionSettings = stompConnectionSettings;
             id = idCounter++;
         }
 
@@ -570,7 +586,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
                                 try
                                 {
                                     Tracer.DebugFormat( "Attempting connect to: {0}", uri.ToString() );
-                                    transport = TransportFactory.CompositeConnect( uri );
+                                    transport = TransportFactory.CompositeConnect( uri, _stompConnectionSettings );
                                     chosenUri = transport.RemoteAddress;
                                     break;
                                 }

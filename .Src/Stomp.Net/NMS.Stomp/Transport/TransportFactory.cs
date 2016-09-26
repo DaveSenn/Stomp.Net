@@ -21,28 +21,17 @@ using System;
 using Apache.NMS.Stomp.Transport.Failover;
 using Apache.NMS.Stomp.Transport.Tcp;
 using Extend;
+using Stomp.Net;
 
 #endregion
 
 namespace Apache.NMS.Stomp.Transport
 {
+    /// <summary>
+    /// TODO
+    /// </summary>
     public class TransportFactory
     {
-        #region Public Members
-
-        /// <summary>
-        ///     Creates a normal transport.
-        /// </summary>
-        /// <param name="location"></param>
-        /// <returns>the transport</returns>
-        public static ITransport CreateTransport(Uri location)
-            => CreateTransportFactory(location).CreateTransport(location);
-
-        public static ITransport CompositeConnect(Uri location)
-            => CreateTransportFactory(location).CompositeConnect(location);
-
-        #endregion
-
         #region Private Members
 
         /// <summary>
@@ -50,8 +39,9 @@ namespace Apache.NMS.Stomp.Transport
         ///     If we do not support the transport protocol, an NMSConnectionException will be thrown.
         /// </summary>
         /// <param name="location">An URI.</param>
+        /// <param name="stompConnectionSettings">Some STOMP connections settings.</param>
         /// <returns>Returns a <see cref="ITransportFactory" />.</returns>
-        private static ITransportFactory CreateTransportFactory( Uri location )
+        private static ITransportFactory CreateTransportFactory( Uri location, StompConnectionSettings stompConnectionSettings )
         {
             if ( location.Scheme.IsEmpty() )
                 throw new NMSConnectionException( $"Transport scheme invalid: [{location}]" );
@@ -63,13 +53,13 @@ namespace Apache.NMS.Stomp.Transport
                 switch ( location.Scheme.ToLower() )
                 {
                     case "failover":
-                        factory = new FailoverTransportFactory();
+                        factory = new FailoverTransportFactory(stompConnectionSettings);
                         break;
                     case "tcp":
-                        factory = new TcpTransportFactory();
+                        factory = new TcpTransportFactory(stompConnectionSettings);
                         break;
                     case "ssl":
-                        factory = new SslTransportFactory();
+                        factory = new SslTransportFactory(stompConnectionSettings);
                         break;
                     default:
                         throw new NMSConnectionException( $"The transport {location.Scheme} is not supported." );
@@ -89,6 +79,23 @@ namespace Apache.NMS.Stomp.Transport
 
             return factory;
         }
+
+        #endregion
+
+        #region Public Members
+
+        /// <summary>
+        ///     Creates a normal transport.
+        /// </summary>
+        /// <param name="location"></param>
+        /// <param name="stompConnectionSettings">Some STOMP connections settings.</param>
+        /// <returns>the transport</returns>
+        public static ITransport CreateTransport( Uri location, StompConnectionSettings stompConnectionSettings )
+            => CreateTransportFactory( location, stompConnectionSettings )
+                .CreateTransport( location );
+
+        public static ITransport CompositeConnect( Uri location, StompConnectionSettings stompConnectionSettings )
+            => CreateTransportFactory( location, stompConnectionSettings ).CompositeConnect( location );
 
         #endregion
     }

@@ -20,6 +20,9 @@
 using System;
 using System.Collections.Generic;
 using Apache.NMS.Util;
+using Extend;
+using JetBrains.Annotations;
+using Stomp.Net;
 
 #endregion
 
@@ -27,12 +30,32 @@ namespace Apache.NMS.Stomp.Transport.Failover
 {
     public class FailoverTransportFactory : ITransportFactory
     {
-        public ITransport CompositeConnect( Uri location ) => CreateTransport( URISupport.ParseComposite( location ) );
+        #region Fields
 
-        public ITransport CompositeConnect( Uri location, SetTransport setTransport )
+        /// <summary>
+        ///     The STOMP connection settings.
+        /// </summary>
+        private readonly StompConnectionSettings _stompConnectionSettings;
+
+        #endregion
+
+        #region Ctor
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="FailoverTransportFactory" /> class.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">stompConnectionSettings can not be null.</exception>
+        /// <param name="stompConnectionSettings">Some STOMP settings.</param>
+        public FailoverTransportFactory( [NotNull] StompConnectionSettings stompConnectionSettings )
         {
-            throw new NMSConnectionException( "Asynchronous composite connection not supported with Failover transport." );
+            stompConnectionSettings.ThrowIfNull( nameof( stompConnectionSettings ) );
+
+            _stompConnectionSettings = stompConnectionSettings;
         }
+
+        #endregion
+
+        public ITransport CompositeConnect( Uri location ) => CreateTransport( URISupport.ParseComposite( location ) );
 
         public ITransport CreateTransport( Uri location ) => doConnect( location );
 
@@ -50,7 +73,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
 
         public FailoverTransport CreateTransport( Dictionary<String, String> parameters )
         {
-            var transport = new FailoverTransport();
+            var transport = new FailoverTransport(_stompConnectionSettings);
             URISupport.SetProperties( transport, parameters, "" );
             return transport;
         }
