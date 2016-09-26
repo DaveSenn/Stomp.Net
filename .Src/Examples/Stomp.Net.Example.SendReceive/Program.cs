@@ -32,11 +32,10 @@ namespace Stomp.Net.Example.Producer
         private static void SendReceive()
         {
             var brokerUri = "stomp:tcp://" + Host + ":" + Port;
-            //var factory = new NMSConnectionFactory( brokerUri );
-            var factory = new ConnectionFactory( brokerUri );
+            var factory = new ConnectionFactory( brokerUri, new StompConnectionSettings { UserName = User, Password = Password });
 
             // Create connection for both requests and responses
-            var connection = factory.CreateConnection( User, Password );
+            var connection = factory.CreateConnection( );
             connection.Start();
 
             // Create session for both requests and responses
