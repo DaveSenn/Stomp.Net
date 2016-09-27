@@ -12,7 +12,7 @@ namespace Stomp.Net.Example.Producer
     {
         #region Constants
 
-        private const String Destination = "TestQ";
+        private const String Destination = "PerfQ1";
         private const String Host = "atmfutura";
         //private const String Host = "parsnip";
         private const String Password = "password";
@@ -44,7 +44,7 @@ namespace Stomp.Net.Example.Producer
 
             IDestination destinationQueue = session.GetQueue( Destination );
             var producer = session.CreateProducer( destinationQueue );
-            producer.DeliveryMode = MessageDeliveryMode.NonPersistent;
+            producer.DeliveryMode = MessageDeliveryMode.Persistent;
 
             var message = session.CreateTextMessage( RandomValueEx.GetRandomString() );
             producer.Send( message );

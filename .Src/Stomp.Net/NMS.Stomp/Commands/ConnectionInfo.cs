@@ -32,21 +32,24 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType() => DataStructureTypes.ConnectionInfoType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.ConnectionInfoType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => GetType()
-                                                 .Name + "[" +
-                                             "ConnectionId=" + ConnectionId + ", " +
-                                             "Host=" + Host + ", " +
-                                             "ClientId=" + ClientId + ", " +
-                                             "Password=" + Password + ", " +
-                                             "UserName=" + UserName +
-                                             "]";
+        public override String ToString()
+            => GetType()
+                   .Name + "[" +
+               "ConnectionId=" + ConnectionId + ", " +
+               "Host=" + Host + ", " +
+               "ClientId=" + ClientId + ", " +
+               "Password=" + Password + ", " +
+               "UserName=" + UserName +
+               "]";
 
-        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessAddConnection( this );
+        public override Response Visit( ICommandVisitor visitor )
+            => visitor.ProcessAddConnection( this );
     }
 }

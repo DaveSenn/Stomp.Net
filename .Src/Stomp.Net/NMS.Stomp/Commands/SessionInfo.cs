@@ -13,11 +13,6 @@ namespace Apache.NMS.Stomp.Commands
 
         public SessionId SessionId { get; set; }
 
-        /// <summery>
-        ///     Return an answer of true to the isSessionInfo() query.
-        /// </summery>
-        public override Boolean IsSessionInfo => true;
-
         #endregion
 
         #region Ctor
@@ -37,15 +32,18 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType() => DataStructureTypes.SessionInfoType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.SessionInfoType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => GetType()
-                                                 .Name + "[" + "SessionId=" + SessionId + "]";
+        public override String ToString()
+            => GetType()
+                   .Name + "[" + "SessionId=" + SessionId + "]";
 
-        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessAddSession( this );
+        public override Response Visit( ICommandVisitor visitor )
+            => visitor.ProcessAddSession( this );
     }
 }

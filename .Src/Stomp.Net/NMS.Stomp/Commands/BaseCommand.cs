@@ -11,21 +11,11 @@ namespace Apache.NMS.Stomp.Commands
     {
         #region Properties
 
-        public virtual Boolean IsBrokerInfo => false;
+        public virtual Boolean IsMessage => false;
 
-        public virtual Boolean IsConnectionError => false;
+        public virtual Boolean IsMessageAck => false;
 
-        public virtual Boolean IsConsumerInfo => false;
-
-        public virtual Boolean IsControlCommand => false;
-
-        public virtual Boolean IsProducerAck => false;
-
-        public virtual Boolean IsProducerInfo => false;
-
-        public virtual Boolean IsSessionInfo => false;
-
-        public virtual Boolean IsTransactionInfo => false;
+        public virtual Boolean IsRemoveSubscriptionInfo => false;
 
         #endregion
 
@@ -44,21 +34,13 @@ namespace Apache.NMS.Stomp.Commands
 
         public virtual Boolean IsConnectionInfo => false;
 
-        //public virtual Boolean IsDestinationInfo => false;
-
         public virtual Boolean IsErrorCommand => false;
 
         public virtual Boolean IsKeepAliveInfo => false;
 
-        public virtual Boolean IsMessage => false;
-
-        public virtual Boolean IsMessageAck => false;
-
         public virtual Boolean IsMessageDispatch => false;
 
         public virtual Boolean IsRemoveInfo => false;
-
-        public virtual Boolean IsRemoveSubscriptionInfo => false;
 
         public virtual Boolean IsResponse => false;
 

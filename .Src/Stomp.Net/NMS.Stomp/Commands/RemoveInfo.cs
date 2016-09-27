@@ -11,7 +11,7 @@ namespace Apache.NMS.Stomp.Commands
     {
         #region Properties
 
-        public DataStructure ObjectId { get; set; }
+        public IDataStructure ObjectId { get; set; }
 
         /// <summery>
         ///     Return an answer of true to the isRemoveInfo() query.

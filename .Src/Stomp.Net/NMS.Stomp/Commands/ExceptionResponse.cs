@@ -18,15 +18,17 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType() => DataStructureTypes.ErrorResponseType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.ErrorResponseType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => GetType()
-                                                 .Name + "[" +
-                                             "Exception=" + Exception +
-                                             "]";
+        public override String ToString()
+            => GetType()
+                   .Name + "[" +
+               "Exception=" + Exception +
+               "]";
     }
 }

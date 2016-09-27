@@ -13,12 +13,7 @@ namespace Apache.NMS.Stomp.Commands
 
         public BrokerError Exception { get; set; }
 
-        public ConnectionId ConnectionId { get; set; }
-
-        /// <summery>
-        ///     Return an answer of true to the isConnectionError() query.
-        /// </summery>
-        public override Boolean IsConnectionError => true;
+        private ConnectionId ConnectionId { get; set; }
 
         #endregion
 
@@ -26,18 +21,21 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType() => DataStructureTypes.ErrorType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.ErrorType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => GetType()
-                                                 .Name + "[" +
-                                             "Exception=" + Exception +
-                                             "ConnectionId=" + ConnectionId +
-                                             "]";
+        public override String ToString()
+            => GetType()
+                   .Name + "[" +
+               "Exception=" + Exception +
+               "ConnectionId=" + ConnectionId +
+               "]";
 
-        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessConnectionError( this );
+        public override Response Visit( ICommandVisitor visitor )
+            => visitor.ProcessConnectionError( this );
     }
 }

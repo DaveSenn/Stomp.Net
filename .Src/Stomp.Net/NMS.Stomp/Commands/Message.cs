@@ -10,7 +10,7 @@ namespace Apache.NMS.Stomp.Commands
 {
     public delegate void AcknowledgeHandler( Message message );
 
-    public class Message : BaseMessage, IMessage, MarshallAware
+    public class Message : BaseMessage, IMessage
     {
         #region Fields
 
@@ -231,14 +231,14 @@ namespace Apache.NMS.Stomp.Commands
             }
         }
 
-        public override void BeforeMarshall( StompWireFormat wireFormat )
+        public event AcknowledgeHandler Acknowledger;
+
+        public virtual void BeforeMarshall( StompWireFormat wireFormat )
         {
             MarshalledProperties = null;
             if ( properties != null )
                 MarshalledProperties = properties.Marshal();
         }
-
-        public event AcknowledgeHandler Acknowledger;
 
         public override Object Clone()
         {
@@ -275,8 +275,10 @@ namespace Apache.NMS.Stomp.Commands
 
         public Object GetObjectProperty( String name ) => Properties[name];
 
+        /*
         // MarshallAware interface
         public override Boolean IsMarshallAware() => true;
+        */
 
         public void SetObjectProperty( String name, Object value )
         {

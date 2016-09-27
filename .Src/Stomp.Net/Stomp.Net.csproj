@@ -58,6 +58,7 @@
     <Compile Include="Definition\Connection\StompTransportSettings.cs" />
     <Compile Include="Definition\StompNetConfiguration.cs" />
     <Compile Include="NMS.Stomp\AckType.cs" />
+    <Compile Include="NMS.Stomp\Commands\StackTraceElement.cs" />
     <Compile Include="NMS.Stomp\TransactionType.cs" />
     <Compile Include="NMS\MessageDeliveryMode.cs" />
     <Compile Include="NMS\MessagePriority.cs" />
@@ -80,7 +81,6 @@
     <Compile Include="NMS.Stomp\Commands\ExceptionResponse.cs" />
     <Compile Include="NMS.Stomp\Commands\KeepAliveInfo.cs" />
     <Compile Include="NMS.Stomp\Commands\MapMessage.cs" />
-    <Compile Include="NMS.Stomp\Commands\MarshallAware.cs" />
     <Compile Include="NMS.Stomp\Commands\Message.cs" />
     <Compile Include="NMS.Stomp\Commands\MessageAck.cs" />
     <Compile Include="NMS.Stomp\Commands\MessageDispatch.cs" />
@@ -106,7 +106,6 @@
     <Compile Include="NMS.Stomp\Connection.cs" />
     <Compile Include="NMS.Stomp\ConnectionClosedException.cs" />
     <Compile Include="Connection\ConnectionFactory.cs" />
-    <Compile Include="NMS.Stomp\ConnectionMetaData.cs" />
     <Compile Include="NMS.Stomp\IDispatcher.cs" />
     <Compile Include="NMS.Stomp\IOException.cs" />
     <Compile Include="NMS.Stomp\ISynchronization.cs" />
@@ -155,7 +154,6 @@
     <Compile Include="NMS\IBytesMessage.cs" />
     <Compile Include="NMS\IConnection.cs" />
     <Compile Include="Definition\Connection\IConnectionFactory.cs" />
-    <Compile Include="NMS\IConnectionMetaData.cs" />
     <Compile Include="NMS\IDestination.cs" />
     <Compile Include="NMS\IllegalStateException.cs" />
     <Compile Include="NMS\IMapMessage.cs" />

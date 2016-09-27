@@ -15,9 +15,9 @@ namespace Apache.NMS.Stomp.Commands
 
         public const Byte ConnectionInfoType = 12;
         public const Byte ConsumerIdType = 15;
-        public const Byte ConsumerInfoType = 14;
+        private const Byte ConsumerInfoType = 14;
 
-        public const Byte DestinationType = 48;
+        private const Byte DestinationType = 48;
         public const Byte ErrorResponseType = 27;
         public const Byte ErrorType = 0;
         public const Byte KeepAliveInfoType = 28;

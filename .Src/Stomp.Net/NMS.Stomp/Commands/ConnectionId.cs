@@ -44,8 +44,6 @@ namespace Apache.NMS.Stomp.Commands
             return false;
         }
 
-        public virtual Boolean Equals( ConnectionId that ) => Equals( Value, that.Value );
-
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
@@ -66,5 +64,7 @@ namespace Apache.NMS.Stomp.Commands
         ///     such as its type and value of its elements.
         /// </summery>
         public override String ToString() => Value;
+
+        protected virtual Boolean Equals( ConnectionId that ) => Equals( Value, that.Value );
     }
 }

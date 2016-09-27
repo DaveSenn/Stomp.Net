@@ -9,9 +9,8 @@ namespace Apache.NMS.Stomp.Commands
     /// <summary>
     ///     An OpenWire command
     /// </summary>
-    public interface DataStructure : ICloneable
+    public interface IDataStructure : ICloneable
     {
         Byte GetDataStructureType();
-        Boolean IsMarshallAware();
     }
 }

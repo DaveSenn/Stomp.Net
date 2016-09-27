@@ -12,8 +12,8 @@ namespace Apache.NMS.Stomp.Commands
     {
         #region Fields
 
-        private PrimitiveMap body;
-        private PrimitiveMapInterceptor typeConverter;
+        private PrimitiveMap _body;
+        private PrimitiveMapInterceptor _typeConverter;
 
         #endregion
 
@@ -25,8 +25,8 @@ namespace Apache.NMS.Stomp.Commands
 
             set
             {
-                if ( typeConverter != null )
-                    typeConverter.ReadOnly = true;
+                if ( _typeConverter != null )
+                    _typeConverter.ReadOnly = true;
 
                 base.ReadOnlyBody = value;
             }
@@ -42,8 +42,8 @@ namespace Apache.NMS.Stomp.Commands
 
         public MapMessage( PrimitiveMap body )
         {
-            this.body = body;
-            typeConverter = new PrimitiveMapInterceptor( this, this.body );
+            _body = body;
+            _typeConverter = new PrimitiveMapInterceptor( this, _body );
         }
 
         #endregion
@@ -52,26 +52,26 @@ namespace Apache.NMS.Stomp.Commands
         {
             get
             {
-                if ( body == null )
+                if ( _body == null )
                 {
-                    body = new PrimitiveMap();
-                    typeConverter = new PrimitiveMapInterceptor( this, body );
+                    _body = new PrimitiveMap();
+                    _typeConverter = new PrimitiveMapInterceptor( this, _body );
                 }
 
-                return typeConverter;
+                return _typeConverter;
             }
 
             set
             {
-                body = value as PrimitiveMap;
-                typeConverter = value != null ? new PrimitiveMapInterceptor( this, value ) : null;
+                _body = value as PrimitiveMap;
+                _typeConverter = value != null ? new PrimitiveMapInterceptor( this, value ) : null;
             }
         }
 
         public override void ClearBody()
         {
-            body = null;
-            typeConverter = null;
+            _body = null;
+            _typeConverter = null;
             base.ClearBody();
         }
 
@@ -79,9 +79,10 @@ namespace Apache.NMS.Stomp.Commands
         {
             base.BeforeMarshall( wireFormat );
 
-            Content = body == null ? null : wireFormat.MapMarshaler.Marshal( body );
+            Content = _body == null ? null : wireFormat.MapMarshaler.Marshal( _body );
         }
 
-        public override Byte GetDataStructureType() => DataStructureTypes.MapMessageType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.MapMessageType;
     }
 }

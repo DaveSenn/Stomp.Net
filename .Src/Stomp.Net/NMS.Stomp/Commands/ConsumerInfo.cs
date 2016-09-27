@@ -11,7 +11,7 @@ namespace Apache.NMS.Stomp.Commands
     {
         #region Constants
 
-        public const Byte ID_CONSUMERINFO = 5;
+        private const Byte IdConsumerinfo = 5;
 
         #endregion
 
@@ -43,18 +43,13 @@ namespace Apache.NMS.Stomp.Commands
 
         public String Transformation { get; set; }
 
-        /// <summery>
-        ///     Return an answer of true to the isConsumerInfo() query.
-        /// </summery>
-        public override Boolean IsConsumerInfo => true;
-
         #endregion
 
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType() => ID_CONSUMERINFO;
+        public override Byte GetDataStructureType() => IdConsumerinfo;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure

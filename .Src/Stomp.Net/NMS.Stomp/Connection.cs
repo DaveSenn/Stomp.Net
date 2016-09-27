@@ -29,36 +29,35 @@ namespace Apache.NMS.Stomp
 
         #region Fields
 
+        private readonly IdGenerator _clientIdGenerator;
+        private readonly Atomic<Boolean> _closed = new Atomic<Boolean>( false );
+        private readonly Atomic<Boolean> _closing = new Atomic<Boolean>( false );
+        private readonly Atomic<Boolean> _connected = new Atomic<Boolean>( false );
+
+        private readonly Object _connectedLock = new Object();
+        private readonly IDictionary _dispatchers = Hashtable.Synchronized( new Hashtable() );
+        private readonly ThreadPoolExecutor _executor = new ThreadPoolExecutor();
+        private readonly ConnectionInfo _info;
+        private readonly Object _myLock = new Object();
+        private readonly IList _sessions = ArrayList.Synchronized( new ArrayList() );
+        private readonly Atomic<Boolean> _started = new Atomic<Boolean>( false );
+
         /// <summary>
         ///     The STOMP connection settings.
         /// </summary>
         private readonly StompConnectionSettings _stompConnectionSettings;
 
         private readonly ITransportFactory _transportFactory;
+        private readonly Atomic<Boolean> _transportFailed = new Atomic<Boolean>( false );
 
-        private readonly IdGenerator clientIdGenerator;
-        private readonly Atomic<Boolean> closed = new Atomic<Boolean>( false );
-        private readonly Atomic<Boolean> closing = new Atomic<Boolean>( false );
-        private readonly Atomic<Boolean> connected = new Atomic<Boolean>( false );
+        private Boolean _disposed;
+        private Int32 _localTransactionCounter;
 
-        private readonly Object connectedLock = new Object();
-        private readonly IDictionary dispatchers = Hashtable.Synchronized( new Hashtable() );
-        private readonly ThreadPoolExecutor executor = new ThreadPoolExecutor();
-        private readonly ConnectionInfo info;
-        private readonly Object myLock = new Object();
-        private readonly IList sessions = ArrayList.Synchronized( new ArrayList() );
-        private readonly Atomic<Boolean> started = new Atomic<Boolean>( false );
-        private readonly Atomic<Boolean> transportFailed = new Atomic<Boolean>( false );
+        private Int32 _sessionCounter;
+        private Int32 _temporaryDestinationCounter;
+        private CountDownLatch _transportInterruptionProcessingComplete;
 
-        private Boolean disposed;
-        private Int32 localTransactionCounter;
-        private ConnectionMetaData metaData;
-
-        private Int32 sessionCounter;
-        private Int32 temporaryDestinationCounter;
-        private CountDownLatch transportInterruptionProcessingComplete;
-
-        private Boolean userSpecifiedClientID;
+        private Boolean _userSpecifiedClientId;
 
         #endregion
 
@@ -66,14 +65,14 @@ namespace Apache.NMS.Stomp
 
         public String UserName
         {
-            get { return info.UserName; }
-            set { info.UserName = value; }
+            get { return _info.UserName; }
+            set { _info.UserName = value; }
         }
 
         public String Password
         {
-            get { return info.Password; }
-            set { info.Password = value; }
+            get { return _info.Password; }
+            set { _info.Password = value; }
         }
 
         /// <summary>
@@ -87,7 +86,7 @@ namespace Apache.NMS.Stomp
 
         public ITransport Transport { get; set; }
 
-        public Boolean TransportFailed => transportFailed.Value;
+        public Boolean TransportFailed => _transportFailed.Value;
 
         public Exception FirstFailureError { get; private set; }
 
@@ -98,12 +97,12 @@ namespace Apache.NMS.Stomp
         {
             set
             {
-                info.ClientId = value;
-                userSpecifiedClientID = true;
+                _info.ClientId = value;
+                _userSpecifiedClientId = true;
             }
         }
 
-        public ConnectionId ConnectionId => info.ConnectionId;
+        public ConnectionId ConnectionId => _info.ConnectionId;
 
         public PrefetchPolicy PrefetchPolicy { get; set; } = new PrefetchPolicy();
 
@@ -120,13 +119,13 @@ namespace Apache.NMS.Stomp
             _stompConnectionSettings = stompConnectionSettings;
             _transportFactory = new TransportFactory( _stompConnectionSettings );
             BrokerUri = connectionUri;
-            this.clientIdGenerator = clientIdGenerator;
+            _clientIdGenerator = clientIdGenerator;
 
             SetTransport( transport );
 
             var id = new ConnectionId { Value = ConnectionIdGenerator.GenerateId() };
 
-            info = new ConnectionInfo
+            _info = new ConnectionInfo
             {
                 ConnectionId = id,
                 Host = BrokerUri.Host
@@ -139,35 +138,35 @@ namespace Apache.NMS.Stomp
 
         public String ClientId
         {
-            get { return info.ClientId; }
+            get { return _info.ClientId; }
             set
             {
-                if ( connected.Value )
+                if ( _connected.Value )
                     throw new NmsException( "You cannot change the ClientId once the Connection is connected" );
 
-                info.ClientId = value;
-                userSpecifiedClientID = true;
+                _info.ClientId = value;
+                _userSpecifiedClientId = true;
                 CheckConnected();
             }
         }
 
         public void Close()
         {
-            lock ( myLock )
+            lock ( _myLock )
             {
-                if ( closed.Value )
+                if ( _closed.Value )
                     return;
 
                 try
                 {
                     Tracer.Info( "Closing Connection." );
-                    closing.Value = true;
-                    lock ( sessions.SyncRoot )
-                        foreach ( Session session in sessions )
+                    _closing.Value = true;
+                    lock ( _sessions.SyncRoot )
+                        foreach ( Session session in _sessions )
                             session.DoClose();
-                    sessions.Clear();
+                    _sessions.Clear();
 
-                    if ( connected.Value )
+                    if ( _connected.Value )
                     {
                         var shutdowninfo = new ShutdownInfo();
                         Transport.Oneway( shutdowninfo );
@@ -184,9 +183,9 @@ namespace Apache.NMS.Stomp
                 finally
                 {
                     Transport = null;
-                    closed.Value = true;
-                    connected.Value = false;
-                    closing.Value = false;
+                    _closed.Value = true;
+                    _connected.Value = false;
+                    _closing.Value = false;
                 }
             }
         }
@@ -236,7 +235,7 @@ namespace Apache.NMS.Stomp
             if ( IsStarted )
                 session.Start();
 
-            sessions.Add( session );
+            _sessions.Add( session );
             return session;
         }
 
@@ -244,8 +243,6 @@ namespace Apache.NMS.Stomp
         ///     A delegate that can receive transport level exceptions.
         /// </summary>
         public event ExceptionListener ExceptionListener;
-
-        public IConnectionMetaData MetaData => metaData ?? ( metaData = new ConnectionMetaData() );
 
         public ProducerTransformerDelegate ProducerTransformer { get; set; }
 
@@ -268,7 +265,7 @@ namespace Apache.NMS.Stomp
         ///     This property determines if the asynchronous message delivery of incoming
         ///     messages has been started for this connection.
         /// </summary>
-        public Boolean IsStarted => started.Value;
+        public Boolean IsStarted => _started.Value;
 
         /// <summary>
         ///     Starts asynchronous message delivery of incoming messages for this connection.
@@ -277,9 +274,9 @@ namespace Apache.NMS.Stomp
         public void Start()
         {
             CheckConnected();
-            if ( started.CompareAndSet( false, true ) )
-                lock ( sessions.SyncRoot )
-                    foreach ( Session session in sessions )
+            if ( _started.CompareAndSet( false, true ) )
+                lock ( _sessions.SyncRoot )
+                    foreach ( Session session in _sessions )
                         session.Start();
         }
 
@@ -290,9 +287,9 @@ namespace Apache.NMS.Stomp
         public void Stop()
         {
             CheckConnected();
-            if ( started.CompareAndSet( true, false ) )
-                lock ( sessions.SyncRoot )
-                    foreach ( Session session in sessions )
+            if ( _started.CompareAndSet( true, false ) )
+                lock ( _sessions.SyncRoot )
+                    foreach ( Session session in _sessions )
                         session.Stop();
         }
 
@@ -303,14 +300,14 @@ namespace Apache.NMS.Stomp
         {
             var id = new TransactionId();
             id.ConnectionId = ConnectionId;
-            id.Value = Interlocked.Increment( ref localTransactionCounter );
+            id.Value = Interlocked.Increment( ref _localTransactionCounter );
             return id;
         }
 
         /// <summary>
         ///     Creates a new temporary destination name
         /// </summary>
-        public String CreateTemporaryDestinationName() => info.ConnectionId.Value + ":" + Interlocked.Increment( ref temporaryDestinationCounter );
+        public String CreateTemporaryDestinationName() => _info.ConnectionId.Value + ":" + Interlocked.Increment( ref _temporaryDestinationCounter );
 
         public void Oneway( ICommand command )
         {
@@ -354,7 +351,7 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        internal void AddDispatcher( ConsumerId id, IDispatcher dispatcher ) => dispatchers.Add( id, dispatcher );
+        internal void AddDispatcher( ConsumerId id, IDispatcher dispatcher ) => _dispatchers.Add( id, dispatcher );
 
         internal void OnSessionException( Session sender, Exception exception )
         {
@@ -369,17 +366,17 @@ namespace Apache.NMS.Stomp
                 }
         }
 
-        internal void RemoveDispatcher( ConsumerId id ) => dispatchers.Remove( id );
+        internal void RemoveDispatcher( ConsumerId id ) => _dispatchers.Remove( id );
 
         internal void RemoveSession( Session session )
         {
-            if ( !closing.Value )
-                sessions.Remove( session );
+            if ( !_closing.Value )
+                _sessions.Remove( session );
         }
 
         internal void TransportInterruptionProcessingComplete()
         {
-            var cdl = transportInterruptionProcessingComplete;
+            var cdl = _transportInterruptionProcessingComplete;
             cdl?.CountDown();
         }
 
@@ -405,8 +402,8 @@ namespace Apache.NMS.Stomp
             }
 
             IList sessionsCopy = null;
-            lock ( sessions.SyncRoot )
-                sessionsCopy = new ArrayList( sessions );
+            lock ( _sessions.SyncRoot )
+                sessionsCopy = new ArrayList( _sessions );
 
             // Use a copy so we don't concurrently modify the Sessions list if the
             // client is closing at the same time.
@@ -427,27 +424,27 @@ namespace Apache.NMS.Stomp
         /// </summary>
         private void CheckConnected()
         {
-            if ( closed.Value )
+            if ( _closed.Value )
                 throw new ConnectionClosedException();
 
-            if ( !connected.Value )
+            if ( !_connected.Value )
             {
                 var timeoutTime = DateTime.Now + _stompConnectionSettings.RequestTimeout;
                 var waitCount = 1;
 
                 while ( true )
                 {
-                    if ( Monitor.TryEnter( connectedLock ) )
+                    if ( Monitor.TryEnter( _connectedLock ) )
                         try
                         {
-                            if ( closed.Value || closing.Value )
+                            if ( _closed.Value || _closing.Value )
                             {
                                 break;
                             }
-                            else if ( !connected.Value )
+                            else if ( !_connected.Value )
                             {
-                                if ( !userSpecifiedClientID )
-                                    info.ClientId = clientIdGenerator.GenerateId();
+                                if ( !_userSpecifiedClientId )
+                                    _info.ClientId = _clientIdGenerator.GenerateId();
 
                                 try
                                 {
@@ -458,10 +455,10 @@ namespace Apache.NMS.Stomp
                                             Transport.Start();
 
                                         // Send the connection and see if an ack/nak is returned.
-                                        var response = Transport.Request( info, _stompConnectionSettings.RequestTimeout );
+                                        var response = Transport.Request( _info, _stompConnectionSettings.RequestTimeout );
                                         if ( !( response is ExceptionResponse ) )
                                         {
-                                            connected.Value = true;
+                                            _connected.Value = true;
                                         }
                                         else
                                         {
@@ -485,10 +482,10 @@ namespace Apache.NMS.Stomp
                         }
                         finally
                         {
-                            Monitor.Exit( connectedLock );
+                            Monitor.Exit( _connectedLock );
                         }
 
-                    if ( connected.Value || closed.Value || closing.Value || DateTime.Now > timeoutTime )
+                    if ( _connected.Value || _closed.Value || _closing.Value || DateTime.Now > timeoutTime )
                         break;
 
                     // Back off from being overly aggressive.  Having too many threads
@@ -496,7 +493,7 @@ namespace Apache.NMS.Stomp
                     Thread.Sleep( 5 * waitCount++ );
                 }
 
-                if ( !connected.Value )
+                if ( !_connected.Value )
                     throw new ConnectionClosedException();
             }
         }
@@ -515,18 +512,18 @@ namespace Apache.NMS.Stomp
         {
             var answer = new SessionInfo();
             var sessionId = new SessionId();
-            sessionId.ConnectionId = info.ConnectionId.Value;
-            sessionId.Value = Interlocked.Increment( ref sessionCounter );
+            sessionId.ConnectionId = _info.ConnectionId.Value;
+            sessionId.Value = Interlocked.Increment( ref _sessionCounter );
             answer.SessionId = sessionId;
             return answer;
         }
 
         private void DispatchMessage( MessageDispatch dispatch )
         {
-            lock ( dispatchers.SyncRoot )
-                if ( dispatchers.Contains( dispatch.ConsumerId ) )
+            lock ( _dispatchers.SyncRoot )
+                if ( _dispatchers.Contains( dispatch.ConsumerId ) )
                 {
-                    var dispatcher = (IDispatcher) dispatchers[dispatch.ConsumerId];
+                    var dispatcher = (IDispatcher) _dispatchers[dispatch.ConsumerId];
 
                     // Can be null when a consumer has sent a MessagePull and there was
                     // no available message at the broker to dispatch.
@@ -547,7 +544,7 @@ namespace Apache.NMS.Stomp
 
         private void Dispose( Boolean disposing )
         {
-            if ( disposed )
+            if ( _disposed )
                 return;
 
             if ( disposing )
@@ -567,19 +564,19 @@ namespace Apache.NMS.Stomp
                 // Ignore network errors.
             }
 
-            disposed = true;
+            _disposed = true;
         }
 
         private void MarkTransportFailed( Exception error )
         {
-            transportFailed.Value = true;
+            _transportFailed.Value = true;
             if ( FirstFailureError == null )
                 FirstFailureError = error;
         }
 
         private void OnAsyncException( Exception error )
         {
-            if ( closed.Value || closing.Value )
+            if ( _closed.Value || _closing.Value )
                 return;
             if ( ExceptionListener != null )
             {
@@ -589,7 +586,7 @@ namespace Apache.NMS.Stomp
 
                 // Called in another thread so that processing can continue
                 // here, ensures no lock contention.
-                executor.QueueUserWorkItem( AsyncCallExceptionListener, e );
+                _executor.QueueUserWorkItem( AsyncCallExceptionListener, e );
             }
             else
                 Tracer.WarnFormat( "Async exception with no exception listener: {0}", error.Message );
@@ -619,7 +616,7 @@ namespace Apache.NMS.Stomp
             }
             else if ( command.IsErrorCommand )
             {
-                if ( !closing.Value && !closed.Value )
+                if ( !_closing.Value && !_closed.Value )
                 {
                     var connectionError = (ConnectionError) command;
                     var brokerError = connectionError.Exception;
@@ -647,21 +644,21 @@ namespace Apache.NMS.Stomp
             // Will fire an exception listener callback if there's any set.
             OnAsyncException( error );
 
-            if ( !closing.Value && !closed.Value )
-                executor.QueueUserWorkItem( AsyncOnExceptionHandler, error );
+            if ( !_closing.Value && !_closed.Value )
+                _executor.QueueUserWorkItem( AsyncOnExceptionHandler, error );
         }
 
         private void OnTransportException( ITransport sender, Exception exception ) => OnException( exception );
 
         private void OnTransportInterrupted( ITransport sender )
         {
-            transportInterruptionProcessingComplete = new CountDownLatch( dispatchers.Count );
-            Tracer.WarnFormat( "Transport interrupted, dispatchers: {0}", dispatchers.Count );
+            _transportInterruptionProcessingComplete = new CountDownLatch( _dispatchers.Count );
+            Tracer.WarnFormat( "Transport interrupted, dispatchers: {0}", _dispatchers.Count );
 
-            foreach ( Session session in sessions )
+            foreach ( Session session in _sessions )
                 session.ClearMessagesInProgress();
 
-            if ( ConnectionInterruptedListener != null && !closing.Value )
+            if ( ConnectionInterruptedListener != null && !_closing.Value )
                 try
                 {
                     ConnectionInterruptedListener();
@@ -673,7 +670,7 @@ namespace Apache.NMS.Stomp
 
         private void OnTransportResumed( ITransport sender )
         {
-            if ( ConnectionResumedListener == null || closing.Value )
+            if ( ConnectionResumedListener == null || _closing.Value )
                 return;
 
             try
@@ -697,9 +694,9 @@ namespace Apache.NMS.Stomp
 
         private void WaitForTransportInterruptionProcessingToComplete()
         {
-            var cdl = transportInterruptionProcessingComplete;
+            var cdl = _transportInterruptionProcessingComplete;
             if ( cdl != null )
-                if ( !closed.Value && cdl.Remaining > 0 )
+                if ( !_closed.Value && cdl.Remaining > 0 )
                 {
                     Tracer.WarnFormat( "dispatch paused, waiting for outstanding dispatch interruption " +
                                        "processing ({0}) to complete..",

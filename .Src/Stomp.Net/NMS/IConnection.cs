@@ -160,11 +160,6 @@ namespace Apache.NMS
         /// </summary>
         IRedeliveryPolicy RedeliveryPolicy { get; set; }
 
-        /// <summary>
-        ///     Gets the Meta Data for the NMS Connection instance.
-        /// </summary>
-        IConnectionMetaData MetaData { get; }
-
         #endregion
     }
 }

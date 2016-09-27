@@ -25,11 +25,6 @@ namespace Apache.NMS.Stomp.Commands
 
         public Byte Type { get; set; }
 
-        /// <summery>
-        ///     Return an answer of true to the isTransactionInfo() query.
-        /// </summery>
-        public override Boolean IsTransactionInfo => true;
-
         #endregion
 
         /// <summery>

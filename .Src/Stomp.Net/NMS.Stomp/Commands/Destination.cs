@@ -140,17 +140,6 @@ namespace Apache.NMS.Stomp.Commands
         }
 
         /// <summary>
-        /// </summary>
-        /// <param name="o">object to compare</param>
-        /// <returns>1 if this is less than o else 0 if they are equal or -1 if this is less than o</returns>
-        public Int32 CompareTo( Object o )
-        {
-            if ( o is Destination )
-                return CompareTo( (Destination) o );
-            return -1;
-        }
-
-        /// <summary>
         ///     Lets sort by name first then lets sort topics greater than queues
         /// </summary>
         /// <param name="that">another destination to compare against</param>

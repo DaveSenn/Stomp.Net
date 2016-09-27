@@ -27,20 +27,11 @@ namespace Stomp.Net.Example.Selectors
 
         public static void Main( String[] args )
         {
-            Send( "test", 1 );
-            /*
-             * Receive("test").Dispose();
-            var sw = Stopwatch.StartNew();
-            for ( var i = 0; i < 100; i++ )
-                Send("1234", 1000);
-            sw.Stop();
-            Console.WriteLine($"{sw.Elapsed} => {sw.ElapsedMilliseconds}ms");
-            Console.ReadLine();
-            */
-
-            Selectors.ForEach( x => Send( x, 5 ) );
-            var consumers = Selectors.Select( Receive )
-                                     .ToList();
+            Selectors
+                .ForEach( x => Send( x, 20 ) );
+            var consumers = Selectors
+                .Select( Receive )
+                .ToList();
 
             Thread.Sleep( 10000 );
             consumers.ForEach( x => x.Dispose() );
@@ -79,10 +70,9 @@ namespace Stomp.Net.Example.Selectors
 
             for ( var i = 0; i < messageCount; i++ )
             {
-                var message = session.CreateTextMessage( $"{i,0:000} => {RandomValueEx.GetRandomString()}" );
+                var message = session.CreateTextMessage( $"{selectorValue} {i,0:000} => {RandomValueEx.GetRandomString()}" );
                 message.Properties[SelectorKey] = selectorValue;
                 producer.Send( message );
-                //Console.WriteLine( "Message sent" );
             }
 
             connection.Close();
@@ -135,7 +125,11 @@ namespace Stomp.Net.Example.Selectors
                                            IDestination responseQ = session.GetQueue( QueueName );
                                            var consumer = session.CreateConsumer( responseQ, selectorString );
 
-                                           consumer.Listener += x => Console.WriteLine( $"{selector}\tReceived message => {x.Properties[selectorKey]}" );
+                                           consumer.Listener += x =>
+                                           {
+                                               Console.WriteLine( $"{selector}\t => {x.Properties[selectorKey]} => {( (ITextMessage) x ).Text}" );
+                                               x.Acknowledge();
+                                           };
 
                                            while ( _running )
                                                Thread.Sleep( 1000 );

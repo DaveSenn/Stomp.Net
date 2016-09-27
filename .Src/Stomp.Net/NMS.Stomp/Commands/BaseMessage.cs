@@ -8,7 +8,7 @@ using Apache.NMS.Util;
 
 namespace Apache.NMS.Stomp.Commands
 {
-    public class BaseMessage : BaseCommand, MarshallAware
+    public class BaseMessage : BaseCommand
     {
         #region Constants
 

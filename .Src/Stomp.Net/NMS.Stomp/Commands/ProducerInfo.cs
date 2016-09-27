@@ -17,11 +17,6 @@ namespace Apache.NMS.Stomp.Commands
 
         public Boolean DispatchAsync { get; set; }
 
-        /// <summery>
-        ///     Return an answer of true to the isProducerInfo() query.
-        /// </summery>
-        public override Boolean IsProducerInfo => true;
-
         #endregion
 
         /// <summery>

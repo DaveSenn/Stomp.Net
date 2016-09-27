@@ -75,13 +75,6 @@ namespace Apache.NMS.Stomp.Commands
                 }
         }
 
-        public ConsumerId( SessionId sessionId, Int64 consumerId )
-        {
-            ConnectionId = sessionId.ConnectionId;
-            SessionId = sessionId.Value;
-            Value = consumerId;
-        }
-
         #endregion
 
         public override Boolean Equals( Object that )
@@ -127,12 +120,6 @@ namespace Apache.NMS.Stomp.Commands
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString()
-        {
-            if ( key == null )
-                key = ConnectionId + ":" + SessionId + ":" + Value;
-
-            return key;
-        }
+        public override String ToString() => key ?? ( key = ConnectionId + ":" + SessionId + ":" + Value );
     }
 }

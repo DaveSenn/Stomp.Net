@@ -22,15 +22,9 @@ namespace Apache.NMS.Stomp.Commands
 
         Boolean IsErrorCommand { get; }
 
-        Boolean IsMessage { get; }
-
-        Boolean IsMessageAck { get; }
-
         Boolean IsMessageDispatch { get; }
 
         Boolean IsRemoveInfo { get; }
-
-        Boolean IsRemoveSubscriptionInfo { get; }
 
         Boolean IsResponse { get; }
 
