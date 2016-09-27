@@ -72,17 +72,22 @@ namespace Apache.NMS.Util
 
         #endregion
 
+        /// <summary>
+        ///     Compares the current value with the expected value.
+        ///     If it matches the value will be updated to <paramref name="newValue" />.
+        /// </summary>
+        /// <param name="expected">The currently expected value.</param>
+        /// <param name="newValue">The new value.</param>
+        /// <returns>Returns a value of true if the current value matches the expected value.</returns>
         public Boolean CompareAndSet( T expected, T newValue )
         {
             lock ( this )
             {
-                if ( 0 == atomicValue.CompareTo( expected ) )
-                {
-                    atomicValue = newValue;
-                    return true;
-                }
+                if ( 0 != atomicValue.CompareTo( expected ) )
+                    return false;
 
-                return false;
+                atomicValue = newValue;
+                return true;
             }
         }
     }

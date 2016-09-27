@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using Apache.NMS.Stomp.Commands;
+using Stomp.Net;
 
 #endregion
 

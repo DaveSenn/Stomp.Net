@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Threading;
 using Apache.NMS.Stomp.Commands;
+using Stomp.Net;
 
 #endregion
 
@@ -80,6 +81,7 @@ namespace Apache.NMS.Stomp.Transport
 
                 if ( brokerError == null )
                     throw new BrokerException();
+
                 throw new BrokerException( brokerError );
             }
 
@@ -110,7 +112,7 @@ namespace Apache.NMS.Stomp.Transport
                         var er = response as ExceptionResponse;
                         var brokerError = er.Exception;
                         var exception = new BrokerException( brokerError );
-                        exceptionHandler( this, exception );
+                        Exception( this, exception );
                     }
                 }
                 else

@@ -193,7 +193,6 @@ namespace Apache.NMS.Stomp.Transport.Tcp
             // Configuration may or may not allow us to connect with an invalid broker cert.
             return AcceptInvalidBrokerCert;
         }
-        
     }
 }
 

@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS
+namespace Stomp.Net
 {
     /// <summary>
     ///     A life-cycle for STOM.Net objects to indicate they can be stopped.

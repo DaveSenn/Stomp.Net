@@ -2,6 +2,7 @@
 
 using System;
 using Apache.NMS.Stomp.Commands;
+using Stomp.Net;
 
 #endregion
 
@@ -15,13 +16,12 @@ namespace Apache.NMS.Stomp.Transport
         #region Fields
 
         protected readonly ITransport next;
-        /*
-        protected CommandHandler commandHandler;
-        */
-        protected ExceptionHandler exceptionHandler;
-        protected InterruptedHandler interruptedHandler;
-        protected ResumedHandler resumedHandler;
-        
+
+        #endregion
+
+        #region Properties
+
+        public Boolean IsDisposed { get; private set; }
 
         #endregion
 
@@ -35,13 +35,6 @@ namespace Apache.NMS.Stomp.Transport
             this.next.Interrupted = OnInterrupted;
             this.next.Resumed = OnResumed;
         }
-
-        #endregion
-
-
-        #region Implementation of ITransport
-        
-        public Action<ITransport, ICommand> Command { get; set; }
 
         #endregion
 
@@ -67,24 +60,24 @@ namespace Apache.NMS.Stomp.Transport
         /// </summary>
         public virtual void Start()
         {
-            var t = this.GetType();
             if ( Command == null )
                 throw new InvalidOperationException( "command cannot be null when Start is called." );
 
-            if ( exceptionHandler == null )
+            if ( Exception == null )
                 throw new InvalidOperationException( "exception cannot be null when Start is called." );
 
             next.Start();
         }
 
-        public virtual void Stop() => next.Stop();
+        public virtual void Stop()
+            => next.Stop();
 
         /// <summary>
         ///     Method AsyncRequest
         /// </summary>
         /// <returns>A FutureResponse</returns>
         /// <param name="command">A  Command</param>
-        public virtual FutureResponse AsyncRequest( ICommand command ) 
+        public virtual FutureResponse AsyncRequest( ICommand command )
             => next.AsyncRequest( command );
 
         /// <summary>
@@ -97,25 +90,15 @@ namespace Apache.NMS.Stomp.Transport
             set { next.AsyncTimeout = value; }
         }
 
-
-        public ExceptionHandler Exception
-        {
-            get { return exceptionHandler; }
-            set { exceptionHandler = value; }
-        }
-
-        public InterruptedHandler Interrupted
-        {
-            get { return interruptedHandler; }
-            set { interruptedHandler = value; }
-        }
+        /// <summary>
+        ///     Delegate invoked when the connection is interrupted.
+        /// </summary>
+        public Action<ITransport> Interrupted { get; set; }
 
         public Boolean IsConnected
         {
             get { return next.IsConnected; }
         }
-
-        public Boolean IsDisposed { get; private set; }
 
         public Boolean IsFaultTolerant
         {
@@ -123,15 +106,7 @@ namespace Apache.NMS.Stomp.Transport
         }
 
         public Object Narrow( Type type )
-        {
-            if ( GetType()
-                .Equals( type ) )
-                return this;
-            if ( next != null )
-                return next.Narrow( type );
-
-            return null;
-        }
+            => GetType() == type ? this : next?.Narrow( type );
 
         /// <summary>
         ///     Method Oneway
@@ -145,13 +120,6 @@ namespace Apache.NMS.Stomp.Transport
         }
 
         /// <summary>
-        ///     Method Request
-        /// </summary>
-        /// <returns>A Response</returns>
-        /// <param name="command">A  Command</param>
-        public virtual Response Request( ICommand command ) => Request( command, TimeSpan.FromMilliseconds( System.Threading.Timeout.Infinite ) );
-
-        /// <summary>
         ///     Method Request with time out for Response.
         /// </summary>
         /// <returns>A Response</returns>
@@ -159,11 +127,10 @@ namespace Apache.NMS.Stomp.Transport
         /// <param name="timeout">Timeout in milliseconds</param>
         public virtual Response Request( ICommand command, TimeSpan timeout ) => next.Request( command, timeout );
 
-        public ResumedHandler Resumed
-        {
-            get { return resumedHandler; }
-            set { resumedHandler = value; }
-        }
+        /// <summary>
+        ///     Delegate invoked when the connection is resumed.
+        /// </summary>
+        public Action<ITransport> Resumed { get; set; }
 
         /// <summary>
         ///     Timeout in milliseconds to wait for sending synchronous messages or commands.
@@ -174,6 +141,13 @@ namespace Apache.NMS.Stomp.Transport
             get { return next.Timeout; }
             set { next.Timeout = value; }
         }
+
+        /// <summary>
+        ///     Method Request
+        /// </summary>
+        /// <returns>A Response</returns>
+        /// <param name="command">A  Command</param>
+        public virtual Response Request( ICommand command ) => Request( command, TimeSpan.FromMilliseconds( System.Threading.Timeout.Infinite ) );
 
         protected virtual void Dispose( Boolean disposing )
         {
@@ -187,27 +161,60 @@ namespace Apache.NMS.Stomp.Transport
             IsDisposed = true;
         }
 
-        protected virtual void OnCommand( ITransport sender, ICommand command ) 
+        /// <summary>
+        ///     Invokes the command delegate.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="command">The command.</param>
+        protected virtual void OnCommand( ITransport sender, ICommand command )
             => Command( sender, command );
 
-        protected virtual void OnException( ITransport sender, Exception command ) 
-            => exceptionHandler( sender, command );
+        /// <summary>
+        ///     Invokes the exception delegate.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="command">The command.</param>
+        protected virtual void OnException( ITransport sender, Exception command )
+            => Exception( sender, command );
 
-        protected virtual void OnInterrupted( ITransport sender )
-        {
-            if ( interruptedHandler != null )
-                interruptedHandler( sender );
-        }
+        /// <summary>
+        ///     Invokes the interrupted delegate.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        private void OnInterrupted( ITransport sender )
+            => Interrupted?.Invoke( sender );
 
-        protected virtual void OnResumed( ITransport sender )
-        {
-            if ( resumedHandler != null )
-                resumedHandler( sender );
-        }
+        /// <summary>
+        ///     Invokes the resumed delegate.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        private void OnResumed( ITransport sender )
+            => Resumed?.Invoke( sender );
 
         ~TransportFilter()
         {
             Dispose( false );
         }
+
+        /*
+        protected CommandHandler commandHandler;
+        protected ExceptionHandler exceptionHandler;
+        protected InterruptedHandler interruptedHandler;
+        protected ResumedHandler resumedHandler;
+        */
+
+        #region Implementation of ITransport
+
+        /// <summary>
+        ///     Delegate invoked when a command was received.
+        /// </summary>
+        public Action<ITransport, ICommand> Command { get; set; }
+
+        /// <summary>
+        ///     Delegate invoked when a exception occurs.
+        /// </summary>
+        public Action<ITransport, Exception> Exception { get; set; }
+
+        #endregion
     }
 }

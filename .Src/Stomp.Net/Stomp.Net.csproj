@@ -136,7 +136,7 @@
     <Compile Include="NMS.Stomp\Transport\FutureResponse.cs" />
     <Compile Include="NMS.Stomp\Transport\ICompositeTransport.cs" />
     <Compile Include="NMS.Stomp\Transport\InactivityMonitor.cs" />
-    <Compile Include="NMS.Stomp\Transport\ITransport.cs" />
+    <Compile Include="Definition\Transport\ITransport.cs" />
     <Compile Include="NMS.Stomp\Transport\ITransportFactory.cs" />
     <Compile Include="NMS.Stomp\Transport\IWireFormat.cs" />
     <Compile Include="NMS.Stomp\Transport\LoggingTransport.cs" />
@@ -173,7 +173,7 @@
     <Compile Include="NMS\IQueueBrowser.cs" />
     <Compile Include="NMS\IRedeliveryPolicy.cs" />
     <Compile Include="NMS\ISession.cs" />
-    <Compile Include="NMS\IStoppable.cs" />
+    <Compile Include="Definition\Common\IStoppable.cs" />
     <Compile Include="NMS\IStreamMessage.cs" />
     <Compile Include="NMS\ITemporaryQueue.cs" />
     <Compile Include="NMS\ITemporaryTopic.cs" />

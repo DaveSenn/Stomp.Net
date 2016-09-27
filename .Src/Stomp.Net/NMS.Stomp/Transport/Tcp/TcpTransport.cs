@@ -19,6 +19,9 @@ namespace Apache.NMS.Stomp.Transport.Tcp
     {
         #region Fields
 
+        /// <summary>
+        ///     Stores whether the connection is closed or not.
+        /// </summary>
         private readonly Atomic<Boolean> _closed = new Atomic<Boolean>( false );
 
         /// <summary>
@@ -27,41 +30,60 @@ namespace Apache.NMS.Stomp.Transport.Tcp
         private readonly Object _startStopLock = new Object();
 
         /// <summary>
-        /// Reader for the transport socket.
+        ///     The socket used for the network communication.
+        /// </summary>
+        protected readonly Socket Socket;
+
+        /// <summary>
+        ///     Timeout for closing the connection.
+        /// </summary>
+        private TimeSpan _maxThreadWait = TimeSpan.FromMilliseconds( 30000 );
+
+        /// <summary>
+        ///     Reading thread (background).
+        /// </summary>
+        private Thread _readThread;
+
+        /// <summary>
+        ///     Stores whether a shutdown has happened or not.
+        /// </summary>
+        private volatile Boolean _seenShutdown;
+
+        /// <summary>
+        ///     Reader for the transport socket.
         /// </summary>
         private BinaryReader _socketReader;
+
         /// <summary>
-        /// Writer for the transport socket.
+        ///     Writer for the transport socket.
         /// </summary>
         private BinaryWriter _socketWriter;
 
-        protected readonly Socket Socket;
-        private TimeSpan _maxThreadWait = TimeSpan.FromMilliseconds( 30000 );
-        private Thread _readThread;
-        private volatile Boolean _seenShutdown;
+        /// <summary>
+        ///     Stores whether the connection is started or not.
+        /// </summary>
         private Boolean _started;
 
         #endregion
 
         #region Properties
 
-        public Boolean TcpNoDelayEnabled
-        {
-#if !NETCF
-            get { return Socket.NoDelay; }
-            set { Socket.NoDelay = value; }
-#else
-            get { return false; }
-            set { }
-#endif
-        }
-
-        public IWireFormat Wireformat { get; set; }
+        /// <summary>
+        ///     Gets or sets a <see cref="IWireFormat" />.
+        /// </summary>
+        /// <value>A <see cref="IWireFormat" />.</value>
+        private IWireFormat Wireformat { get; }
 
         #endregion
 
         #region Ctor
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="TcpTransport" /> class.
+        /// </summary>
+        /// <param name="uri">The URI.</param>
+        /// <param name="socket">The socket to use.</param>
+        /// <param name="wireformat">A <see cref="IWireFormat" />.</param>
         public TcpTransport( Uri uri, Socket socket, IWireFormat wireformat )
         {
             RemoteAddress = uri;
@@ -94,13 +116,25 @@ namespace Apache.NMS.Stomp.Transport.Tcp
 
         #region Implementation of ITransport
 
+        /// <summary>
+        ///     Delegate invoked when a command was received.
+        /// </summary>
         public Action<ITransport, ICommand> Command { get; set; }
 
-        public ExceptionHandler Exception { get; set; }
+        /// <summary>
+        ///     Delegate invoked when a exception occurs.
+        /// </summary>
+        public Action<ITransport, Exception> Exception { get; set; }
 
-        public InterruptedHandler Interrupted { get; set; }
+        /// <summary>
+        ///     TODO: not implemented
+        /// </summary>
+        public Action<ITransport> Interrupted { get; set; }
 
-        public ResumedHandler Resumed { get; set; }
+        /// <summary>
+        ///     TODO: not implemented
+        /// </summary>
+        public Action<ITransport> Resumed { get; set; }
 
         /// <summary>
         ///     Timeout in milliseconds to wait for sending synchronous messages or commands.
@@ -114,33 +148,45 @@ namespace Apache.NMS.Stomp.Transport.Tcp
         /// </summary>
         public Int32 AsyncTimeout { get; set; } = -1;
 
+        /// <value>
+        ///     The Remote Address that this transport is currently connected to.
+        /// </value>
         public Uri RemoteAddress { get; }
 
-        public Boolean IsConnected
-        {
-            get { return Socket.Connected; }
-        }
+        /// <value>
+        ///     Indicates if the Transport is current Connected to is assigned URI.
+        /// </value>
+        public Boolean IsConnected => Socket.Connected;
 
-        public Boolean IsFaultTolerant
-        {
-            get { return false; }
-        }
+        /// <value>
+        ///     Indicates if this Transport is Fault Tolerant or not.
+        ///     A fault Tolerant Transport handles low level connection errors internally allowing a client to remain unaware of
+        ///     wire level disconnection and reconnection details.
+        /// </value>
+        public Boolean IsFaultTolerant => false;
 
+        /// <summary>
+        ///     Allows a caller to find a specific type of Transport in the Chain of
+        ///     Transports that is created.
+        ///     This allows a caller to find a specific object in the Transport chain and set or get properties on that specific
+        ///     instance.
+        ///     If the requested type isn't in the chain than Null is returned.
+        /// </summary>
         public Object Narrow( Type type )
-        {
-            if ( GetType()
-                .Equals( type ) )
-                return this;
+            => GetType() == type ? this : null;
 
-            return null;
-        }
-
+        /// <summary>
+        ///     Sends a Command object on the Wire but does not wait for any response from the receiver before returning.
+        /// </summary>
+        /// <param name="command">
+        ///     A <see cref="Command" />
+        /// </param>
         public void Oneway( ICommand command )
         {
             lock ( _startStopLock )
             {
                 if ( _closed.Value )
-                    throw new InvalidOperationException( "Error writing to broker.  Transport connection is closed." );
+                    throw new InvalidOperationException( "Error writing to broker. Transport connection is closed." );
 
                 if ( command is ShutdownInfo )
                     _seenShutdown = true;
@@ -149,11 +195,19 @@ namespace Apache.NMS.Stomp.Transport.Tcp
             }
         }
 
+        /// <summary>
+        ///     Sends a Command object which requires a response from the Broker but does not
+        ///     wait for the response, instead a FutureResponse object is returned that the
+        ///     caller can use to wait on the Broker's response.
+        /// </summary>
         public FutureResponse AsyncRequest( ICommand command )
         {
             throw new NotImplementedException( "Use a ResponseCorrelator if you want to issue AsyncRequest calls" );
         }
 
+        /// <summary>
+        ///     Sends a Command to the Broker and waits for the given TimeSpan to expire for a response before returning.
+        /// </summary>
         public Response Request( ICommand command, TimeSpan timeout )
         {
             throw new NotImplementedException( "Use a ResponseCorrelator if you want to issue Request calls" );
@@ -214,6 +268,9 @@ namespace Apache.NMS.Stomp.Transport.Tcp
 
         #region Private Members
 
+        /// <summary>
+        ///     Closes the network connection.
+        /// </summary>
         private void Close()
         {
             Thread theReadThread = null;
@@ -223,19 +280,20 @@ namespace Apache.NMS.Stomp.Transport.Tcp
                 {
                     try
                     {
-                        Socket.Shutdown( SocketShutdown.Both );
+                        Socket?.Shutdown( SocketShutdown.Both );
                     }
                     catch
                     {
+                        // ignored
                     }
 
                     try
                     {
-                        if ( null != _socketWriter )
-                            _socketWriter.Close();
+                        _socketWriter?.Dispose();
                     }
                     catch
                     {
+                        // ignored
                     }
                     finally
                     {
@@ -244,11 +302,11 @@ namespace Apache.NMS.Stomp.Transport.Tcp
 
                     try
                     {
-                        if ( null != _socketReader )
-                            _socketReader.Close();
+                        _socketReader?.Dispose();
                     }
                     catch
                     {
+                        // ignored
                     }
                     finally
                     {
@@ -257,10 +315,11 @@ namespace Apache.NMS.Stomp.Transport.Tcp
 
                     try
                     {
-                        Socket.Close();
+                        Socket?.Dispose();
                     }
                     catch
                     {
+                        // ignored
                     }
 
                     theReadThread = _readThread;
@@ -268,20 +327,21 @@ namespace Apache.NMS.Stomp.Transport.Tcp
                     _started = false;
                 }
 
-            if ( null != theReadThread )
-                try
-                {
-                    if ( Thread.CurrentThread != theReadThread
-#if !NETCF
-                         && theReadThread.IsAlive
-#endif
-                    )
-                        if ( !theReadThread.Join( (Int32) _maxThreadWait.TotalMilliseconds ) )
-                            theReadThread.Abort();
-                }
-                catch
-                {
-                }
+            if ( null == theReadThread )
+                return;
+
+            try
+            {
+                if ( Thread.CurrentThread == theReadThread || !theReadThread.IsAlive )
+                    return;
+
+                if ( !theReadThread.Join( (Int32) _maxThreadWait.TotalMilliseconds ) )
+                    theReadThread.Abort();
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         /// <summary>
@@ -305,7 +365,7 @@ namespace Apache.NMS.Stomp.Transport.Tcp
 
                 try
                 {
-                    command = (ICommand) Wireformat.Unmarshal( _socketReader );
+                    command = Wireformat.Unmarshal( _socketReader );
                 }
                 catch ( Exception ex )
                 {

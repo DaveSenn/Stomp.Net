@@ -14,7 +14,7 @@ using Stomp.Net;
 namespace Apache.NMS.Stomp.Transport.Tcp
 {
     /// <summary>
-    /// Factory for TCP/IP transport.
+    ///     Factory for TCP/IP transport.
     /// </summary>
     public class TcpTransportFactory : ITransportFactory
     {

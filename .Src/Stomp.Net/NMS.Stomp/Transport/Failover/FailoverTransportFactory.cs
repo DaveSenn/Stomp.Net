@@ -55,7 +55,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
 
         #endregion
 
-        public ITransport CompositeConnect( Uri location ) 
+        public ITransport CompositeConnect( Uri location )
             => CreateTransport( URISupport.ParseComposite( location ) );
 
         public ITransport CreateTransport( Uri location ) => doConnect( location );
@@ -74,7 +74,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
 
         public FailoverTransport CreateTransport( Dictionary<String, String> parameters )
         {
-            var transport = new FailoverTransport(_stompConnectionSettings);
+            var transport = new FailoverTransport( _stompConnectionSettings );
             URISupport.SetProperties( transport, parameters, "" );
             return transport;
         }

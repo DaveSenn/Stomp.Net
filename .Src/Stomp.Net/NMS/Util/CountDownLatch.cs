@@ -1,5 +1,3 @@
-
-
 #region Usings
 
 using System;
@@ -32,10 +30,7 @@ namespace Apache.NMS.Util
             }
         }
 
-        public WaitHandle AsyncWaitHandle
-        {
-            get { return mutex; }
-        }
+        public WaitHandle AsyncWaitHandle => mutex;
 
         #endregion
 
@@ -52,21 +47,20 @@ namespace Apache.NMS.Util
         ///     Causes the current Thread to wait for the count to reach zero, unless
         ///     the Thread is interrupted.
         /// </summary>
-        public void await()
-        {
-            await( TimeSpan.FromMilliseconds( Timeout.Infinite ) );
-        }
+        public void AwaitOperation()
+            => AwaitOperation( TimeSpan.FromMilliseconds( Timeout.Infinite ) );
 
         /// <summary>
         ///     Causes the current thread to wait until the latch has counted down to zero, unless
         ///     the thread is interrupted, or the specified waiting time elapses.
         /// </summary>
-        public Boolean await( TimeSpan timeout ) => mutex.WaitOne( (Int32) timeout.TotalMilliseconds, false );
+        public Boolean AwaitOperation( TimeSpan timeout )
+            => mutex.WaitOne( (Int32) timeout.TotalMilliseconds, false );
 
         /// <summary>
         ///     Decrement the count, releasing any waiting Threads when the count reaches Zero.
         /// </summary>
-        public void countDown()
+        public void CountDown()
         {
             lock ( mutex )
                 if ( remaining > 0 )

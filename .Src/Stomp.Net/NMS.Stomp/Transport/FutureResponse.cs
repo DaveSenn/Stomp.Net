@@ -41,7 +41,7 @@ namespace Apache.NMS.Stomp.Transport
 
                 try
                 {
-                    if ( !_latch.await( ResponseTimeout ) && _response == null )
+                    if ( !_latch.AwaitOperation( ResponseTimeout ) && _response == null )
                         throw new RequestTimedOutException();
                 }
                 catch ( RequestTimedOutException e )
@@ -63,7 +63,7 @@ namespace Apache.NMS.Stomp.Transport
                 lock ( _latch )
                     _response = value;
 
-                _latch.countDown();
+                _latch.CountDown();
             }
         }
 

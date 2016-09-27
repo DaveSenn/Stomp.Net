@@ -382,7 +382,7 @@ namespace Apache.NMS.Stomp
         public TransactionContext TransactionContext { get; }
 
         /// <summary>
-        /// Gets the request timeout.
+        ///     Gets the request timeout.
         /// </summary>
         /// <value>The request timeout.</value>
         public TimeSpan RequestTimeout => _stompConnectionSettings.RequestTimeout;

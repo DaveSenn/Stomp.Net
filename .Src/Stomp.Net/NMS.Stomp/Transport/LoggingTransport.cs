@@ -2,6 +2,7 @@
 
 using System;
 using Apache.NMS.Stomp.Commands;
+using Stomp.Net;
 
 #endregion
 
@@ -36,7 +37,7 @@ namespace Apache.NMS.Stomp.Transport
         protected override void OnException( ITransport sender, Exception error )
         {
             Tracer.Error( "RECEIVED Exception: " + error );
-            exceptionHandler( sender, error );
+            Exception( sender, error );
         }
     }
 }

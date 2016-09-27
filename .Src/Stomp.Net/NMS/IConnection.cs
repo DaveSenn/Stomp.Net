@@ -1,6 +1,7 @@
 #region Usings
 
 using System;
+using Stomp.Net;
 
 #endregion
 

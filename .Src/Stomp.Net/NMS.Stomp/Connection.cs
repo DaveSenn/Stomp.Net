@@ -34,6 +34,8 @@ namespace Apache.NMS.Stomp
         /// </summary>
         private readonly StompConnectionSettings _stompConnectionSettings;
 
+        private readonly ITransportFactory _transportFactory;
+
         private readonly IdGenerator clientIdGenerator;
         private readonly Atomic<Boolean> closed = new Atomic<Boolean>( false );
         private readonly Atomic<Boolean> closing = new Atomic<Boolean>( false );
@@ -57,7 +59,6 @@ namespace Apache.NMS.Stomp
         private CountDownLatch transportInterruptionProcessingComplete;
 
         private Boolean userSpecifiedClientID;
-        private readonly ITransportFactory _transportFactory;
 
         #endregion
 
@@ -74,7 +75,7 @@ namespace Apache.NMS.Stomp
             get { return info.Password; }
             set { info.Password = value; }
         }
-        
+
         /// <summary>
         ///     Sets the default Transformation attribute applied to Consumers.  If a consumer
         ///     is to receive Map messages from the Broker then the user should set the "jms-map-xml"
@@ -141,7 +142,7 @@ namespace Apache.NMS.Stomp
         }
 
         #endregion
-        
+
         public String ClientId
         {
             get { return info.ClientId; }
@@ -213,7 +214,7 @@ namespace Apache.NMS.Stomp
         /// <summary>
         ///     Creates a new session to work on this connection
         /// </summary>
-        public ISession CreateSession() 
+        public ISession CreateSession()
             => CreateSession( _stompConnectionSettings.AcknowledgementMode );
 
         /// <summary>
@@ -222,7 +223,7 @@ namespace Apache.NMS.Stomp
         public ISession CreateSession( AcknowledgementMode sessionAcknowledgementMode )
         {
             var info = CreateSessionInfo( sessionAcknowledgementMode );
-            var session = new Session( this, info, sessionAcknowledgementMode, _stompConnectionSettings);
+            var session = new Session( this, info, sessionAcknowledgementMode, _stompConnectionSettings );
 
             // Set properties on session using parameters prefixed with "session."
             if ( BrokerUri.Query.IsNotEmpty() && !BrokerUri.OriginalString.EndsWith( ")", StringComparison.Ordinal ) )
@@ -547,7 +548,7 @@ namespace Apache.NMS.Stomp
                                             ITransport.Start();
 
                                         // Send the connection and see if an ack/nak is returned.
-                                        var response = ITransport.Request( info, _stompConnectionSettings.RequestTimeout);
+                                        var response = ITransport.Request( info, _stompConnectionSettings.RequestTimeout );
                                         if ( !( response is ExceptionResponse ) )
                                         {
                                             connected.Value = true;
@@ -566,7 +567,7 @@ namespace Apache.NMS.Stomp
                                         }
                                     }
                                 }
-                                catch(Exception ex)
+                                catch ( Exception ex )
                                 {
                                     //TODO
                                 }
@@ -642,7 +643,7 @@ namespace Apache.NMS.Stomp
         internal void TransportInterruptionProcessingComplete()
         {
             var cdl = transportInterruptionProcessingComplete;
-            cdl?.countDown();
+            cdl?.CountDown();
         }
 
         private void AsyncCallExceptionListener( Object error )
@@ -718,7 +719,7 @@ namespace Apache.NMS.Stomp
                     Tracer.WarnFormat( "dispatch paused, waiting for outstanding dispatch interruption " +
                                        "processing ({0}) to complete..",
                                        cdl.Remaining );
-                    cdl.await( TimeSpan.FromSeconds( 10 ) );
+                    cdl.AwaitOperation( TimeSpan.FromSeconds( 10 ) );
                 }
         }
 

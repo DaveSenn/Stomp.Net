@@ -7,6 +7,7 @@ using Apache.NMS.Stomp.Protocol;
 using Apache.NMS.Stomp.Threads;
 using Apache.NMS.Stomp.Util;
 using Apache.NMS.Util;
+using Stomp.Net;
 
 #endregion
 
@@ -366,7 +367,7 @@ namespace Apache.NMS.Stomp.Transport
         #region Async Tasks
 
         // Task that fires when the TaskRunner is signaled by the ReadCheck Timer Task.
-        class AsyncSignalReadErrorkTask : CompositeTask
+        private class AsyncSignalReadErrorkTask : CompositeTask
         {
             #region Fields
 
@@ -405,7 +406,7 @@ namespace Apache.NMS.Stomp.Transport
         }
 
         // Task that fires when the TaskRunner is signaled by the WriteCheck Timer Task.
-        class AsyncWriteTask : CompositeTask
+        private class AsyncWriteTask : CompositeTask
         {
             #region Fields
 
@@ -431,19 +432,18 @@ namespace Apache.NMS.Stomp.Transport
 
             public Boolean Iterate()
             {
-                Tracer.DebugFormat( "InactivityMonitor[{0}] perparing for another Write Check", parent.instanceId );
-                if ( pending.CompareAndSet( true, false ) && parent.monitorStarted.Value )
-                    try
-                    {
-                        Tracer.DebugFormat( "InactivityMonitor[{0}] Write Check required sending KeepAlive.",
-                                            parent.instanceId );
-                        var info = new KeepAliveInfo();
-                        parent.next.Oneway( info );
-                    }
-                    catch ( IOException e )
-                    {
-                        parent.OnException( parent, e );
-                    }
+                if ( !pending.CompareAndSet( true, false ) || !parent.monitorStarted.Value )
+                    return pending.Value;
+
+                try
+                {
+                    var info = new KeepAliveInfo();
+                    parent.next.Oneway( info );
+                }
+                catch ( IOException ex )
+                {
+                    parent.OnException( parent, ex );
+                }
 
                 return pending.Value;
             }

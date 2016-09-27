@@ -2,7 +2,6 @@
 
 using System;
 using Apache.NMS;
-using Apache.NMS.Stomp;
 using Extend;
 
 #endregion
@@ -32,10 +31,10 @@ namespace Stomp.Net.Example.Producer
         private static void SendReceive()
         {
             var brokerUri = "tcp://" + Host + ":" + Port;
-            var factory = new ConnectionFactory( brokerUri, new StompConnectionSettings { UserName = User, Password = Password });
+            var factory = new ConnectionFactory( brokerUri, new StompConnectionSettings { UserName = User, Password = Password } );
 
             // Create connection for both requests and responses
-            var connection = factory.CreateConnection( );
+            var connection = factory.CreateConnection();
             connection.Start();
 
             // Create session for both requests and responses

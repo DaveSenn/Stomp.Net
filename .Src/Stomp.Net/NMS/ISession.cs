@@ -215,7 +215,7 @@ namespace Apache.NMS
         #region Attributes
 
         /// <summary>
-        /// Gets the request timeout.
+        ///     Gets the request timeout.
         /// </summary>
         /// <value>The request timeout.</value>
         TimeSpan RequestTimeout { get; }

@@ -66,7 +66,7 @@ namespace Stomp.Net
                 }
             }
         }
-        
+
         #endregion
 
         #region Ctor

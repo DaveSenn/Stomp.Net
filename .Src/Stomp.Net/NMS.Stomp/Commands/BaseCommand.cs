@@ -53,6 +53,17 @@ namespace Apache.NMS.Stomp.Commands
 
         #endregion
 
+        public override Object Clone()
+        {
+            // Since we are a derived class use the base's Clone()
+            // to perform the shallow copy. Since it is shallow it
+            // will include our derived class. Since we are derived,
+            // this method is an override.
+            var o = (BaseCommand) base.Clone();
+
+            return o;
+        }
+
         public Int32 CommandId { get; set; }
 
         public virtual Boolean IsConnectionInfo
@@ -120,17 +131,6 @@ namespace Apache.NMS.Stomp.Commands
         public virtual Response visit( ICommandVisitor visitor )
         {
             throw new ApplicationException( "BaseCommand.Visit() not implemented" );
-        }
-
-        public override Object Clone()
-        {
-            // Since we are a derived class use the base's Clone()
-            // to perform the shallow copy. Since it is shallow it
-            // will include our derived class. Since we are derived,
-            // this method is an override.
-            var o = (BaseCommand) base.Clone();
-
-            return o;
         }
 
         public override Boolean Equals( Object that )

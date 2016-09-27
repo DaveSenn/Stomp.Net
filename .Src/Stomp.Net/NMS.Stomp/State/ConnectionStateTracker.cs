@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Generic;
 using Apache.NMS.Stomp.Commands;
-using Apache.NMS.Stomp.Transport;
+using Stomp.Net;
 
 #endregion
 

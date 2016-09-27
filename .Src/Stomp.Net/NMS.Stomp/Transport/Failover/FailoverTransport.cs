@@ -108,6 +108,8 @@ namespace Apache.NMS.Stomp.Transport.Failover
             }
         }
 
+        public Boolean IsDisposed { get; private set; }
+
         #endregion
 
         #region Ctor
@@ -231,8 +233,6 @@ namespace Apache.NMS.Stomp.Transport.Failover
         public Int32 AsyncTimeout { get; set; } = 45000;
 
         public Boolean IsConnected { get; private set; }
-
-        public Boolean IsDisposed { get; private set; }
 
         public Boolean IsFaultTolerant
         {
@@ -377,11 +377,6 @@ namespace Apache.NMS.Stomp.Transport.Failover
             }
         }
 
-        public Response Request( ICommand command )
-        {
-            throw new ApplicationException( "FailoverTransport does not implement Request(Command)" );
-        }
-
         public Response Request( ICommand command, TimeSpan ts )
         {
             throw new ApplicationException( "FailoverTransport does not implement Request(Command, TimeSpan)" );
@@ -454,8 +449,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
                         reconnectTask.Wakeup();
                 }
 
-                if ( Interrupted != null )
-                    Interrupted( transport );
+                Interrupted?.Invoke( transport );
             }
         }
 
@@ -528,6 +522,11 @@ namespace Apache.NMS.Stomp.Transport.Failover
                 {
                     Tracer.Debug( "Reconnect was triggered but transport is not started yet. Wait for start to connect the transport." );
                 }
+        }
+
+        public Response Request( ICommand command )
+        {
+            throw new ApplicationException( "FailoverTransport does not implement Request(Command)" );
         }
 
         public override String ToString() => ConnectedTransportURI == null ? "unconnected" : ConnectedTransportURI.ToString();
@@ -603,8 +602,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
                                 if ( IsStarted )
                                     RestoreTransport( transport );
 
-                                if ( Resumed != null )
-                                    Resumed( transport );
+                                Resumed?.Invoke( transport );
 
                                 Tracer.Debug( "Connection established" );
                                 ReconnectDelay = InitialReconnectDelay;
@@ -727,13 +725,25 @@ namespace Apache.NMS.Stomp.Transport.Failover
 
         #region Property Accessors
 
+        /// <summary>
+        ///     Delegate invoked when a command was received.
+        /// </summary>
         public Action<ITransport, ICommand> Command { get; set; }
 
-        public ExceptionHandler Exception { get; set; }
+        /// <summary>
+        ///     Delegate invoked when a exception occurs.
+        /// </summary>
+        public Action<ITransport, Exception> Exception { get; set; }
 
-        public InterruptedHandler Interrupted { get; set; }
+        /// <summary>
+        ///     Delegate invoked when the connection is interrupted.
+        /// </summary>
+        public Action<ITransport> Interrupted { get; set; }
 
-        public ResumedHandler Resumed { get; set; }
+        /// <summary>
+        ///     Delegate invoked when the connection is resumed.
+        /// </summary>
+        public Action<ITransport> Resumed { get; set; }
 
         internal Exception Failure
         {

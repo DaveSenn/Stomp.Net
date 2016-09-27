@@ -2,19 +2,12 @@
 
 using System;
 using Apache.NMS.Stomp.Commands;
+using Apache.NMS.Stomp.Transport;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Transport
+namespace Stomp.Net
 {
-    // public delegate void CommandHandler( ITransport sender, ICommand command );
-
-    public delegate void ExceptionHandler( ITransport sender, Exception command );
-
-    public delegate void InterruptedHandler( ITransport sender );
-
-    public delegate void ResumedHandler( ITransport sender );
-
     /// <summary>
     ///     Represents the logical networking transport layer.
     ///     Transports implement the low level protocol specific portion of the Communication between the Client and a Broker
@@ -38,13 +31,25 @@ namespace Apache.NMS.Stomp.Transport
         /// </summary>
         Int32 AsyncTimeout { get; set; }
 
+        /// <summary>
+        ///     Delegate invoked when a command was received.
+        /// </summary>
         Action<ITransport, ICommand> Command { get; set; }
 
-        ExceptionHandler Exception { get; set; }
+        /// <summary>
+        ///     Delegate invoked when a exception occurs.
+        /// </summary>
+        Action<ITransport, Exception> Exception { get; set; }
 
-        InterruptedHandler Interrupted { get; set; }
+        /// <summary>
+        ///     Delegate invoked when the connection is interrupted.
+        /// </summary>
+        Action<ITransport> Interrupted { get; set; }
 
-        ResumedHandler Resumed { get; set; }
+        /// <summary>
+        ///     Delegate invoked when the connection is resumed.
+        /// </summary>
+        Action<ITransport> Resumed { get; set; }
 
         /// <value>
         ///     Indicates if this Transport is Fault Tolerant or not.
