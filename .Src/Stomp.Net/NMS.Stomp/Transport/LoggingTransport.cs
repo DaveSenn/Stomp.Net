@@ -21,16 +21,16 @@ namespace Apache.NMS.Stomp.Transport
 
         #endregion
 
-        public override void Oneway( Command command )
+        public override void Oneway( ICommand command )
         {
             Tracer.Info( "SENDING: " + command );
             next.Oneway( command );
         }
 
-        protected override void OnCommand( ITransport sender, Command command )
+        protected override void OnCommand( ITransport sender, ICommand command )
         {
             Tracer.Info( "RECEIVED: " + command );
-            commandHandler( sender, command );
+            Command( sender, command );
         }
 
         protected override void OnException( ITransport sender, Exception error )

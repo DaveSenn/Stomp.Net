@@ -10,7 +10,7 @@ namespace Apache.NMS.Stomp.Commands
     /// <summary>
     ///     An Stomp command
     /// </summary>
-    public interface Command : ICloneable
+    public interface ICommand : ICloneable
     {
         #region Properties
 

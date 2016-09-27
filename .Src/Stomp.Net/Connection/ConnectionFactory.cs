@@ -66,17 +66,7 @@ namespace Stomp.Net
                 }
             }
         }
-
-        /// <summary>
-        ///     Gets the acknowledge mode.
-        /// </summary>
-        private AcknowledgementMode AcknowledgementMode => StompConnectionSettings.AcknowledgementMode ?? StompNetConfiguration.DefaultAcknowledgementMode;
-
-        /// <summary>
-        ///     Gets the request timeout.
-        /// </summary>
-        private TimeSpan RequestTimeout => StompConnectionSettings.RequestTimeout ?? StompNetConfiguration.RequestTimeout;
-
+        
         #endregion
 
         #region Ctor

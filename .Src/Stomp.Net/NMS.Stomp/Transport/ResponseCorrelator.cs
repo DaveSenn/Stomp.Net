@@ -31,7 +31,7 @@ namespace Apache.NMS.Stomp.Transport
 
         #endregion
 
-        public override FutureResponse AsyncRequest( Command command )
+        public override FutureResponse AsyncRequest( ICommand command )
         {
             var commandId = GetNextCommandId();
 
@@ -59,7 +59,7 @@ namespace Apache.NMS.Stomp.Transport
             return future;
         }
 
-        public override void Oneway( Command command )
+        public override void Oneway( ICommand command )
         {
             command.CommandId = GetNextCommandId();
             command.ResponseRequired = false;
@@ -67,7 +67,7 @@ namespace Apache.NMS.Stomp.Transport
             next.Oneway( command );
         }
 
-        public override Response Request( Command command, TimeSpan timeout )
+        public override Response Request( ICommand command, TimeSpan timeout )
         {
             var future = AsyncRequest( command );
             future.ResponseTimeout = timeout;
@@ -92,7 +92,7 @@ namespace Apache.NMS.Stomp.Transport
             base.Stop();
         }
 
-        protected override void OnCommand( ITransport sender, Command command )
+        protected override void OnCommand( ITransport sender, ICommand command )
         {
             if ( command is Response )
             {
@@ -121,7 +121,7 @@ namespace Apache.NMS.Stomp.Transport
             }
             else
             {
-                commandHandler( sender, command );
+                Command( sender, command );
             }
         }
 

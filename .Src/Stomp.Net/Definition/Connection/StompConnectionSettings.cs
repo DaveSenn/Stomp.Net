@@ -43,12 +43,12 @@ namespace Stomp.Net
         /// <summary>
         ///     Gets or sets a <see cref="AcknowledgementMode" />.
         /// </summary>
-        public AcknowledgementMode? AcknowledgementMode { get; set; }
+        public AcknowledgementMode AcknowledgementMode { get; set; } = StompNetConfiguration.DefaultAcknowledgementMode;
 
         /// <summary>
         ///     Gets or sets the request timeout.
         /// </summary>
-        public TimeSpan? RequestTimeout { get; set; }
+        public TimeSpan RequestTimeout { get; set; } = StompNetConfiguration.RequestTimeout;
 
         /// <summary>
         ///     Gets a <see cref="PrefetchPolicy" />.

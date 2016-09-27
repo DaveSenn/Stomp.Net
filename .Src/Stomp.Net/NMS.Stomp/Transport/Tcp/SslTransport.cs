@@ -73,7 +73,7 @@ namespace Apache.NMS.Stomp.Transport.Tcp
                 return sslStream;
 
             sslStream = new SslStream(
-                new NetworkStream( socket ),
+                new NetworkStream( Socket ),
                 false,
                 ValidateServerCertificate,
                 SelectLocalCertificate );
@@ -193,11 +193,7 @@ namespace Apache.NMS.Stomp.Transport.Tcp
             // Configuration may or may not allow us to connect with an invalid broker cert.
             return AcceptInvalidBrokerCert;
         }
-
-        ~SslTransport()
-        {
-            Dispose( false );
-        }
+        
     }
 }
 

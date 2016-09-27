@@ -214,7 +214,11 @@ namespace Apache.NMS
 
         #region Attributes
 
-        TimeSpan RequestTimeout { get; set; }
+        /// <summary>
+        /// Gets the request timeout.
+        /// </summary>
+        /// <value>The request timeout.</value>
+        TimeSpan RequestTimeout { get; }
 
         Boolean Transacted { get; }
 

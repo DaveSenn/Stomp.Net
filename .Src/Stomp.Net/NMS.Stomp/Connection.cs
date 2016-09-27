@@ -74,53 +74,7 @@ namespace Apache.NMS.Stomp
             get { return info.Password; }
             set { info.Password = value; }
         }
-
-        /// <summary>
-        ///     This property indicates whether or not async send is enabled.
-        /// </summary>
-        public Boolean AsyncSend { get; set; } = false;
-
-        /// <summary>
-        ///     This property sets the acknowledgment mode for the connection.
-        ///     The URI parameter connection.ackmode can be set to a string value
-        ///     that maps to the enumeration value.
-        /// </summary>
-        public String AckMode
-        {
-            set { AcknowledgementMode = NMSConvert.ToAcknowledgementMode( value ); }
-        }
-
-        /// <summary>
-        ///     This property forces all messages that are sent to be sent synchronously overriding
-        ///     any usage of the AsyncSend flag. This can reduce performance in some cases since the
-        ///     only messages we normally send synchronously are Persistent messages not sent in a
-        ///     transaction. This options guarantees that no send will return until the broker has
-        ///     acknowledge receipt of the message
-        /// </summary>
-        public Boolean AlwaysSyncSend { get; set; } = false;
-
-        /// <summary>
-        ///     This property indicates whether Message's should be copied before being sent via
-        ///     one of the Connection's send methods.  Copying the Message object allows the user
-        ///     to resuse the Object over for another send.  If the message isn't copied performance
-        ///     can improve but the user must not reuse the Object as it may not have been sent
-        ///     before they reset its payload.
-        /// </summary>
-        public Boolean CopyMessageOnSend { get; set; } = true;
-
-        /// <summary>
-        ///     This property indicates whether or not async sends are used for
-        ///     message acknowledgement messages.  Sending Acks async can improve
-        ///     performance but may decrease reliability.
-        /// </summary>
-        public Boolean SendAcksAsync { get; set; } = false;
-
-        /// <summary>
-        ///     synchronously or asynchronously by the broker.  Set to false for a slow
-        ///     consumer and true for a fast consumer.
-        /// </summary>
-        public Boolean DispatchAsync { get; set; } = true;
-
+        
         /// <summary>
         ///     Sets the default Transformation attribute applied to Consumers.  If a consumer
         ///     is to receive Map messages from the Broker then the user should set the "jms-map-xml"
@@ -187,9 +141,7 @@ namespace Apache.NMS.Stomp
         }
 
         #endregion
-
-        public AcknowledgementMode AcknowledgementMode { get; set; } = AcknowledgementMode.AutoAcknowledge;
-
+        
         public String ClientId
         {
             get { return info.ClientId; }
@@ -261,7 +213,8 @@ namespace Apache.NMS.Stomp
         /// <summary>
         ///     Creates a new session to work on this connection
         /// </summary>
-        public ISession CreateSession() => CreateSession( AcknowledgementMode );
+        public ISession CreateSession() 
+            => CreateSession( _stompConnectionSettings.AcknowledgementMode );
 
         /// <summary>
         ///     Creates a new session to work on this connection
@@ -269,7 +222,7 @@ namespace Apache.NMS.Stomp
         public ISession CreateSession( AcknowledgementMode sessionAcknowledgementMode )
         {
             var info = CreateSessionInfo( sessionAcknowledgementMode );
-            var session = new Session( this, info, sessionAcknowledgementMode, DispatchAsync );
+            var session = new Session( this, info, sessionAcknowledgementMode, _stompConnectionSettings);
 
             // Set properties on session using parameters prefixed with "session."
             if ( BrokerUri.Query.IsNotEmpty() && !BrokerUri.OriginalString.EndsWith( ")", StringComparison.Ordinal ) )
@@ -312,8 +265,6 @@ namespace Apache.NMS.Stomp
         ///     Get/or set the redelivery policy for this connection.
         /// </summary>
         public IRedeliveryPolicy RedeliveryPolicy { get; set; }
-
-        public TimeSpan RequestTimeout { get; set; }
 
         public void Dispose()
         {
@@ -372,7 +323,7 @@ namespace Apache.NMS.Stomp
         /// </summary>
         public String CreateTemporaryDestinationName() => info.ConnectionId.Value + ":" + Interlocked.Increment( ref temporaryDestinationCounter );
 
-        public void Oneway( Command command )
+        public void Oneway( ICommand command )
         {
             CheckConnected();
 
@@ -391,9 +342,9 @@ namespace Apache.NMS.Stomp
         /// <summary>
         ///     Performs a synchronous request-response with the broker
         /// </summary>
-        public Response SyncRequest( Command command ) => SyncRequest( command, RequestTimeout );
+        public Response SyncRequest( ICommand command ) => SyncRequest( command, _stompConnectionSettings.RequestTimeout );
 
-        public Response SyncRequest( Command command, TimeSpan requestTimeout )
+        public Response SyncRequest( ICommand command, TimeSpan requestTimeout )
         {
             CheckConnected();
 
@@ -478,7 +429,7 @@ namespace Apache.NMS.Stomp
         /// </summary>
         /// <param name="commandTransport">An ITransport</param>
         /// <param name="command">A  Command</param>
-        protected void OnCommand( ITransport commandTransport, Command command )
+        protected void OnCommand( ITransport commandTransport, ICommand command )
         {
             if ( command.IsMessageDispatch )
             {
@@ -570,7 +521,7 @@ namespace Apache.NMS.Stomp
 
             if ( !connected.Value )
             {
-                var timeoutTime = DateTime.Now + RequestTimeout;
+                var timeoutTime = DateTime.Now + _stompConnectionSettings.RequestTimeout;
                 var waitCount = 1;
 
                 while ( true )
@@ -596,7 +547,7 @@ namespace Apache.NMS.Stomp
                                             ITransport.Start();
 
                                         // Send the connection and see if an ack/nak is returned.
-                                        var response = ITransport.Request( info, RequestTimeout );
+                                        var response = ITransport.Request( info, _stompConnectionSettings.RequestTimeout);
                                         if ( !( response is ExceptionResponse ) )
                                         {
                                             connected.Value = true;
@@ -615,8 +566,9 @@ namespace Apache.NMS.Stomp
                                         }
                                     }
                                 }
-                                catch
+                                catch(Exception ex)
                                 {
+                                    //TODO
                                 }
                             }
                         }

@@ -14,9 +14,9 @@ namespace Stomp.Net.Example.Producer
         #region Constants
 
         private const String Destination = "TestQ";
-        private const String Host = "HOST";
+        private const String Host = "atmfutura";
         private const String Password = "password";
-        private const Int32 Port = 60000;
+        private const Int32 Port = 61902;
         private const String User = "admin";
 
         #endregion
@@ -31,7 +31,7 @@ namespace Stomp.Net.Example.Producer
 
         private static void SendReceive()
         {
-            var brokerUri = "stomp:tcp://" + Host + ":" + Port;
+            var brokerUri = "tcp://" + Host + ":" + Port;
             var factory = new ConnectionFactory( brokerUri, new StompConnectionSettings { UserName = User, Password = Password });
 
             // Create connection for both requests and responses

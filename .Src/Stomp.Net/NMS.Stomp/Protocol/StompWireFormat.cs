@@ -53,63 +53,61 @@ namespace Apache.NMS.Stomp.Protocol
 
         #endregion
 
-        public void Marshal( Object o, BinaryWriter dataOut )
+        public void Marshal( Object o, BinaryWriter writer )
         {
             if ( o is ConnectionInfo )
             {
-                WriteConnectionInfo( (ConnectionInfo) o, dataOut );
+                WriteConnectionInfo( (ConnectionInfo) o, writer );
             }
             else if ( o is Message )
             {
-                WriteMessage( (Message) o, dataOut );
+                WriteMessage( (Message) o, writer );
             }
             else if ( o is ConsumerInfo )
             {
-                WriteConsumerInfo( (ConsumerInfo) o, dataOut );
+                WriteConsumerInfo( (ConsumerInfo) o, writer );
             }
             else if ( o is MessageAck )
             {
-                WriteMessageAck( (MessageAck) o, dataOut );
+                WriteMessageAck( (MessageAck) o, writer );
             }
             else if ( o is TransactionInfo )
             {
-                WriteTransactionInfo( (TransactionInfo) o, dataOut );
+                WriteTransactionInfo( (TransactionInfo) o, writer );
             }
             else if ( o is ShutdownInfo )
             {
-                WriteShutdownInfo( (ShutdownInfo) o, dataOut );
+                WriteShutdownInfo( (ShutdownInfo) o, writer );
             }
             else if ( o is RemoveInfo )
             {
-                WriteRemoveInfo( (RemoveInfo) o, dataOut );
+                WriteRemoveInfo( (RemoveInfo) o, writer );
             }
             else if ( o is KeepAliveInfo )
             {
-                WriteKeepAliveInfo( (KeepAliveInfo) o, dataOut );
+                WriteKeepAliveInfo( (KeepAliveInfo) o, writer );
             }
-            else if ( o is Command )
+            else if ( o is ICommand )
             {
-                var command = o as Command;
+                var command = o as ICommand;
                 if ( command.ResponseRequired )
                 {
-                    var response = new Response();
-                    response.CorrelationId = command.CommandId;
+                    var response = new Response { CorrelationId = command.CommandId };
                     SendCommand( response );
-                    Tracer.Debug( "StompWireFormat - Autorespond to command: " + o.GetType() );
                 }
             }
             else
             {
-                Tracer.Debug( "StompWireFormat - Ignored command: " + o.GetType() );
+                Tracer.Warn( $"StompWireFormat - Ignored command: {o.GetType()} => '{0}'" );
             }
         }
 
         public ITransport Transport { get; set; }
 
-        public Object Unmarshal( BinaryReader dataIn )
+        public ICommand Unmarshal( BinaryReader reader )
         {
             var frame = new StompFrame( encodeHeaders );
-            frame.FromStream( dataIn );
+            frame.FromStream( reader );
 
             if ( Tracer.IsDebugEnabled )
                 Tracer.Debug( "Unmarshalled frame: " + frame );
@@ -118,7 +116,7 @@ namespace Apache.NMS.Stomp.Protocol
             return answer;
         }
 
-        protected virtual Object CreateCommand( StompFrame frame )
+        protected virtual ICommand CreateCommand( StompFrame frame )
         {
             var command = frame.Command;
 
@@ -178,7 +176,7 @@ namespace Apache.NMS.Stomp.Protocol
             return null;
         }
 
-        protected virtual Command ReadConnected( StompFrame frame )
+        protected virtual ICommand ReadConnected( StompFrame frame )
         {
             remoteWireFormatInfo = new WireFormatInfo();
 
@@ -225,7 +223,7 @@ namespace Apache.NMS.Stomp.Protocol
             return remoteWireFormatInfo;
         }
 
-        protected virtual Command ReadMessage( StompFrame frame )
+        protected virtual ICommand ReadMessage( StompFrame frame )
         {
             Message message = null;
             var transformation = frame.RemoveProperty( "transformation" );
@@ -305,7 +303,7 @@ namespace Apache.NMS.Stomp.Protocol
             return dispatch;
         }
 
-        protected virtual void SendCommand( Command command )
+        protected virtual void SendCommand( ICommand command )
         {
             if ( Transport == null )
                 Tracer.Fatal( "No transport configured so cannot return command: " + command );

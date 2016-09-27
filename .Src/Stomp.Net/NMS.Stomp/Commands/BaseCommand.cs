@@ -7,7 +7,7 @@ using Apache.NMS.Stomp.State;
 
 namespace Apache.NMS.Stomp.Commands
 {
-    public abstract class BaseCommand : BaseDataStructure, Command, ICloneable
+    public abstract class BaseCommand : BaseDataStructure, ICommand, ICloneable
     {
         #region Properties
 

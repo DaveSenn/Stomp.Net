@@ -2,30 +2,37 @@
 
 using System;
 using System.IO;
+using Apache.NMS.Stomp.Commands;
 
 #endregion
 
 namespace Apache.NMS.Stomp.Transport
 {
     /// <summary>
-    ///     Represents the marshalling of commands to and from an IO stream
+    ///     Represents the marshaling of commands to and from an IO stream
     /// </summary>
     public interface IWireFormat
     {
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the transport.
+        /// </summary>
+        /// <value>The transport.</value>
         ITransport Transport { get; set; }
 
         #endregion
 
         /// <summary>
-        ///     Marshalls the given command object onto the stream
+        ///     Marshals the given command object onto the stream
         /// </summary>
-        void Marshal( Object o, BinaryWriter ds );
+        /// <param name="writer">A binary writer.</param>
+        void Marshal( Object o, BinaryWriter writer );
 
         /// <summary>
-        ///     Unmarshalls the next command object from the stream
+        ///     Unmarshals the next command object from the stream
         /// </summary>
-        Object Unmarshal( BinaryReader dis );
+        /// <param name="reader">A binary reader.</param>
+        ICommand Unmarshal( BinaryReader reader );
     }
 }

@@ -13,6 +13,9 @@ using Stomp.Net;
 
 namespace Apache.NMS.Stomp.Transport.Tcp
 {
+    /// <summary>
+    /// Factory for TCP/IP transport.
+    /// </summary>
     public class TcpTransportFactory : ITransportFactory
     {
         #region Fields
@@ -40,66 +43,16 @@ namespace Apache.NMS.Stomp.Transport.Tcp
 
         #endregion
 
-   
+        #region Protected Members
 
-        private static Socket Connect( String host, Int32 port )
-        {
-            Socket socket = null;
-            IPAddress ipAddress;
+        /// <summary>
+        ///     Override in a subclass to create the specific type of transport that is
+        ///     being implemented.
+        /// </summary>
+        protected virtual ITransport CreateTransport( Uri location, Socket socket, IWireFormat wireFormat )
+            => new TcpTransport( location, socket, wireFormat );
 
-            try
-            {
-                if ( IPAddress.TryParse( host, out ipAddress ) )
-                {
-                    socket = ConnectSocket( ipAddress, port );
-                }
-                else
-                {
-                    // Looping through the AddressList allows different type of connections to be tried
-                    // (IPv6, IPv4 and whatever else may be available).
-                    var hostEntry = GetHostEntry( host );
-
-                    if ( null != hostEntry )
-                    {
-                        // Prefer IPv6 first.
-                        ipAddress = GetIpAddress( hostEntry, AddressFamily.InterNetworkV6 );
-                        if ( ipAddress != null )
-                            socket = ConnectSocket( ipAddress, port );
-                        if ( null == socket )
-                        {
-                            // Try IPv4 next.
-                            ipAddress = GetIpAddress( hostEntry, AddressFamily.InterNetwork );
-                            if ( ipAddress != null )
-                                socket = ConnectSocket( ipAddress, port );
-                            if ( null == socket )
-                                foreach ( var address in hostEntry.AddressList )
-                                {
-                                    if ( AddressFamily.InterNetworkV6 == address.AddressFamily
-                                         || AddressFamily.InterNetwork == address.AddressFamily )
-                                        continue;
-
-                                    socket = ConnectSocket( address, port );
-                                    if ( null != socket )
-                                    {
-                                        ipAddress = address;
-                                        break;
-                                    }
-                                }
-                        }
-                    }
-                }
-
-                if ( null == socket )
-                    throw new SocketException();
-            }
-            catch ( Exception ex )
-            {
-                throw new NMSConnectionException( String.Format( "Error connecting to {0}:{1}.", host, port ), ex );
-            }
-
-            Tracer.DebugFormat( "Connected to {0}:{1} using {2} protocol.", host, port, ipAddress.AddressFamily.ToString() );
-            return socket;
-        }
+        #endregion
 
         #region Implementation of ITransportFactory
 
@@ -136,18 +89,69 @@ namespace Apache.NMS.Stomp.Transport.Tcp
 
         #endregion
 
-        #region Protected Members
+        #region Private Members
 
         /// <summary>
-        ///     Override in a subclass to create the specific type of transport that is
-        ///     being implemented.
+        ///     Tries to create an open socket to the host with the given name/IP and port.
         /// </summary>
-        protected virtual ITransport CreateTransport( Uri location, Socket socket, IWireFormat wireFormat )
-            => new TcpTransport( location, socket, wireFormat );
+        /// <exception cref="NMSConnectionException">Connection failed.</exception>
+        /// <exception cref="ArgumentNullException">host can not be null.</exception>
+        /// <param name="host">The host name.</param>
+        /// <param name="port">The port.</param>
+        /// <returns>Returns an open socket, or null if the communication has failed.</returns>
+        [NotNull]
+        private static Socket Connect( [NotNull] String host, Int32 port )
+        {
+            host.ThrowIfNull( nameof( host ) );
 
-        #endregion
+            try
+            {
+                Socket socket = null;
 
-        #region Private Members
+                // Check if is IP address
+                IPAddress ipAddress;
+                if ( IPAddress.TryParse( host, out ipAddress ) )
+                {
+                    socket = ConnectSocket( ipAddress, port );
+                    if ( socket != null )
+                        return socket;
+                }
+
+                // host must be a host name
+                // Try to get the DNS entry of the host
+                var hostEntry = GetHostEntry( host );
+                if ( null == hostEntry )
+                    throw new SocketException();
+
+                // Looping through the AddressList allows different type of connections to be tried (IPv6, IPv4 and whatever else may be available).
+                // Prefer IPv6 first.
+                ipAddress = GetIpAddress( hostEntry, AddressFamily.InterNetworkV6 );
+                if ( ipAddress != null )
+                    socket = ConnectSocket( ipAddress, port );
+                if ( socket != null )
+                    return socket;
+
+                // Try IPv4 next.
+                ipAddress = GetIpAddress( hostEntry, AddressFamily.InterNetwork );
+                if ( ipAddress != null )
+                    socket = ConnectSocket( ipAddress, port );
+                if ( socket != null )
+                    return socket;
+
+                foreach ( var address in hostEntry.AddressList.Where( x => AddressFamily.InterNetworkV6 != x.AddressFamily && AddressFamily.InterNetwork != x.AddressFamily ) )
+                {
+                    socket = ConnectSocket( address, port );
+                    if ( null != socket )
+                        return socket;
+                }
+
+                throw new SocketException();
+            }
+            catch ( Exception ex )
+            {
+                throw new NMSConnectionException( $"Error connecting to {host}:{port}.", ex );
+            }
+        }
 
         /// <summary>
         ///     Gets the first address in the address list of the given host entry of the specified address family.

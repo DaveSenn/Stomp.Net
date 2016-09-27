@@ -62,7 +62,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
         private readonly Object mutex = new Object();
 
         private readonly Mutex reconnectMutex = new Mutex();
-        private readonly Dictionary<Int32, Command> requestMap = new Dictionary<Int32, Command>();
+        private readonly Dictionary<Int32, ICommand> requestMap = new Dictionary<Int32, ICommand>();
         private readonly Mutex sleepMutex = new Mutex();
         private readonly ConnectionStateTracker stateTracker = new ConnectionStateTracker();
         private readonly List<Uri> uris = new List<Uri>();
@@ -219,7 +219,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
             transportToStop?.Stop();
         }
 
-        public FutureResponse AsyncRequest( Command command )
+        public FutureResponse AsyncRequest( ICommand command )
         {
             throw new ApplicationException( "FailoverTransport does not implement AsyncRequest(Command)" );
         }
@@ -244,7 +244,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
             ? this
             : ConnectedTransport?.Narrow( type );
 
-        public void Oneway( Command command )
+        public void Oneway( ICommand command )
         {
             Exception error = null;
 
@@ -377,12 +377,12 @@ namespace Apache.NMS.Stomp.Transport.Failover
             }
         }
 
-        public Response Request( Command command )
+        public Response Request( ICommand command )
         {
             throw new ApplicationException( "FailoverTransport does not implement Request(Command)" );
         }
 
-        public Response Request( Command command, TimeSpan ts )
+        public Response Request( ICommand command, TimeSpan ts )
         {
             throw new ApplicationException( "FailoverTransport does not implement Request(Command, TimeSpan)" );
         }
@@ -414,7 +414,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
             IsDisposed = true;
         }
 
-        public void disposedOnCommand( ITransport sender, Command c )
+        public void disposedOnCommand( ITransport sender, ICommand c )
         {
         }
 
@@ -459,7 +459,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
             }
         }
 
-        public void OnCommand( ITransport sender, Command command )
+        public void OnCommand( ITransport sender, ICommand command )
         {
             if ( command != null )
                 if ( command.IsResponse )
@@ -540,9 +540,9 @@ namespace Apache.NMS.Stomp.Transport.Failover
             stateTracker.DoRestore( t );
 
             Tracer.Info( "Sending queued commands..." );
-            Dictionary<Int32, Command> tmpMap = null;
+            Dictionary<Int32, ICommand> tmpMap = null;
             lock ( ( (ICollection) requestMap ).SyncRoot )
-                tmpMap = new Dictionary<Int32, Command>( requestMap );
+                tmpMap = new Dictionary<Int32, ICommand>( requestMap );
 
             foreach ( var command in tmpMap.Values )
                 t.Oneway( command );
@@ -676,7 +676,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
         /// </summary>
         /// <param name="command"></param>
         /// <returns>Returns true if the command is one sent when a connection is being closed.</returns>
-        private static Boolean IsShutdownCommand( Command command ) => command != null && ( command.IsShutdownInfo || command is RemoveInfo );
+        private static Boolean IsShutdownCommand( ICommand command ) => command != null && ( command.IsShutdownInfo || command is RemoveInfo );
 
         ~FailoverTransport()
         {
@@ -727,7 +727,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
 
         #region Property Accessors
 
-        public CommandHandler Command { get; set; }
+        public Action<ITransport, ICommand> Command { get; set; }
 
         public ExceptionHandler Exception { get; set; }
 

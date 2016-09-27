@@ -28,7 +28,7 @@ namespace Apache.NMS.Stomp.Transport
 
         #endregion
 
-        public override FutureResponse AsyncRequest( Command command )
+        public override FutureResponse AsyncRequest( ICommand command )
         {
             GetTransmissionLock( next.AsyncTimeout );
             try
@@ -41,7 +41,7 @@ namespace Apache.NMS.Stomp.Transport
             }
         }
 
-        public override void Oneway( Command command )
+        public override void Oneway( ICommand command )
         {
             GetTransmissionLock( next.Timeout );
             try
@@ -54,7 +54,7 @@ namespace Apache.NMS.Stomp.Transport
             }
         }
 
-        public override Response Request( Command command, TimeSpan timeout )
+        public override Response Request( ICommand command, TimeSpan timeout )
         {
             GetTransmissionLock( (Int32) timeout.TotalMilliseconds );
             try

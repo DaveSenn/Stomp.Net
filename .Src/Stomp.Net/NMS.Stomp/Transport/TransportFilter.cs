@@ -15,10 +15,13 @@ namespace Apache.NMS.Stomp.Transport
         #region Fields
 
         protected readonly ITransport next;
+        /*
         protected CommandHandler commandHandler;
+        */
         protected ExceptionHandler exceptionHandler;
         protected InterruptedHandler interruptedHandler;
         protected ResumedHandler resumedHandler;
+        
 
         #endregion
 
@@ -32,6 +35,13 @@ namespace Apache.NMS.Stomp.Transport
             this.next.Interrupted = OnInterrupted;
             this.next.Resumed = OnResumed;
         }
+
+        #endregion
+
+
+        #region Implementation of ITransport
+        
+        public Action<ITransport, ICommand> Command { get; set; }
 
         #endregion
 
@@ -57,7 +67,8 @@ namespace Apache.NMS.Stomp.Transport
         /// </summary>
         public virtual void Start()
         {
-            if ( commandHandler == null )
+            var t = this.GetType();
+            if ( Command == null )
                 throw new InvalidOperationException( "command cannot be null when Start is called." );
 
             if ( exceptionHandler == null )
@@ -73,7 +84,7 @@ namespace Apache.NMS.Stomp.Transport
         /// </summary>
         /// <returns>A FutureResponse</returns>
         /// <param name="command">A  Command</param>
-        public virtual FutureResponse AsyncRequest( Command command ) 
+        public virtual FutureResponse AsyncRequest( ICommand command ) 
             => next.AsyncRequest( command );
 
         /// <summary>
@@ -86,11 +97,6 @@ namespace Apache.NMS.Stomp.Transport
             set { next.AsyncTimeout = value; }
         }
 
-        public CommandHandler Command
-        {
-            get { return commandHandler; }
-            set { commandHandler = value; }
-        }
 
         public ExceptionHandler Exception
         {
@@ -131,7 +137,7 @@ namespace Apache.NMS.Stomp.Transport
         ///     Method Oneway
         /// </summary>
         /// <param name="command">A  Command</param>
-        public virtual void Oneway( Command command ) => next.Oneway( command );
+        public virtual void Oneway( ICommand command ) => next.Oneway( command );
 
         public Uri RemoteAddress
         {
@@ -143,7 +149,7 @@ namespace Apache.NMS.Stomp.Transport
         /// </summary>
         /// <returns>A Response</returns>
         /// <param name="command">A  Command</param>
-        public virtual Response Request( Command command ) => Request( command, TimeSpan.FromMilliseconds( System.Threading.Timeout.Infinite ) );
+        public virtual Response Request( ICommand command ) => Request( command, TimeSpan.FromMilliseconds( System.Threading.Timeout.Infinite ) );
 
         /// <summary>
         ///     Method Request with time out for Response.
@@ -151,7 +157,7 @@ namespace Apache.NMS.Stomp.Transport
         /// <returns>A Response</returns>
         /// <param name="command">A  Command</param>
         /// <param name="timeout">Timeout in milliseconds</param>
-        public virtual Response Request( Command command, TimeSpan timeout ) => next.Request( command, timeout );
+        public virtual Response Request( ICommand command, TimeSpan timeout ) => next.Request( command, timeout );
 
         public ResumedHandler Resumed
         {
@@ -181,8 +187,8 @@ namespace Apache.NMS.Stomp.Transport
             IsDisposed = true;
         }
 
-        protected virtual void OnCommand( ITransport sender, Command command ) 
-            => commandHandler( sender, command );
+        protected virtual void OnCommand( ITransport sender, ICommand command ) 
+            => Command( sender, command );
 
         protected virtual void OnException( ITransport sender, Exception command ) 
             => exceptionHandler( sender, command );

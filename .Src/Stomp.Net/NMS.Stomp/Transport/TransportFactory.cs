@@ -111,10 +111,11 @@ namespace Apache.NMS.Stomp.Transport
 
         public ITransport CompositeConnect( Uri location )
             => CreateTransportFactory( location )
-                .CreateTransport( location );
+                .CompositeConnect( location );
 
         public ITransport CreateTransport( Uri location )
-            => CreateTransportFactory( location ).CompositeConnect( location );
+            => CreateTransportFactory( location )
+                .CreateTransport( location );
 
         #endregion
     }

@@ -10,14 +10,14 @@ using Apache.NMS.Util;
 namespace Apache.NMS.Stomp.Transport
 {
     /// <summary>
-    ///     Handles asynchronous responses
+    ///     Handles asynchronous responses.
     /// </summary>
     public class FutureResponse
     {
         #region Fields
 
-        private readonly CountDownLatch latch = new CountDownLatch( 1 );
-        private Response response;
+        private readonly CountDownLatch _latch = new CountDownLatch( 1 );
+        private Response _response;
 
         #endregion
 
@@ -27,7 +27,7 @@ namespace Apache.NMS.Stomp.Transport
 
         public WaitHandle AsyncWaitHandle
         {
-            get { return latch.AsyncWaitHandle; }
+            get { return _latch.AsyncWaitHandle; }
         }
 
         public Response Response
@@ -35,13 +35,13 @@ namespace Apache.NMS.Stomp.Transport
             // Blocks the caller until a value has been set
             get
             {
-                lock ( latch )
-                    if ( null != response )
-                        return response;
+                lock ( _latch )
+                    if ( null != _response )
+                        return _response;
 
                 try
                 {
-                    if ( !latch.await( ResponseTimeout ) && response == null )
+                    if ( !_latch.await( ResponseTimeout ) && _response == null )
                         throw new RequestTimedOutException();
                 }
                 catch ( RequestTimedOutException e )
@@ -54,16 +54,16 @@ namespace Apache.NMS.Stomp.Transport
                     Tracer.Error( "Caught Exception while waiting on monitor: " + e );
                 }
 
-                lock ( latch )
-                    return response;
+                lock ( _latch )
+                    return _response;
             }
 
             set
             {
-                lock ( latch )
-                    response = value;
+                lock ( _latch )
+                    _response = value;
 
-                latch.countDown();
+                _latch.countDown();
             }
         }
 

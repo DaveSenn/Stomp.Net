@@ -120,7 +120,7 @@ namespace Apache.NMS.Stomp.State
         /// </summary>
         /// <param name="command"></param>
         /// <returns>null if the command is not state tracked.</returns>
-        public Tracked track( Command command )
+        public Tracked track( ICommand command )
         {
             try
             {
@@ -136,7 +136,7 @@ namespace Apache.NMS.Stomp.State
             }
         }
 
-        public void trackBack( Command command )
+        public void trackBack( ICommand command )
         {
         }
 

@@ -6,6 +6,9 @@ using System.Threading;
 using Apache.NMS.Stomp.Commands;
 using Apache.NMS.Stomp.Util;
 using Apache.NMS.Util;
+using Extend;
+using JetBrains.Annotations;
+using Stomp.Net;
 using Queue = Apache.NMS.Stomp.Commands.Queue;
 
 #endregion
@@ -18,6 +21,11 @@ namespace Apache.NMS.Stomp
     public class Session : ISession, IDispatcher
     {
         #region Fields
+
+        /// <summary>
+        ///     Stores the STOMP connections settings.
+        /// </summary>
+        private readonly StompConnectionSettings _stompConnectionSettings;
 
         private readonly IDictionary consumers = Hashtable.Synchronized( new Hashtable() );
 
@@ -50,13 +58,14 @@ namespace Apache.NMS.Stomp
 
         #region Ctor
 
-        public Session( Connection connection, SessionInfo info, AcknowledgementMode acknowledgementMode, Boolean dispatchAsync )
+        public Session( Connection connection, SessionInfo info, AcknowledgementMode acknowledgementMode, [NotNull] StompConnectionSettings stompConnectionSettings )
         {
+            stompConnectionSettings.ThrowIfNull( nameof( stompConnectionSettings ) );
+            _stompConnectionSettings = stompConnectionSettings;
+
             Connection = connection;
             this.info = info;
             AcknowledgementMode = acknowledgementMode;
-            RequestTimeout = connection.RequestTimeout;
-            DispatchAsync = dispatchAsync;
 
             if ( acknowledgementMode == AcknowledgementMode.Transactional )
                 TransactionContext = new TransactionContext( this );
@@ -113,14 +122,14 @@ namespace Apache.NMS.Stomp
 
             msg.RedeliveryCounter = 0;
 
-            if ( Connection.CopyMessageOnSend )
+            if ( _stompConnectionSettings.CopyMessageOnSend )
                 msg = (Message) msg.Clone();
 
             msg.OnSend();
             msg.ProducerId = msg.MessageId.ProducerId;
 
-            if ( sendTimeout.TotalMilliseconds <= 0 && !msg.ResponseRequired && !Connection.AlwaysSyncSend &&
-                 ( !msg.Persistent || Connection.AsyncSend || msg.TransactionId != null ) )
+            if ( sendTimeout.TotalMilliseconds <= 0 && !msg.ResponseRequired && !_stompConnectionSettings.AlwaysSyncSend &&
+                 ( !msg.Persistent || _stompConnectionSettings.AsyncSend || msg.TransactionId != null ) )
             {
                 Connection.Oneway( msg );
             }
@@ -242,7 +251,7 @@ namespace Apache.NMS.Stomp
 
         internal void SendAck( MessageAck ack, Boolean lazy )
         {
-            if ( lazy || Connection.SendAcksAsync || IsTransacted )
+            if ( lazy || _stompConnectionSettings.SendAcksAsync || IsTransacted )
                 Connection.Oneway( ack );
             else
                 Connection.SyncRequest( ack );
@@ -342,7 +351,10 @@ namespace Apache.NMS.Stomp
         /// <summary>
         ///     Enables or disables whether asynchronous dispatch should be used by the broker
         /// </summary>
-        public Boolean DispatchAsync { get; set; }
+        public Boolean DispatchAsync
+        {
+            get { return _stompConnectionSettings.DispatchAsync; }
+        }
 
         /// <summary>
         ///     Enables or disables exclusive consumers when using queues. An exclusive consumer means
@@ -369,7 +381,11 @@ namespace Apache.NMS.Stomp
 
         public TransactionContext TransactionContext { get; }
 
-        public TimeSpan RequestTimeout { get; set; }
+        /// <summary>
+        /// Gets the request timeout.
+        /// </summary>
+        /// <value>The request timeout.</value>
+        public TimeSpan RequestTimeout => _stompConnectionSettings.RequestTimeout;
 
         public Boolean Transacted
         {

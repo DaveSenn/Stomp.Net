@@ -94,7 +94,7 @@ namespace Apache.NMS.Stomp.Transport
             ReadCheck();
         }
 
-        public override void Oneway( Command command )
+        public override void Oneway( ICommand command )
         {
             // Disable inactivity monitoring while processing a command.
             //synchronize this method - its not synchronized
@@ -173,7 +173,7 @@ namespace Apache.NMS.Stomp.Transport
             base.Dispose( disposing );
         }
 
-        protected override void OnCommand( ITransport sender, Command command )
+        protected override void OnCommand( ITransport sender, ICommand command )
         {
             commandReceived.Value = true;
             inRead.Value = true;

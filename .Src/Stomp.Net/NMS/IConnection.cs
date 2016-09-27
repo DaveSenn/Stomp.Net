@@ -75,7 +75,7 @@ namespace Apache.NMS
     /// <summary>
     ///     Represents a connection with a message broker
     /// </summary>
-    public interface IConnection : IDisposable, IStartable, IStoppable
+    public interface IConnection : IDisposable, IStartStoppable
     {
         #region Properties
 
@@ -149,17 +149,7 @@ namespace Apache.NMS
         #region Attributes
 
         /// <summary>
-        ///     The default timeout for network requests.
-        /// </summary>
-        TimeSpan RequestTimeout { get; set; }
-
-        /// <summary>
-        ///     The default acknowledgement mode
-        /// </summary>
-        AcknowledgementMode AcknowledgementMode { get; set; }
-
-        /// <summary>
-        ///     Sets the unique clienet ID for this connection before Start() or returns the
+        ///     Sets the unique client ID for this connection before Start() or returns the
         ///     unique client ID after the connection has started
         /// </summary>
         String ClientId { get; set; }

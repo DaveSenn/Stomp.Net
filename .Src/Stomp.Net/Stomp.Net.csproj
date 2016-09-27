@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicCalc.cs" />
+    <Compile Include="Definition\Common\Disposable.cs" />
     <Compile Include="Definition\Connection\StompConnectionSettings.cs" />
     <Compile Include="Definition\Connection\StompSslSettings.cs" />
     <Compile Include="Definition\Connection\StompTransportSettings.cs" />
@@ -172,7 +173,6 @@
     <Compile Include="NMS\IQueueBrowser.cs" />
     <Compile Include="NMS\IRedeliveryPolicy.cs" />
     <Compile Include="NMS\ISession.cs" />
-    <Compile Include="NMS\IStartable.cs" />
     <Compile Include="NMS\IStoppable.cs" />
     <Compile Include="NMS\IStreamMessage.cs" />
     <Compile Include="NMS\ITemporaryQueue.cs" />

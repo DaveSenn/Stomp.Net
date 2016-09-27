@@ -7,7 +7,7 @@ using Apache.NMS.Stomp.Commands;
 
 namespace Apache.NMS.Stomp.Transport
 {
-    public delegate void CommandHandler( ITransport sender, Command command );
+    // public delegate void CommandHandler( ITransport sender, ICommand command );
 
     public delegate void ExceptionHandler( ITransport sender, Exception command );
 
@@ -16,13 +16,13 @@ namespace Apache.NMS.Stomp.Transport
     public delegate void ResumedHandler( ITransport sender );
 
     /// <summary>
-    ///     Represents the logical networking transport layer.  Transports implement the low
-    ///     level protocol specific portion of the Communication between the Client and a Broker
+    ///     Represents the logical networking transport layer.
+    ///     Transports implement the low level protocol specific portion of the Communication between the Client and a Broker
     ///     such as TCP, UDP, etc.  Transports make use of WireFormat objects to handle translating
     ///     the canonical OpenWire Commands used in this client into binary wire level packets that
     ///     can be sent to the Broker or Service that the Transport connects to.
     /// </summary>
-    public interface ITransport : IStartable, IDisposable, IStoppable
+    public interface ITransport : IStartStoppable, IDisposable
     {
         #region Properties
 
@@ -38,7 +38,7 @@ namespace Apache.NMS.Stomp.Transport
         /// </summary>
         Int32 AsyncTimeout { get; set; }
 
-        CommandHandler Command { get; set; }
+        Action<ITransport, ICommand> Command { get; set; }
 
         ExceptionHandler Exception { get; set; }
 
@@ -47,20 +47,14 @@ namespace Apache.NMS.Stomp.Transport
         ResumedHandler Resumed { get; set; }
 
         /// <value>
-        ///     Indicates if this Transport has already been disposed and can no longer
-        ///     be used.
-        /// </value>
-        Boolean IsDisposed { get; }
-
-        /// <value>
-        ///     Indicates if this Transport is Fault Tolerant or not.  A fault Tolerant
-        ///     Transport handles low level connection errors internally allowing a client
-        ///     to remain unaware of wire level disconnection and reconnection details.
+        ///     Indicates if this Transport is Fault Tolerant or not.
+        ///     A fault Tolerant Transport handles low level connection errors internally allowing a client to remain unaware of
+        ///     wire level disconnection and reconnection details.
         /// </value>
         Boolean IsFaultTolerant { get; }
 
         /// <value>
-        ///     Indiciates if the Transport is current Connected to is assigned URI.
+        ///     Indicates if the Transport is current Connected to is assigned URI.
         /// </value>
         Boolean IsConnected { get; }
 
@@ -76,35 +70,28 @@ namespace Apache.NMS.Stomp.Transport
         ///     wait for the response, instead a FutureResponse object is returned that the
         ///     caller can use to wait on the Broker's response.
         /// </summary>
-        FutureResponse AsyncRequest( Command command );
+        FutureResponse AsyncRequest( ICommand command );
 
         /// <summary>
         ///     Allows a caller to find a specific type of Transport in the Chain of
-        ///     Transports that is created.  This allows a caller to find a specific
-        ///     object in the Transport chain and set or get properties on that specific
-        ///     instance.  If the requested type isn't in the chain than Null is returned.
+        ///     Transports that is created.
+        ///     This allows a caller to find a specific object in the Transport chain and set or get properties on that specific
+        ///     instance.
+        ///     If the requested type isn't in the chain than Null is returned.
         /// </summary>
         Object Narrow( Type type );
 
         /// <summary>
-        ///     Sends a Command object on the Wire but does not wait for any response from the
-        ///     receiver before returning.
+        ///     Sends a Command object on the Wire but does not wait for any response from the receiver before returning.
         /// </summary>
         /// <param name="command">
         ///     A <see cref="Command" />
         /// </param>
-        void Oneway( Command command );
+        void Oneway( ICommand command );
 
         /// <summary>
-        ///     Sends a Command to the Broker and waits for a Response to that Command before
-        ///     returning, this version waits indefinitely for a response.
+        ///     Sends a Command to the Broker and waits for the given TimeSpan to expire for a response before returning.
         /// </summary>
-        Response Request( Command command );
-
-        /// <summary>
-        ///     Sends a Command to the Broker and waits for the given TimeSpan to expire for a
-        ///     response before returning.
-        /// </summary>
-        Response Request( Command command, TimeSpan timeout );
+        Response Request( ICommand command, TimeSpan timeout );
     }
 }

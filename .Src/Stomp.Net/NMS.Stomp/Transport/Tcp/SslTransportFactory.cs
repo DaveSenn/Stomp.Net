@@ -11,7 +11,7 @@ using Stomp.Net;
 namespace Apache.NMS.Stomp.Transport.Tcp
 {
     /// <summary>
-    /// SSL transport factory.
+    ///     SSL transport factory.
     /// </summary>
     public class SslTransportFactory : TcpTransportFactory
     {
