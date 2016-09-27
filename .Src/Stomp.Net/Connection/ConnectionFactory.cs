@@ -145,7 +145,7 @@ namespace Stomp.Net
 
                 return connection;
             } /*
-            catch ( NMSException ex )
+            catch ( NmsException ex )
             {
                 try
                 {

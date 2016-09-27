@@ -24,15 +24,9 @@ namespace Apache.NMS.Stomp.Commands
 
         #endregion
 
-        override public DestinationType DestinationType
-        {
-            get { return DestinationType.Topic; }
-        }
+        override public DestinationType DestinationType => DestinationType.Topic;
 
-        public String TopicName
-        {
-            get { return PhysicalName; }
-        }
+        public String TopicName => PhysicalName;
 
         public override Object Clone()
         {

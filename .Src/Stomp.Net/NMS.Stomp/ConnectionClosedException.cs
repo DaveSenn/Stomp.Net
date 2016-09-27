@@ -11,7 +11,7 @@ namespace Apache.NMS.Stomp
     ///     Exception thrown when a connection is used that it already closed
     /// </summary>
     [Serializable]
-    public class ConnectionClosedException : NMSException
+    public class ConnectionClosedException : NmsException
     {
         #region Ctor
 
@@ -20,29 +20,29 @@ namespace Apache.NMS.Stomp
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         public ConnectionClosedException( String message )
             : base( message )
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         public ConnectionClosedException( String message, String errorCode )
             : base( message, errorCode )
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         public ConnectionClosedException( String message, Exception innerException )
             : base( message, innerException )
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         public ConnectionClosedException( String message, String errorCode, Exception innerException )
             : base( message, errorCode, innerException )
         {
         }
-
-        #region ISerializable interface implementation
-
-#if !NETCF
 
         /// <summary>
         ///     Initializes a new instance of the ConnectionClosedException class with serialized data.
@@ -56,10 +56,6 @@ namespace Apache.NMS.Stomp
             : base( info, context )
         {
         }
-
-#endif
-
-        #endregion
 
         #endregion
     }

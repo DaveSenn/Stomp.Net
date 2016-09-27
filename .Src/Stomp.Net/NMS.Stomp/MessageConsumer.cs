@@ -11,12 +11,6 @@ using Apache.NMS.Util;
 
 namespace Apache.NMS.Stomp
 {
-    public enum AckType
-    {
-        ConsumedAck = 1, // Message consumed, discard
-        IndividualAck = 2 // Only the given message is to be treated as consumed.
-    }
-
     /// <summary>
     ///     An object capable of receiving messages from some destination
     /// </summary>
@@ -163,97 +157,6 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        public void AfterMessageIsConsumed( MessageDispatch dispatch, Boolean expired )
-        {
-            if ( unconsumedMessages.Closed )
-                return;
-
-            if ( expired )
-            {
-                lock ( dispatchedMessages )
-                    dispatchedMessages.Remove( dispatch );
-
-                // TODO - Not sure if we need to ack this in stomp.
-                // AckLater(dispatch, AckType.ConsumedAck);
-            }
-            else
-            {
-                if ( session.IsTransacted )
-                {
-                    // Do nothing.
-                }
-                else if ( session.IsAutoAcknowledge )
-                {
-                    if ( deliveringAcks.CompareAndSet( false, true ) )
-                    {
-                        lock ( dispatchedMessages )
-                            if ( dispatchedMessages.Count > 0 )
-                            {
-                                var ack = new MessageAck();
-
-                                ack.AckType = (Byte) AckType.ConsumedAck;
-                                ack.ConsumerId = ConsumerInfo.ConsumerId;
-                                ack.Destination = dispatch.Destination;
-                                ack.LastMessageId = dispatch.Message.MessageId;
-                                ack.MessageCount = 1;
-
-                                session.SendAck( ack );
-                            }
-
-                        deliveringAcks.Value = false;
-                        dispatchedMessages.Clear();
-                    }
-                }
-                else if ( session.IsClientAcknowledge || session.IsIndividualAcknowledge )
-                {
-                    // Do nothing.
-                }
-                else
-                {
-                    throw new NMSException( "Invalid session state." );
-                }
-            }
-        }
-
-        public void BeforeMessageIsConsumed( MessageDispatch dispatch )
-        {
-            lock ( dispatchedMessages )
-                dispatchedMessages.AddFirst( dispatch );
-
-            if ( session.IsTransacted )
-                AckLater( dispatch );
-        }
-
-        public void DeliverAcks()
-        {
-            MessageAck ack = null;
-
-            if ( !deliveringAcks.CompareAndSet( false, true ) )
-                return;
-
-            if ( pendingAck != null && pendingAck.AckType == (Byte) AckType.ConsumedAck )
-            {
-                ack = pendingAck;
-                pendingAck = null;
-            }
-
-            if ( pendingAck != null )
-            {
-                var ackToSend = ack;
-
-                try
-                {
-                    session.SendAck( ackToSend );
-                }
-                catch ( Exception ex )
-                {
-                    Tracer.WarnFormat( "{0} : Failed to send ack, {1}", ConsumerInfo.ConsumerId, ex );
-                }
-            }
-            else
-                deliveringAcks.Value = false;
-        }
-
         public Boolean Iterate()
         {
             if ( listener != null )
@@ -268,7 +171,7 @@ namespace Apache.NMS.Stomp
                         listener( message );
                         AfterMessageIsConsumed( dispatch, false );
                     }
-                    catch ( NMSException e )
+                    catch ( NmsException e )
                     {
                         session.Connection.OnSessionException( session, e );
                     }
@@ -288,53 +191,6 @@ namespace Apache.NMS.Stomp
             started.Value = true;
             unconsumedMessages.Start();
             session.Executor.Wakeup();
-        }
-
-        public void Stop()
-        {
-            started.Value = false;
-            unconsumedMessages.Stop();
-        }
-
-        protected void DoClientAcknowledge( Message message )
-        {
-            CheckClosed();
-            session.Acknowledge();
-        }
-
-        protected void DoIndividualAcknowledge( Message message )
-        {
-            MessageDispatch dispatch = null;
-
-            lock ( dispatchedMessages )
-                foreach ( var originalDispatch in dispatchedMessages )
-                    if ( originalDispatch.Message.MessageId.Equals( message.MessageId ) )
-                    {
-                        dispatch = originalDispatch;
-                        dispatchedMessages.Remove( originalDispatch );
-                        break;
-                    }
-
-            if ( dispatch == null )
-            {
-                Tracer.WarnFormat( "Attempt to Ack MessageId[{0}] failed because the original dispatch is not in the Dispatch List", message.MessageId );
-                return;
-            }
-
-            var ack = new MessageAck
-            {
-                AckType = (Byte) AckType.IndividualAck,
-                ConsumerId = ConsumerInfo.ConsumerId,
-                Destination = dispatch.Destination,
-                LastMessageId = dispatch.Message.MessageId,
-                MessageCount = 1
-            };
-
-            session.SendAck( ack );
-        }
-
-        protected void DoNothingAcknowledge( Message message )
-        {
         }
 
         internal void Acknowledge()
@@ -380,14 +236,6 @@ namespace Apache.NMS.Stomp
                     session.Connection.TransportInterruptionProcessingComplete();
                     inProgressClearRequiredFlag = false;
                 }
-        }
-
-        private void Commit()
-        {
-            lock ( dispatchedMessages )
-                dispatchedMessages.Clear();
-
-            redeliveryDelay = 0;
         }
 
         internal void InProgressClearRequired()
@@ -489,16 +337,85 @@ namespace Apache.NMS.Stomp
             }
         }
 
+        private void AfterMessageIsConsumed( MessageDispatch dispatch, Boolean expired )
+        {
+            if ( unconsumedMessages.Closed )
+                return;
+
+            if ( expired )
+            {
+                lock ( dispatchedMessages )
+                    dispatchedMessages.Remove( dispatch );
+
+                // TODO - Not sure if we need to ack this in stomp.
+                // AckLater(dispatch, AckType.ConsumedAck);
+            }
+            else
+            {
+                if ( session.IsTransacted )
+                {
+                    // Do nothing.
+                }
+                else if ( session.IsAutoAcknowledge )
+                {
+                    if ( deliveringAcks.CompareAndSet( false, true ) )
+                    {
+                        lock ( dispatchedMessages )
+                            if ( dispatchedMessages.Count > 0 )
+                            {
+                                var ack = new MessageAck();
+
+                                ack.AckType = (Byte) AckType.ConsumedAck;
+                                ack.ConsumerId = ConsumerInfo.ConsumerId;
+                                ack.Destination = dispatch.Destination;
+                                ack.LastMessageId = dispatch.Message.MessageId;
+                                ack.MessageCount = 1;
+
+                                session.SendAck( ack );
+                            }
+
+                        deliveringAcks.Value = false;
+                        dispatchedMessages.Clear();
+                    }
+                }
+                else if ( session.IsClientAcknowledge || session.IsIndividualAcknowledge )
+                {
+                    // Do nothing.
+                }
+                else
+                {
+                    throw new NmsException( "Invalid session state." );
+                }
+            }
+        }
+
+        private void BeforeMessageIsConsumed( MessageDispatch dispatch )
+        {
+            lock ( dispatchedMessages )
+                dispatchedMessages.AddFirst( dispatch );
+
+            if ( session.IsTransacted )
+                AckLater( dispatch );
+        }
+
         private void CheckClosed()
         {
             if ( unconsumedMessages.Closed )
-                throw new NMSException( "The Consumer has been Closed" );
+                throw new NmsException( "The Consumer has been Closed" );
         }
 
         private void CheckMessageListener()
         {
             if ( listener != null )
-                throw new NMSException( "Cannot perform a Synchronous Receive when there is a registered asynchronous listener." );
+                throw new NmsException( "Cannot perform a Synchronous Receive when there is a registered asynchronous listener." );
+        }
+
+        private void Commit()
+        {
+            lock ( dispatchedMessages )
+                dispatchedMessages.Clear();
+
+            redeliveryDelay = 0;
         }
 
         private Message CreateStompMessage( MessageDispatch dispatch )
@@ -588,6 +505,47 @@ namespace Apache.NMS.Stomp
             }
         }
 
+        private void DoClientAcknowledge( Message message )
+        {
+            CheckClosed();
+            session.Acknowledge();
+        }
+
+        private void DoIndividualAcknowledge( Message message )
+        {
+            MessageDispatch dispatch = null;
+
+            lock ( dispatchedMessages )
+                foreach ( var originalDispatch in dispatchedMessages )
+                    if ( originalDispatch.Message.MessageId.Equals( message.MessageId ) )
+                    {
+                        dispatch = originalDispatch;
+                        dispatchedMessages.Remove( originalDispatch );
+                        break;
+                    }
+
+            if ( dispatch == null )
+            {
+                Tracer.WarnFormat( "Attempt to Ack MessageId[{0}] failed because the original dispatch is not in the Dispatch List", message.MessageId );
+                return;
+            }
+
+            var ack = new MessageAck
+            {
+                AckType = (Byte) AckType.IndividualAck,
+                ConsumerId = ConsumerInfo.ConsumerId,
+                Destination = dispatch.Destination,
+                LastMessageId = dispatch.Message.MessageId,
+                MessageCount = 1
+            };
+
+            session.SendAck( ack );
+        }
+
+        private static void DoNothingAcknowledge( Message message )
+        {
+        }
+
         private event MessageListener listener;
 
         private MessageAck MakeAckForAllDeliveredMessages()
@@ -636,17 +594,11 @@ namespace Apache.NMS.Stomp
 
         #region Property Accessors
 
-        public ConsumerId ConsumerId
-        {
-            get { return ConsumerInfo.ConsumerId; }
-        }
+        public ConsumerId ConsumerId => ConsumerInfo.ConsumerId;
 
         public ConsumerInfo ConsumerInfo { get; }
 
-        public Int32 PrefetchSize
-        {
-            get { return ConsumerInfo.PrefetchSize; }
-        }
+        public Int32 PrefetchSize => ConsumerInfo.PrefetchSize;
 
         public IRedeliveryPolicy RedeliveryPolicy { get; set; }
 
@@ -667,7 +619,7 @@ namespace Apache.NMS.Stomp
                 CheckClosed();
 
                 if ( PrefetchSize == 0 )
-                    throw new NMSException( "Cannot set Asynchronous Listener on a Consumer with a zero Prefetch size" );
+                    throw new NmsException( "Cannot set Asynchronous Listener on a Consumer with a zero Prefetch size" );
 
                 var wasStarted = session.Started;
 
@@ -737,7 +689,7 @@ namespace Apache.NMS.Stomp
             GC.SuppressFinalize( this );
         }
 
-        protected void Dispose( Boolean disposing )
+        private void Dispose( Boolean disposing )
         {
             if ( disposed )
                 return;
@@ -761,11 +713,13 @@ namespace Apache.NMS.Stomp
 
         public void Close()
         {
-            if ( !unconsumedMessages.Closed )
-                if ( session.IsTransacted && session.TransactionContext.InTransaction )
-                    session.TransactionContext.AddSynchronization( new ConsumerCloseSynchronization( this ) );
-                else
-                    DoClose();
+            if ( unconsumedMessages.Closed )
+                return;
+
+            if ( session.IsTransacted && session.TransactionContext.InTransaction )
+                session.TransactionContext.AddSynchronization( new ConsumerCloseSynchronization( this ) );
+            else
+                DoClose();
         }
 
         internal void DoClose()
@@ -789,11 +743,11 @@ namespace Apache.NMS.Stomp
 
         #region Nested ISyncronization Types
 
-        class MessageConsumerSynchronization : ISynchronization
+        private class MessageConsumerSynchronization : ISynchronization
         {
             #region Fields
 
-            private readonly MessageConsumer consumer;
+            private readonly MessageConsumer _consumer;
 
             #endregion
 
@@ -801,35 +755,35 @@ namespace Apache.NMS.Stomp
 
             public MessageConsumerSynchronization( MessageConsumer consumer )
             {
-                this.consumer = consumer;
+                _consumer = consumer;
             }
 
             #endregion
 
             public void AfterCommit()
             {
-                consumer.Commit();
-                consumer.synchronizationRegistered = false;
+                _consumer.Commit();
+                _consumer.synchronizationRegistered = false;
             }
 
             public void AfterRollback()
             {
-                consumer.Rollback();
-                consumer.synchronizationRegistered = false;
+                _consumer.Rollback();
+                _consumer.synchronizationRegistered = false;
             }
 
             public void BeforeEnd()
             {
-                consumer.Acknowledge();
-                consumer.synchronizationRegistered = false;
+                _consumer.Acknowledge();
+                _consumer.synchronizationRegistered = false;
             }
         }
 
-        class ConsumerCloseSynchronization : ISynchronization
+        private class ConsumerCloseSynchronization : ISynchronization
         {
             #region Fields
 
-            private readonly MessageConsumer consumer;
+            private readonly MessageConsumer _consumer;
 
             #endregion
 
@@ -837,14 +791,14 @@ namespace Apache.NMS.Stomp
 
             public ConsumerCloseSynchronization( MessageConsumer consumer )
             {
-                this.consumer = consumer;
+                _consumer = consumer;
             }
 
             #endregion
 
-            public void AfterCommit() => consumer.DoClose();
+            public void AfterCommit() => _consumer.DoClose();
 
-            public void AfterRollback() => consumer.DoClose();
+            public void AfterRollback() => _consumer.DoClose();
 
             public void BeforeEnd()
             {

@@ -22,10 +22,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the IsWireFormatInfo() query.
         /// </summery>
-        public override Boolean IsWireFormatInfo
-        {
-            get { return true; }
-        }
+        public override Boolean IsWireFormatInfo => true;
 
         #endregion
 

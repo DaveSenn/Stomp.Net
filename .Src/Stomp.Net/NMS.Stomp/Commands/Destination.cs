@@ -64,10 +64,7 @@ namespace Apache.NMS.Stomp.Commands
         ///     destinations; allowing a set of destinations to be published to or subscribed
         ///     from in one NMS operation.
         /// </summary>
-        public Boolean IsComposite
-        {
-            get { return PhysicalName.IndexOf( COMPOSITE_SEPARATOR ) > 0; }
-        }
+        public Boolean IsComposite => PhysicalName.IndexOf( COMPOSITE_SEPARATOR ) > 0;
 
         #endregion
 

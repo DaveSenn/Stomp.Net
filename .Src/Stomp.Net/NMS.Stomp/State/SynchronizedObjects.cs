@@ -28,10 +28,7 @@ namespace Apache.NMS.Stomp.State
             }
         }
 
-        public Boolean IsReadOnly
-        {
-            get { return false; }
-        }
+        public Boolean IsReadOnly => false;
 
         public TValue this[ Int32 index ]
         {

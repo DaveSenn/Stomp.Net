@@ -24,10 +24,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the isConnectionInfo() query.
         /// </summery>
-        public override Boolean IsConnectionInfo
-        {
-            get { return true; }
-        }
+        public override Boolean IsConnectionInfo => true;
 
         #endregion
 

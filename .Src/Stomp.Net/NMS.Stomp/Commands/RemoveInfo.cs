@@ -16,10 +16,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the isRemoveInfo() query.
         /// </summery>
-        public override Boolean IsRemoveInfo
-        {
-            get { return true; }
-        }
+        public override Boolean IsRemoveInfo => true;
 
         #endregion
 
@@ -52,7 +49,7 @@ namespace Apache.NMS.Stomp.Commands
                 case DataStructureTypes.ProducerIdType:
                     return visitor.ProcessRemoveProducer( (ProducerId) ObjectId );
                 default:
-                    throw new IOException( "Unknown remove command type: " + ObjectId.GetDataStructureType() );
+                    throw new IoException( "Unknown remove command type: " + ObjectId.GetDataStructureType() );
             }
         }
     }

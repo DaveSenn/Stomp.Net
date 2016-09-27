@@ -23,10 +23,7 @@ namespace Apache.NMS.Stomp.Util
 
         #region Properties
 
-        public Object SyncRoot
-        {
-            get { return mutex; }
-        }
+        public Object SyncRoot => mutex;
 
         public Boolean Closed
         {

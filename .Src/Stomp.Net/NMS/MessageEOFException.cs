@@ -8,37 +8,32 @@ using System.Runtime.Serialization;
 namespace Apache.NMS
 {
     [Serializable]
-    public class MessageEOFException : NMSException
+    public class MessageEofException : NmsException
     {
         #region Ctor
 
-        public MessageEOFException()
-        {
-        }
-
-        public MessageEOFException( String message )
+        // ReSharper disable once UnusedMember.Global
+        public MessageEofException( String message )
             : base( message )
         {
         }
 
-        public MessageEOFException( String message, String errorCode )
+        // ReSharper disable once UnusedMember.Global
+        public MessageEofException( String message, String errorCode )
             : base( message, errorCode )
         {
         }
 
-        public MessageEOFException( String message, Exception innerException )
+        public MessageEofException( String message, Exception innerException )
             : base( message, innerException )
         {
         }
 
-        public MessageEOFException( String message, String errorCode, Exception innerException )
+        // ReSharper disable once UnusedMember.Global
+        public MessageEofException( String message, String errorCode, Exception innerException )
             : base( message, errorCode, innerException )
         {
         }
-
-        #region ISerializable interface implementation
-
-#if !NETCF
 
         /// <summary>
         ///     Initializes a new instance of the MessageEOFException class with serialized data.
@@ -48,14 +43,10 @@ namespace Apache.NMS
         /// </summary>
         /// <param name="info">The SerializationInfo that holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
-        protected MessageEOFException( SerializationInfo info, StreamingContext context )
+        protected MessageEofException( SerializationInfo info, StreamingContext context )
             : base( info, context )
         {
         }
-
-#endif
-
-        #endregion
 
         #endregion
     }

@@ -9,21 +9,17 @@ namespace Apache.NMS.Stomp
     /// <summary>
     ///     Exception thrown when an IO error occurs
     /// </summary>
-    public class IOException : NMSException
+    public class IoException : NmsException
     {
         #region Ctor
 
-        public IOException()
-            : base( "IO Exception failed with missing exception log" )
-        {
-        }
-
-        public IOException( String msg )
+        public IoException( String msg )
             : base( msg )
         {
         }
 
-        public IOException( String msg, Exception inner )
+        // ReSharper disable once MemberCanBeProtected.Global
+        public IoException( String msg, Exception inner )
             : base( msg, inner )
         {
         }

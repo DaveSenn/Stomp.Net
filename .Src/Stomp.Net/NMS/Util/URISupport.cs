@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Web;
 using Extend;
 using JetBrains.Annotations;
-using System.Web;
 
 #endregion
 
@@ -21,10 +21,7 @@ namespace Apache.NMS.Util
     {
         #region Properties
 
-        private static Dictionary<String, String> EmptyMap
-        {
-            get { return new Dictionary<String, String>(); }
-        }
+        private static Dictionary<String, String> EmptyMap => new Dictionary<String, String>();
 
         #endregion
 
@@ -75,10 +72,10 @@ namespace Apache.NMS.Util
             foreach ( var key in map.Keys )
             {
                 var property = type.GetProperty( key,
-                                             BindingFlags.FlattenHierarchy
-                                             | BindingFlags.Public
-                                             | BindingFlags.Instance
-                                             | BindingFlags.IgnoreCase );
+                                                 BindingFlags.FlattenHierarchy
+                                                 | BindingFlags.Public
+                                                 | BindingFlags.Instance
+                                                 | BindingFlags.IgnoreCase );
 
                 if ( null != property )
                 {
@@ -94,7 +91,7 @@ namespace Apache.NMS.Util
                     if ( null != field )
                         field.SetValue( target, Convert.ChangeType( map[key], field.FieldType, CultureInfo.InvariantCulture ) );
                     else
-                        throw new NMSException( String.Format( "No such property or field: {0} on class: {1}",
+                        throw new NmsException( String.Format( "No such property or field: {0} on class: {1}",
                                                                key,
                                                                target.GetType()
                                                                      .Name ) );
@@ -159,11 +156,11 @@ namespace Apache.NMS.Util
             {
                 // Check for valid key/value pair
                 if ( nameValue.Length != 2 )
-                    throw new NMSException( $"Invalid URI parameters: '{query}'." );
+                    throw new NmsException( $"Invalid URI parameters: '{query}'." );
 
                 var decodedKey = HttpUtility.UrlDecode( nameValue[0] );
                 if ( decodedKey == null )
-                    throw new NMSException( $"Invalid URI parameter key: '{nameValue[0]}' in '{query}'." );
+                    throw new NmsException( $"Invalid URI parameter key: '{nameValue[0]}' in '{query}'." );
                 parameters[decodedKey] = HttpUtility.UrlDecode( nameValue[1] );
             }
 
@@ -217,7 +214,7 @@ namespace Apache.NMS.Util
                     if ( null != field )
                         field.SetValue( target, Convert.ChangeType( map[key], field.FieldType, CultureInfo.InvariantCulture ) );
                     else
-                        throw new NMSException( String.Format( "No such property or field: {0} on class: {1}",
+                        throw new NmsException( String.Format( "No such property or field: {0} on class: {1}",
                                                                bareKey,
                                                                target.GetType()
                                                                      .Name ) );

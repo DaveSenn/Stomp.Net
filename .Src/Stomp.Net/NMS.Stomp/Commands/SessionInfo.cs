@@ -16,10 +16,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the isSessionInfo() query.
         /// </summery>
-        public override Boolean IsSessionInfo
-        {
-            get { return true; }
-        }
+        public override Boolean IsSessionInfo => true;
 
         #endregion
 

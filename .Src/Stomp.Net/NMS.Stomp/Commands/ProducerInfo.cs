@@ -41,7 +41,7 @@ namespace Apache.NMS.Stomp.Commands
                                              "DispatchAsync=" + DispatchAsync +
                                              "]";
 
-        public override Response Visit( ICommandVisitor visitor ) 
+        public override Response Visit( ICommandVisitor visitor )
             => visitor.ProcessAddProducer( this );
     }
 }

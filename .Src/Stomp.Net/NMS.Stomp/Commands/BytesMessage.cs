@@ -58,9 +58,9 @@ namespace Apache.NMS.Stomp.Commands
             }
             catch ( EndOfStreamException e )
             {
-                throw NmsExceptionSupport.CreateMessageEOFException( e );
+                throw NmsExceptionSupport.CreateMessageEofException( e );
             }
-            catch ( IOException e )
+            catch ( IoException e )
             {
                 throw NmsExceptionSupport.CreateMessageFormatException( e );
             }
@@ -75,9 +75,9 @@ namespace Apache.NMS.Stomp.Commands
             }
             catch ( EndOfStreamException e )
             {
-                throw NmsExceptionSupport.CreateMessageEOFException( e );
+                throw NmsExceptionSupport.CreateMessageEofException( e );
             }
-            catch ( IOException e )
+            catch ( IoException e )
             {
                 throw NmsExceptionSupport.CreateMessageFormatException( e );
             }
@@ -92,9 +92,9 @@ namespace Apache.NMS.Stomp.Commands
             }
             catch ( EndOfStreamException e )
             {
-                throw NmsExceptionSupport.CreateMessageEOFException( e );
+                throw NmsExceptionSupport.CreateMessageEofException( e );
             }
-            catch ( IOException e )
+            catch ( IoException e )
             {
                 throw NmsExceptionSupport.CreateMessageFormatException( e );
             }
@@ -109,9 +109,9 @@ namespace Apache.NMS.Stomp.Commands
             }
             catch ( EndOfStreamException e )
             {
-                throw NmsExceptionSupport.CreateMessageEOFException( e );
+                throw NmsExceptionSupport.CreateMessageEofException( e );
             }
-            catch ( IOException e )
+            catch ( IoException e )
             {
                 throw NmsExceptionSupport.CreateMessageFormatException( e );
             }
@@ -126,9 +126,9 @@ namespace Apache.NMS.Stomp.Commands
             }
             catch ( EndOfStreamException e )
             {
-                throw NmsExceptionSupport.CreateMessageEOFException( e );
+                throw NmsExceptionSupport.CreateMessageEofException( e );
             }
-            catch ( IOException e )
+            catch ( IoException e )
             {
                 throw NmsExceptionSupport.CreateMessageFormatException( e );
             }
@@ -143,9 +143,9 @@ namespace Apache.NMS.Stomp.Commands
             }
             catch ( EndOfStreamException e )
             {
-                throw NmsExceptionSupport.CreateMessageEOFException( e );
+                throw NmsExceptionSupport.CreateMessageEofException( e );
             }
-            catch ( IOException e )
+            catch ( IoException e )
             {
                 throw NmsExceptionSupport.CreateMessageFormatException( e );
             }
@@ -160,9 +160,9 @@ namespace Apache.NMS.Stomp.Commands
             }
             catch ( EndOfStreamException e )
             {
-                throw NmsExceptionSupport.CreateMessageEOFException( e );
+                throw NmsExceptionSupport.CreateMessageEofException( e );
             }
-            catch ( IOException e )
+            catch ( IoException e )
             {
                 throw NmsExceptionSupport.CreateMessageFormatException( e );
             }
@@ -177,9 +177,9 @@ namespace Apache.NMS.Stomp.Commands
             }
             catch ( EndOfStreamException e )
             {
-                throw NmsExceptionSupport.CreateMessageEOFException( e );
+                throw NmsExceptionSupport.CreateMessageEofException( e );
             }
-            catch ( IOException e )
+            catch ( IoException e )
             {
                 throw NmsExceptionSupport.CreateMessageFormatException( e );
             }
@@ -194,9 +194,9 @@ namespace Apache.NMS.Stomp.Commands
             }
             catch ( EndOfStreamException e )
             {
-                throw NmsExceptionSupport.CreateMessageEOFException( e );
+                throw NmsExceptionSupport.CreateMessageEofException( e );
             }
-            catch ( IOException e )
+            catch ( IoException e )
             {
                 throw NmsExceptionSupport.CreateMessageFormatException( e );
             }
@@ -211,9 +211,9 @@ namespace Apache.NMS.Stomp.Commands
             }
             catch ( EndOfStreamException e )
             {
-                throw NmsExceptionSupport.CreateMessageEOFException( e );
+                throw NmsExceptionSupport.CreateMessageEofException( e );
             }
-            catch ( IOException e )
+            catch ( IoException e )
             {
                 throw NmsExceptionSupport.CreateMessageFormatException( e );
             }
@@ -229,9 +229,9 @@ namespace Apache.NMS.Stomp.Commands
             }
             catch ( EndOfStreamException e )
             {
-                throw NmsExceptionSupport.CreateMessageEOFException( e );
+                throw NmsExceptionSupport.CreateMessageEofException( e );
             }
-            catch ( IOException e )
+            catch ( IoException e )
             {
                 throw NmsExceptionSupport.CreateMessageFormatException( e );
             }

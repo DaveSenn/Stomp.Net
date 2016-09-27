@@ -24,7 +24,7 @@ namespace Apache.NMS
         ///     Gets this queue browser's message selector expression.  If no Message
         ///     selector was specified than this method returns null.
         /// </value>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     If NMS Provider fails to get the Message Selector for some reason.
         /// </exception>
         String MessageSelector { get; }
@@ -32,7 +32,7 @@ namespace Apache.NMS
         /// <value>
         ///     Gets the queue associated with this queue browser.
         /// </value>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     If NMS Provider fails to retrieve the IQueue associated with the Browser
         ///     doe to some internal error.
         /// </exception>
@@ -43,7 +43,7 @@ namespace Apache.NMS
         /// <summary>
         ///     Closes the QueueBrowser.
         /// </summary>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     If NMS Provider fails to close the Browser for some reason.
         /// </exception>
         void Close();

@@ -85,12 +85,9 @@ namespace Apache.NMS.Stomp
 
         public Uri BrokerUri { get; }
 
-        public ITransport ITransport { get; set; }
+        public ITransport Transport { get; set; }
 
-        public Boolean TransportFailed
-        {
-            get { return transportFailed.Value; }
-        }
+        public Boolean TransportFailed => transportFailed.Value;
 
         public Exception FirstFailureError { get; private set; }
 
@@ -106,10 +103,7 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        public ConnectionId ConnectionId
-        {
-            get { return info.ConnectionId; }
-        }
+        public ConnectionId ConnectionId => info.ConnectionId;
 
         public PrefetchPolicy PrefetchPolicy { get; set; } = new PrefetchPolicy();
 
@@ -149,7 +143,7 @@ namespace Apache.NMS.Stomp
             set
             {
                 if ( connected.Value )
-                    throw new NMSException( "You cannot change the ClientId once the Connection is connected" );
+                    throw new NmsException( "You cannot change the ClientId once the Connection is connected" );
 
                 info.ClientId = value;
                 userSpecifiedClientID = true;
@@ -176,12 +170,12 @@ namespace Apache.NMS.Stomp
                     if ( connected.Value )
                     {
                         var shutdowninfo = new ShutdownInfo();
-                        ITransport.Oneway( shutdowninfo );
+                        Transport.Oneway( shutdowninfo );
                     }
 
                     Tracer.Info( "Disposing of the Transport." );
-                    ITransport.Stop();
-                    ITransport.Dispose();
+                    Transport.Stop();
+                    Transport.Dispose();
                 }
                 catch ( Exception ex )
                 {
@@ -189,7 +183,7 @@ namespace Apache.NMS.Stomp
                 }
                 finally
                 {
-                    ITransport = null;
+                    Transport = null;
                     closed.Value = true;
                     connected.Value = false;
                     closing.Value = false;
@@ -251,10 +245,7 @@ namespace Apache.NMS.Stomp
         /// </summary>
         public event ExceptionListener ExceptionListener;
 
-        public IConnectionMetaData MetaData
-        {
-            get { return metaData ?? ( metaData = new ConnectionMetaData() ); }
-        }
+        public IConnectionMetaData MetaData => metaData ?? ( metaData = new ConnectionMetaData() );
 
         public ProducerTransformerDelegate ProducerTransformer { get; set; }
 
@@ -277,10 +268,7 @@ namespace Apache.NMS.Stomp
         ///     This property determines if the asynchronous message delivery of incoming
         ///     messages has been started for this connection.
         /// </summary>
-        public Boolean IsStarted
-        {
-            get { return started.Value; }
-        }
+        public Boolean IsStarted => started.Value;
 
         /// <summary>
         ///     Starts asynchronous message delivery of incoming messages for this connection.
@@ -330,7 +318,7 @@ namespace Apache.NMS.Stomp
 
             try
             {
-                ITransport.Oneway( command );
+                Transport.Oneway( command );
             }
             catch ( Exception ex )
             {
@@ -351,7 +339,7 @@ namespace Apache.NMS.Stomp
 
             try
             {
-                var response = ITransport.Request( command, requestTimeout );
+                var response = Transport.Request( command, requestTimeout );
                 if ( response is ExceptionResponse )
                 {
                     var exceptionResponse = (ExceptionResponse) response;
@@ -366,7 +354,164 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        protected SessionInfo CreateSessionInfo( AcknowledgementMode sessionAcknowledgementMode )
+        internal void AddDispatcher( ConsumerId id, IDispatcher dispatcher ) => dispatchers.Add( id, dispatcher );
+
+        internal void OnSessionException( Session sender, Exception exception )
+        {
+            if ( ExceptionListener != null )
+                try
+                {
+                    ExceptionListener( exception );
+                }
+                catch
+                {
+                    sender.Close();
+                }
+        }
+
+        internal void RemoveDispatcher( ConsumerId id ) => dispatchers.Remove( id );
+
+        internal void RemoveSession( Session session )
+        {
+            if ( !closing.Value )
+                sessions.Remove( session );
+        }
+
+        internal void TransportInterruptionProcessingComplete()
+        {
+            var cdl = transportInterruptionProcessingComplete;
+            cdl?.CountDown();
+        }
+
+        private void AsyncCallExceptionListener( Object error )
+        {
+            var exception = error as NmsException;
+            ExceptionListener?.Invoke( exception );
+        }
+
+        private void AsyncOnExceptionHandler( Object error )
+        {
+            var cause = error as Exception;
+
+            MarkTransportFailed( cause );
+
+            try
+            {
+                Transport.Dispose();
+            }
+            catch ( Exception ex )
+            {
+                Tracer.WarnFormat( "Caught Exception While disposing of Transport: {0}", ex.Message );
+            }
+
+            IList sessionsCopy = null;
+            lock ( sessions.SyncRoot )
+                sessionsCopy = new ArrayList( sessions );
+
+            // Use a copy so we don't concurrently modify the Sessions list if the
+            // client is closing at the same time.
+            foreach ( Session session in sessionsCopy )
+                try
+                {
+                    session.Dispose();
+                }
+                catch ( Exception ex )
+                {
+                    Tracer.WarnFormat( "Caught Exception While disposing of Sessions: {0}", ex.Message );
+                }
+        }
+
+        /// <summary>
+        ///     Check and ensure that the connection objcet is connected.  If it is not
+        ///     connected or is closed, a ConnectionClosedException is thrown.
+        /// </summary>
+        private void CheckConnected()
+        {
+            if ( closed.Value )
+                throw new ConnectionClosedException();
+
+            if ( !connected.Value )
+            {
+                var timeoutTime = DateTime.Now + _stompConnectionSettings.RequestTimeout;
+                var waitCount = 1;
+
+                while ( true )
+                {
+                    if ( Monitor.TryEnter( connectedLock ) )
+                        try
+                        {
+                            if ( closed.Value || closing.Value )
+                            {
+                                break;
+                            }
+                            else if ( !connected.Value )
+                            {
+                                if ( !userSpecifiedClientID )
+                                    info.ClientId = clientIdGenerator.GenerateId();
+
+                                try
+                                {
+                                    if ( null != Transport )
+                                    {
+                                        // Make sure the transport is started.
+                                        if ( !Transport.IsStarted )
+                                            Transport.Start();
+
+                                        // Send the connection and see if an ack/nak is returned.
+                                        var response = Transport.Request( info, _stompConnectionSettings.RequestTimeout );
+                                        if ( !( response is ExceptionResponse ) )
+                                        {
+                                            connected.Value = true;
+                                        }
+                                        else
+                                        {
+                                            var error = response as ExceptionResponse;
+                                            var exception = CreateExceptionFromBrokerError( error.Exception );
+                                            // This is non-recoverable.
+                                            // Shutdown the transport connection, and re-create it, but don't start it.
+                                            // It will be started if the connection is re-attempted.
+                                            Transport.Stop();
+                                            var newTransport = _transportFactory.CreateTransport( BrokerUri );
+                                            SetTransport( newTransport );
+                                            throw exception;
+                                        }
+                                    }
+                                }
+                                catch ( Exception ex )
+                                {
+                                    Tracer.Error( ex );
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            Monitor.Exit( connectedLock );
+                        }
+
+                    if ( connected.Value || closed.Value || closing.Value || DateTime.Now > timeoutTime )
+                        break;
+
+                    // Back off from being overly aggressive.  Having too many threads
+                    // aggressively trying to connect to a down broker pegs the CPU.
+                    Thread.Sleep( 5 * waitCount++ );
+                }
+
+                if ( !connected.Value )
+                    throw new ConnectionClosedException();
+            }
+        }
+
+        private static NmsException CreateExceptionFromBrokerError( BrokerError brokerError )
+        {
+            var exceptionClassName = brokerError.ExceptionClass;
+
+            if ( String.IsNullOrEmpty( exceptionClassName ) )
+                return new BrokerException( brokerError );
+
+            return new InvalidClientIDException( brokerError.Message );
+        }
+
+        private SessionInfo CreateSessionInfo( AcknowledgementMode sessionAcknowledgementMode )
         {
             var answer = new SessionInfo();
             var sessionId = new SessionId();
@@ -376,7 +521,7 @@ namespace Apache.NMS.Stomp
             return answer;
         }
 
-        protected void DispatchMessage( MessageDispatch dispatch )
+        private void DispatchMessage( MessageDispatch dispatch )
         {
             lock ( dispatchers.SyncRoot )
                 if ( dispatchers.Contains( dispatch.ConsumerId ) )
@@ -400,7 +545,7 @@ namespace Apache.NMS.Stomp
             Tracer.ErrorFormat( "No such consumer active: {0}.", dispatch.ConsumerId );
         }
 
-        protected void Dispose( Boolean disposing )
+        private void Dispose( Boolean disposing )
         {
             if ( disposed )
                 return;
@@ -425,12 +570,37 @@ namespace Apache.NMS.Stomp
             disposed = true;
         }
 
+        private void MarkTransportFailed( Exception error )
+        {
+            transportFailed.Value = true;
+            if ( FirstFailureError == null )
+                FirstFailureError = error;
+        }
+
+        private void OnAsyncException( Exception error )
+        {
+            if ( closed.Value || closing.Value )
+                return;
+            if ( ExceptionListener != null )
+            {
+                if ( !( error is NmsException ) )
+                    error = NmsExceptionSupport.Create( error );
+                var e = (NmsException) error;
+
+                // Called in another thread so that processing can continue
+                // here, ensures no lock contention.
+                executor.QueueUserWorkItem( AsyncCallExceptionListener, e );
+            }
+            else
+                Tracer.WarnFormat( "Async exception with no exception listener: {0}", error.Message );
+        }
+
         /// <summary>
         ///     Handle incoming commands
         /// </summary>
         /// <param name="commandTransport">An ITransport</param>
         /// <param name="command">A  Command</param>
-        protected void OnCommand( ITransport commandTransport, ICommand command )
+        private void OnCommand( ITransport commandTransport, ICommand command )
         {
             if ( command.IsMessageDispatch )
             {
@@ -463,7 +633,7 @@ namespace Apache.NMS.Stomp
                             cause = brokerError.Cause.Message;
                     }
 
-                    OnException( new NMSConnectionException( message, cause ) );
+                    OnException( new NmsConnectionException( message, cause ) );
                 }
             }
             else
@@ -472,13 +642,21 @@ namespace Apache.NMS.Stomp
             }
         }
 
+        private void OnException( Exception error )
+        {
+            // Will fire an exception listener callback if there's any set.
+            OnAsyncException( error );
+
+            if ( !closing.Value && !closed.Value )
+                executor.QueueUserWorkItem( AsyncOnExceptionHandler, error );
+        }
+
         private void OnTransportException( ITransport sender, Exception exception ) => OnException( exception );
 
         private void OnTransportInterrupted( ITransport sender )
         {
             transportInterruptionProcessingComplete = new CountDownLatch( dispatchers.Count );
-            if ( Tracer.IsDebugEnabled )
-                Tracer.WarnFormat( "transport interrupted, dispatchers: {0}", dispatchers.Count );
+            Tracer.WarnFormat( "Transport interrupted, dispatchers: {0}", dispatchers.Count );
 
             foreach ( Session session in sessions )
                 session.ClearMessagesInProgress();
@@ -508,204 +686,13 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        internal void addDispatcher( ConsumerId id, IDispatcher dispatcher ) => dispatchers.Add( id, dispatcher );
-
-        /// <summary>
-        ///     Check and ensure that the connection objcet is connected.  If it is not
-        ///     connected or is closed, a ConnectionClosedException is thrown.
-        /// </summary>
-        internal void CheckConnected()
-        {
-            if ( closed.Value )
-                throw new ConnectionClosedException();
-
-            if ( !connected.Value )
-            {
-                var timeoutTime = DateTime.Now + _stompConnectionSettings.RequestTimeout;
-                var waitCount = 1;
-
-                while ( true )
-                {
-                    if ( Monitor.TryEnter( connectedLock ) )
-                        try
-                        {
-                            if ( closed.Value || closing.Value )
-                            {
-                                break;
-                            }
-                            else if ( !connected.Value )
-                            {
-                                if ( !userSpecifiedClientID )
-                                    info.ClientId = clientIdGenerator.GenerateId();
-
-                                try
-                                {
-                                    if ( null != ITransport )
-                                    {
-                                        // Make sure the transport is started.
-                                        if ( !ITransport.IsStarted )
-                                            ITransport.Start();
-
-                                        // Send the connection and see if an ack/nak is returned.
-                                        var response = ITransport.Request( info, _stompConnectionSettings.RequestTimeout );
-                                        if ( !( response is ExceptionResponse ) )
-                                        {
-                                            connected.Value = true;
-                                        }
-                                        else
-                                        {
-                                            var error = response as ExceptionResponse;
-                                            var exception = CreateExceptionFromBrokerError( error.Exception );
-                                            // This is non-recoverable.
-                                            // Shutdown the transport connection, and re-create it, but don't start it.
-                                            // It will be started if the connection is re-attempted.
-                                            ITransport.Stop();
-                                            var newTransport = _transportFactory.CreateTransport( BrokerUri );
-                                            SetTransport( newTransport );
-                                            throw exception;
-                                        }
-                                    }
-                                }
-                                catch ( Exception ex )
-                                {
-                                    Tracer.Error( ex );
-                                }
-                            }
-                        }
-                        finally
-                        {
-                            Monitor.Exit( connectedLock );
-                        }
-
-                    if ( connected.Value || closed.Value || closing.Value || DateTime.Now > timeoutTime )
-                        break;
-
-                    // Back off from being overly aggressive.  Having too many threads
-                    // aggressively trying to connect to a down broker pegs the CPU.
-                    Thread.Sleep( 5 * waitCount++ );
-                }
-
-                if ( !connected.Value )
-                    throw new ConnectionClosedException();
-            }
-        }
-
-        private void OnAsyncException( Exception error )
-        {
-            if ( closed.Value || closing.Value )
-                return;
-            if ( ExceptionListener != null )
-            {
-                if ( !( error is NMSException ) )
-                    error = NmsExceptionSupport.Create( error );
-                var e = (NMSException) error;
-
-                // Called in another thread so that processing can continue
-                // here, ensures no lock contention.
-                executor.QueueUserWorkItem( AsyncCallExceptionListener, e );
-            }
-            else
-                Tracer.WarnFormat( "Async exception with no exception listener: {0}", error.Message );
-        }
-
-        internal void OnException( Exception error )
-        {
-            // Will fire an exception listener callback if there's any set.
-            OnAsyncException( error );
-
-            if ( !closing.Value && !closed.Value )
-                executor.QueueUserWorkItem( AsyncOnExceptionHandler, error );
-        }
-
-        internal void OnSessionException( Session sender, Exception exception )
-        {
-            if ( ExceptionListener != null )
-                try
-                {
-                    ExceptionListener( exception );
-                }
-                catch
-                {
-                    sender.Close();
-                }
-        }
-
-        internal void removeDispatcher( ConsumerId id ) => dispatchers.Remove( id );
-
-        internal void RemoveSession( Session session )
-        {
-            if ( !closing.Value )
-                sessions.Remove( session );
-        }
-
-        internal void TransportInterruptionProcessingComplete()
-        {
-            var cdl = transportInterruptionProcessingComplete;
-            cdl?.CountDown();
-        }
-
-        private void AsyncCallExceptionListener( Object error )
-        {
-            var exception = error as NMSException;
-            ExceptionListener?.Invoke( exception );
-        }
-
-        private void AsyncOnExceptionHandler( Object error )
-        {
-            var cause = error as Exception;
-
-            MarkTransportFailed( cause );
-
-            try
-            {
-                ITransport.Dispose();
-            }
-            catch ( Exception ex )
-            {
-                Tracer.WarnFormat( "Caught Exception While disposing of Transport: {0}", ex.Message );
-            }
-
-            IList sessionsCopy = null;
-            lock ( sessions.SyncRoot )
-                sessionsCopy = new ArrayList( sessions );
-
-            // Use a copy so we don't concurrently modify the Sessions list if the
-            // client is closing at the same time.
-            foreach ( Session session in sessionsCopy )
-                try
-                {
-                    session.Dispose();
-                }
-                catch ( Exception ex )
-                {
-                    Tracer.WarnFormat( "Caught Exception While disposing of Sessions: {0}", ex.Message );
-                }
-        }
-
-        private NMSException CreateExceptionFromBrokerError( BrokerError brokerError )
-        {
-            var exceptionClassName = brokerError.ExceptionClass;
-
-            if ( String.IsNullOrEmpty( exceptionClassName ) )
-                return new BrokerException( brokerError );
-
-            return new InvalidClientIDException( brokerError.Message );
-        }
-
-        private void MarkTransportFailed( Exception error )
-        {
-            transportFailed.Value = true;
-            if ( FirstFailureError == null )
-                FirstFailureError = error;
-        }
-
         private void SetTransport( ITransport newTransport )
         {
-            ITransport = newTransport;
-            ITransport.Command = OnCommand;
-            ITransport.Exception = OnTransportException;
-            ITransport.Interrupted = OnTransportInterrupted;
-            ITransport.Resumed = OnTransportResumed;
+            Transport = newTransport;
+            Transport.Command = OnCommand;
+            Transport.Exception = OnTransportException;
+            Transport.Interrupted = OnTransportInterrupted;
+            Transport.Resumed = OnTransportResumed;
         }
 
         private void WaitForTransportInterruptionProcessingToComplete()

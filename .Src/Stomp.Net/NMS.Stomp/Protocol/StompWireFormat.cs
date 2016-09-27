@@ -29,10 +29,7 @@ namespace Apache.NMS.Stomp.Protocol
 
         #region Properties
 
-        public Int32 Version
-        {
-            get { return 1; }
-        }
+        public Int32 Version => 1;
 
         public Encoding Encoder { get; set; } = new UTF8Encoding();
 
@@ -42,15 +39,9 @@ namespace Apache.NMS.Stomp.Protocol
 
         public Int32 MaxInactivityDurationInitialDelay { get; set; } = 0;
 
-        public Int64 ReadCheckInterval
-        {
-            get { return MaxInactivityDuration; }
-        }
+        public Int64 ReadCheckInterval => MaxInactivityDuration;
 
-        public Int64 WriteCheckInterval
-        {
-            get { return MaxInactivityDuration > 3 ? MaxInactivityDuration / 3 : MaxInactivityDuration; }
-        }
+        public Int64 WriteCheckInterval => MaxInactivityDuration > 3 ? MaxInactivityDuration / 3 : MaxInactivityDuration;
 
         #endregion
 
@@ -109,7 +100,7 @@ namespace Apache.NMS.Stomp.Protocol
         {
             var frame = new StompFrame( encodeHeaders );
             frame.FromStream( reader );
-            
+
             var answer = CreateCommand( frame );
             return answer;
         }
@@ -117,7 +108,7 @@ namespace Apache.NMS.Stomp.Protocol
         protected virtual ICommand CreateCommand( StompFrame frame )
         {
             var command = frame.Command;
-            
+
             if ( command == "RECEIPT" )
             {
                 var text = frame.RemoveProperty( "receipt-id" );
@@ -190,7 +181,7 @@ namespace Apache.NMS.Stomp.Protocol
                     var hearBeats = frame.RemoveProperty( "heart-beat" )
                                          .Split( ",".ToCharArray() );
                     if ( hearBeats.Length != 2 )
-                        throw new IOException( "Malformed heartbeat property in Connected Frame." );
+                        throw new IoException( "Malformed heartbeat property in Connected Frame." );
 
                     remoteWireFormatInfo.WriteCheckInterval = Int32.Parse( hearBeats[0].Trim() );
                     remoteWireFormatInfo.ReadCheckInterval = Int32.Parse( hearBeats[1].Trim() );
@@ -212,7 +203,7 @@ namespace Apache.NMS.Stomp.Protocol
             }
             else
             {
-                throw new IOException( "Received Connected Frame without a set Response Id for it." );
+                throw new IoException( "Received Connected Frame without a set Response Id for it." );
             }
 
             return remoteWireFormatInfo;
@@ -328,7 +319,7 @@ namespace Apache.NMS.Stomp.Protocol
 
             if ( MaxInactivityDuration != 0 )
                 frame.SetProperty( "heart-beat", WriteCheckInterval + "," + ReadCheckInterval );
-            
+
             connectedResponseId = command.CommandId;
 
             frame.ToStream( dataOut );
@@ -376,14 +367,14 @@ namespace Apache.NMS.Stomp.Protocol
 
             if ( command.Retroactive )
                 frame.SetProperty( "activemq.retroactive", command.Retroactive );
-            
+
             frame.ToStream( dataOut );
         }
 
         protected virtual void WriteKeepAliveInfo( KeepAliveInfo command, BinaryWriter dataOut )
         {
             var frame = new StompFrame( StompFrame.KEEPALIVE, encodeHeaders );
-            
+
             frame.ToStream( dataOut );
         }
 
@@ -447,7 +438,7 @@ namespace Apache.NMS.Stomp.Protocol
             var map = command.Properties;
             foreach ( String key in map.Keys )
                 frame.SetProperty( key, map[key] );
-            
+
             frame.ToStream( dataOut );
         }
 
@@ -462,7 +453,7 @@ namespace Apache.NMS.Stomp.Protocol
 
             if ( command.TransactionId != null )
                 frame.SetProperty( "transaction", command.TransactionId.ToString() );
-            
+
             frame.ToStream( dataOut );
         }
 
@@ -477,7 +468,7 @@ namespace Apache.NMS.Stomp.Protocol
                 if ( command.ResponseRequired )
                     frame.SetProperty( "receipt", command.CommandId );
                 frame.SetProperty( "id", consumerId.ToString() );
-                
+
                 frame.ToStream( dataOut );
             }
         }
@@ -487,14 +478,14 @@ namespace Apache.NMS.Stomp.Protocol
             Debug.Assert( !command.ResponseRequired );
 
             var frame = new StompFrame( "DISCONNECT", encodeHeaders );
-            
+
             frame.ToStream( dataOut );
         }
 
         protected virtual void WriteTransactionInfo( TransactionInfo command, BinaryWriter dataOut )
         {
             String type;
-            switch ((TransactionType)command.Type)
+            switch ( (TransactionType) command.Type )
             {
                 case TransactionType.Commit:
                     command.ResponseRequired = true;
@@ -510,13 +501,13 @@ namespace Apache.NMS.Stomp.Protocol
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            
+
             var frame = new StompFrame( type, encodeHeaders );
             if ( command.ResponseRequired )
                 frame.SetProperty( "receipt", command.CommandId );
 
             frame.SetProperty( "transaction", command.TransactionId.ToString() );
-            
+
             frame.ToStream( dataOut );
         }
     }

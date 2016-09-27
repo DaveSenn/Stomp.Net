@@ -34,8 +34,8 @@
     <DocumentationFile>bin\Release\Stomp.Net.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Extend, Version=1.1.8.179, Culture=neutral, PublicKeyToken=869d4c589c0473ac, processorArchitecture=MSIL">
-      <HintPath>..\packages\Extend.1.1.8.179\lib\net45\Extend.dll</HintPath>
+    <Reference Include="Extend, Version=1.1.9.11, Culture=neutral, PublicKeyToken=869d4c589c0473ac, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extend.1.1.9.11\lib\net45\Extend.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -57,6 +57,10 @@
     <Compile Include="Definition\Connection\StompSslSettings.cs" />
     <Compile Include="Definition\Connection\StompTransportSettings.cs" />
     <Compile Include="Definition\StompNetConfiguration.cs" />
+    <Compile Include="NMS.Stomp\AckType.cs" />
+    <Compile Include="NMS.Stomp\TransactionType.cs" />
+    <Compile Include="NMS\MessageDeliveryMode.cs" />
+    <Compile Include="NMS\MessagePriority.cs" />
     <Compile Include="Properties\JetBrains.Annotations.cs" />
     <Compile Include="NMS.Stomp\BrokerException.cs" />
     <Compile Include="NMS.Stomp\Commands\BaseCommand.cs" />
@@ -90,7 +94,6 @@
     <Compile Include="NMS.Stomp\Commands\SessionId.cs" />
     <Compile Include="NMS.Stomp\Commands\SessionInfo.cs" />
     <Compile Include="NMS.Stomp\Commands\ShutdownInfo.cs" />
-    <Compile Include="NMS.Stomp\Commands\StreamMessage.cs" />
     <Compile Include="NMS.Stomp\Commands\SubscriptionInfo.cs" />
     <Compile Include="NMS.Stomp\Commands\TempDestination.cs" />
     <Compile Include="NMS.Stomp\Commands\TempQueue.cs" />
@@ -161,30 +164,25 @@
     <Compile Include="NMS\IMessageProducer.cs" />
     <Compile Include="NMS\InvalidClientIDException.cs" />
     <Compile Include="NMS\InvalidDestinationException.cs" />
-    <Compile Include="NMS\InvalidSelectorException.cs" />
-    <Compile Include="NMS\IObjectMessage.cs" />
     <Compile Include="NMS\IPrimitiveMap.cs" />
     <Compile Include="NMS\IQueue.cs" />
     <Compile Include="NMS\IQueueBrowser.cs" />
     <Compile Include="NMS\IRedeliveryPolicy.cs" />
     <Compile Include="NMS\ISession.cs" />
     <Compile Include="Definition\Common\IStoppable.cs" />
-    <Compile Include="NMS\IStreamMessage.cs" />
     <Compile Include="NMS\ITemporaryQueue.cs" />
     <Compile Include="NMS\ITemporaryTopic.cs" />
     <Compile Include="NMS\ITextMessage.cs" />
     <Compile Include="NMS\ITopic.cs" />
     <Compile Include="NMS\ITrace.cs" />
-    <Compile Include="NMS\MessageEOFException.cs" />
+    <Compile Include="NMS\MessageEofException.cs" />
     <Compile Include="NMS\MessageFormatException.cs" />
     <Compile Include="NMS\MessageNotReadableException.cs" />
     <Compile Include="NMS\MessageNotWriteableException.cs" />
-    <Compile Include="NMS\NMSConnectionException.cs" />
+    <Compile Include="NMS\NmsConnectionException.cs" />
     <Compile Include="NMS\NMSConstants.cs" />
-    <Compile Include="NMS\NMSException.cs" />
-    <Compile Include="NMS\NMSSecurityException.cs" />
+    <Compile Include="NMS\NmsException.cs" />
     <Compile Include="NMS\Policies\RedeliveryPolicy.cs" />
-    <Compile Include="NMS\ResourceAllocationException.cs" />
     <Compile Include="NMS\Tracer.cs" />
     <Compile Include="NMS\Util\Atomic.cs" />
     <Compile Include="NMS\Util\CountDownLatch.cs" />
@@ -203,7 +201,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

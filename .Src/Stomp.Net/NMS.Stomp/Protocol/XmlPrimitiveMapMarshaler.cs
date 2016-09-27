@@ -73,10 +73,7 @@ namespace Apache.NMS.Stomp.Protocol
             return encoder.GetBytes( builder.ToString() );
         }
 
-        public String Name
-        {
-            get { return "jms-map-xml"; }
-        }
+        public String Name => "jms-map-xml";
 
         public IPrimitiveMap Unmarshal( Byte[] mapContent )
         {

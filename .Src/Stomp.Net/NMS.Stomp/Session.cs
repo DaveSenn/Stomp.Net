@@ -73,7 +73,7 @@ namespace Apache.NMS.Stomp
 
         #endregion
 
-        public void Dispatch( MessageDispatch dispatch ) 
+        public void Dispatch( MessageDispatch dispatch )
             => Executor?.Execute( dispatch );
 
         public void AddConsumer( MessageConsumer consumer )
@@ -82,13 +82,13 @@ namespace Apache.NMS.Stomp
             {
                 // Registered with Connection before we register at the broker.
                 consumers[consumer.ConsumerId] = consumer;
-                Connection.addDispatcher( consumer.ConsumerId, this );
+                Connection.AddDispatcher( consumer.ConsumerId, this );
             }
         }
 
         public void DisposeOf( ConsumerId objectId )
         {
-            Connection.removeDispatcher( objectId );
+            Connection.RemoveDispatcher( objectId );
             if ( !closing )
                 consumers.Remove( objectId );
         }
@@ -162,7 +162,7 @@ namespace Apache.NMS.Stomp
 
         public void RemoveConsumer( MessageConsumer consumer )
         {
-            Connection.removeDispatcher( consumer.ConsumerId );
+            Connection.RemoveDispatcher( consumer.ConsumerId );
             if ( !closing )
                 consumers.Remove( consumer.ConsumerId );
         }
@@ -214,21 +214,12 @@ namespace Apache.NMS.Stomp
 
             foreach ( var message in messages )
             {
-                if ( Tracer.IsDebugEnabled )
-                    Tracer.WarnFormat( "Resending Message Dispatch: ", message.ToString() );
+                Tracer.WarnFormat( "Resending Message Dispatch: ", message.ToString() );
                 Executor.ExecuteFirst( message );
             }
         }
 
         internal void SendAck( MessageAck ack ) => SendAck( ack, false );
-
-        internal void SendAck( MessageAck ack, Boolean lazy )
-        {
-            if ( lazy || _stompConnectionSettings.SendAcksAsync || IsTransacted )
-                Connection.Oneway( ack );
-            else
-                Connection.SyncRequest( ack );
-        }
 
         private void CheckClosed()
         {
@@ -239,7 +230,7 @@ namespace Apache.NMS.Stomp
         private void ClearMessages( Object value )
         {
             var consumer = value as MessageConsumer;
-            
+
             consumer.ClearMessagesInProgress();
         }
 
@@ -264,6 +255,14 @@ namespace Apache.NMS.Stomp
         /// </param>
         private void DoNothingAcknowledge( Message message )
         {
+        }
+
+        private void SendAck( MessageAck ack, Boolean lazy )
+        {
+            if ( lazy || _stompConnectionSettings.SendAcksAsync || IsTransacted )
+                Connection.Oneway( ack );
+            else
+                Connection.SyncRequest( ack );
         }
 
         ~Session()
@@ -321,10 +320,7 @@ namespace Apache.NMS.Stomp
         /// <summary>
         ///     Enables or disables whether asynchronous dispatch should be used by the broker
         /// </summary>
-        public Boolean DispatchAsync
-        {
-            get { return _stompConnectionSettings.DispatchAsync; }
-        }
+        public Boolean DispatchAsync => _stompConnectionSettings.DispatchAsync;
 
         /// <summary>
         ///     Enables or disables exclusive consumers when using queues. An exclusive consumer means
@@ -344,10 +340,7 @@ namespace Apache.NMS.Stomp
 
         public Connection Connection { get; private set; }
 
-        public SessionId SessionId
-        {
-            get { return info.SessionId; }
-        }
+        public SessionId SessionId => info.SessionId;
 
         public TransactionContext TransactionContext { get; }
 
@@ -357,44 +350,23 @@ namespace Apache.NMS.Stomp
         /// <value>The request timeout.</value>
         public TimeSpan RequestTimeout => _stompConnectionSettings.RequestTimeout;
 
-        public Boolean Transacted
-        {
-            get { return AcknowledgementMode == AcknowledgementMode.Transactional; }
-        }
+        public Boolean Transacted => AcknowledgementMode == AcknowledgementMode.Transactional;
 
         public AcknowledgementMode AcknowledgementMode { get; }
 
-        public Boolean IsClientAcknowledge
-        {
-            get { return AcknowledgementMode == AcknowledgementMode.ClientAcknowledge; }
-        }
+        public Boolean IsClientAcknowledge => AcknowledgementMode == AcknowledgementMode.ClientAcknowledge;
 
-        public Boolean IsAutoAcknowledge
-        {
-            get { return AcknowledgementMode == AcknowledgementMode.AutoAcknowledge; }
-        }
+        public Boolean IsAutoAcknowledge => AcknowledgementMode == AcknowledgementMode.AutoAcknowledge;
 
-        public Boolean IsDupsOkAcknowledge
-        {
-            get { return AcknowledgementMode == AcknowledgementMode.DupsOkAcknowledge; }
-        }
+        public Boolean IsDupsOkAcknowledge => AcknowledgementMode == AcknowledgementMode.DupsOkAcknowledge;
 
-        public Boolean IsIndividualAcknowledge
-        {
-            get { return AcknowledgementMode == AcknowledgementMode.IndividualAcknowledge; }
-        }
+        public Boolean IsIndividualAcknowledge => AcknowledgementMode == AcknowledgementMode.IndividualAcknowledge;
 
-        public Boolean IsTransacted
-        {
-            get { return AcknowledgementMode == AcknowledgementMode.Transactional; }
-        }
+        public Boolean IsTransacted => AcknowledgementMode == AcknowledgementMode.Transactional;
 
         public SessionExecutor Executor { get; }
 
-        public Int64 NextDeliveryId
-        {
-            get { return Interlocked.Increment( ref nextDeliveryId ); }
-        }
+        public Int64 NextDeliveryId => Interlocked.Increment( ref nextDeliveryId );
 
         public ConsumerTransformerDelegate ConsumerTransformer { get; set; }
 
@@ -680,19 +652,8 @@ namespace Apache.NMS.Stomp
 
         public IBytesMessage CreateBytesMessage( Byte[] body )
         {
-            var answer = new BytesMessage();
-            answer.Content = body;
+            var answer = new BytesMessage { Content = body };
             return ConfigureMessage( answer ) as IBytesMessage;
-        }
-
-        public IStreamMessage CreateStreamMessage()
-        {
-            throw new NotSupportedException( "No Object Message in Stomp" );
-        }
-
-        public IObjectMessage CreateObjectMessage( Object body )
-        {
-            throw new NotSupportedException( "No Object Message in Stomp" );
         }
 
         public void Commit()

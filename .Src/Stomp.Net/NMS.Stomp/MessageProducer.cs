@@ -31,10 +31,7 @@ namespace Apache.NMS.Stomp
 
         #region Properties
 
-        public ProducerId ProducerId
-        {
-            get { return info.ProducerId; }
-        }
+        public ProducerId ProducerId => info.ProducerId;
 
         #endregion
 
@@ -68,13 +65,13 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        public MsgDeliveryMode DeliveryMode { get; set; } = NmsConstants.defaultDeliveryMode;
+        public MessageDeliveryMode DeliveryMode { get; set; } = NmsConstants.DefaultDeliveryMode;
 
         public Boolean DisableMessageID { get; set; } = false;
 
         public Boolean DisableMessageTimestamp { get; set; } = false;
 
-        public MsgPriority Priority { get; set; } = NmsConstants.defaultPriority;
+        public MessagePriority Priority { get; set; } = NmsConstants.DefaultPriority;
 
         public ProducerTransformerDelegate ProducerTransformer { get; set; }
 
@@ -84,10 +81,10 @@ namespace Apache.NMS.Stomp
 
         public void Send( IDestination destination, IMessage message ) => Send( destination, message, DeliveryMode, Priority, TimeToLive );
 
-        public void Send( IMessage message, MsgDeliveryMode deliveryMode, MsgPriority priority, TimeSpan timeToLive )
+        public void Send( IMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive )
             => Send( info.Destination, message, deliveryMode, priority, timeToLive );
 
-        public void Send( IDestination destination, IMessage message, MsgDeliveryMode deliveryMode, MsgPriority priority, TimeSpan timeToLive )
+        public void Send( IDestination destination, IMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive )
         {
             if ( null == destination )
             {
@@ -95,9 +92,8 @@ namespace Apache.NMS.Stomp
                 if ( null == info.Destination )
                     throw new NotSupportedException();
 
-                // The producer was created with a destination, but an invalid destination
-                // was specified.
-                throw new InvalidDestinationException();
+                throw new InvalidDestinationException(
+                    $"The producer was created with a destination, but an invalid destination was specified. => Destination: '{info.Destination}'" );
             }
 
             Destination dest = null;
@@ -109,12 +105,9 @@ namespace Apache.NMS.Stomp
             else
                 throw new NotSupportedException( "This producer can only send messages to: " + info.Destination.PhysicalName );
 
-            if ( ProducerTransformer != null )
-            {
-                var transformed = ProducerTransformer( session, this, message );
-                if ( transformed != null )
-                    message = transformed;
-            }
+            var transformed = ProducerTransformer?.Invoke( session, this, message );
+            if ( transformed != null )
+                message = transformed;
 
             var stompMessage = messageTransformation.TransformMessage<Message>( message );
 
@@ -124,9 +117,11 @@ namespace Apache.NMS.Stomp
             stompMessage.NMSPriority = priority;
 
             // Always set the message Id regardless of the disable flag.
-            var id = new MessageId();
-            id.ProducerId = info.ProducerId;
-            id.ProducerSequenceId = Interlocked.Increment( ref producerSequenceId );
+            var id = new MessageId
+            {
+                ProducerId = info.ProducerId,
+                ProducerSequenceId = Interlocked.Increment( ref producerSequenceId )
+            };
             stompMessage.MessageId = id;
 
             if ( !DisableMessageTimestamp )
@@ -143,29 +138,7 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        public TimeSpan TimeToLive { get; set; } = NmsConstants.defaultTimeToLive;
-
-        protected void Dispose( Boolean disposing )
-        {
-            if ( disposed )
-                return;
-
-            if ( disposing )
-            {
-                // Dispose managed code here.
-            }
-
-            try
-            {
-                Close();
-            }
-            catch
-            {
-                // Ignore network errors.
-            }
-
-            disposed = true;
-        }
+        public TimeSpan TimeToLive { get; set; } = NmsConstants.DefaultTimeToLive;
 
         internal void DoClose()
         {
@@ -187,6 +160,28 @@ namespace Apache.NMS.Stomp
             }
         }
 
+        private void Dispose( Boolean disposing )
+        {
+            if ( disposed )
+                return;
+
+            if ( disposing )
+            {
+                // Dispose managed code here.
+            }
+
+            try
+            {
+                Close();
+            }
+            catch
+            {
+                // Ignore network errors.
+            }
+
+            disposed = true;
+        }
+
         ~MessageProducer()
         {
             Dispose( false );
@@ -202,16 +197,9 @@ namespace Apache.NMS.Stomp
 
         public IMapMessage CreateMapMessage() => session.CreateMapMessage();
 
-        public IObjectMessage CreateObjectMessage( Object body )
-        {
-            throw new NotSupportedException( "No Object Message in Stomp" );
-        }
-
         public IBytesMessage CreateBytesMessage() => session.CreateBytesMessage();
 
         public IBytesMessage CreateBytesMessage( Byte[] body ) => session.CreateBytesMessage( body );
-
-        public IStreamMessage CreateStreamMessage() => session.CreateStreamMessage();
 
         #endregion
     }

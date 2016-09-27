@@ -18,10 +18,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the isConnectionError() query.
         /// </summery>
-        public override Boolean IsConnectionError
-        {
-            get { return true; }
-        }
+        public override Boolean IsConnectionError => true;
 
         #endregion
 

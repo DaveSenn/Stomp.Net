@@ -52,7 +52,7 @@ namespace Apache.NMS
         ///     A <see cref="IQueueBrowser" />
         /// </returns>
         /// <exception cref="System.NotSupportedException">
-        ///     If the Prodiver does not support creation of Queue Browsers.
+        ///     If the provider does not support creation of Queue Browsers.
         /// </exception>
         IQueueBrowser CreateBrowser( IQueue queue );
 
@@ -70,7 +70,7 @@ namespace Apache.NMS
         ///     A <see cref="IQueueBrowser" />
         /// </returns>
         /// <exception cref="System.NotSupportedException">
-        ///     If the Prodiver does not support creation of Queue Browsers.
+        ///     If the provider does not support creation of Queue Browsers.
         /// </exception>
         IQueueBrowser CreateBrowser( IQueue queue, String selector );
 
@@ -117,11 +117,6 @@ namespace Apache.NMS
         IMessage CreateMessage();
 
         /// <summary>
-        ///     Creates a new Object message containing the given .NET object as the body
-        /// </summary>
-        IObjectMessage CreateObjectMessage( Object body );
-
-        /// <summary>
         ///     Creates a producer of messages
         /// </summary>
         IMessageProducer CreateProducer();
@@ -130,11 +125,6 @@ namespace Apache.NMS
         ///     Creates a producer of messages on a given destination
         /// </summary>
         IMessageProducer CreateProducer( IDestination destination );
-
-        /// <summary>
-        ///     Creates a new stream message
-        /// </summary>
-        IStreamMessage CreateStreamMessage();
 
         /// <summary>
         ///     Creates a temporary queue
@@ -179,11 +169,11 @@ namespace Apache.NMS
 
         /// <summary>
         ///     Stops all Message delivery in this session and restarts it again
-        ///     with the oldest unabcknowledged message.  Messages that were delivered
+        ///     with the oldest not acknowledged message.  Messages that were delivered
         ///     but not acknowledge should have their redelivered property set.
         ///     This is an optional method that may not by implemented by all NMS
         ///     providers, if not implemented an Exception will be thrown.
-        ///     Message redelivery is not requried to be performed in the original
+        ///     Message redelivery is not required to be performed in the original
         ///     order.  It is not valid to call this method on a Transacted Session.
         /// </summary>
         void Recover();

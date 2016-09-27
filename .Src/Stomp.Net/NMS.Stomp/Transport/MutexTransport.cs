@@ -81,7 +81,7 @@ namespace Apache.NMS.Stomp.Transport
                         break;
 
                     if ( DateTime.Now > timeoutTime )
-                        throw new IOException( $"Oneway timed out after {timeout} milliseconds." );
+                        throw new IoException( $"Oneway timed out after {timeout} milliseconds." );
 
                     // Back off from being overly aggressive.
                     // Having too many threads aggressively trying to get the lock pegs the CPU.

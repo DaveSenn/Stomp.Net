@@ -21,7 +21,7 @@ namespace Apache.NMS.Stomp.Commands
         Boolean IsConnectionInfo { get; }
 
         Boolean IsErrorCommand { get; }
-        
+
         Boolean IsMessage { get; }
 
         Boolean IsMessageAck { get; }

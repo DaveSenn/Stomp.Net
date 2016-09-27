@@ -24,15 +24,9 @@ namespace Apache.NMS.Stomp.Commands
 
         #endregion
 
-        override public DestinationType DestinationType
-        {
-            get { return DestinationType.TemporaryQueue; }
-        }
+        public override DestinationType DestinationType => DestinationType.TemporaryQueue;
 
-        public String QueueName
-        {
-            get { return PhysicalName; }
-        }
+        public String QueueName => PhysicalName;
 
         public override Object Clone()
         {
@@ -49,7 +43,8 @@ namespace Apache.NMS.Stomp.Commands
             return o;
         }
 
-        public override Destination CreateDestination( String name ) => new TempQueue( name );
+        public override Destination CreateDestination( String name )
+            => new TempQueue( name );
 
         public override Byte GetDataStructureType() => DataStructureTypes.TempQueueType;
 

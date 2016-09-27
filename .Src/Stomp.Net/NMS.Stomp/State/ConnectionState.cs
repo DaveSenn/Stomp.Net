@@ -46,15 +46,9 @@ namespace Apache.NMS.Stomp.State
 
         public ConnectionInfo Info { get; private set; }
 
-        public AtomicCollection<ConsumerId> ConsumerIds
-        {
-            get { return consumers.Keys; }
-        }
+        public AtomicCollection<ConsumerId> ConsumerIds => consumers.Keys;
 
-        public AtomicCollection<ConsumerState> ConsumerStates
-        {
-            get { return consumers.Values; }
-        }
+        public AtomicCollection<ConsumerState> ConsumerStates => consumers.Values;
 
         #endregion
 

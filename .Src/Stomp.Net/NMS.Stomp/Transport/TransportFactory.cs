@@ -43,14 +43,14 @@ namespace Apache.NMS.Stomp.Transport
 
         /// <summary>
         ///     Create a transport factory for the scheme.
-        ///     If we do not support the transport protocol, an NMSConnectionException will be thrown.
+        ///     If we do not support the transport protocol, an NmsConnectionException will be thrown.
         /// </summary>
         /// <param name="location">An URI.</param>
         /// <returns>Returns a <see cref="ITransportFactory" />.</returns>
         private ITransportFactory CreateTransportFactory( Uri location )
         {
             if ( location.Scheme.IsEmpty() )
-                throw new NMSConnectionException( $"Transport scheme invalid: [{location}]" );
+                throw new NmsConnectionException( $"Transport scheme invalid: [{location}]" );
 
             ITransportFactory factory;
 
@@ -65,20 +65,20 @@ namespace Apache.NMS.Stomp.Transport
                         factory = new SslTransportFactory( _stompConnectionSettings );
                         break;
                     default:
-                        throw new NMSConnectionException( $"The transport {location.Scheme} is not supported." );
+                        throw new NmsConnectionException( $"The transport {location.Scheme} is not supported." );
                 }
             }
-            catch ( NMSConnectionException )
+            catch ( NmsConnectionException )
             {
                 throw;
             }
             catch ( Exception ex )
             {
-                throw new NMSConnectionException( "Error creating transport.", ex );
+                throw new NmsConnectionException( "Error creating transport.", ex );
             }
 
             if ( null == factory )
-                throw new NMSConnectionException( "Unable to create a transport." );
+                throw new NmsConnectionException( "Unable to create a transport." );
 
             return factory;
         }

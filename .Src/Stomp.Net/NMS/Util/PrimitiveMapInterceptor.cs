@@ -111,20 +111,11 @@ namespace Apache.NMS.Util
             properties.Remove( key );
         }
 
-        public Int32 Count
-        {
-            get { return properties.Count; }
-        }
+        public Int32 Count => properties.Count;
 
-        public ICollection Keys
-        {
-            get { return properties.Keys; }
-        }
+        public ICollection Keys => properties.Keys;
 
-        public ICollection Values
-        {
-            get { return properties.Values; }
-        }
+        public ICollection Values => properties.Values;
 
         public Object this[ String key ]
         {

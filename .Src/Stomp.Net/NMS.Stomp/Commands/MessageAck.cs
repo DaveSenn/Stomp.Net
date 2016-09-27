@@ -28,10 +28,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the isMessageAck() query.
         /// </summery>
-        public override Boolean IsMessageAck
-        {
-            get { return true; }
-        }
+        public override Boolean IsMessageAck => true;
 
         #endregion
 

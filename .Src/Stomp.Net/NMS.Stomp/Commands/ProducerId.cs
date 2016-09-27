@@ -108,7 +108,7 @@ namespace Apache.NMS.Stomp.Commands
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() 
+        public override String ToString()
             => _key ?? ( _key = ConnectionId + ":" + SessionId + ":" + Value );
     }
 }

@@ -8,13 +8,9 @@ using System.Runtime.Serialization;
 namespace Apache.NMS
 {
     [Serializable]
-    public class InvalidClientIDException : NMSException
+    public class InvalidClientIDException : NmsException
     {
         #region Ctor
-
-        public InvalidClientIDException()
-        {
-        }
 
         public InvalidClientIDException( String message )
             : base( message )

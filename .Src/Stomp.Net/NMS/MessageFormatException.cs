@@ -8,19 +8,16 @@ using System.Runtime.Serialization;
 namespace Apache.NMS
 {
     [Serializable]
-    public class MessageFormatException : NMSException
+    public class MessageFormatException : NmsException
     {
         #region Ctor
-
-        public MessageFormatException()
-        {
-        }
 
         public MessageFormatException( String message )
             : base( message )
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         public MessageFormatException( String message, String errorCode )
             : base( message, errorCode )
         {
@@ -31,14 +28,11 @@ namespace Apache.NMS
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         public MessageFormatException( String message, String errorCode, Exception innerException )
             : base( message, errorCode, innerException )
         {
         }
-
-        #region ISerializable interface implementation
-
-#if !NETCF
 
         /// <summary>
         ///     Initializes a new instance of the MessageFormatException class with serialized data.
@@ -52,10 +46,6 @@ namespace Apache.NMS
             : base( info, context )
         {
         }
-
-#endif
-
-        #endregion
 
         #endregion
     }

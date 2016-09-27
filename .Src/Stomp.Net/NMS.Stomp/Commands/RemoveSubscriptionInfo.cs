@@ -30,10 +30,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the isRemoveSubscriptionInfo() query.
         /// </summery>
-        public override Boolean IsRemoveSubscriptionInfo
-        {
-            get { return true; }
-        }
+        public override Boolean IsRemoveSubscriptionInfo => true;
 
         #endregion
 

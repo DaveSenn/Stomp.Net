@@ -42,10 +42,7 @@ namespace Apache.NMS.Util
 
         public Boolean Contains( Object key ) => dictionary.Contains( key );
 
-        public Int32 Count
-        {
-            get { return dictionary.Count; }
-        }
+        public Int32 Count => dictionary.Count;
 
         public Boolean GetBool( String key )
         {
@@ -65,7 +62,7 @@ namespace Apache.NMS.Util
         {
             var value = GetValue( key );
             if ( value != null && !( value is Byte[] ) )
-                throw new NMSException( "Property: " + key + " is not an byte[] but is: " + value );
+                throw new NmsException( "Property: " + key + " is not an byte[] but is: " + value );
             return (Byte[]) value;
         }
 
@@ -80,7 +77,7 @@ namespace Apache.NMS.Util
         {
             var value = GetValue( key );
             if ( value != null && !( value is IDictionary ) )
-                throw new NMSException( "Property: " + key + " is not an IDictionary but is: " + value );
+                throw new NmsException( "Property: " + key + " is not an IDictionary but is: " + value );
             return (IDictionary) value;
         }
 
@@ -109,7 +106,7 @@ namespace Apache.NMS.Util
         {
             var value = GetValue( key );
             if ( value != null && !( value is IList ) )
-                throw new NMSException( "Property: " + key + " is not an IList but is: " + value );
+                throw new NmsException( "Property: " + key + " is not an IList but is: " + value );
             return (IList) value;
         }
 
@@ -458,14 +455,14 @@ namespace Apache.NMS.Util
 
                 if ( type.IsInstanceOfType( typeof(Object) ) ||
                      ( !type.IsPrimitive && !type.IsValueType && !type.IsAssignableFrom( typeof(String) ) ) )
-                    throw new NMSException( "Invalid type: " + type.Name + " for value: " + value );
+                    throw new NmsException( "Invalid type: " + type.Name + " for value: " + value );
             }
         }
 
         protected virtual void CheckValueType( Object value, Type type )
         {
             if ( !type.IsInstanceOfType( value ) )
-                throw new NMSException( "Expected type: " + type.Name + " but was: " + value );
+                throw new NmsException( "Expected type: " + type.Name + " but was: " + value );
         }
 
         protected virtual Object GetValue( String key ) => dictionary[key];

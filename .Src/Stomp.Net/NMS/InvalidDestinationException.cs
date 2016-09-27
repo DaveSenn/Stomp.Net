@@ -11,13 +11,9 @@ namespace Apache.NMS
     ///     An attempt is made to access an invalid destination
     /// </summary>
     [Serializable]
-    public class InvalidDestinationException : NMSException
+    public class InvalidDestinationException : NmsException
     {
         #region Ctor
-
-        public InvalidDestinationException()
-        {
-        }
 
         public InvalidDestinationException( String message )
             : base( message )

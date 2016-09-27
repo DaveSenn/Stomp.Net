@@ -46,10 +46,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the isConsumerInfo() query.
         /// </summery>
-        public override Boolean IsConsumerInfo
-        {
-            get { return true; }
-        }
+        public override Boolean IsConsumerInfo => true;
 
         #endregion
 

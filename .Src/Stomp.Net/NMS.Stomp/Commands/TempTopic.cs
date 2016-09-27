@@ -13,10 +13,6 @@ namespace Apache.NMS.Stomp.Commands
     {
         #region Ctor
 
-        public TempTopic()
-        {
-        }
-
         public TempTopic( String name )
             : base( name )
         {
@@ -24,15 +20,9 @@ namespace Apache.NMS.Stomp.Commands
 
         #endregion
 
-        override public DestinationType DestinationType
-        {
-            get { return DestinationType.TemporaryTopic; }
-        }
+        public override DestinationType DestinationType => DestinationType.TemporaryTopic;
 
-        public String TopicName
-        {
-            get { return PhysicalName; }
-        }
+        public String TopicName => PhysicalName;
 
         public override Object Clone()
         {

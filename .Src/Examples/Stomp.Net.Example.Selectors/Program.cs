@@ -75,7 +75,7 @@ namespace Stomp.Net.Example.Selectors
 
             IDestination destinationQueue = session.GetQueue( QueueName );
             var producer = session.CreateProducer( destinationQueue );
-            producer.DeliveryMode = MsgDeliveryMode.NonPersistent;
+            producer.DeliveryMode = MessageDeliveryMode.NonPersistent;
 
             for ( var i = 0; i < messageCount; i++ )
             {

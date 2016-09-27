@@ -61,6 +61,15 @@ namespace Apache.NMS.Stomp.Commands
 
         public override Byte GetDataStructureType() => DataStructureTypes.TextMessageType;
 
+        public override String ToString()
+        {
+            var text = Text;
+
+            if ( text != null && text.Length > 63 )
+                text = text.Substring( 0, 45 ) + "..." + text.Substring( text.Length - 12 );
+            return base.ToString() + " Text = " + ( text ?? "null" );
+        }
+
         protected override Int32 Size()
         {
             if ( Content == null && text != null )
@@ -74,15 +83,6 @@ namespace Apache.NMS.Stomp.Commands
             }
 
             return base.Size();
-        }
-
-        public override String ToString()
-        {
-            var text = Text;
-
-            if ( text != null && text.Length > 63 )
-                text = text.Substring( 0, 45 ) + "..." + text.Substring( text.Length - 12 );
-            return base.ToString() + " Text = " + ( text ?? "null" );
         }
     }
 }

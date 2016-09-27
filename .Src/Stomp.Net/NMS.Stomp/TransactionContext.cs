@@ -8,31 +8,18 @@ using Apache.NMS.Stomp.Commands;
 
 namespace Apache.NMS.Stomp
 {
-    public enum TransactionType
-    {
-        Begin = 0,
-        Commit = 1,
-        Rollback = 2
-    }
-}
-
-namespace Apache.NMS.Stomp
-{
     public class TransactionContext
     {
         #region Fields
 
-        private readonly Session session;
-        private readonly ArrayList synchronizations = ArrayList.Synchronized( new ArrayList() );
+        private readonly Session _session;
+        private readonly ArrayList _synchronizations = ArrayList.Synchronized( new ArrayList() );
 
         #endregion
 
         #region Properties
 
-        public Boolean InTransaction
-        {
-            get { return TransactionId != null; }
-        }
+        public Boolean InTransaction => TransactionId != null;
 
         public TransactionId TransactionId { get; private set; }
 
@@ -42,7 +29,7 @@ namespace Apache.NMS.Stomp
 
         public TransactionContext( Session session )
         {
-            this.session = session;
+            _session = session;
         }
 
         #endregion
@@ -50,100 +37,100 @@ namespace Apache.NMS.Stomp
         /// <summary>
         ///     Method AddSynchronization
         /// </summary>
-        public void AddSynchronization( ISynchronization synchronization ) => synchronizations.Add( synchronization );
+        public void AddSynchronization( ISynchronization synchronization ) => _synchronizations.Add( synchronization );
 
         public void Begin()
         {
             if ( !InTransaction )
             {
-                TransactionId = session.Connection.CreateLocalTransactionId();
+                TransactionId = _session.Connection.CreateLocalTransactionId();
 
                 var info = new TransactionInfo();
-                info.ConnectionId = session.Connection.ConnectionId;
+                info.ConnectionId = _session.Connection.ConnectionId;
                 info.TransactionId = TransactionId;
                 info.Type = (Int32) TransactionType.Begin;
 
-                session.Connection.Oneway( info );
+                _session.Connection.Oneway( info );
 
-                TransactionStartedListener?.Invoke( session );
+                TransactionStartedListener?.Invoke( _session );
             }
         }
 
         public void Commit()
         {
             if ( !InTransaction )
-                throw new NMSException( "Invalid State: Not Currently in a Transaction" );
+                throw new NmsException( "Invalid State: Not Currently in a Transaction" );
 
             BeforeEnd();
 
             var info = new TransactionInfo();
-            info.ConnectionId = session.Connection.ConnectionId;
+            info.ConnectionId = _session.Connection.ConnectionId;
             info.TransactionId = TransactionId;
             info.Type = (Int32) TransactionType.Commit;
 
             TransactionId = null;
-            session.Connection.SyncRequest( info );
+            _session.Connection.SyncRequest( info );
 
             AfterCommit();
-            synchronizations.Clear();
+            _synchronizations.Clear();
         }
 
-        public void RemoveSynchronization( ISynchronization synchronization ) => synchronizations.Remove( synchronization );
+        public void RemoveSynchronization( ISynchronization synchronization ) => _synchronizations.Remove( synchronization );
 
         public void ResetTransactionInProgress()
         {
             if ( InTransaction )
             {
                 TransactionId = null;
-                synchronizations.Clear();
+                _synchronizations.Clear();
             }
         }
 
         public void Rollback()
         {
             if ( !InTransaction )
-                throw new NMSException( "Invalid State: Not Currently in a Transaction" );
+                throw new NmsException( "Invalid State: Not Currently in a Transaction" );
 
             BeforeEnd();
 
             var info = new TransactionInfo();
-            info.ConnectionId = session.Connection.ConnectionId;
+            info.ConnectionId = _session.Connection.ConnectionId;
             info.TransactionId = TransactionId;
             info.Type = (Int32) TransactionType.Rollback;
 
             TransactionId = null;
-            session.Connection.SyncRequest( info );
+            _session.Connection.SyncRequest( info );
 
             AfterRollback();
-            synchronizations.Clear();
+            _synchronizations.Clear();
         }
 
-        internal void AfterCommit()
+        private void AfterCommit()
         {
-            lock ( synchronizations.SyncRoot )
+            lock ( _synchronizations.SyncRoot )
             {
-                foreach ( ISynchronization synchronization in synchronizations )
+                foreach ( ISynchronization synchronization in _synchronizations )
                     synchronization.AfterCommit();
 
-                TransactionCommittedListener?.Invoke( session );
+                TransactionCommittedListener?.Invoke( _session );
             }
         }
 
-        internal void AfterRollback()
+        private void AfterRollback()
         {
-            lock ( synchronizations.SyncRoot )
+            lock ( _synchronizations.SyncRoot )
             {
-                foreach ( ISynchronization synchronization in synchronizations )
+                foreach ( ISynchronization synchronization in _synchronizations )
                     synchronization.AfterRollback();
 
-                TransactionRolledBackListener?.Invoke( session );
+                TransactionRolledBackListener?.Invoke( _session );
             }
         }
 
-        internal void BeforeEnd()
+        private void BeforeEnd()
         {
-            lock ( synchronizations.SyncRoot )
-                foreach ( ISynchronization synchronization in synchronizations )
+            lock ( _synchronizations.SyncRoot )
+                foreach ( ISynchronization synchronization in _synchronizations )
                     synchronization.BeforeEnd();
         }
 

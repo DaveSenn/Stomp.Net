@@ -82,16 +82,6 @@ namespace Apache.NMS.Stomp.Transport
 
         #endregion
 
-        private void CheckConnection( Object state )
-        {
-            // First see if we have written or can write.
-            WriteCheck();
-
-            // Now check is we've read anything, if not then we send
-            // a new KeepAlive with response required.
-            ReadCheck();
-        }
-
         public override void Oneway( ICommand command )
         {
             // Disable inactivity monitoring while processing a command.
@@ -104,7 +94,7 @@ namespace Apache.NMS.Stomp.Transport
                 try
                 {
                     if ( failed.Value )
-                        throw new IOException( "Channel was inactive for too long: " + next.RemoteAddress );
+                        throw new IoException( "Channel was inactive for too long: " + next.RemoteAddress );
                     if ( command.IsConnectionInfo )
                         lock ( monitor )
                             StartMonitorThreads();
@@ -181,12 +171,12 @@ namespace Apache.NMS.Stomp.Transport
                         {
                             StartMonitorThreads();
                         }
-                        catch ( IOException ex )
+                        catch ( IoException ex )
                         {
                             OnException( this, ex );
                         }
                     }
-                
+
                 base.OnCommand( sender, command );
             }
             finally
@@ -203,6 +193,16 @@ namespace Apache.NMS.Stomp.Transport
                 StopMonitorThreads();
                 base.OnException( sender, command );
             }
+        }
+
+        private void CheckConnection( Object state )
+        {
+            // First see if we have written or can write.
+            WriteCheck();
+
+            // Now check is we've read anything, if not then we send
+            // a new KeepAlive with response required.
+            ReadCheck();
         }
 
         private void StartMonitorThreads()
@@ -256,8 +256,8 @@ namespace Apache.NMS.Stomp.Transport
                 if ( asyncWriteTask != null )
                 {
                     Tracer.WarnFormat( "InactivityMonitor[{0}]: Write Check time interval: {1}",
-                                        instanceId,
-                                        WriteCheckTime );
+                                       instanceId,
+                                       WriteCheckTime );
                     asyncTasks.AddTask( asyncWriteTask );
                 }
 
@@ -370,7 +370,7 @@ namespace Apache.NMS.Stomp.Transport
             {
                 if ( pending.CompareAndSet( true, false ) && parent.monitorStarted.Value )
                 {
-                    var ex = new IOException( "Channel was inactive for too long: " + remote );
+                    var ex = new IoException( "Channel was inactive for too long: " + remote );
                     parent.OnException( parent, ex );
                 }
 
@@ -413,7 +413,7 @@ namespace Apache.NMS.Stomp.Transport
                     var info = new KeepAliveInfo();
                     parent.next.Oneway( info );
                 }
-                catch ( IOException ex )
+                catch ( IoException ex )
                 {
                     parent.OnException( parent, ex );
                 }

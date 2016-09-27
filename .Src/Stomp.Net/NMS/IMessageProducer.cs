@@ -30,13 +30,13 @@ namespace Apache.NMS
         /// </summary>
         ProducerTransformerDelegate ProducerTransformer { get; set; }
 
-        MsgDeliveryMode DeliveryMode { get; set; }
+        MessageDeliveryMode DeliveryMode { get; set; }
 
         TimeSpan TimeToLive { get; set; }
 
         TimeSpan RequestTimeout { get; set; }
 
-        MsgPriority Priority { get; set; }
+        MessagePriority Priority { get; set; }
 
         Boolean DisableMessageID { get; set; }
 
@@ -57,7 +57,7 @@ namespace Apache.NMS
         /// <summary>
         ///     Sends the message to the default destination with the explicit QoS configuration
         /// </summary>
-        void Send( IMessage message, MsgDeliveryMode deliveryMode, MsgPriority priority, TimeSpan timeToLive );
+        void Send( IMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive );
 
         /// <summary>
         ///     Sends the message to the given destination
@@ -67,7 +67,7 @@ namespace Apache.NMS
         /// <summary>
         ///     Sends the message to the given destination with the explicit QoS configuration
         /// </summary>
-        void Send( IDestination destination, IMessage message, MsgDeliveryMode deliveryMode, MsgPriority priority, TimeSpan timeToLive );
+        void Send( IDestination destination, IMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive );
 
         #region Factory methods to create messages
 
@@ -92,11 +92,6 @@ namespace Apache.NMS
         IMapMessage CreateMapMessage();
 
         /// <summary>
-        ///     Creates a new Object message containing the given .NET object as the body
-        /// </summary>
-        IObjectMessage CreateObjectMessage( Object body );
-
-        /// <summary>
         ///     Creates a new binary message
         /// </summary>
         IBytesMessage CreateBytesMessage();
@@ -105,11 +100,6 @@ namespace Apache.NMS
         ///     Creates a new binary message with the given body
         /// </summary>
         IBytesMessage CreateBytesMessage( Byte[] body );
-
-        /// <summary>
-        ///     Creates a new stream message
-        /// </summary>
-        IStreamMessage CreateStreamMessage();
 
         #endregion
     }

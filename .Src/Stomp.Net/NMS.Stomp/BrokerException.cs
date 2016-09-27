@@ -13,16 +13,11 @@ namespace Apache.NMS.Stomp
     ///     Exception thrown when the broker returns an error
     /// </summary>
     [Serializable]
-    public class BrokerException : NMSException
+    public class BrokerException : NmsException
     {
         #region Properties
 
-        public BrokerError BrokerError { get; }
-
-        public virtual String JavaStackTrace
-        {
-            get { return BrokerError.StackTrace; }
-        }
+        private BrokerError BrokerError { get; }
 
         #endregion
 
@@ -45,24 +40,6 @@ namespace Apache.NMS.Stomp
             BrokerError = brokerError;
         }
 
-        #endregion
-
-        /// <summary>
-        ///     Generates a nice textual stack trace
-        /// </summary>
-        public static String StackTraceDump( StackTraceElement[] elements )
-        {
-            var builder = new StringBuilder();
-            if ( elements != null )
-                foreach ( var e in elements )
-                    builder.Append( "\n " + e.ClassName + "." + e.MethodName + "(" + e.FileName + ":" + e.LineNumber + ")" );
-            return builder.ToString();
-        }
-
-        #region ISerializable interface implementation
-
-#if !NETCF
-
         /// <summary>
         ///     Initializes a new instance of the BrokerException class with serialized data.
         ///     Throws System.ArgumentNullException if the info parameter is null.
@@ -77,6 +54,8 @@ namespace Apache.NMS.Stomp
             BrokerError = info.GetValue( "BrokerException.brokerError", typeof(BrokerError) ) as BrokerError;
         }
 
+        #endregion
+
         /// <summary>
         ///     When overridden in a derived class, sets the SerializationInfo
         ///     with information about the exception.
@@ -89,8 +68,18 @@ namespace Apache.NMS.Stomp
             info.AddValue( "BrokerException.brokerError", BrokerError );
         }
 
-#endif
+        /// <summary>
+        ///     Generates a nice textual stack trace
+        /// </summary>
+        private static String StackTraceDump( StackTraceElement[] elements )
+        {
+            var builder = new StringBuilder();
+            if ( elements == null )
+                return builder.ToString();
 
-        #endregion
+            foreach ( var e in elements )
+                builder.Append( "\n " + e.ClassName + "." + e.MethodName + "(" + e.FileName + ":" + e.LineNumber + ")" );
+            return builder.ToString();
+        }
     }
 }

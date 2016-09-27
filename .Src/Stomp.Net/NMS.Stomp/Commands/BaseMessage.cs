@@ -95,18 +95,6 @@ namespace Apache.NMS.Stomp.Commands
             ReadOnlyBody = true;
         }
 
-        protected virtual Int32 Size()
-        {
-            var size = DefaultMinimumMessageSize;
-
-            if ( MarshalledProperties != null )
-                size += MarshalledProperties.Length;
-            if ( Content != null )
-                size += Content.Length;
-
-            return size;
-        }
-
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
@@ -133,7 +121,19 @@ namespace Apache.NMS.Stomp.Commands
                                              "RedeliveryCounter=" + RedeliveryCounter +
                                              "]";
 
-        public override Response Visit( ICommandVisitor visitor ) 
+        public override Response Visit( ICommandVisitor visitor )
             => visitor.ProcessMessage( this );
+
+        protected virtual Int32 Size()
+        {
+            var size = DefaultMinimumMessageSize;
+
+            if ( MarshalledProperties != null )
+                size += MarshalledProperties.Length;
+            if ( Content != null )
+                size += Content.Length;
+
+            return size;
+        }
     }
 }

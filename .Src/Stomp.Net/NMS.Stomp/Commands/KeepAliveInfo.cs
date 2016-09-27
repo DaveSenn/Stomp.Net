@@ -14,10 +14,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the isKeepAliveInfo() query.
         /// </summery>
-        public override Boolean IsKeepAliveInfo
-        {
-            get { return true; }
-        }
+        public override Boolean IsKeepAliveInfo => true;
 
         #endregion
 

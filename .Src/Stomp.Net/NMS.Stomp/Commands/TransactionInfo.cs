@@ -28,10 +28,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the isTransactionInfo() query.
         /// </summery>
-        public override Boolean IsTransactionInfo
-        {
-            get { return true; }
-        }
+        public override Boolean IsTransactionInfo => true;
 
         #endregion
 
@@ -63,7 +60,7 @@ namespace Apache.NMS.Stomp.Commands
                 case ROLLBACK:
                     return visitor.ProcessRollbackTransaction( this );
                 default:
-                    throw new IOException( "Transaction info type unknown: " + Type );
+                    throw new IoException( "Transaction info type unknown: " + Type );
             }
         }
     }

@@ -22,10 +22,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the isMessageDispatch() query.
         /// </summery>
-        public override Boolean IsMessageDispatch
-        {
-            get { return true; }
-        }
+        public override Boolean IsMessageDispatch => true;
 
         #endregion
 

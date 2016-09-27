@@ -41,12 +41,12 @@ namespace Apache.NMS
         /// <summary>
         ///     Whether or not this message is persistent.
         /// </summary>
-        MsgDeliveryMode NMSDeliveryMode { get; set; }
+        MessageDeliveryMode NMSDeliveryMode { get; set; }
 
         /// <summary>
         ///     The Priority of this message.
         /// </summary>
-        MsgPriority NMSPriority { get; set; }
+        MessagePriority NMSPriority { get; set; }
 
         /// <summary>
         ///     Returns true if this message has been redelivered to this or another consumer before being acknowledged

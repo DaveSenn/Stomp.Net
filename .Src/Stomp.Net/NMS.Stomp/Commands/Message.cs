@@ -48,7 +48,7 @@ namespace Apache.NMS.Stomp.Commands
         public void Acknowledge()
         {
             if ( null == Acknowledger )
-                throw new NMSException( "No Acknowledger has been associated with this message: " + this );
+                throw new NmsException( "No Acknowledger has been associated with this message: " + this );
 
             Acknowledger( this );
         }
@@ -78,10 +78,10 @@ namespace Apache.NMS.Stomp.Commands
         /// <summary>
         ///     Whether or not this message is persistent
         /// </summary>
-        public MsgDeliveryMode NMSDeliveryMode
+        public MessageDeliveryMode NMSDeliveryMode
         {
-            get { return Persistent ? MsgDeliveryMode.Persistent : MsgDeliveryMode.NonPersistent; }
-            set { Persistent = MsgDeliveryMode.Persistent == value; }
+            get { return Persistent ? MessageDeliveryMode.Persistent : MessageDeliveryMode.NonPersistent; }
+            set { Persistent = MessageDeliveryMode.Persistent == value; }
         }
 
         /// <summary>
@@ -129,9 +129,9 @@ namespace Apache.NMS.Stomp.Commands
         /// <summary>
         ///     The Priority on this message
         /// </summary>
-        public MsgPriority NMSPriority
+        public MessagePriority NMSPriority
         {
-            get { return (MsgPriority) Priority; }
+            get { return (MessagePriority) Priority; }
             set { Priority = (Byte) value; }
         }
 
@@ -303,10 +303,7 @@ namespace Apache.NMS.Stomp.Commands
         ///     Returns the number of times this message has been redelivered to other consumers without being acknowledged
         ///     successfully.
         /// </summary>
-        public Int32 NMSXDeliveryCount
-        {
-            get { return RedeliveryCounter + 1; }
-        }
+        public Int32 NMSXDeliveryCount => RedeliveryCounter + 1;
 
         /// <summary>
         ///     The Message Group ID used to group messages together to the same consumer for the same group ID value

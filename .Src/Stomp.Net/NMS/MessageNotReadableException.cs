@@ -8,37 +8,32 @@ using System.Runtime.Serialization;
 namespace Apache.NMS
 {
     [Serializable]
-    public class MessageNotReadableException : NMSException
+    public class MessageNotReadableException : NmsException
     {
         #region Ctor
-
-        public MessageNotReadableException()
-        {
-        }
 
         public MessageNotReadableException( String message )
             : base( message )
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         public MessageNotReadableException( String message, String errorCode )
             : base( message, errorCode )
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         public MessageNotReadableException( String message, Exception innerException )
             : base( message, innerException )
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         public MessageNotReadableException( String message, String errorCode, Exception innerException )
             : base( message, errorCode, innerException )
         {
         }
-
-        #region ISerializable interface implementation
-
-#if !NETCF
 
         /// <summary>
         ///     Initializes a new instance of the MessageNotReadableException class with serialized data.
@@ -52,10 +47,6 @@ namespace Apache.NMS
             : base( info, context )
         {
         }
-
-#endif
-
-        #endregion
 
         #endregion
     }

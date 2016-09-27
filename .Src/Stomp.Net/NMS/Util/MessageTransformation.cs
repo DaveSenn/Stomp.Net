@@ -12,28 +12,6 @@ namespace Apache.NMS.Util
     /// </summary>
     public abstract class MessageTransformation
     {
-        /// <summary>
-        ///     Copies the standard NMS and user defined properties from the givem
-        ///     message to the specified message, the class version transforms the
-        ///     Destination instead of just doing a straight copy.
-        /// </summary>
-        public virtual void CopyProperties( IMessage fromMessage, IMessage toMessage )
-        {
-            toMessage.NMSMessageId = fromMessage.NMSMessageId;
-            toMessage.NMSCorrelationID = fromMessage.NMSCorrelationID;
-            toMessage.NMSReplyTo = DoTransformDestination( fromMessage.NMSReplyTo );
-            toMessage.NMSDestination = DoTransformDestination( fromMessage.NMSDestination );
-            toMessage.NMSDeliveryMode = fromMessage.NMSDeliveryMode;
-            toMessage.NMSRedelivered = fromMessage.NMSRedelivered;
-            toMessage.NMSType = fromMessage.NMSType;
-            toMessage.NMSPriority = fromMessage.NMSPriority;
-            toMessage.NMSTimestamp = fromMessage.NMSTimestamp;
-            toMessage.NMSTimeToLive = fromMessage.NMSTimeToLive;
-
-            foreach ( String key in fromMessage.Properties.Keys )
-                toMessage.Properties[key] = fromMessage.Properties[key];
-        }
-
         public T TransformMessage<T>( IMessage message )
         {
             if ( message is T )
@@ -67,33 +45,6 @@ namespace Apache.NMS.Util
 
                 result = msg;
             }
-            else if ( message is IObjectMessage )
-            {
-                var objMsg = message as IObjectMessage;
-                var msg = DoCreateObjectMessage();
-                msg.Body = objMsg.Body;
-
-                result = msg;
-            }
-            else if ( message is IStreamMessage )
-            {
-                var streamMessage = message as IStreamMessage;
-                streamMessage.Reset();
-                var msg = DoCreateStreamMessage();
-
-                Object obj = null;
-
-                try
-                {
-                    while ( ( obj = streamMessage.ReadObject() ) != null )
-                        msg.WriteObject( obj );
-                }
-                catch
-                {
-                }
-
-                result = msg;
-            }
             else if ( message is ITextMessage )
             {
                 var textMsg = message as ITextMessage;
@@ -115,14 +66,35 @@ namespace Apache.NMS.Util
             return (T) result;
         }
 
+        /// <summary>
+        ///     Copies the standard NMS and user defined properties from the given
+        ///     message to the specified message, the class version transforms the
+        ///     Destination instead of just doing a straight copy.
+        /// </summary>
+        private void CopyProperties( IMessage fromMessage, IMessage toMessage )
+        {
+            toMessage.NMSMessageId = fromMessage.NMSMessageId;
+            toMessage.NMSCorrelationID = fromMessage.NMSCorrelationID;
+            toMessage.NMSReplyTo = DoTransformDestination( fromMessage.NMSReplyTo );
+            toMessage.NMSDestination = DoTransformDestination( fromMessage.NMSDestination );
+            toMessage.NMSDeliveryMode = fromMessage.NMSDeliveryMode;
+            toMessage.NMSRedelivered = fromMessage.NMSRedelivered;
+            toMessage.NMSType = fromMessage.NMSType;
+            toMessage.NMSPriority = fromMessage.NMSPriority;
+            toMessage.NMSTimestamp = fromMessage.NMSTimestamp;
+            toMessage.NMSTimeToLive = fromMessage.NMSTimeToLive;
+
+            foreach ( String key in fromMessage.Properties.Keys )
+                toMessage.Properties[key] = fromMessage.Properties[key];
+        }
+
         #region Creation Methods and Conversion Support Methods
 
         protected abstract IMessage DoCreateMessage();
         protected abstract IBytesMessage DoCreateBytesMessage();
         protected abstract ITextMessage DoCreateTextMessage();
-        protected abstract IStreamMessage DoCreateStreamMessage();
+
         protected abstract IMapMessage DoCreateMapMessage();
-        protected abstract IObjectMessage DoCreateObjectMessage();
 
         protected abstract IDestination DoTransformDestination( IDestination destination );
         protected abstract void DoPostProcessMessage( IMessage message );

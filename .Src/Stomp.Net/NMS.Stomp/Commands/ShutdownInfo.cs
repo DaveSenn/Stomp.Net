@@ -14,10 +14,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the isShutdownInfo() query.
         /// </summery>
-        public override Boolean IsShutdownInfo
-        {
-            get { return true; }
-        }
+        public override Boolean IsShutdownInfo => true;
 
         #endregion
 

@@ -50,10 +50,7 @@ namespace Apache.NMS.Stomp.Transport
         /// <summary>
         ///     Property IsStarted
         /// </summary>
-        public Boolean IsStarted
-        {
-            get { return next.IsStarted; }
-        }
+        public Boolean IsStarted => next.IsStarted;
 
         /// <summary>
         ///     Method Start
@@ -95,15 +92,9 @@ namespace Apache.NMS.Stomp.Transport
         /// </summary>
         public Action<ITransport> Interrupted { get; set; }
 
-        public Boolean IsConnected
-        {
-            get { return next.IsConnected; }
-        }
+        public Boolean IsConnected => next.IsConnected;
 
-        public Boolean IsFaultTolerant
-        {
-            get { return next.IsFaultTolerant; }
-        }
+        public Boolean IsFaultTolerant => next.IsFaultTolerant;
 
         public Object Narrow( Type type )
             => GetType() == type ? this : next?.Narrow( type );
@@ -114,10 +105,7 @@ namespace Apache.NMS.Stomp.Transport
         /// <param name="command">A  Command</param>
         public virtual void Oneway( ICommand command ) => next.Oneway( command );
 
-        public Uri RemoteAddress
-        {
-            get { return next.RemoteAddress; }
-        }
+        public Uri RemoteAddress => next.RemoteAddress;
 
         /// <summary>
         ///     Method Request with time out for Response.

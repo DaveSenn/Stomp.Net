@@ -8,13 +8,9 @@ using System.Runtime.Serialization;
 namespace Apache.NMS
 {
     [Serializable]
-    public class IllegalStateException : NMSException
+    public class IllegalStateException : NmsException
     {
         #region Ctor
-
-        public IllegalStateException()
-        {
-        }
 
         public IllegalStateException( String message )
             : base( message )

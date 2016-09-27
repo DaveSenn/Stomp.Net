@@ -25,10 +25,7 @@ namespace Apache.NMS.Stomp.Transport
 
         public TimeSpan ResponseTimeout { get; set; } = TimeSpan.FromMilliseconds( Timeout.Infinite );
 
-        public WaitHandle AsyncWaitHandle
-        {
-            get { return _latch.AsyncWaitHandle; }
-        }
+        public WaitHandle AsyncWaitHandle => _latch.AsyncWaitHandle;
 
         public Response Response
         {
@@ -42,7 +39,7 @@ namespace Apache.NMS.Stomp.Transport
                 try
                 {
                     if ( !_latch.AwaitOperation( ResponseTimeout ) && _response == null )
-                        throw new RequestTimedOutException();
+                        throw new RequestTimedOutException( "Waiting for response timed out." );
                 }
                 catch ( RequestTimedOutException e )
                 {

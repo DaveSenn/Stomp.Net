@@ -24,16 +24,8 @@ namespace Apache.NMS.Stomp
             ProviderMinorVersion = asmName.Version.Minor;
             ProviderVersion = asmName.Version.ToString();
 
-            NMSXPropertyNames =
-                new[] { "NMSXGroupID", "NMSXGroupSeq", "NMSXDeliveryCount", "NMSXProducerTXID" };
+            NMSXPropertyNames = new[] { "NMSXGroupID", "NMSXGroupSeq", "NMSXDeliveryCount", "NMSXProducerTXID" };
 
-#if NETCF
-            this.nmsMajorVersion = 0;
-            this.nmsMinorVersion = 0;
-            this.nmsVersion = "Unknown";
-
-            return;
-#else
             foreach ( var name in self.GetReferencedAssemblies() )
                 if ( 0 == String.Compare( name.Name, "Apache.NMS", true ) )
                 {
@@ -44,8 +36,7 @@ namespace Apache.NMS.Stomp
                     return;
                 }
 
-            throw new NMSException( "Could not find a reference to the Apache.NMS Assembly." );
-#endif
+            throw new NmsException( "Could not find a reference to the Apache.NMS Assembly." );
         }
 
         #endregion

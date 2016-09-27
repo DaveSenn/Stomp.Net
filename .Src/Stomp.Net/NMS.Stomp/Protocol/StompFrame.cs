@@ -313,7 +313,7 @@ namespace Apache.NMS.Stomp.Protocol
             {
                 var nextChar = dataIn.Read();
                 if ( nextChar < 0 )
-                    throw new IOException( "Peer closed the stream." );
+                    throw new IoException( "Peer closed the stream." );
                 if ( nextChar == 10 )
                     break;
                 ms.WriteByte( (Byte) nextChar );

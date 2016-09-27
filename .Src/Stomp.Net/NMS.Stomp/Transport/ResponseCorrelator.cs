@@ -90,7 +90,7 @@ namespace Apache.NMS.Stomp.Transport
 
         public override void Stop()
         {
-            Dispose( new IOException( "Stopped" ) );
+            Dispose( new IoException( "Stopped" ) );
             base.Stop();
         }
 
@@ -116,10 +116,7 @@ namespace Apache.NMS.Stomp.Transport
                     }
                 }
                 else
-                {
-                    if ( Tracer.IsDebugEnabled )
-                        Tracer.Warn( "Unknown response ID: " + response.CommandId + " for response: " + response );
-                }
+                    Tracer.Warn( "Unknown response ID: " + response.CommandId + " for response: " + response );
             }
             else
             {

@@ -14,35 +14,23 @@ namespace Apache.NMS.Stomp
     {
         #region Fields
 
-        private readonly IDictionary consumers;
-        private readonly MessageDispatchChannel messageQueue = new MessageDispatchChannel();
+        private readonly IDictionary _consumers;
+        private readonly MessageDispatchChannel _messageQueue = new MessageDispatchChannel();
 
-        private readonly Session session;
-        private TaskRunner taskRunner;
+        private readonly Session _session;
+        private TaskRunner _taskRunner;
 
         #endregion
 
         #region Properties
 
-        public MessageDispatch[] UnconsumedMessages
-        {
-            get { return messageQueue.RemoveAll(); }
-        }
+        public MessageDispatch[] UnconsumedMessages => _messageQueue.RemoveAll();
 
-        public Boolean HasUncomsumedMessages
-        {
-            get { return !messageQueue.Closed && messageQueue.Running && !messageQueue.Empty; }
-        }
+        private Boolean HasUncomsumedMessages => !_messageQueue.Closed && _messageQueue.Running && !_messageQueue.Empty;
 
-        public Boolean Running
-        {
-            get { return messageQueue.Running; }
-        }
+        public Boolean Running => _messageQueue.Running;
 
-        public Boolean Empty
-        {
-            get { return messageQueue.Empty; }
-        }
+        public Boolean Empty => _messageQueue.Empty;
 
         #endregion
 
@@ -50,8 +38,8 @@ namespace Apache.NMS.Stomp
 
         public SessionExecutor( Session session, IDictionary consumers )
         {
-            this.session = session;
-            this.consumers = consumers;
+            _session = session;
+            _consumers = consumers;
         }
 
         #endregion
@@ -60,35 +48,90 @@ namespace Apache.NMS.Stomp
         {
             try
             {
-                lock ( consumers.SyncRoot )
-                    foreach ( MessageConsumer consumer in consumers.Values )
+                lock ( _consumers.SyncRoot )
+                    foreach ( MessageConsumer consumer in _consumers.Values )
                         if ( consumer.Iterate() )
                             return true;
 
                 // No messages left queued on the listeners.. so now dispatch messages
                 // queued on the session
-                var message = messageQueue.DequeueNoWait();
+                var message = _messageQueue.DequeueNoWait();
 
                 if ( message == null )
                     return false;
 
                 Dispatch( message );
-                return !messageQueue.Empty;
+                return !_messageQueue.Empty;
             }
             catch ( Exception ex )
             {
                 Tracer.WarnFormat( "Caught Exception While Dispatching: {0}", ex.Message );
-                session.Connection.OnSessionException( session, ex );
+                _session.Connection.OnSessionException( _session, ex );
             }
 
             return true;
         }
 
-        private void Clear() => messageQueue.Clear();
+        public void ClearMessagesInProgress() => _messageQueue.Clear();
 
-        public void ClearMessagesInProgress() => messageQueue.Clear();
+        public void Execute( MessageDispatch dispatch )
+        {
+            // Add the data to the queue.
+            _messageQueue.Enqueue( dispatch );
+            Wakeup();
+        }
 
-        private void Close() => messageQueue.Close();
+        public void ExecuteFirst( MessageDispatch dispatch )
+        {
+            // Add the data to the queue.
+            _messageQueue.EnqueueFirst( dispatch );
+            Wakeup();
+        }
+
+        public void Start()
+        {
+            if ( !_messageQueue.Running )
+            {
+                _messageQueue.Start();
+
+                if ( HasUncomsumedMessages )
+                    Wakeup();
+            }
+        }
+
+        public void Stop()
+        {
+            if ( _messageQueue.Running )
+            {
+                _messageQueue.Stop();
+                var taskRunner = _taskRunner;
+
+                if ( taskRunner != null )
+                {
+                    _taskRunner = null;
+                    taskRunner.Shutdown();
+                }
+            }
+        }
+
+        public void Wakeup()
+        {
+            var taskRunner = _taskRunner;
+
+            lock ( _messageQueue.SyncRoot )
+            {
+                if ( _taskRunner == null )
+                    _taskRunner = new DedicatedTaskRunner( this );
+
+                taskRunner = _taskRunner;
+            }
+
+            taskRunner.Wakeup();
+        }
+
+        private void Clear() => _messageQueue.Clear();
+
+        private void Close() => _messageQueue.Close();
 
         private void Dispatch( MessageDispatch dispatch )
         {
@@ -96,9 +139,9 @@ namespace Apache.NMS.Stomp
             {
                 MessageConsumer consumer = null;
 
-                lock ( consumers.SyncRoot )
-                    if ( consumers.Contains( dispatch.ConsumerId ) )
-                        consumer = consumers[dispatch.ConsumerId] as MessageConsumer;
+                lock ( _consumers.SyncRoot )
+                    if ( _consumers.Contains( dispatch.ConsumerId ) )
+                        consumer = _consumers[dispatch.ConsumerId] as MessageConsumer;
 
                 // If the consumer is not available, just ignore the message.
                 // Otherwise, dispatch the message to the consumer.
@@ -108,61 +151,6 @@ namespace Apache.NMS.Stomp
             {
                 Tracer.WarnFormat( "Caught Exception While Dispatching: {0}", ex.Message );
             }
-        }
-
-        public void Execute( MessageDispatch dispatch )
-        {
-            // Add the data to the queue.
-            messageQueue.Enqueue( dispatch );
-            Wakeup();
-        }
-
-        public void ExecuteFirst( MessageDispatch dispatch )
-        {
-            // Add the data to the queue.
-            messageQueue.EnqueueFirst( dispatch );
-            Wakeup();
-        }
-
-        public void Start()
-        {
-            if ( !messageQueue.Running )
-            {
-                messageQueue.Start();
-
-                if ( HasUncomsumedMessages )
-                    Wakeup();
-            }
-        }
-
-        public void Stop()
-        {
-            if ( messageQueue.Running )
-            {
-                messageQueue.Stop();
-                var taskRunner = this.taskRunner;
-
-                if ( taskRunner != null )
-                {
-                    this.taskRunner = null;
-                    taskRunner.Shutdown();
-                }
-            }
-        }
-
-        public void Wakeup()
-        {
-            var taskRunner = this.taskRunner;
-
-            lock ( messageQueue.SyncRoot )
-            {
-                if ( this.taskRunner == null )
-                    this.taskRunner = new DedicatedTaskRunner( this );
-
-                taskRunner = this.taskRunner;
-            }
-
-            taskRunner.Wakeup();
         }
 
         ~SessionExecutor()

@@ -43,7 +43,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotReadableException">
         ///     Thrown when the Message is in write-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         Int64 BodyLength { get; }
@@ -59,10 +59,10 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotReadableException">
         ///     Thrown when the Message is in write-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.MessageEOFException">
+        /// <exception cref="MessageEofException">
         ///     Thrown when an unexpected end of bytes has been reached.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         Boolean ReadBoolean();
@@ -76,10 +76,10 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotReadableException">
         ///     Thrown when the Message is in write-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.MessageEOFException">
+        /// <exception cref="MessageEofException">
         ///     Thrown when an unexpected end of bytes has been reached.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         Byte ReadByte();
@@ -102,7 +102,7 @@ namespace Apache.NMS
         ///     The number of bytes read into the passed byte array, or -1 if there are no more
         ///     bytes left to be read from the stream.
         /// </returns>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         /// <exception cref="Apache.NMS.MessageNotReadableException">
@@ -138,7 +138,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotReadableException">
         ///     Thrown when the Message is in write-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         Int32 ReadBytes( Byte[] value, Int32 length );
@@ -152,10 +152,10 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotReadableException">
         ///     Thrown when the Message is in write-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.MessageEOFException">
+        /// <exception cref="MessageEofException">
         ///     Thrown when an unexpected end of bytes has been reached.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         Char ReadChar();
@@ -169,10 +169,10 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotReadableException">
         ///     Thrown when the Message is in write-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.MessageEOFException">
+        /// <exception cref="MessageEofException">
         ///     Thrown when an unexpected end of bytes has been reached.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         Double ReadDouble();
@@ -186,10 +186,10 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotReadableException">
         ///     Thrown when the Message is in write-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.MessageEOFException">
+        /// <exception cref="MessageEofException">
         ///     Thrown when an unexpected end of bytes has been reached.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         Int16 ReadInt16();
@@ -203,10 +203,10 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotReadableException">
         ///     Thrown when the Message is in write-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.MessageEOFException">
+        /// <exception cref="MessageEofException">
         ///     Thrown when an unexpected end of bytes has been reached.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         Int32 ReadInt32();
@@ -220,10 +220,10 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotReadableException">
         ///     Thrown when the Message is in write-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.MessageEOFException">
+        /// <exception cref="MessageEofException">
         ///     Thrown when an unexpected end of bytes has been reached.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         Int64 ReadInt64();
@@ -237,10 +237,10 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotReadableException">
         ///     Thrown when the Message is in write-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.MessageEOFException">
+        /// <exception cref="MessageEofException">
         ///     Thrown when an unexpected end of bytes has been reached.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         Single ReadSingle();
@@ -255,10 +255,10 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotReadableException">
         ///     Thrown when the Message is in write-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.MessageEOFException">
+        /// <exception cref="MessageEofException">
         ///     Thrown when an unexpected end of bytes has been reached.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         String ReadString();
@@ -269,7 +269,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageFormatException">
         ///     Thrown when the Message has an invalid format.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         void Reset();
@@ -284,7 +284,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotWriteableException">
         ///     Thrown when the Message is in read-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         void WriteBoolean( Boolean value );
@@ -298,7 +298,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotWriteableException">
         ///     Thrown when the Message is in read-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         void WriteByte( Byte value );
@@ -312,7 +312,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotWriteableException">
         ///     Thrown when the Message is in read-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         void WriteBytes( Byte[] value );
@@ -332,7 +332,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotWriteableException">
         ///     Thrown when the Message is in read-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         void WriteBytes( Byte[] value, Int32 offset, Int32 length );
@@ -347,7 +347,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotWriteableException">
         ///     Thrown when the Message is in read-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         void WriteChar( Char value );
@@ -362,7 +362,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotWriteableException">
         ///     Thrown when the Message is in read-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         void WriteDouble( Double value );
@@ -377,7 +377,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotWriteableException">
         ///     Thrown when the Message is in read-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         void WriteInt16( Int16 value );
@@ -392,7 +392,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotWriteableException">
         ///     Thrown when the Message is in read-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         void WriteInt32( Int32 value );
@@ -407,7 +407,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotWriteableException">
         ///     Thrown when the Message is in read-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         void WriteInt64( Int64 value );
@@ -427,7 +427,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotWriteableException">
         ///     Thrown when the Message is in read-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         void WriteObject( Object value );
@@ -442,7 +442,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotWriteableException">
         ///     Thrown when the Message is in read-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         void WriteSingle( Single value );
@@ -457,7 +457,7 @@ namespace Apache.NMS
         /// <exception cref="Apache.NMS.MessageNotWriteableException">
         ///     Thrown when the Message is in read-only mode.
         /// </exception>
-        /// <exception cref="Apache.NMS.NMSException">
+        /// <exception cref="NmsException">
         ///     Thrown when there is an unhandled exception thrown from the provider.
         /// </exception>
         void WriteString( String value );

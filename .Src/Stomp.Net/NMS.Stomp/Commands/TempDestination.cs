@@ -55,11 +55,6 @@ namespace Apache.NMS.Stomp.Commands
         /// <param name="name">A  String</param>
         public override Destination CreateDestination( String name ) => null;
 
-        public void Delete()
-        {
-            throw new NotSupportedException( "Stomp Cannot Delete Temporary Destinations" );
-        }
-
         public override Byte GetDataStructureType() => ID_ActiveMQTempDestination;
 
         /// <summary>

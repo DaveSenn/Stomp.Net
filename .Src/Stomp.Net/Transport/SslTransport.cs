@@ -115,7 +115,7 @@ namespace Stomp.Net
                     else if ( String.Compare( _stompConnectionSettings.TransportSettings.SslSettings.KeyStoreLocation, "LocalMachine", StringComparison.OrdinalIgnoreCase ) == 0 )
                         location = StoreLocation.LocalMachine;
                     else
-                        throw new NMSException( "Invalid StoreLocation given on URI" );
+                        throw new NmsException( "Invalid StoreLocation given on URI" );
 
                 var store = new X509Store( name, location );
                 store.Open( OpenFlags.ReadOnly );

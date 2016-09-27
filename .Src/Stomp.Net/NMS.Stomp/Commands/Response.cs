@@ -15,10 +15,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the isResponse() query.
         /// </summery>
-        public override Boolean IsResponse
-        {
-            get { return true; }
-        }
+        public override Boolean IsResponse => true;
 
         #endregion
 

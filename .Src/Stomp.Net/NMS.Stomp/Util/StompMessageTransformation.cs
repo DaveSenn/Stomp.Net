@@ -1,6 +1,5 @@
 #region Usings
 
-using System;
 using Apache.NMS.Stomp.Commands;
 using Apache.NMS.Util;
 
@@ -12,7 +11,7 @@ namespace Apache.NMS.Stomp
     {
         #region Fields
 
-        private readonly Connection connection;
+        private readonly Connection _connection;
 
         #endregion
 
@@ -20,7 +19,7 @@ namespace Apache.NMS.Stomp
 
         public StompMessageTransformation( Connection connection )
         {
-            this.connection = connection;
+            _connection = connection;
         }
 
         #endregion
@@ -29,43 +28,30 @@ namespace Apache.NMS.Stomp
 
         protected override IMessage DoCreateMessage()
         {
-            var message = new Message();
-            message.Connection = connection;
+            var message = new Message { Connection = _connection };
             return message;
         }
 
         protected override IBytesMessage DoCreateBytesMessage()
         {
-            var message = new BytesMessage();
-            message.Connection = connection;
+            var message = new BytesMessage { Connection = _connection };
             return message;
         }
 
         protected override ITextMessage DoCreateTextMessage()
         {
-            var message = new TextMessage();
-            message.Connection = connection;
+            var message = new TextMessage { Connection = _connection };
             return message;
-        }
-
-        protected override IStreamMessage DoCreateStreamMessage()
-        {
-            throw new NotSupportedException( "Stomp Cannot process Stream Messages" );
         }
 
         protected override IMapMessage DoCreateMapMessage()
         {
-            var message = new MapMessage();
-            message.Connection = connection;
+            var message = new MapMessage { Connection = _connection };
             return message;
         }
 
-        protected override IObjectMessage DoCreateObjectMessage()
-        {
-            throw new NotSupportedException( "Stomp Cannot process Object Messages" );
-        }
-
-        protected override IDestination DoTransformDestination( IDestination destination ) => Destination.Transform( destination );
+        protected override IDestination DoTransformDestination( IDestination destination )
+            => Destination.Transform( destination );
 
         protected override void DoPostProcessMessage( IMessage message )
         {

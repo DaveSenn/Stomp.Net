@@ -44,7 +44,7 @@ namespace Stomp.Net.Example.Producer
 
             IDestination destinationQueue = session.GetQueue( Destination );
             var producer = session.CreateProducer( destinationQueue );
-            producer.DeliveryMode = MsgDeliveryMode.NonPersistent;
+            producer.DeliveryMode = MessageDeliveryMode.NonPersistent;
 
             var message = session.CreateTextMessage( RandomValueEx.GetRandomString() );
             producer.Send( message );
