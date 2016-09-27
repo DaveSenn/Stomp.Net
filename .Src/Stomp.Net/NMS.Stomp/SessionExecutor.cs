@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Linq;
 using Apache.NMS.Stomp.Commands;
 using Apache.NMS.Stomp.Threads;
 using Apache.NMS.Stomp.Util;
@@ -49,9 +50,9 @@ namespace Apache.NMS.Stomp
             try
             {
                 lock ( _consumers.SyncRoot )
-                    foreach ( MessageConsumer consumer in _consumers.Values )
-                        if ( consumer.Iterate() )
-                            return true;
+                    if ( _consumers.Values.Cast<MessageConsumer>()
+                                   .Any( consumer => consumer.Iterate() ) )
+                        return true;
 
                 // No messages left queued on the listeners.. so now dispatch messages
                 // queued on the session
@@ -90,33 +91,30 @@ namespace Apache.NMS.Stomp
 
         public void Start()
         {
-            if ( !_messageQueue.Running )
-            {
-                _messageQueue.Start();
+            if ( _messageQueue.Running )
+                return;
+            _messageQueue.Start();
 
-                if ( HasUncomsumedMessages )
-                    Wakeup();
-            }
+            if ( HasUncomsumedMessages )
+                Wakeup();
         }
 
         public void Stop()
         {
-            if ( _messageQueue.Running )
-            {
-                _messageQueue.Stop();
-                var taskRunner = _taskRunner;
+            if ( !_messageQueue.Running )
+                return;
+            _messageQueue.Stop();
+            var taskRunner = _taskRunner;
 
-                if ( taskRunner != null )
-                {
-                    _taskRunner = null;
-                    taskRunner.Shutdown();
-                }
-            }
+            if ( taskRunner == null )
+                return;
+            _taskRunner = null;
+            taskRunner.Shutdown();
         }
 
         public void Wakeup()
         {
-            var taskRunner = _taskRunner;
+            ITaskRunner taskRunner;
 
             lock ( _messageQueue.SyncRoot )
             {
@@ -163,6 +161,7 @@ namespace Apache.NMS.Stomp
             }
             catch
             {
+                // ignored
             }
         }
     }

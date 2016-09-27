@@ -31,16 +31,21 @@ namespace Apache.NMS.Policies
         ///     Gets the random number generator.
         /// </summary>
         /// <value>The random number generator.</value>
-        protected static Random RandomNumberGenerator
+        private static Random RandomNumberGenerator
         {
             get
             {
-                if ( _randomNumberGenerator == null )
-                    lock ( SyncObject )
-                        if ( _randomNumberGenerator == null )
-                            _randomNumberGenerator = new Random( DateTime.Now.Second );
+                if ( _randomNumberGenerator != null )
+                    return _randomNumberGenerator;
 
-                return _randomNumberGenerator;
+                lock ( SyncObject )
+                {
+                    if ( _randomNumberGenerator != null )
+                        return _randomNumberGenerator;
+
+                    // ReSharper disable once PossibleMultipleWriteAccessInDoubleCheckLocking
+                    return _randomNumberGenerator = new Random( DateTime.Now.Second );
+                }
             }
         }
 
@@ -48,7 +53,7 @@ namespace Apache.NMS.Policies
         ///     Gets the next boolean
         /// </summary>
         /// <value><c>true</c> if [next bool]; otherwise, <c>false</c>.</value>
-        protected static Boolean NextBool
+        private static Boolean NextBool
         {
             get
             {
@@ -65,7 +70,8 @@ namespace Apache.NMS.Policies
         /// <summery>
         ///     Clone this object and return a new instance that the caller now owns.
         /// </summery>
-        public Object Clone() => MemberwiseClone();
+        public Object Clone()
+            => MemberwiseClone();
 
         #region IRedeliveryPolicy Members
 
@@ -83,7 +89,7 @@ namespace Apache.NMS.Policies
 
         public virtual Int32 RedeliveryDelay( Int32 redeliveredCounter )
         {
-            var delay = 0;
+            Int32 delay;
 
             if ( redeliveredCounter == 0 )
                 return 0;
@@ -93,12 +99,11 @@ namespace Apache.NMS.Policies
             else
                 delay = InitialRedeliveryDelay;
 
-            if ( UseCollisionAvoidance )
-            {
-                var random = RandomNumberGenerator;
-                var variance = ( NextBool ? _collisionAvoidanceFactor : _collisionAvoidanceFactor *= -1 ) * random.NextDouble();
-                delay += Convert.ToInt32( Convert.ToDouble( delay ) * variance );
-            }
+            if ( !UseCollisionAvoidance )
+                return delay;
+            var random = RandomNumberGenerator;
+            var variance = ( NextBool ? _collisionAvoidanceFactor : _collisionAvoidanceFactor *= -1 ) * random.NextDouble();
+            delay += Convert.ToInt32( Convert.ToDouble( delay ) * variance );
 
             return delay;
         }

@@ -50,11 +50,10 @@ namespace Apache.NMS.Stomp.Commands
         {
             base.BeforeMarshall( wireFormat );
 
-            if ( Content == null && _text != null )
-            {
-                Content = wireFormat.Encoder.GetBytes( _text );
-                _text = null;
-            }
+            if ( Content != null || _text == null )
+                return;
+            Content = wireFormat.Encoder.GetBytes( _text );
+            _text = null;
         }
 
         public override Byte GetDataStructureType() => DataStructureTypes.TextMessageType;

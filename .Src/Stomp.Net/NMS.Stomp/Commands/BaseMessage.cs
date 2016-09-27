@@ -47,11 +47,11 @@ namespace Apache.NMS.Stomp.Commands
         public String Type { get; set; }
 
         public Byte[] Content { get; set; }
-        
+
         public ConsumerId TargetConsumerId { get; set; }
 
         public Int32 RedeliveryCounter { get; set; }
-        
+
         public virtual Boolean ReadOnlyBody { get; set; }
 
         /// <summery>

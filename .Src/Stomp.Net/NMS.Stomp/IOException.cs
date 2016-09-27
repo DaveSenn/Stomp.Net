@@ -9,6 +9,7 @@ namespace Apache.NMS.Stomp
     /// <summary>
     ///     Exception thrown when an IO error occurs
     /// </summary>
+    [Serializable]
     public class IoException : NmsException
     {
         #region Ctor

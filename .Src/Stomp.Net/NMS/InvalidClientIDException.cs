@@ -8,26 +8,26 @@ using System.Runtime.Serialization;
 namespace Apache.NMS
 {
     [Serializable]
-    public class InvalidClientIDException : NmsException
+    public class InvalidClientIdException : NmsException
     {
         #region Ctor
 
-        public InvalidClientIDException( String message )
+        public InvalidClientIdException( String message )
             : base( message )
         {
         }
 
-        public InvalidClientIDException( String message, String errorCode )
+        public InvalidClientIdException( String message, String errorCode )
             : base( message, errorCode )
         {
         }
 
-        public InvalidClientIDException( String message, Exception innerException )
+        public InvalidClientIdException( String message, Exception innerException )
             : base( message, innerException )
         {
         }
 
-        public InvalidClientIDException( String message, String errorCode, Exception innerException )
+        public InvalidClientIdException( String message, String errorCode, Exception innerException )
             : base( message, errorCode, innerException )
         {
         }
@@ -44,7 +44,7 @@ namespace Apache.NMS
         /// </summary>
         /// <param name="info">The SerializationInfo that holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">The StreamingContext that contains contextual information about the source or destination.</param>
-        protected InvalidClientIDException( SerializationInfo info, StreamingContext context )
+        protected InvalidClientIdException( SerializationInfo info, StreamingContext context )
             : base( info, context )
         {
         }

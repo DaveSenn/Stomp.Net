@@ -16,22 +16,22 @@ namespace Apache.NMS.Stomp
     {
         #region Fields
 
-        private readonly Object closedLock = new Object();
-        private readonly ProducerInfo info;
+        private readonly Object _closedLock = new Object();
+        private readonly ProducerInfo _info;
 
-        private readonly MessageTransformation messageTransformation;
-        private Boolean closed;
-        protected Boolean disposed;
+        private readonly MessageTransformation _messageTransformation;
+        private Boolean _closed;
+        private Boolean _disposed;
 
-        private Int32 producerSequenceId;
+        private Int32 _producerSequenceId;
 
-        private Session session;
+        private Session _session;
 
         #endregion
 
         #region Properties
 
-        public ProducerId ProducerId => info.ProducerId;
+        public ProducerId ProducerId => _info.ProducerId;
 
         #endregion
 
@@ -39,10 +39,10 @@ namespace Apache.NMS.Stomp
 
         public MessageProducer( Session session, ProducerInfo info )
         {
-            this.session = session;
-            this.info = info;
+            _session = session;
+            _info = info;
             RequestTimeout = session.RequestTimeout;
-            messageTransformation = session.Connection.MessageTransformation;
+            _messageTransformation = session.Connection.MessageTransformation;
         }
 
         #endregion
@@ -55,19 +55,19 @@ namespace Apache.NMS.Stomp
 
         public void Close()
         {
-            lock ( closedLock )
+            lock ( _closedLock )
             {
-                if ( closed )
+                if ( _closed )
                     return;
 
                 DoClose();
-                session = null;
+                _session = null;
             }
         }
 
         public MessageDeliveryMode DeliveryMode { get; set; } = NmsConstants.DefaultDeliveryMode;
 
-        public Boolean DisableMessageID { get; set; } = false;
+        public Boolean DisableMessageId { get; set; } = false;
 
         public Boolean DisableMessageTimestamp { get; set; } = false;
 
@@ -77,41 +77,41 @@ namespace Apache.NMS.Stomp
 
         public TimeSpan RequestTimeout { get; set; }
 
-        public void Send( IMessage message ) => Send( info.Destination, message, DeliveryMode, Priority, TimeToLive );
+        public void Send( IMessage message ) => Send( _info.Destination, message, DeliveryMode, Priority, TimeToLive );
 
         public void Send( IDestination destination, IMessage message ) => Send( destination, message, DeliveryMode, Priority, TimeToLive );
 
         public void Send( IMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive )
-            => Send( info.Destination, message, deliveryMode, priority, timeToLive );
+            => Send( _info.Destination, message, deliveryMode, priority, timeToLive );
 
         public void Send( IDestination destination, IMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive )
         {
             if ( null == destination )
             {
                 // See if this producer was created without a destination.
-                if ( null == info.Destination )
+                if ( null == _info.Destination )
                     throw new NotSupportedException();
 
                 throw new InvalidDestinationException(
-                    $"The producer was created with a destination, but an invalid destination was specified. => Destination: '{info.Destination}'" );
+                    $"The producer was created with a destination, but an invalid destination was specified. => Destination: '{_info.Destination}'" );
             }
 
-            Destination dest = null;
+            Destination dest;
 
-            if ( destination == info.Destination )
+            if ( Equals( destination, _info.Destination ) )
                 dest = destination as Destination;
-            else if ( info.Destination == null )
+            else if ( _info.Destination == null )
                 dest = Destination.Transform( destination );
             else
-                throw new NotSupportedException( "This producer can only send messages to: " + info.Destination.PhysicalName );
+                throw new NotSupportedException( "This producer can only send messages to: " + _info.Destination.PhysicalName );
 
-            var transformed = ProducerTransformer?.Invoke( session, this, message );
+            var transformed = ProducerTransformer?.Invoke( _session, this, message );
             if ( transformed != null )
                 message = transformed;
 
-            var stompMessage = messageTransformation.TransformMessage<Message>( message );
+            var stompMessage = _messageTransformation.TransformMessage<Message>( message );
 
-            stompMessage.ProducerId = info.ProducerId;
+            stompMessage.ProducerId = _info.ProducerId;
             stompMessage.FromDestination = dest;
             stompMessage.NmsDeliveryMode = deliveryMode;
             stompMessage.NmsPriority = priority;
@@ -119,8 +119,8 @@ namespace Apache.NMS.Stomp
             // Always set the message Id regardless of the disable flag.
             var id = new MessageId
             {
-                ProducerId = info.ProducerId,
-                ProducerSequenceId = Interlocked.Increment( ref producerSequenceId )
+                ProducerId = _info.ProducerId,
+                ProducerSequenceId = Interlocked.Increment( ref _producerSequenceId )
             };
             stompMessage.MessageId = id;
 
@@ -130,11 +130,11 @@ namespace Apache.NMS.Stomp
             if ( timeToLive != TimeSpan.Zero )
                 stompMessage.NmsTimeToLive = timeToLive;
 
-            lock ( closedLock )
+            lock ( _closedLock )
             {
-                if ( closed )
+                if ( _closed )
                     throw new ConnectionClosedException();
-                session.DoSend( stompMessage, this, RequestTimeout );
+                _session.DoSend( stompMessage, this, RequestTimeout );
             }
         }
 
@@ -142,27 +142,27 @@ namespace Apache.NMS.Stomp
 
         internal void DoClose()
         {
-            lock ( closedLock )
+            lock ( _closedLock )
             {
-                if ( closed )
+                if ( _closed )
                     return;
 
                 try
                 {
-                    session.DisposeOf( info.ProducerId );
+                    _session.DisposeOf( _info.ProducerId );
                 }
                 catch ( Exception ex )
                 {
                     Tracer.ErrorFormat( "Error during producer close: {0}", ex );
                 }
 
-                closed = true;
+                _closed = true;
             }
         }
 
         private void Dispose( Boolean disposing )
         {
-            if ( disposed )
+            if ( _disposed )
                 return;
 
             if ( disposing )
@@ -179,7 +179,7 @@ namespace Apache.NMS.Stomp
                 // Ignore network errors.
             }
 
-            disposed = true;
+            _disposed = true;
         }
 
         ~MessageProducer()
@@ -189,16 +189,20 @@ namespace Apache.NMS.Stomp
 
         #region Message Creation Factory Methods.
 
-        public IMessage CreateMessage() => session.CreateMessage();
+        public IMessage CreateMessage() 
+            => _session.CreateMessage();
 
-        public ITextMessage CreateTextMessage() => session.CreateTextMessage();
+        public ITextMessage CreateTextMessage()
+            => _session.CreateTextMessage();
 
-        public ITextMessage CreateTextMessage( String text ) => session.CreateTextMessage( text );
-        
+        public ITextMessage CreateTextMessage( String text ) 
+            => _session.CreateTextMessage( text );
 
-        public IBytesMessage CreateBytesMessage() => session.CreateBytesMessage();
+        public IBytesMessage CreateBytesMessage() 
+            => _session.CreateBytesMessage();
 
-        public IBytesMessage CreateBytesMessage( Byte[] body ) => session.CreateBytesMessage( body );
+        public IBytesMessage CreateBytesMessage( Byte[] body ) 
+            => _session.CreateBytesMessage( body );
 
         #endregion
     }

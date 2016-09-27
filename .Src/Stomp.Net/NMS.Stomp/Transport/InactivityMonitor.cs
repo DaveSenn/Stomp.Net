@@ -6,7 +6,6 @@ using Apache.NMS.Stomp.Commands;
 using Apache.NMS.Stomp.Protocol;
 using Apache.NMS.Stomp.Threads;
 using Apache.NMS.Stomp.Util;
-using Apache.NMS.Util;
 using Stomp.Net;
 using Stomp.Net.Utilities;
 
@@ -188,12 +187,11 @@ namespace Apache.NMS.Stomp.Transport
 
         protected override void OnException( ITransport sender, Exception command )
         {
-            if ( _failed.CompareAndSet( false, true ) && !_disposing )
-            {
-                Tracer.WarnFormat( "Exception received in the Inactivity Monitor: {0}", command.Message );
-                StopMonitorThreads();
-                base.OnException( sender, command );
-            }
+            if ( !_failed.CompareAndSet( false, true ) || _disposing )
+                return;
+            Tracer.WarnFormat( "Exception received in the Inactivity Monitor: {0}", command.Message );
+            StopMonitorThreads();
+            base.OnException( sender, command );
         }
 
         private void CheckConnection( Object state )
@@ -369,11 +367,11 @@ namespace Apache.NMS.Stomp.Transport
 
             public Boolean Iterate()
             {
-                if ( _pending.CompareAndSet( true, false ) && _parent._monitorStarted.Value )
-                {
-                    var ex = new IoException( "Channel was inactive for too long: " + _remote );
-                    _parent.OnException( _parent, ex );
-                }
+                if ( !_pending.CompareAndSet( true, false ) || !_parent._monitorStarted.Value )
+                    return _pending.Value;
+
+                var ex = new IoException( "Channel was inactive for too long: " + _remote );
+                _parent.OnException( _parent, ex );
 
                 return _pending.Value;
             }

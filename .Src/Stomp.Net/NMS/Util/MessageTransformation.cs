@@ -1,5 +1,9 @@
 #region Usings
 
+#endregion
+
+#region Usings
+
 using System;
 
 #endregion
@@ -21,16 +25,16 @@ namespace Apache.NMS.Util
             if ( message is IBytesMessage )
             {
                 var bytesMsg = message as IBytesMessage;
-                bytesMsg.Reset();
                 var msg = DoCreateBytesMessage();
 
                 try
                 {
-                    for ( ;; )
-                        msg.WriteByte( bytesMsg.ReadByte() );
+                    msg.Content = new Byte[bytesMsg.Content.Length];
+                    Array.Copy( bytesMsg.Content, msg.Content, bytesMsg.Content.Length );
                 }
                 catch
                 {
+                    // ignored
                 }
 
                 result = msg;
@@ -83,7 +87,7 @@ namespace Apache.NMS.Util
         protected abstract IMessage DoCreateMessage();
         protected abstract IBytesMessage DoCreateBytesMessage();
         protected abstract ITextMessage DoCreateTextMessage();
-        
+
         protected abstract IDestination DoTransformDestination( IDestination destination );
         protected abstract void DoPostProcessMessage( IMessage message );
 

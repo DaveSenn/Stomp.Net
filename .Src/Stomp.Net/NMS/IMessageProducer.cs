@@ -38,7 +38,7 @@ namespace Apache.NMS
 
         MessagePriority Priority { get; set; }
 
-        Boolean DisableMessageID { get; set; }
+        Boolean DisableMessageId { get; set; }
 
         Boolean DisableMessageTimestamp { get; set; }
 
@@ -85,7 +85,7 @@ namespace Apache.NMS
         ///     Creates a new text message with the given body
         /// </summary>
         ITextMessage CreateTextMessage( String text );
-        
+
         /// <summary>
         ///     Creates a new binary message
         /// </summary>

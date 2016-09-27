@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Apache.NMS.Stomp.Commands;
 using Apache.NMS.Stomp.Util;
@@ -85,7 +86,7 @@ namespace Apache.NMS.Stomp
 
         public void Dispatch( MessageDispatch dispatch )
         {
-            var listener = this.listener;
+            var listener = _listener;
 
             try
             {
@@ -139,11 +140,10 @@ namespace Apache.NMS.Stomp
                         }
                 }
 
-                if ( ++_dispatchedCount % 1000 == 0 )
-                {
-                    _dispatchedCount = 0;
-                    Thread.Sleep( 1 );
-                }
+                if ( ++_dispatchedCount % 1000 != 0 )
+                    return;
+                _dispatchedCount = 0;
+                Thread.Sleep( 1 );
             }
             catch ( Exception e )
             {
@@ -153,28 +153,24 @@ namespace Apache.NMS.Stomp
 
         public Boolean Iterate()
         {
-            if ( listener != null )
+            if ( _listener == null )
+                return false;
+            var dispatch = _unconsumedMessages.DequeueNoWait();
+            if ( dispatch == null )
+                return false;
+            try
             {
-                var dispatch = _unconsumedMessages.DequeueNoWait();
-                if ( dispatch != null )
-                {
-                    try
-                    {
-                        var message = CreateStompMessage( dispatch );
-                        BeforeMessageIsConsumed( dispatch );
-                        listener( message );
-                        AfterMessageIsConsumed( dispatch, false );
-                    }
-                    catch ( NmsException e )
-                    {
-                        _session.Connection.OnSessionException( _session, e );
-                    }
-
-                    return true;
-                }
+                var message = CreateStompMessage( dispatch );
+                BeforeMessageIsConsumed( dispatch );
+                _listener( message );
+                AfterMessageIsConsumed( dispatch, false );
+            }
+            catch ( NmsException e )
+            {
+                _session.Connection.OnSessionException( _session, e );
             }
 
-            return false;
+            return true;
         }
 
         public void Start()
@@ -284,9 +280,9 @@ namespace Apache.NMS.Stomp
                     _dispatchedMessages.Clear();
                 }
 
-            // Only redispatch if there's an async listener otherwise a synchronous
+            // Only redispatch if there's an async _listener otherwise a synchronous
             // consumer will pull them from the local queue.
-            if ( listener != null )
+            if ( _listener != null )
                 _session.Redispatch( _unconsumedMessages );
         }
 
@@ -322,13 +318,12 @@ namespace Apache.NMS.Stomp
             if ( oldPendingAck == null )
                 _pendingAck.FirstMessageId = _pendingAck.LastMessageId;
 
-            if ( 0.5 * ConsumerInfo.PrefetchSize <= _deliveredCounter - _additionalWindowSize )
-            {
-                _session.SendAck( _pendingAck );
-                _pendingAck = null;
-                _deliveredCounter = 0;
-                _additionalWindowSize = 0;
-            }
+            if ( !( 0.5 * ConsumerInfo.PrefetchSize <= _deliveredCounter - _additionalWindowSize ) )
+                return;
+            _session.SendAck( _pendingAck );
+            _pendingAck = null;
+            _deliveredCounter = 0;
+            _additionalWindowSize = 0;
         }
 
         private void AfterMessageIsConsumed( MessageDispatch dispatch, Boolean expired )
@@ -352,25 +347,25 @@ namespace Apache.NMS.Stomp
                 }
                 else if ( _session.IsAutoAcknowledge )
                 {
-                    if ( _deliveringAcks.CompareAndSet( false, true ) )
-                    {
-                        lock ( _dispatchedMessages )
-                            if ( _dispatchedMessages.Count > 0 )
+                    if ( !_deliveringAcks.CompareAndSet( false, true ) )
+                        return;
+                    lock ( _dispatchedMessages )
+                        if ( _dispatchedMessages.Count > 0 )
+                        {
+                            var ack = new MessageAck
                             {
-                                var ack = new MessageAck();
+                                AckType = (Byte) AckType.ConsumedAck,
+                                ConsumerId = ConsumerInfo.ConsumerId,
+                                Destination = dispatch.Destination,
+                                LastMessageId = dispatch.Message.MessageId,
+                                MessageCount = 1
+                            };
 
-                                ack.AckType = (Byte) AckType.ConsumedAck;
-                                ack.ConsumerId = ConsumerInfo.ConsumerId;
-                                ack.Destination = dispatch.Destination;
-                                ack.LastMessageId = dispatch.Message.MessageId;
-                                ack.MessageCount = 1;
+                            _session.SendAck( ack );
+                        }
 
-                                _session.SendAck( ack );
-                            }
-
-                        _deliveringAcks.Value = false;
-                        _dispatchedMessages.Clear();
-                    }
+                    _deliveringAcks.Value = false;
+                    _dispatchedMessages.Clear();
                 }
                 else if ( _session.IsClientAcknowledge || _session.IsIndividualAcknowledge )
                 {
@@ -400,8 +395,8 @@ namespace Apache.NMS.Stomp
 
         private void CheckMessageListener()
         {
-            if ( listener != null )
-                throw new NmsException( "Cannot perform a Synchronous Receive when there is a registered asynchronous listener." );
+            if ( _listener != null )
+                throw new NmsException( "Cannot perform a Synchronous Receive when there is a registered asynchronous _listener." );
         }
 
         private void Commit()
@@ -439,7 +434,7 @@ namespace Apache.NMS.Stomp
         ///     Used to get an enqueued message from the unconsumedMessages list. The
         ///     amount of time this method blocks is based on the timeout value.  if
         ///     timeout == Timeout.Infinite then it blocks until a message is received.
-        ///     if timeout == 0 then it it tries to not block at all, it returns a
+        ///     if timeout == 0 then it tries to not block at all, it returns a
         ///     message if it is available if timeout > 0 then it blocks up to timeout
         ///     amount of time.  Expired messages will consumed by this method.
         /// </summary>
@@ -469,7 +464,7 @@ namespace Apache.NMS.Stomp
                     else
                     {
                         if ( FailureError != null )
-                            throw ExceptionEx.Create( FailureError );
+                            throw FailureError.Create();
                         return null;
                     }
                 }
@@ -486,11 +481,12 @@ namespace Apache.NMS.Stomp
                     // Refresh the dispatch time
                     dispatchTime = DateTime.Now;
 
-                    if ( timeout > TimeSpan.Zero && !_unconsumedMessages.Closed )
-                        if ( dispatchTime > deadline )
-                            timeout = TimeSpan.Zero;
-                        else
-                            timeout = deadline - dispatchTime;
+                    if ( timeout <= TimeSpan.Zero || _unconsumedMessages.Closed )
+                        continue;
+                    if ( dispatchTime > deadline )
+                        timeout = TimeSpan.Zero;
+                    else
+                        timeout = deadline - dispatchTime;
                 }
                 else
                 {
@@ -510,13 +506,12 @@ namespace Apache.NMS.Stomp
             MessageDispatch dispatch = null;
 
             lock ( _dispatchedMessages )
-                foreach ( var originalDispatch in _dispatchedMessages )
-                    if ( originalDispatch.Message.MessageId.Equals( message.MessageId ) )
-                    {
-                        dispatch = originalDispatch;
-                        _dispatchedMessages.Remove( originalDispatch );
-                        break;
-                    }
+                foreach ( var originalDispatch in _dispatchedMessages.Where( originalDispatch => originalDispatch.Message.MessageId.Equals( message.MessageId ) ) )
+                {
+                    dispatch = originalDispatch;
+                    _dispatchedMessages.Remove( originalDispatch );
+                    break;
+                }
 
             if ( dispatch == null )
             {
@@ -539,8 +534,6 @@ namespace Apache.NMS.Stomp
         private static void DoNothingAcknowledge( Message message )
         {
         }
-
-        private event MessageListener listener;
 
         private MessageAck MakeAckForAllDeliveredMessages()
         {
@@ -594,15 +587,17 @@ namespace Apache.NMS.Stomp
 
         private Int32 PrefetchSize => ConsumerInfo.PrefetchSize;
 
-        private IRedeliveryPolicy RedeliveryPolicy { get; set; }
+        private IRedeliveryPolicy RedeliveryPolicy { get; }
 
-        private Boolean IgnoreExpiration { get; set; } = false;
+        private Boolean IgnoreExpiration { get; } = false;
 
         #endregion
 
         #region IMessageConsumer Members
 
         public ConsumerTransformerDelegate ConsumerTransformer { get; set; }
+
+        private event MessageListener _listener;
 
         public event MessageListener Listener
         {
@@ -618,13 +613,13 @@ namespace Apache.NMS.Stomp
                 if ( wasStarted )
                     _session.Stop();
 
-                listener += value;
+                _listener += value;
                 _session.Redispatch( _unconsumedMessages );
 
                 if ( wasStarted )
                     _session.Start();
             }
-            remove { listener -= value; }
+            remove { _listener -= value; }
         }
 
         public IMessage Receive()

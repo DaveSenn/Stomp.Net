@@ -43,38 +43,6 @@ namespace Apache.NMS
         void Close();
 
         /// <summary>
-        ///     Creates a QueueBrowser object to peek at the messages on the specified queue.
-        /// </summary>
-        /// <param name="queue">
-        ///     A <see cref="IQueue" />
-        /// </param>
-        /// <returns>
-        ///     A <see cref="IQueueBrowser" />
-        /// </returns>
-        /// <exception cref="System.NotSupportedException">
-        ///     If the provider does not support creation of Queue Browsers.
-        /// </exception>
-        IQueueBrowser CreateBrowser( IQueue queue );
-
-        /// <summary>
-        ///     Creates a QueueBrowser object to peek at the messages on the specified queue
-        ///     using a message selector.
-        /// </summary>
-        /// <param name="queue">
-        ///     A <see cref="IQueue" />
-        /// </param>
-        /// <param name="selector">
-        ///     A <see cref="System.String" />
-        /// </param>
-        /// <returns>
-        ///     A <see cref="IQueueBrowser" />
-        /// </returns>
-        /// <exception cref="System.NotSupportedException">
-        ///     If the provider does not support creation of Queue Browsers.
-        /// </exception>
-        IQueueBrowser CreateBrowser( IQueue queue, String selector );
-
-        /// <summary>
         ///     Creates a new binary message
         /// </summary>
         IBytesMessage CreateBytesMessage();
@@ -103,7 +71,7 @@ namespace Apache.NMS
         ///     Creates a named durable consumer of messages on a given destination with a selector
         /// </summary>
         IMessageConsumer CreateDurableConsumer( ITopic destination, String name, String selector, Boolean noLocal );
-        
+
         // Factory methods to create messages
 
         /// <summary>

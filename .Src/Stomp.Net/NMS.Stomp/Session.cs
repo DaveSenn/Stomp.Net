@@ -21,28 +21,29 @@ namespace Apache.NMS.Stomp
     {
         #region Fields
 
+        private readonly IDictionary _consumers = Hashtable.Synchronized( new Hashtable() );
+
+        private readonly SessionInfo _info;
+
+        /// <summary>
+        ///     Private object used for synchronization, instead of public "this"
+        /// </summary>
+        private readonly Object _myLock = new Object();
+
+        private readonly IDictionary _producers = Hashtable.Synchronized( new Hashtable() );
+
         /// <summary>
         ///     Stores the STOMP connections settings.
         /// </summary>
         private readonly StompConnectionSettings _stompConnectionSettings;
 
-        private readonly IDictionary consumers = Hashtable.Synchronized( new Hashtable() );
+        private Boolean _closed;
+        private Boolean _closing;
+        private Int32 _consumerCounter;
 
-        private readonly SessionInfo info;
-
-        /// <summary>
-        ///     Private object used for synchronization, instead of public "this"
-        /// </summary>
-        private readonly Object myLock = new Object();
-
-        private readonly IDictionary producers = Hashtable.Synchronized( new Hashtable() );
-        private Boolean closed;
-        private Boolean closing;
-        private Int32 consumerCounter;
-
-        private Boolean disposed;
-        private Int32 nextDeliveryId;
-        private Int32 producerCounter;
+        private Boolean _disposed;
+        private Int32 _nextDeliveryId;
+        private Int32 _producerCounter;
 
         #endregion
 
@@ -60,7 +61,7 @@ namespace Apache.NMS.Stomp
             _stompConnectionSettings = stompConnectionSettings;
 
             Connection = connection;
-            this.info = info;
+            _info = info;
             AcknowledgementMode = acknowledgementMode;
 
             if ( acknowledgementMode == AcknowledgementMode.Transactional )
@@ -68,7 +69,7 @@ namespace Apache.NMS.Stomp
             else if ( acknowledgementMode == AcknowledgementMode.DupsOkAcknowledge )
                 AcknowledgementMode = AcknowledgementMode.AutoAcknowledge;
 
-            Executor = new SessionExecutor( this, consumers );
+            Executor = new SessionExecutor( this, _consumers );
         }
 
         #endregion
@@ -76,27 +77,17 @@ namespace Apache.NMS.Stomp
         public void Dispatch( MessageDispatch dispatch )
             => Executor?.Execute( dispatch );
 
-        public void AddConsumer( MessageConsumer consumer )
-        {
-            if ( !closing )
-            {
-                // Registered with Connection before we register at the broker.
-                consumers[consumer.ConsumerId] = consumer;
-                Connection.AddDispatcher( consumer.ConsumerId, this );
-            }
-        }
-
         public void DisposeOf( ConsumerId objectId )
         {
             Connection.RemoveDispatcher( objectId );
-            if ( !closing )
-                consumers.Remove( objectId );
+            if ( !_closing )
+                _consumers.Remove( objectId );
         }
 
         public void DisposeOf( ProducerId objectId )
         {
-            if ( !closing )
-                producers.Remove( objectId );
+            if ( !_closing )
+                _producers.Remove( objectId );
         }
 
         public void DoSend( Message message, MessageProducer producer, TimeSpan sendTimeout )
@@ -143,9 +134,9 @@ namespace Apache.NMS.Stomp
         public ConsumerId GetNextConsumerId()
         {
             var id = new ConsumerId();
-            id.ConnectionId = info.SessionId.ConnectionId;
-            id.SessionId = info.SessionId.Value;
-            id.Value = Interlocked.Increment( ref consumerCounter );
+            id.ConnectionId = _info.SessionId.ConnectionId;
+            id.SessionId = _info.SessionId.Value;
+            id.Value = Interlocked.Increment( ref _consumerCounter );
 
             return id;
         }
@@ -153,9 +144,9 @@ namespace Apache.NMS.Stomp
         public ProducerId GetNextProducerId()
         {
             var id = new ProducerId();
-            id.ConnectionId = info.SessionId.ConnectionId;
-            id.SessionId = info.SessionId.Value;
-            id.Value = Interlocked.Increment( ref producerCounter );
+            id.ConnectionId = _info.SessionId.ConnectionId;
+            id.SessionId = _info.SessionId.Value;
+            id.Value = Interlocked.Increment( ref _producerCounter );
 
             return id;
         }
@@ -163,13 +154,13 @@ namespace Apache.NMS.Stomp
         public void RemoveConsumer( MessageConsumer consumer )
         {
             Connection.RemoveDispatcher( consumer.ConsumerId );
-            if ( !closing )
-                consumers.Remove( consumer.ConsumerId );
+            if ( !_closing )
+                _consumers.Remove( consumer.ConsumerId );
         }
 
         public void Start()
         {
-            foreach ( MessageConsumer consumer in consumers.Values )
+            foreach ( MessageConsumer consumer in _consumers.Values )
                 consumer.Start();
 
             Executor?.Start();
@@ -187,8 +178,8 @@ namespace Apache.NMS.Stomp
 
         internal void Acknowledge()
         {
-            lock ( consumers.SyncRoot )
-                foreach ( MessageConsumer consumer in consumers.Values )
+            lock ( _consumers.SyncRoot )
+                foreach ( MessageConsumer consumer in _consumers.Values )
                     consumer.Acknowledge();
         }
 
@@ -199,8 +190,8 @@ namespace Apache.NMS.Stomp
             if ( Transacted )
                 TransactionContext.ResetTransactionInProgress();
 
-            lock ( consumers.SyncRoot )
-                foreach ( MessageConsumer consumer in consumers.Values )
+            lock ( _consumers.SyncRoot )
+                foreach ( MessageConsumer consumer in _consumers.Values )
                 {
                     consumer.InProgressClearRequired();
                     ThreadPool.QueueUserWorkItem( ClearMessages, consumer );
@@ -221,9 +212,19 @@ namespace Apache.NMS.Stomp
 
         internal void SendAck( MessageAck ack ) => SendAck( ack, false );
 
+        private void AddConsumer( MessageConsumer consumer )
+        {
+            if ( _closing )
+                return;
+
+            // Registered with Connection before we register at the broker.
+            _consumers[consumer.ConsumerId] = consumer;
+            Connection.AddDispatcher( consumer.ConsumerId, this );
+        }
+
         private void CheckClosed()
         {
-            if ( closed )
+            if ( _closed )
                 throw new IllegalStateException( "The Session is Closed" );
         }
 
@@ -339,7 +340,7 @@ namespace Apache.NMS.Stomp
 
         public Connection Connection { get; private set; }
 
-        public SessionId SessionId => info.SessionId;
+        public SessionId SessionId => _info.SessionId;
 
         public TransactionContext TransactionContext { get; }
 
@@ -365,7 +366,7 @@ namespace Apache.NMS.Stomp
 
         public SessionExecutor Executor { get; }
 
-        public Int64 NextDeliveryId => Interlocked.Increment( ref nextDeliveryId );
+        public Int64 NextDeliveryId => Interlocked.Increment( ref _nextDeliveryId );
 
         public ConsumerTransformerDelegate ConsumerTransformer { get; set; }
 
@@ -383,7 +384,7 @@ namespace Apache.NMS.Stomp
 
         protected void Dispose( Boolean disposing )
         {
-            if ( disposed )
+            if ( _disposed )
                 return;
 
             if ( disposing )
@@ -400,21 +401,21 @@ namespace Apache.NMS.Stomp
                 // Ignore network errors.
             }
 
-            disposed = true;
+            _disposed = true;
         }
 
         public void Close()
         {
-            lock ( myLock )
+            lock ( _myLock )
             {
-                if ( closed )
+                if ( _closed )
                     return;
 
                 try
                 {
-                    Tracer.InfoFormat( "Closing The Session with Id {0}", info.SessionId.ToString() );
+                    Tracer.InfoFormat( "Closing The Session with Id {0}", _info.SessionId.ToString() );
                     DoClose();
-                    Tracer.InfoFormat( "Closed The Session with Id {0}", info.SessionId.ToString() );
+                    Tracer.InfoFormat( "Closed The Session with Id {0}", _info.SessionId.ToString() );
                 }
                 catch ( Exception ex )
                 {
@@ -423,38 +424,38 @@ namespace Apache.NMS.Stomp
                 finally
                 {
                     Connection = null;
-                    closed = true;
-                    closing = false;
+                    _closed = true;
+                    _closing = false;
                 }
             }
         }
 
         internal void DoClose()
         {
-            lock ( myLock )
+            lock ( _myLock )
             {
-                if ( closed )
+                if ( _closed )
                     return;
 
                 try
                 {
-                    closing = true;
+                    _closing = true;
 
                     // Stop all message deliveries from this Session
                     Stop();
 
-                    lock ( consumers.SyncRoot )
-                        foreach ( MessageConsumer consumer in consumers.Values )
+                    lock ( _consumers.SyncRoot )
+                        foreach ( MessageConsumer consumer in _consumers.Values )
                         {
                             consumer.FailureError = Connection.FirstFailureError;
                             consumer.DoClose();
                         }
-                    consumers.Clear();
+                    _consumers.Clear();
 
-                    lock ( producers.SyncRoot )
-                        foreach ( MessageProducer producer in producers.Values )
+                    lock ( _producers.SyncRoot )
+                        foreach ( MessageProducer producer in _producers.Values )
                             producer.DoClose();
-                    producers.Clear();
+                    _producers.Clear();
 
                     // If in a transaction roll it back
                     if ( IsTransacted && TransactionContext.InTransaction )
@@ -464,6 +465,7 @@ namespace Apache.NMS.Stomp
                         }
                         catch
                         {
+                            // ignored
                         }
 
                     Connection.RemoveSession( this );
@@ -474,8 +476,8 @@ namespace Apache.NMS.Stomp
                 }
                 finally
                 {
-                    closed = true;
-                    closing = false;
+                    _closed = true;
+                    _closing = false;
                 }
             }
         }
@@ -491,7 +493,7 @@ namespace Apache.NMS.Stomp
             try
             {
                 producer = new MessageProducer( this, command ) { ProducerTransformer = ProducerTransformer };
-                producers[producerId] = producer;
+                _producers[producerId] = producer;
             }
             catch ( Exception )
             {
@@ -536,11 +538,10 @@ namespace Apache.NMS.Stomp
             }
             catch ( Exception )
             {
-                if ( consumer != null )
-                {
-                    RemoveConsumer( consumer );
-                    consumer.Close();
-                }
+                if ( consumer == null )
+                    throw;
+                RemoveConsumer( consumer );
+                consumer.Close();
 
                 throw;
             }
@@ -568,11 +569,10 @@ namespace Apache.NMS.Stomp
             }
             catch ( Exception )
             {
-                if ( consumer != null )
-                {
-                    RemoveConsumer( consumer );
-                    consumer.Close();
-                }
+                if ( consumer == null )
+                    throw;
+                RemoveConsumer( consumer );
+                consumer.Close();
 
                 throw;
             }
@@ -587,16 +587,6 @@ namespace Apache.NMS.Stomp
             command.ClientId = Connection.ClientId;
             command.SubscriptionName = name;
             Connection.SyncRequest( command );
-        }
-
-        public IQueueBrowser CreateBrowser( IQueue queue )
-        {
-            throw new NotSupportedException( "Not supported with Stomp Protocol" );
-        }
-
-        public IQueueBrowser CreateBrowser( IQueue queue, String selector )
-        {
-            throw new NotSupportedException( "Not supported with Stomp Protocol" );
         }
 
         public IQueue GetQueue( String name ) => new Queue( name );
@@ -624,10 +614,7 @@ namespace Apache.NMS.Stomp
         }
 
         public IMessage CreateMessage()
-        {
-            var answer = new Message();
-            return ConfigureMessage( answer );
-        }
+            => ConfigureMessage( new Message() );
 
         public ITextMessage CreateTextMessage()
         {
@@ -640,7 +627,7 @@ namespace Apache.NMS.Stomp
             var answer = new TextMessage( text );
             return ConfigureMessage( answer ) as ITextMessage;
         }
-        
+
         public IBytesMessage CreateBytesMessage() => ConfigureMessage( new BytesMessage() ) as IBytesMessage;
 
         public IBytesMessage CreateBytesMessage( Byte[] body )
@@ -676,8 +663,8 @@ namespace Apache.NMS.Stomp
             if ( AcknowledgementMode == AcknowledgementMode.Transactional )
                 throw new IllegalStateException( "Cannot Recover a Transacted Session" );
 
-            lock ( consumers.SyncRoot )
-                foreach ( MessageConsumer consumer in consumers.Values )
+            lock ( _consumers.SyncRoot )
+                foreach ( MessageConsumer consumer in _consumers.Values )
                     consumer.Rollback();
         }
 

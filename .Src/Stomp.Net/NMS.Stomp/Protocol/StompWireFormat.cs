@@ -7,7 +7,7 @@ using System.IO;
 using System.Text;
 using Apache.NMS.Stomp.Commands;
 using Apache.NMS.Stomp.Transport;
-using Apache.NMS.Util;
+using Extend;
 using Stomp.Net;
 
 #endregion
@@ -28,10 +28,9 @@ namespace Apache.NMS.Stomp.Protocol
         #endregion
 
         #region Properties
-        
+
         public Encoding Encoder { get; set; } = new UTF8Encoding();
 
-        
         public Int32 MaxInactivityDuration { get; set; } = 30000;
 
         public Int32 MaxInactivityDurationInitialDelay { get; set; } = 0;
@@ -81,11 +80,10 @@ namespace Apache.NMS.Stomp.Protocol
             else if ( o is ICommand )
             {
                 var command = o as ICommand;
-                if ( command.ResponseRequired )
-                {
-                    var response = new Response { CorrelationId = command.CommandId };
-                    SendCommand( response );
-                }
+                if ( !command.ResponseRequired )
+                    return;
+                var response = new Response { CorrelationId = command.CommandId };
+                SendCommand( response );
             }
             else
             {
@@ -159,7 +157,7 @@ namespace Apache.NMS.Stomp.Protocol
             if ( frame.HasProperty( "version" ) )
             {
                 _remoteWireFormatInfo.Version = Single.Parse( frame.RemoveProperty( "version" ),
-                                                             CultureInfo.InvariantCulture );
+                                                              CultureInfo.InvariantCulture );
                 if ( _remoteWireFormatInfo.Version > 1.0f )
                     _encodeHeaders = true;
 
@@ -268,7 +266,7 @@ namespace Apache.NMS.Stomp.Protocol
                 Transport.Command( Transport, command );
         }
 
-        protected virtual String ToString( Object value ) 
+        protected virtual String ToString( Object value )
             => value?.ToString();
 
         protected virtual void WriteConnectionInfo( ConnectionInfo command, BinaryWriter dataOut )
@@ -277,9 +275,9 @@ namespace Apache.NMS.Stomp.Protocol
             var frame = new StompFrame( "CONNECT", _encodeHeaders );
 
             frame.SetProperty( "client-id", command.ClientId );
-            if ( !String.IsNullOrEmpty( command.UserName ) )
+            if ( command.UserName.IsNotEmpty() )
                 frame.SetProperty( "login", command.UserName );
-            if ( !String.IsNullOrEmpty( command.Password ) )
+            if ( command.Password.IsNotEmpty() )
                 frame.SetProperty( "passcode", command.Password );
             frame.SetProperty( "host", command.Host );
             frame.SetProperty( "accept-version", "1.0,1.1" );
@@ -421,15 +419,14 @@ namespace Apache.NMS.Stomp.Protocol
             var frame = new StompFrame( "UNSUBSCRIBE", _encodeHeaders );
             Object id = command.ObjectId;
 
-            if ( id is ConsumerId )
-            {
-                var consumerId = id as ConsumerId;
-                if ( command.ResponseRequired )
-                    frame.SetProperty( "receipt", command.CommandId );
-                frame.SetProperty( "id", consumerId.ToString() );
+            if ( !( id is ConsumerId ) )
+                return;
+            var consumerId = id as ConsumerId;
+            if ( command.ResponseRequired )
+                frame.SetProperty( "receipt", command.CommandId );
+            frame.SetProperty( "id", consumerId.ToString() );
 
-                frame.ToStream( dataOut );
-            }
+            frame.ToStream( dataOut );
         }
 
         protected virtual void WriteShutdownInfo( ShutdownInfo command, BinaryWriter dataOut )

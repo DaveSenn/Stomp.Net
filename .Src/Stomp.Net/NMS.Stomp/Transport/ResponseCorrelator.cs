@@ -74,18 +74,15 @@ namespace Apache.NMS.Stomp.Transport
             future.ResponseTimeout = timeout;
             var response = future.Response;
 
-            if ( response != null && response is ExceptionResponse )
-            {
-                var er = response as ExceptionResponse;
-                var brokerError = er.Exception;
+            if ( !( response is ExceptionResponse ) )
+                return response;
+            var er = response as ExceptionResponse;
+            var brokerError = er.Exception;
 
-                if ( brokerError == null )
-                    throw new BrokerException();
+            if ( brokerError == null )
+                throw new BrokerException();
 
-                throw new BrokerException( brokerError );
-            }
-
-            return response;
+            throw new BrokerException( brokerError );
         }
 
         public override void Stop()
@@ -107,13 +104,12 @@ namespace Apache.NMS.Stomp.Transport
                     _requestMap.Remove( correlationId );
                     future.Response = response;
 
-                    if ( response is ExceptionResponse )
-                    {
-                        var er = response as ExceptionResponse;
-                        var brokerError = er.Exception;
-                        var exception = new BrokerException( brokerError );
-                        Exception( this, exception );
-                    }
+                    if ( !( response is ExceptionResponse ) )
+                        return;
+                    var er = response as ExceptionResponse;
+                    var brokerError = er.Exception;
+                    var exception = new BrokerException( brokerError );
+                    Exception( this, exception );
                 }
                 else
                     Tracer.Warn( "Unknown response ID: " + response.CommandId + " for response: " + response );
@@ -142,13 +138,14 @@ namespace Apache.NMS.Stomp.Transport
                     _requestMap.Clear();
                 }
 
-            if ( requests != null )
-                foreach ( FutureResponse future in requests )
-                {
-                    var brError = new BrokerError { Message = error.Message };
-                    var response = new ExceptionResponse { Exception = brError };
-                    future.Response = response;
-                }
+            if ( requests == null )
+                return;
+            foreach ( FutureResponse future in requests )
+            {
+                var brError = new BrokerError { Message = error.Message };
+                var response = new ExceptionResponse { Exception = brError };
+                future.Response = response;
+            }
         }
 
         private Int32 GetNextCommandId()

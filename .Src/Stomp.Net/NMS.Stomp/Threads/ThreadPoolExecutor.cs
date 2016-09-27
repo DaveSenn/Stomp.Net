@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Extend;
 
 #endregion
 
@@ -25,30 +26,20 @@ namespace Apache.NMS.Stomp.Threads
 
         #endregion
 
-        #region Properties
-
-        public Boolean IsShutdown { get; private set; }
-
-        #endregion
-
         public void QueueUserWorkItem( WaitCallback worker, Object arg )
         {
-            if ( worker == null )
-                throw new ArgumentNullException( "Invalid WaitCallback passed" );
+            worker.ThrowIfNull( nameof( worker ) );
 
-            if ( !IsShutdown )
-                lock ( _syncRoot )
-                    if ( !IsShutdown )
-                    {
-                        _workQueue.Enqueue( new Future( worker, arg ) );
+            lock ( _syncRoot )
+            {
+                _workQueue.Enqueue( new Future( worker, arg ) );
 
-                        if ( !_running )
-                        {
-                            _executionComplete.Reset();
-                            _running = true;
-                            ThreadPool.QueueUserWorkItem( QueueProcessor, null );
-                        }
-                    }
+                if ( _running )
+                    return;
+                _executionComplete.Reset();
+                _running = true;
+                ThreadPool.QueueUserWorkItem( QueueProcessor, null );
+            }
         }
 
         private void QueueProcessor( Object unused )
@@ -75,19 +66,6 @@ namespace Apache.NMS.Stomp.Threads
             {
                 ThreadPool.QueueUserWorkItem( QueueProcessor, null );
             }
-            /*
-            finally
-            {
-                if ( _closing )
-                {
-                    _running = false;
-                    _executionComplete.Set();
-                }
-                else
-                {
-                    ThreadPool.QueueUserWorkItem( QueueProcessor, null );
-                }
-            }*/
         }
 
         #region Nested Types

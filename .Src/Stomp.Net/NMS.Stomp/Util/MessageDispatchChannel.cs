@@ -13,30 +13,30 @@ namespace Apache.NMS.Stomp.Util
     {
         #region Fields
 
-        private readonly LinkedList<MessageDispatch> channel = new LinkedList<MessageDispatch>();
-        private readonly Mutex mutex = new Mutex();
-        private readonly ManualResetEvent waiter = new ManualResetEvent( false );
-        private Boolean closed;
-        private Boolean running;
+        private readonly LinkedList<MessageDispatch> _channel = new LinkedList<MessageDispatch>();
+        private readonly Mutex _mutex = new Mutex();
+        private readonly ManualResetEvent _waiter = new ManualResetEvent( false );
+        private Boolean _closed;
+        private Boolean _running;
 
         #endregion
 
         #region Properties
 
-        public Object SyncRoot => mutex;
+        public Object SyncRoot => _mutex;
 
         public Boolean Closed
         {
             get
             {
-                lock ( mutex )
-                    return closed;
+                lock ( _mutex )
+                    return _closed;
             }
 
             set
             {
-                lock ( mutex )
-                    closed = value;
+                lock ( _mutex )
+                    _closed = value;
             }
         }
 
@@ -44,14 +44,14 @@ namespace Apache.NMS.Stomp.Util
         {
             get
             {
-                lock ( mutex )
-                    return running;
+                lock ( _mutex )
+                    return _running;
             }
 
             set
             {
-                lock ( mutex )
-                    running = value;
+                lock ( _mutex )
+                    _running = value;
             }
         }
 
@@ -59,8 +59,8 @@ namespace Apache.NMS.Stomp.Util
         {
             get
             {
-                lock ( mutex )
-                    return channel.Count == 0;
+                lock ( _mutex )
+                    return _channel.Count == 0;
             }
         }
 
@@ -68,8 +68,8 @@ namespace Apache.NMS.Stomp.Util
         {
             get
             {
-                lock ( mutex )
-                    return channel.Count;
+                lock ( _mutex )
+                    return _channel.Count;
             }
         }
 
@@ -77,21 +77,21 @@ namespace Apache.NMS.Stomp.Util
 
         public void Clear()
         {
-            lock ( mutex )
-                channel.Clear();
+            lock ( _mutex )
+                _channel.Clear();
         }
 
         public void Close()
         {
-            lock ( mutex )
+            lock ( _mutex )
             {
                 if ( !Closed )
                 {
-                    running = false;
-                    closed = true;
+                    _running = false;
+                    _closed = true;
                 }
 
-                waiter.Set();
+                _waiter.Set();
             }
         }
 
@@ -99,7 +99,7 @@ namespace Apache.NMS.Stomp.Util
         {
             MessageDispatch result = null;
 
-            mutex.WaitOne();
+            _mutex.WaitOne();
 
             // Wait until the channel is ready to deliver messages.
             if ( timeout != TimeSpan.Zero && !Closed && ( Empty || !Running ) )
@@ -110,31 +110,31 @@ namespace Apache.NMS.Stomp.Util
                 // channel to wait as all waiters are going to drop out of
                 // here regardless of the fact that only one message could
                 // be on the Queue.  
-                waiter.Reset();
-                mutex.ReleaseMutex();
-                waiter.WaitOne( (Int32) timeout.TotalMilliseconds, false );
-                mutex.WaitOne();
+                _waiter.Reset();
+                _mutex.ReleaseMutex();
+                _waiter.WaitOne( (Int32) timeout.TotalMilliseconds, false );
+                _mutex.WaitOne();
             }
 
             if ( !Closed && Running && !Empty )
                 result = DequeueNoWait();
 
-            mutex.ReleaseMutex();
+            _mutex.ReleaseMutex();
 
             return result;
         }
 
         public MessageDispatch DequeueNoWait()
         {
-            MessageDispatch result = null;
+            MessageDispatch result;
 
-            lock ( mutex )
+            lock ( _mutex )
             {
                 if ( Closed || !Running || Empty )
                     return null;
 
-                result = channel.First.Value;
-                channel.RemoveFirst();
+                result = _channel.First.Value;
+                _channel.RemoveFirst();
             }
 
             return result;
@@ -142,30 +142,30 @@ namespace Apache.NMS.Stomp.Util
 
         public void Enqueue( MessageDispatch dispatch )
         {
-            lock ( mutex )
+            lock ( _mutex )
             {
-                channel.AddLast( dispatch );
-                waiter.Set();
+                _channel.AddLast( dispatch );
+                _waiter.Set();
             }
         }
 
         public void EnqueueFirst( MessageDispatch dispatch )
         {
-            lock ( mutex )
+            lock ( _mutex )
             {
-                channel.AddFirst( dispatch );
-                waiter.Set();
+                _channel.AddFirst( dispatch );
+                _waiter.Set();
             }
         }
 
         public MessageDispatch Peek()
         {
-            lock ( mutex )
+            lock ( _mutex )
             {
                 if ( Closed || !Running || Empty )
                     return null;
 
-                return channel.First.Value;
+                return _channel.First.Value;
             }
         }
 
@@ -173,11 +173,11 @@ namespace Apache.NMS.Stomp.Util
         {
             MessageDispatch[] result;
 
-            lock ( mutex )
+            lock ( _mutex )
             {
                 result = new MessageDispatch[Count];
-                channel.CopyTo( result, 0 );
-                channel.Clear();
+                _channel.CopyTo( result, 0 );
+                _channel.Clear();
             }
 
             return result;
@@ -185,20 +185,20 @@ namespace Apache.NMS.Stomp.Util
 
         public void Start()
         {
-            lock ( mutex )
+            lock ( _mutex )
                 if ( !Closed )
                 {
-                    running = true;
-                    waiter.Reset();
+                    _running = true;
+                    _waiter.Reset();
                 }
         }
 
         public void Stop()
         {
-            lock ( mutex )
+            lock ( _mutex )
             {
-                running = false;
-                waiter.Set();
+                _running = false;
+                _waiter.Set();
             }
         }
     }

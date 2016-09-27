@@ -41,19 +41,20 @@ namespace Apache.NMS.Stomp
 
         public void Begin()
         {
-            if ( !InTransaction )
+            if ( InTransaction )
+                return;
+            TransactionId = _session.Connection.CreateLocalTransactionId();
+
+            var info = new TransactionInfo
             {
-                TransactionId = _session.Connection.CreateLocalTransactionId();
+                ConnectionId = _session.Connection.ConnectionId,
+                TransactionId = TransactionId,
+                Type = (Int32) TransactionType.Begin
+            };
 
-                var info = new TransactionInfo();
-                info.ConnectionId = _session.Connection.ConnectionId;
-                info.TransactionId = TransactionId;
-                info.Type = (Int32) TransactionType.Begin;
+            _session.Connection.Oneway( info );
 
-                _session.Connection.Oneway( info );
-
-                TransactionStartedListener?.Invoke( _session );
-            }
+            TransactionStartedListener?.Invoke( _session );
         }
 
         public void Commit()
@@ -79,11 +80,10 @@ namespace Apache.NMS.Stomp
 
         public void ResetTransactionInProgress()
         {
-            if ( InTransaction )
-            {
-                TransactionId = null;
-                _synchronizations.Clear();
-            }
+            if ( !InTransaction )
+                return;
+            TransactionId = null;
+            _synchronizations.Clear();
         }
 
         public void Rollback()

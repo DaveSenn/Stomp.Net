@@ -1,7 +1,6 @@
 #region Usings
 
 using System;
-using System.IO;
 
 #endregion
 
@@ -26,17 +25,5 @@ namespace Apache.NMS.Stomp.Commands
         #endregion
 
         public override Byte GetDataStructureType() => DataStructureTypes.ErrorType;
-
-        private void PrintStackTrace( TextWriter writer )
-        {
-            writer.WriteLine( ExceptionClass + ": " + Message );
-            foreach ( var element in StackTraceElements )
-                writer.WriteLine( "    at " + element.ClassName + "." + element.MethodName + "(" + element.FileName + ":" + element.LineNumber + ")" );
-
-            if ( Cause == null )
-                return;
-            writer.WriteLine( "Nested Exception:" );
-            Cause.PrintStackTrace( writer );
-        }
     }
 }

@@ -23,6 +23,8 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Stomp.Net.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
+    <WarningsAsErrors>
+    </WarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -157,7 +159,6 @@
     <Compile Include="NMS\InvalidClientIDException.cs" />
     <Compile Include="NMS\InvalidDestinationException.cs" />
     <Compile Include="NMS\IQueue.cs" />
-    <Compile Include="NMS\IQueueBrowser.cs" />
     <Compile Include="NMS\IRedeliveryPolicy.cs" />
     <Compile Include="NMS\ISession.cs" />
     <Compile Include="Definition\Common\IStoppable.cs" />
@@ -178,9 +179,6 @@
     <Compile Include="Utilities\Atomic.cs" />
     <Compile Include="NMS\Util\CountDownLatch.cs" />
     <Compile Include="NMS\Util\DateUtils.cs" />
-    <Compile Include="NMS\Util\EndianBinaryReader.cs" />
-    <Compile Include="NMS\Util\EndianBinaryWriter.cs" />
-    <Compile Include="NMS\Util\EndianSupport.cs" />
     <Compile Include="NMS\Util\MessageTransformation.cs" />
     <Compile Include="Extensions\ExceptionEx.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

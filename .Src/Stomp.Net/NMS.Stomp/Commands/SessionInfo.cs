@@ -15,10 +15,6 @@ namespace Apache.NMS.Stomp.Commands
 
         #endregion
 
-        #region Ctor
-
-        #endregion
-
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.

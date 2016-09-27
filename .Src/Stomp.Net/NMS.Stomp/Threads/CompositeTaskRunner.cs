@@ -136,25 +136,25 @@ namespace Apache.NMS.Stomp.Threads
                             return;
                     }
 
-                    if ( !Iterate() )
-                    {
-                        // wait to be notified.
-                        Monitor.Enter( _mutex );
-                        if ( _shutdown )
-                            return;
+                    if ( Iterate() )
+                        continue;
+                    // wait to be notified.
+                    Monitor.Enter( _mutex );
+                    if ( _shutdown )
+                        return;
 
-                        while ( !_pending )
-                        {
-                            Monitor.Exit( _mutex );
-                            _waiter.WaitOne();
-                            Monitor.Enter( _mutex );
-                        }
+                    while ( !_pending )
+                    {
                         Monitor.Exit( _mutex );
+                        _waiter.WaitOne();
+                        Monitor.Enter( _mutex );
                     }
+                    Monitor.Exit( _mutex );
                 }
             }
             catch
             {
+                // ignored
             }
             finally
             {

@@ -14,13 +14,13 @@ namespace Apache.NMS.Stomp.Commands
     public class Message : BaseMessage, IMessage
     {
         #region Fields
-        
+
         private TimeSpan _timeToLive = TimeSpan.FromMilliseconds( 0 );
 
         #endregion
 
         #region Properties
-        
+
         public IDestination FromDestination
         {
             get { return Destination; }
@@ -46,6 +46,12 @@ namespace Apache.NMS.Stomp.Commands
         }
 
         public virtual void ClearProperties() => Headers.Clear();
+
+        /// <summary>
+        ///     Gets or sets the message headers.
+        /// </summary>
+        /// <value>The message headers.</value>
+        public Dictionary<String, String> Headers { get; } = new Dictionary<String, String>();
 
         /// <summary>
         ///     The correlation ID used to correlate messages with conversations or long running business processes
@@ -189,12 +195,6 @@ namespace Apache.NMS.Stomp.Commands
             get { return Type; }
             set { Type = value; }
         }
-
-        /// <summary>
-        ///     Gets or sets the message headers.
-        /// </summary>
-        /// <value>The message headers.</value>
-        public Dictionary<String, String> Headers { get; } = new Dictionary<String, String>();
 
         public event AcknowledgeHandler Acknowledger;
 

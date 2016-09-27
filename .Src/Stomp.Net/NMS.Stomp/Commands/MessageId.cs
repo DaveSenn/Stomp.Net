@@ -10,8 +10,8 @@ namespace Apache.NMS.Stomp.Commands
     {
         #region Fields
 
-        private String key;
-        private Int64 producerSequenceId;
+        private String _key;
+        private Int64 _producerSequenceId;
 
         #endregion
 
@@ -21,8 +21,8 @@ namespace Apache.NMS.Stomp.Commands
 
         public Int64 ProducerSequenceId
         {
-            get { return producerSequenceId; }
-            set { producerSequenceId = value; }
+            get { return _producerSequenceId; }
+            set { _producerSequenceId = value; }
         }
 
         public Int64 BrokerSequenceId { get; set; }
@@ -38,7 +38,7 @@ namespace Apache.NMS.Stomp.Commands
         public MessageId( ProducerId prodId, Int64 producerSeqId )
         {
             ProducerId = prodId;
-            producerSequenceId = producerSeqId;
+            _producerSequenceId = producerSeqId;
         }
 
         public MessageId( String value )
@@ -82,7 +82,7 @@ namespace Apache.NMS.Stomp.Commands
         ///     such as its type and value of its elements.
         /// </summery>
         public override String ToString()
-            => key ?? ( key = $"{ProducerId}:{producerSequenceId}" );
+            => _key ?? ( _key = $"{ProducerId}:{_producerSequenceId}" );
 
         /// <summary>
         ///     Sets the value as a String
@@ -91,15 +91,15 @@ namespace Apache.NMS.Stomp.Commands
         {
             var mkey = messageKey;
 
-            key = mkey;
+            _key = mkey;
 
             // Parse off the sequenceId
             var p = mkey.LastIndexOf( ":", StringComparison.Ordinal );
             if ( p >= 0 )
-                if ( Int64.TryParse( mkey.Substring( p + 1 ), out producerSequenceId ) )
+                if ( Int64.TryParse( mkey.Substring( p + 1 ), out _producerSequenceId ) )
                     mkey = mkey.Substring( 0, p );
                 else
-                    producerSequenceId = 0;
+                    _producerSequenceId = 0;
 
             ProducerId = new ProducerId( mkey );
         }

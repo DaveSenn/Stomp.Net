@@ -34,25 +34,27 @@ namespace Apache.NMS.Stomp
         private readonly Atomic<Boolean> _closed = new Atomic<Boolean>( false );
         private readonly Atomic<Boolean> _closing = new Atomic<Boolean>( false );
         private readonly Atomic<Boolean> _connected = new Atomic<Boolean>( false );
-        private readonly Atomic<Boolean> _started = new Atomic<Boolean>(false);
-        private readonly Atomic<Boolean> _transportFailed = new Atomic<Boolean>(false);
         private readonly Object _connectedLock = new Object();
         private readonly IDictionary _dispatchers = Hashtable.Synchronized( new Hashtable() );
         private readonly ThreadPoolExecutor _executor = new ThreadPoolExecutor();
         private readonly ConnectionInfo _info;
         private readonly Object _myLock = new Object();
         private readonly IList _sessions = ArrayList.Synchronized( new ArrayList() );
+        private readonly Atomic<Boolean> _started = new Atomic<Boolean>( false );
+
+        /// <summary>
+        ///     The STOMP connection settings.
+        /// </summary>
+        private readonly StompConnectionSettings _stompConnectionSettings;
+
         private readonly ITransportFactory _transportFactory;
+        private readonly Atomic<Boolean> _transportFailed = new Atomic<Boolean>( false );
         private Boolean _disposed;
         private Int32 _localTransactionCounter;
         private Int32 _sessionCounter;
         private Int32 _temporaryDestinationCounter;
         private CountDownLatch _transportInterruptionProcessingComplete;
         private Boolean _userSpecifiedClientId;
-        /// <summary>
-        ///     The STOMP connection settings.
-        /// </summary>
-        private readonly StompConnectionSettings _stompConnectionSettings;
 
         #endregion
 
@@ -264,9 +266,11 @@ namespace Apache.NMS.Stomp
         /// </summary>
         public TransactionId CreateLocalTransactionId()
         {
-            var id = new TransactionId();
-            id.ConnectionId = ConnectionId;
-            id.Value = Interlocked.Increment( ref _localTransactionCounter );
+            var id = new TransactionId
+            {
+                ConnectionId = ConnectionId,
+                Value = Interlocked.Increment( ref _localTransactionCounter )
+            };
             return id;
         }
 
@@ -285,7 +289,7 @@ namespace Apache.NMS.Stomp
             }
             catch ( Exception ex )
             {
-                throw ExceptionEx.Create( ex );
+                throw ex.Create();
             }
         }
 
@@ -312,7 +316,7 @@ namespace Apache.NMS.Stomp
             }
             catch ( Exception ex )
             {
-                throw ExceptionEx.Create( ex );
+                throw ex.Create();
             }
         }
 
@@ -470,7 +474,7 @@ namespace Apache.NMS.Stomp
             if ( exceptionClassName.IsEmpty() )
                 return new BrokerException( brokerError );
 
-            return new InvalidClientIDException( brokerError.Message );
+            return new InvalidClientIdException( brokerError.Message );
         }
 
         private SessionInfo CreateSessionInfo()
@@ -547,7 +551,7 @@ namespace Apache.NMS.Stomp
             if ( ExceptionListener != null )
             {
                 if ( !( error is NmsException ) )
-                    error = ExceptionEx.Create( error );
+                    error = error.Create();
                 var e = (NmsException) error;
 
                 // Called in another thread so that processing can continue
