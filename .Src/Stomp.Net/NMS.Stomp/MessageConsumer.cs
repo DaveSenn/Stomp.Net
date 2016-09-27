@@ -411,10 +411,6 @@ namespace Apache.NMS.Stomp
         {
             var message = dispatch.Message.Clone() as Message;
 
-            var transformed = ConsumerTransformer?.Invoke( _session, this, message );
-            if ( transformed != null )
-                message = _messageTransformation.TransformMessage<Message>( transformed );
-
             if ( message == null )
                 throw new Exception( $"Message was null => {dispatch.Message}" );
 
@@ -594,9 +590,7 @@ namespace Apache.NMS.Stomp
         #endregion
 
         #region IMessageConsumer Members
-
-        public ConsumerTransformerDelegate ConsumerTransformer { get; set; }
-
+        
         private event MessageListener _listener;
 
         public event MessageListener Listener

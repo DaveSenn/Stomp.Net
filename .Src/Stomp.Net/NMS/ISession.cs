@@ -18,29 +18,17 @@ namespace Apache.NMS
     /// </summary>
     public interface ISession : IDisposable
     {
-        #region Properties
-
-        /// <summary>
-        ///     A Delegate that is called each time a Message is dispatched to allow the client to do
-        ///     any necessary transformations on the received message before it is delivered.
-        ///     The Session instance sets the delegate on each Consumer it creates.
-        /// </summary>
-        ConsumerTransformerDelegate ConsumerTransformer { get; set; }
-
-        /// <summary>
-        ///     A delegate that is called each time a Message is sent from this Producer which allows
-        ///     the application to perform any needed transformations on the Message before it is sent.
-        ///     The Session instance sets the delegate on each Producer it creates.
-        /// </summary>
-        ProducerTransformerDelegate ProducerTransformer { get; set; }
-
-        #endregion
-
         /// <summary>
         ///     Closes the session.  There is no need to close the producers and consumers
         ///     of a closed session.
         /// </summary>
         void Close();
+
+        /// <summary>
+        ///     If this is a transactional session then commit all message
+        ///     send and acknowledgements for producers and consumers in this session
+        /// </summary>
+        void CommitTransaction();
 
         /// <summary>
         ///     Creates a new binary message
@@ -71,13 +59,6 @@ namespace Apache.NMS
         ///     Creates a named durable consumer of messages on a given destination with a selector
         /// </summary>
         IMessageConsumer CreateDurableConsumer( ITopic destination, String name, String selector, Boolean noLocal );
-
-        // Factory methods to create messages
-
-        /// <summary>
-        ///     Creates a new message with an empty body
-        /// </summary>
-        IMessage CreateMessage();
 
         /// <summary>
         ///     Creates a producer of messages
@@ -110,11 +91,6 @@ namespace Apache.NMS
         ITextMessage CreateTextMessage( String text );
 
         /// <summary>
-        ///     Delete a destination (Queue, Topic, Temp Queue, Temp Topic).
-        /// </summary>
-        void DeleteDestination( IDestination destination );
-
-        /// <summary>
         ///     Deletes a durable consumer created with CreateDurableConsumer().
         /// </summary>
         /// <param name="name">Name of the durable consumer</param>
@@ -141,29 +117,15 @@ namespace Apache.NMS
         /// </summary>
         void Recover();
 
-        #region Transaction methods
-
-        /// <summary>
-        ///     If this is a transactional session then commit all message
-        ///     send and acknowledgements for producers and consumers in this session
-        /// </summary>
-        void Commit();
-
         /// <summary>
         ///     If this is a transactional session then rollback all message
         ///     send and acknowledgements for producers and consumers in this session
         /// </summary>
-        void Rollback();
+        void RollbackTransaction();
 
-        #endregion
-
-        #region Session Events
-
-        event SessionTxEventDelegate TransactionStartedListener;
         event SessionTxEventDelegate TransactionCommittedListener;
         event SessionTxEventDelegate TransactionRolledBackListener;
-
-        #endregion
+        event SessionTxEventDelegate TransactionStartedListener;
 
         #region Attributes
 

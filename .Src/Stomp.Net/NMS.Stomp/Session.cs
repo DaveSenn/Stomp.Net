@@ -90,7 +90,7 @@ namespace Apache.NMS.Stomp
                 _producers.Remove( objectId );
         }
 
-        public void DoSend( Message message, MessageProducer producer, TimeSpan sendTimeout )
+        public void DoSend( Message message, TimeSpan sendTimeout )
         {
             var msg = message;
 
@@ -131,27 +131,31 @@ namespace Apache.NMS.Stomp
                 TransactionContext.Begin();
         }
 
-        public ConsumerId GetNextConsumerId()
+        private ConsumerId GetNextConsumerId()
         {
-            var id = new ConsumerId();
-            id.ConnectionId = _info.SessionId.ConnectionId;
-            id.SessionId = _info.SessionId.Value;
-            id.Value = Interlocked.Increment( ref _consumerCounter );
+            var id = new ConsumerId
+            {
+                ConnectionId = _info.SessionId.ConnectionId,
+                SessionId = _info.SessionId.Value,
+                Value = Interlocked.Increment( ref _consumerCounter )
+            };
 
             return id;
         }
 
-        public ProducerId GetNextProducerId()
+        private ProducerId GetNextProducerId()
         {
-            var id = new ProducerId();
-            id.ConnectionId = _info.SessionId.ConnectionId;
-            id.SessionId = _info.SessionId.Value;
-            id.Value = Interlocked.Increment( ref _producerCounter );
+            var id = new ProducerId
+            {
+                ConnectionId = _info.SessionId.ConnectionId,
+                SessionId = _info.SessionId.Value,
+                Value = Interlocked.Increment( ref _producerCounter )
+            };
 
             return id;
         }
 
-        public void RemoveConsumer( MessageConsumer consumer )
+        private void RemoveConsumer( MessageConsumer consumer )
         {
             Connection.RemoveDispatcher( consumer.ConsumerId );
             if ( !_closing )
@@ -166,7 +170,8 @@ namespace Apache.NMS.Stomp
             Executor?.Start();
         }
 
-        public void Stop() => Executor?.Stop();
+        public void Stop() 
+            => Executor?.Stop();
 
         protected virtual ProducerInfo CreateProducerInfo( IDestination destination )
             => new ProducerInfo
@@ -367,11 +372,7 @@ namespace Apache.NMS.Stomp
         public SessionExecutor Executor { get; }
 
         public Int64 NextDeliveryId => Interlocked.Increment( ref _nextDeliveryId );
-
-        public ConsumerTransformerDelegate ConsumerTransformer { get; set; }
-
-        public ProducerTransformerDelegate ProducerTransformer { get; set; }
-
+        
         #endregion
 
         #region ISession Members
@@ -382,7 +383,7 @@ namespace Apache.NMS.Stomp
             GC.SuppressFinalize( this );
         }
 
-        protected void Dispose( Boolean disposing )
+        private void Dispose( Boolean disposing )
         {
             if ( _disposed )
                 return;
@@ -492,7 +493,7 @@ namespace Apache.NMS.Stomp
 
             try
             {
-                producer = new MessageProducer( this, command ) { ProducerTransformer = ProducerTransformer };
+                producer = new MessageProducer( this, command );
                 _producers[producerId] = producer;
             }
             catch ( Exception )
@@ -505,9 +506,11 @@ namespace Apache.NMS.Stomp
             return producer;
         }
 
-        public IMessageConsumer CreateConsumer( IDestination destination ) => CreateConsumer( destination, null, false );
+        public IMessageConsumer CreateConsumer( IDestination destination ) 
+            => CreateConsumer( destination, null, false );
 
-        public IMessageConsumer CreateConsumer( IDestination destination, String selector ) => CreateConsumer( destination, selector, false );
+        public IMessageConsumer CreateConsumer( IDestination destination, String selector ) 
+            => CreateConsumer( destination, selector, false );
 
         public IMessageConsumer CreateConsumer( IDestination destination, String selector, Boolean noLocal )
         {
@@ -527,7 +530,6 @@ namespace Apache.NMS.Stomp
             {
                 var dest = destination as Destination;
                 consumer = new MessageConsumer( this, GetNextConsumerId(), dest, null, selector, prefetchSize, noLocal );
-                consumer.ConsumerTransformer = ConsumerTransformer;
                 AddConsumer( consumer );
 
                 // lets register the consumer first in case we start dispatching messages immediately
@@ -559,8 +561,10 @@ namespace Apache.NMS.Stomp
             try
             {
                 var dest = destination as Destination;
-                consumer = new MessageConsumer( this, GetNextConsumerId(), dest, name, selector, Connection.PrefetchPolicy.DurableTopicPrefetch, noLocal );
-                consumer.ConsumerTransformer = ConsumerTransformer;
+                consumer = new MessageConsumer( this, GetNextConsumerId(), dest, name, selector, Connection.PrefetchPolicy.DurableTopicPrefetch, noLocal )
+                {
+                    //ConsumerTransformer = null
+                };
                 AddConsumer( consumer );
                 Connection.SyncRequest( consumer.ConsumerInfo );
 
@@ -582,16 +586,20 @@ namespace Apache.NMS.Stomp
 
         public void DeleteDurableConsumer( String name )
         {
-            var command = new RemoveSubscriptionInfo();
-            command.ConnectionId = Connection.ConnectionId;
-            command.ClientId = Connection.ClientId;
-            command.SubscriptionName = name;
+            var command = new RemoveSubscriptionInfo
+            {
+                ConnectionId = Connection.ConnectionId,
+                ClientId = Connection.ClientId,
+                SubscriptionName = name
+            };
             Connection.SyncRequest( command );
         }
 
-        public IQueue GetQueue( String name ) => new Queue( name );
+        public IQueue GetQueue( String name ) 
+            => new Queue( name );
 
-        public ITopic GetTopic( String name ) => new Topic( name );
+        public ITopic GetTopic( String name )
+            => new Topic( name );
 
         public ITemporaryQueue CreateTemporaryQueue()
         {
@@ -604,18 +612,7 @@ namespace Apache.NMS.Stomp
             var answer = new TempTopic( Connection.CreateTemporaryDestinationName() );
             return answer;
         }
-
-        /// <summary>
-        ///     Delete a destination (Queue, Topic, Temp Queue, Temp Topic).
-        /// </summary>
-        public void DeleteDestination( IDestination destination )
-        {
-            throw new NotSupportedException( "Stomp Cannot delete Destinations" );
-        }
-
-        public IMessage CreateMessage()
-            => ConfigureMessage( new Message() );
-
+        
         public ITextMessage CreateTextMessage()
         {
             var answer = new TextMessage();
@@ -628,7 +625,8 @@ namespace Apache.NMS.Stomp
             return ConfigureMessage( answer ) as ITextMessage;
         }
 
-        public IBytesMessage CreateBytesMessage() => ConfigureMessage( new BytesMessage() ) as IBytesMessage;
+        public IBytesMessage CreateBytesMessage() 
+            => ConfigureMessage( new BytesMessage() ) as IBytesMessage;
 
         public IBytesMessage CreateBytesMessage( Byte[] body )
         {
@@ -636,22 +634,18 @@ namespace Apache.NMS.Stomp
             return ConfigureMessage( answer ) as IBytesMessage;
         }
 
-        public void Commit()
+        public void CommitTransaction()
         {
             if ( !Transacted )
-                throw new InvalidOperationException(
-                    "You cannot perform a Commit() on a non-transacted session. Acknowlegement mode is: "
-                    + AcknowledgementMode );
+                throw new InvalidOperationException( $"You cannot perform a CommitTransaction() on a non-transacted session. Acknowledgment mode is: {AcknowledgementMode}");
 
             TransactionContext.Commit();
         }
 
-        public void Rollback()
+        public void RollbackTransaction()
         {
             if ( !Transacted )
-                throw new InvalidOperationException(
-                    "You cannot perform a Commit() on a non-transacted session. Acknowlegement mode is: "
-                    + AcknowledgementMode );
+                throw new InvalidOperationException($"You cannot perform a CommitTransaction() on a non-transacted session. Acknowledgment mode is: {AcknowledgementMode}" );
 
             TransactionContext.Rollback();
         }

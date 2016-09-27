@@ -177,9 +177,7 @@ namespace Apache.NMS.Stomp
         ///     has been resumed.
         /// </summary>
         public event ConnectionResumedListener ConnectionResumedListener;
-
-        public ConsumerTransformerDelegate ConsumerTransformer { get; set; }
-
+        
         /// <summary>
         ///     Creates a new session to work on this connection
         /// </summary>
@@ -192,11 +190,7 @@ namespace Apache.NMS.Stomp
         public ISession CreateSession( AcknowledgementMode sessionAcknowledgementMode )
         {
             var info = CreateSessionInfo();
-            var session = new Session( this, info, sessionAcknowledgementMode, _stompConnectionSettings )
-            {
-                ConsumerTransformer = ConsumerTransformer,
-                ProducerTransformer = ProducerTransformer
-            };
+            var session = new Session( this, info, sessionAcknowledgementMode, _stompConnectionSettings );
 
             if ( IsStarted )
                 session.Start();
@@ -209,9 +203,7 @@ namespace Apache.NMS.Stomp
         ///     A delegate that can receive transport level exceptions.
         /// </summary>
         public event ExceptionListener ExceptionListener;
-
-        public ProducerTransformerDelegate ProducerTransformer { get; set; }
-
+        
         public void PurgeTempDestinations()
         {
         }
