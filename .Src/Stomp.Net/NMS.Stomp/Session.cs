@@ -5,7 +5,6 @@ using System.Collections;
 using System.Threading;
 using Apache.NMS.Stomp.Commands;
 using Apache.NMS.Stomp.Util;
-using Apache.NMS.Util;
 using Extend;
 using JetBrains.Annotations;
 using Stomp.Net;
@@ -49,10 +48,7 @@ namespace Apache.NMS.Stomp
 
         #region Properties
 
-        public Boolean Started
-        {
-            get { return Executor != null ? Executor.Running : false; }
-        }
+        public Boolean Started => Executor != null && Executor.Running;
 
         #endregion
 
@@ -77,15 +73,8 @@ namespace Apache.NMS.Stomp
 
         #endregion
 
-        public void Dispatch( MessageDispatch dispatch )
-        {
-            if ( Executor != null )
-            {
-                if ( Tracer.IsDebugEnabled )
-                    Tracer.DebugFormat( "Send Message Dispatch: ", dispatch.ToString() );
-                Executor.Execute( dispatch );
-            }
-        }
+        public void Dispatch( MessageDispatch dispatch ) 
+            => Executor?.Execute( dispatch );
 
         public void AddConsumer( MessageConsumer consumer )
         {
@@ -183,33 +172,18 @@ namespace Apache.NMS.Stomp
             foreach ( MessageConsumer consumer in consumers.Values )
                 consumer.Start();
 
-            if ( Executor != null )
-                Executor.Start();
+            Executor?.Start();
         }
 
-        public void Stop()
-        {
-            if ( Executor != null )
-                Executor.Stop();
-        }
+        public void Stop() => Executor?.Stop();
 
         protected virtual ProducerInfo CreateProducerInfo( IDestination destination )
-        {
-            var answer = new ProducerInfo();
-            answer.ProducerId = GetNextProducerId();
-            answer.Destination = Destination.Transform( destination );
-
-            // If the destination contained a URI query, then use it to set public
-            // properties on the ProducerInfo
-            var amqDestination = destination as Destination;
-            if ( amqDestination != null && amqDestination.Options != null )
+            => new ProducerInfo
             {
-                var options = URISupport.GetProperties( amqDestination.Options, "producer." );
-                URISupport.SetProperties( answer, options );
-            }
-
-            return answer;
-        }
+                ProducerId = GetNextProducerId(),
+                Destination = Destination.Transform( destination ),
+                DispatchAsync = _stompConnectionSettings.ProducerSettings.DispatchAsync
+            };
 
         internal void Acknowledge()
         {
@@ -220,8 +194,7 @@ namespace Apache.NMS.Stomp
 
         internal void ClearMessagesInProgress()
         {
-            if ( Executor != null )
-                Executor.ClearMessagesInProgress();
+            Executor?.ClearMessagesInProgress();
 
             if ( Transacted )
                 TransactionContext.ResetTransactionInProgress();
@@ -242,7 +215,7 @@ namespace Apache.NMS.Stomp
             foreach ( var message in messages )
             {
                 if ( Tracer.IsDebugEnabled )
-                    Tracer.DebugFormat( "Resending Message Dispatch: ", message.ToString() );
+                    Tracer.WarnFormat( "Resending Message Dispatch: ", message.ToString() );
                 Executor.ExecuteFirst( message );
             }
         }
@@ -266,10 +239,7 @@ namespace Apache.NMS.Stomp
         private void ClearMessages( Object value )
         {
             var consumer = value as MessageConsumer;
-
-            if ( Tracer.IsDebugEnabled )
-                Tracer.Debug( "Performing Async Clear of In Progress Messages for Consumer: " + consumer.ConsumerId );
-
+            
             consumer.ClearMessagesInProgress();
         }
 
@@ -549,14 +519,12 @@ namespace Apache.NMS.Stomp
 
             try
             {
-                producer = new MessageProducer( this, command );
-                producer.ProducerTransformer = ProducerTransformer;
+                producer = new MessageProducer( this, command ) { ProducerTransformer = ProducerTransformer };
                 producers[producerId] = producer;
             }
             catch ( Exception )
             {
-                if ( producer != null )
-                    producer.Close();
+                producer?.Close();
 
                 throw;
             }

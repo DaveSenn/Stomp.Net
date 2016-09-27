@@ -118,7 +118,7 @@ namespace Apache.NMS.Stomp.Transport
                 else
                 {
                     if ( Tracer.IsDebugEnabled )
-                        Tracer.Debug( "Unknown response ID: " + response.CommandId + " for response: " + response );
+                        Tracer.Warn( "Unknown response ID: " + response.CommandId + " for response: " + response );
                 }
             }
             else

@@ -261,7 +261,7 @@ namespace Apache.NMS.Stomp.Protocol
 
                 // Read the terminating NULL byte for this frame.                
                 if ( dataIn.Read() != 0 )
-                    Tracer.Debug( "StompFrame - Error Invalid Frame, no trailing Null." );
+                    Tracer.Error( "StompFrame - Error Invalid Frame, no trailing Null." );
             }
             else
             {
@@ -300,7 +300,7 @@ namespace Apache.NMS.Stomp.Protocol
                 }
                 else
                 {
-                    Tracer.Debug( "StompFrame - Read Malformed Header: " + line );
+                    Tracer.Warn( "StompFrame - Read Malformed Header: " + line );
                 }
             }
         }

@@ -203,21 +203,6 @@ namespace Apache.NMS.Util
                 return MarshalPrimitiveMap( dictionary );
         }
 
-        /// <summary>
-        ///     Marshals a PrimitiveMap directly to a Stream object.  This
-        ///     allows a client to write a PrimitiveMap in a compressed or
-        ///     otherwise encoded form without this class needing to know
-        ///     about it.
-        /// </summary>
-        /// <param name="destination">
-        ///     A <see cref="Stream" />
-        /// </param>
-        public void Marshal( Stream destination )
-        {
-            lock ( dictionary.SyncRoot )
-                MarshalPrimitiveMap( dictionary, destination );
-        }
-
         public static void MarshalPrimitive( BinaryWriter dataOut, Object value )
         {
             if ( value == null )
@@ -324,13 +309,6 @@ namespace Apache.NMS.Util
             return memoryStream.ToArray();
         }
 
-        public static void MarshalPrimitiveMap( IDictionary map, Stream stream )
-        {
-            if ( map != null )
-                lock ( map.SyncRoot )
-                    MarshalPrimitiveMap( map, new EndianBinaryWriter( stream ) );
-        }
-
         public static void MarshalPrimitiveMap( IDictionary map, BinaryWriter dataOut )
         {
             if ( map == null )
@@ -379,24 +357,6 @@ namespace Apache.NMS.Util
         {
             var answer = new PrimitiveMap();
             answer.dictionary = UnmarshalPrimitiveMap( data );
-            return answer;
-        }
-
-        /// <summary>
-        ///     Unmarshals a PrimitiveMap directly from a Stream object.  This
-        ///     allows for clients to read PrimitiveMaps from Compressed or other
-        ///     wise encoded streams without this class needing to know about it.
-        /// </summary>
-        /// <param name="source">
-        ///     A <see cref="Stream" />
-        /// </param>
-        /// <returns>
-        ///     A <see cref="PrimitiveMap" />
-        /// </returns>
-        public static PrimitiveMap Unmarshal( Stream source )
-        {
-            var answer = new PrimitiveMap();
-            answer.dictionary = UnmarshalPrimitiveMap( source );
             return answer;
         }
 
@@ -472,13 +432,7 @@ namespace Apache.NMS.Util
         ///     Unmarshals the primitive type map from the given byte array
         /// </summary>
         public static IDictionary UnmarshalPrimitiveMap( Byte[] data )
-        {
-            if ( data == null )
-                return new Hashtable();
-            return UnmarshalPrimitiveMap( new EndianBinaryReader( new MemoryStream( data ) ) );
-        }
-
-        public static IDictionary UnmarshalPrimitiveMap( Stream source ) => UnmarshalPrimitiveMap( new EndianBinaryReader( source ) );
+            => data == null ? new Hashtable() : UnmarshalPrimitiveMap( new EndianBinaryReader( new MemoryStream( data ) ) );
 
         public static IDictionary UnmarshalPrimitiveMap( BinaryReader dataIn )
         {
@@ -516,9 +470,6 @@ namespace Apache.NMS.Util
 
         protected virtual Object GetValue( String key ) => dictionary[key];
 
-        protected virtual void SetValue( String key, Object value )
-        {
-            dictionary[key] = value;
-        }
+        protected virtual void SetValue( String key, Object value ) => dictionary[key] = value;
     }
 }

@@ -152,12 +152,8 @@ namespace Apache.NMS.Stomp.Transport
         protected virtual void Dispose( Boolean disposing )
         {
             if ( disposing )
-            {
-                Tracer.Debug( "TransportFilter disposing of next Transport: " +
-                              next.GetType()
-                                  .Name );
                 next.Dispose();
-            }
+
             IsDisposed = true;
         }
 

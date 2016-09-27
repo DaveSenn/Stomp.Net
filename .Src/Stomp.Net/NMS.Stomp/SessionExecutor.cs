@@ -69,30 +69,28 @@ namespace Apache.NMS.Stomp
                 // queued on the session
                 var message = messageQueue.DequeueNoWait();
 
-                if ( message != null )
-                {
-                    Dispatch( message );
-                    return !messageQueue.Empty;
-                }
+                if ( message == null )
+                    return false;
 
-                return false;
+                Dispatch( message );
+                return !messageQueue.Empty;
             }
             catch ( Exception ex )
             {
-                Tracer.DebugFormat( "Caught Exception While Dispatching: {0}", ex.Message );
+                Tracer.WarnFormat( "Caught Exception While Dispatching: {0}", ex.Message );
                 session.Connection.OnSessionException( session, ex );
             }
 
             return true;
         }
 
-        public void Clear() => messageQueue.Clear();
+        private void Clear() => messageQueue.Clear();
 
         public void ClearMessagesInProgress() => messageQueue.Clear();
 
-        public void Close() => messageQueue.Close();
+        private void Close() => messageQueue.Close();
 
-        public void Dispatch( MessageDispatch dispatch )
+        private void Dispatch( MessageDispatch dispatch )
         {
             try
             {
@@ -104,12 +102,11 @@ namespace Apache.NMS.Stomp
 
                 // If the consumer is not available, just ignore the message.
                 // Otherwise, dispatch the message to the consumer.
-                if ( consumer != null )
-                    consumer.Dispatch( dispatch );
+                consumer?.Dispatch( dispatch );
             }
             catch ( Exception ex )
             {
-                Tracer.DebugFormat( "Caught Exception While Dispatching: {0}", ex.Message );
+                Tracer.WarnFormat( "Caught Exception While Dispatching: {0}", ex.Message );
             }
         }
 

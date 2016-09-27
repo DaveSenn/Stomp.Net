@@ -80,6 +80,6 @@ namespace Apache.NMS.Stomp.Commands
                                              "Transformation" + Transformation +
                                              "]";
 
-        public override Response visit( ICommandVisitor visitor ) => visitor.ProcessAddConsumer( this );
+        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessAddConsumer( this );
     }
 }

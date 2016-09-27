@@ -65,8 +65,7 @@ namespace Apache.NMS.Stomp
 
                 session.Connection.Oneway( info );
 
-                if ( TransactionStartedListener != null )
-                    TransactionStartedListener( session );
+                TransactionStartedListener?.Invoke( session );
             }
         }
 
@@ -126,8 +125,7 @@ namespace Apache.NMS.Stomp
                 foreach ( ISynchronization synchronization in synchronizations )
                     synchronization.AfterCommit();
 
-                if ( TransactionCommittedListener != null )
-                    TransactionCommittedListener( session );
+                TransactionCommittedListener?.Invoke( session );
             }
         }
 
@@ -138,8 +136,7 @@ namespace Apache.NMS.Stomp
                 foreach ( ISynchronization synchronization in synchronizations )
                     synchronization.AfterRollback();
 
-                if ( TransactionRolledBackListener != null )
-                    TransactionRolledBackListener( session );
+                TransactionRolledBackListener?.Invoke( session );
             }
         }
 

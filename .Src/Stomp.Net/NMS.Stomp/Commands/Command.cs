@@ -21,9 +21,7 @@ namespace Apache.NMS.Stomp.Commands
         Boolean IsConnectionInfo { get; }
 
         Boolean IsErrorCommand { get; }
-
-        Boolean IsDestinationInfo { get; }
-
+        
         Boolean IsMessage { get; }
 
         Boolean IsMessageAck { get; }
@@ -44,6 +42,6 @@ namespace Apache.NMS.Stomp.Commands
 
         #endregion
 
-        Response visit( ICommandVisitor visitor );
+        Response Visit( ICommandVisitor visitor );
     }
 }

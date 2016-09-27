@@ -231,9 +231,9 @@ namespace Apache.NMS.Stomp
                 // Since the Uri class will return the end of a Query string found in a Composite
                 // URI we must ensure that we trim that off before we proceed.
                 var query = BrokerUri.Query.Substring( BrokerUri.Query.LastIndexOf( ")", StringComparison.Ordinal ) + 1 );
-                var options = URISupport.ParseQuery( query );
-                options = URISupport.GetProperties( options, "session." );
-                URISupport.SetProperties( session, options );
+                var options = UriSupport.ParseQuery( query );
+                options = UriSupport.GetProperties( options, "session." );
+                UriSupport.SetProperties( session, options );
             }
 
             session.ConsumerTransformer = ConsumerTransformer;
@@ -334,7 +334,7 @@ namespace Apache.NMS.Stomp
             }
             catch ( Exception ex )
             {
-                throw NMSExceptionSupport.Create( ex );
+                throw NmsExceptionSupport.Create( ex );
             }
         }
 
@@ -362,7 +362,7 @@ namespace Apache.NMS.Stomp
             }
             catch ( Exception ex )
             {
-                throw NMSExceptionSupport.Create( ex );
+                throw NmsExceptionSupport.Create( ex );
             }
         }
 
@@ -472,15 +472,13 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        protected void OnTransportException( ITransport sender, Exception exception ) => OnException( exception );
+        private void OnTransportException( ITransport sender, Exception exception ) => OnException( exception );
 
-        protected void OnTransportInterrupted( ITransport sender )
+        private void OnTransportInterrupted( ITransport sender )
         {
-            Tracer.Debug( "Transport has been Interrupted." );
-
             transportInterruptionProcessingComplete = new CountDownLatch( dispatchers.Count );
             if ( Tracer.IsDebugEnabled )
-                Tracer.DebugFormat( "transport interrupted, dispatchers: {0}", dispatchers.Count );
+                Tracer.WarnFormat( "transport interrupted, dispatchers: {0}", dispatchers.Count );
 
             foreach ( Session session in sessions )
                 session.ClearMessagesInProgress();
@@ -495,18 +493,19 @@ namespace Apache.NMS.Stomp
                 }
         }
 
-        protected void OnTransportResumed( ITransport sender )
+        private void OnTransportResumed( ITransport sender )
         {
-            Tracer.Debug( "Transport has resumed normal operation." );
+            if ( ConnectionResumedListener == null || closing.Value )
+                return;
 
-            if ( ConnectionResumedListener != null && !closing.Value )
-                try
-                {
-                    ConnectionResumedListener();
-                }
-                catch
-                {
-                }
+            try
+            {
+                ConnectionResumedListener();
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         internal void addDispatcher( ConsumerId id, IDispatcher dispatcher ) => dispatchers.Add( id, dispatcher );
@@ -569,7 +568,7 @@ namespace Apache.NMS.Stomp
                                 }
                                 catch ( Exception ex )
                                 {
-                                    //TODO
+                                    Tracer.Error( ex );
                                 }
                             }
                         }
@@ -591,23 +590,22 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        internal void OnAsyncException( Exception error )
+        private void OnAsyncException( Exception error )
         {
-            if ( !closed.Value && !closing.Value )
-                if ( ExceptionListener != null )
-                {
-                    if ( !( error is NMSException ) )
-                        error = NMSExceptionSupport.Create( error );
-                    var e = (NMSException) error;
+            if ( closed.Value || closing.Value )
+                return;
+            if ( ExceptionListener != null )
+            {
+                if ( !( error is NMSException ) )
+                    error = NmsExceptionSupport.Create( error );
+                var e = (NMSException) error;
 
-                    // Called in another thread so that processing can continue
-                    // here, ensures no lock contention.
-                    executor.QueueUserWorkItem( AsyncCallExceptionListener, e );
-                }
-                else
-                {
-                    Tracer.DebugFormat( "Async exception with no exception listener: {0}", error.Message );
-                }
+                // Called in another thread so that processing can continue
+                // here, ensures no lock contention.
+                executor.QueueUserWorkItem( AsyncCallExceptionListener, e );
+            }
+            else
+                Tracer.WarnFormat( "Async exception with no exception listener: {0}", error.Message );
         }
 
         internal void OnException( Exception error )
@@ -664,7 +662,7 @@ namespace Apache.NMS.Stomp
             }
             catch ( Exception ex )
             {
-                Tracer.DebugFormat( "Caught Exception While disposing of Transport: {0}", ex.Message );
+                Tracer.WarnFormat( "Caught Exception While disposing of Transport: {0}", ex.Message );
             }
 
             IList sessionsCopy = null;
@@ -680,7 +678,7 @@ namespace Apache.NMS.Stomp
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.DebugFormat( "Caught Exception While disposing of Sessions: {0}", ex.Message );
+                    Tracer.WarnFormat( "Caught Exception While disposing of Sessions: {0}", ex.Message );
                 }
         }
 

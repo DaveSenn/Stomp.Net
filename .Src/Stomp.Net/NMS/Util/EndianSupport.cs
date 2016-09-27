@@ -10,7 +10,6 @@ namespace Apache.NMS.Util
     /// <summary>
     ///     Support class that switches from one endian to the other.
     /// </summary>
-    [CLSCompliant( false )]
     public class EndianSupport
     {
         public static Char SwitchEndian( Char x ) => (Char) (

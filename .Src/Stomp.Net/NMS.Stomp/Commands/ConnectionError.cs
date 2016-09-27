@@ -41,6 +41,6 @@ namespace Apache.NMS.Stomp.Commands
                                              "ConnectionId=" + ConnectionId +
                                              "]";
 
-        public override Response visit( ICommandVisitor visitor ) => visitor.processConnectionError( this );
+        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessConnectionError( this );
     }
 }

@@ -65,13 +65,13 @@ namespace Apache.NMS.Stomp.Commands
                         }
                         catch ( Exception ex )
                         {
-                            Tracer.Debug( ex.Message );
+                            Tracer.Warn( ex.Message );
                         }
                     ConnectionId = consumerKey;
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.Debug( ex.Message );
+                    Tracer.Warn( ex.Message );
                 }
         }
 

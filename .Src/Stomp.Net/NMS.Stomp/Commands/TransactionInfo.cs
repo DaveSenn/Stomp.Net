@@ -52,16 +52,16 @@ namespace Apache.NMS.Stomp.Commands
                                              "Type=" + Type +
                                              "]";
 
-        public override Response visit( ICommandVisitor visitor )
+        public override Response Visit( ICommandVisitor visitor )
         {
             switch ( Type )
             {
                 case BEGIN:
-                    return visitor.processBeginTransaction( this );
+                    return visitor.ProcessBeginTransaction( this );
                 case COMMIT:
-                    return visitor.processCommitTransaction( this );
+                    return visitor.ProcessCommitTransaction( this );
                 case ROLLBACK:
-                    return visitor.processRollbackTransaction( this );
+                    return visitor.ProcessRollbackTransaction( this );
                 default:
                     throw new IOException( "Transaction info type unknown: " + Type );
             }

@@ -50,6 +50,6 @@ namespace Apache.NMS.Stomp.Commands
                                              "UserName=" + UserName +
                                              "]";
 
-        public override Response visit( ICommandVisitor visitor ) => visitor.ProcessAddConnection( this );
+        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessAddConnection( this );
     }
 }

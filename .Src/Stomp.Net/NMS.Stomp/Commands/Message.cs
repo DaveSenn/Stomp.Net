@@ -313,8 +313,8 @@ namespace Apache.NMS.Stomp.Commands
         /// </summary>
         public String NMSXGroupID
         {
-            get { return GroupID; }
-            set { GroupID = value; }
+            get { return GroupId; }
+            set { GroupId = value; }
         }
 
         /// <summary>

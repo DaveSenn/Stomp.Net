@@ -12,7 +12,7 @@ namespace Apache.NMS.Util
     ///     instances.  This class allows IMessage classes to define Message specific properties
     ///     that can be accessed using the standard property get / set semantics.
     ///     This is especially useful for NMSX type properties which can vary by provider and
-    ///     are obtianed via a call to IConnectionMetaData.NMSXPropertyNames.  The client can
+    ///     are obtained via a call to IConnectionMetaData.NMSXPropertyNames.  The client can
     ///     set the properties on an IMessage instance without a direct cast to the providers
     ///     specific Message types.
     ///     Properties accessed in this way are treated as NMS Message headers which are never
@@ -53,34 +53,25 @@ namespace Apache.NMS.Util
         {
             var propertyInfo = messageType.GetProperty( name, publicBinding );
 
-            if ( name.StartsWith( "NMS" ) )
-                if ( null != propertyInfo && propertyInfo.CanRead )
-                {
-                    return propertyInfo.GetValue( message, null );
-                }
-                else
-                {
-                    var fieldInfo = messageType.GetField( name, publicBinding );
+            if ( !name.StartsWith( "NMS", StringComparison.Ordinal ) )
+                return base.GetObjectProperty( name );
 
-                    if ( null != fieldInfo )
-                        return fieldInfo.GetValue( message );
-                }
+            if ( null != propertyInfo && propertyInfo.CanRead )
+                return propertyInfo.GetValue( message, null );
 
-            return base.GetObjectProperty( name );
+            var fieldInfo = messageType.GetField( name, publicBinding );
+
+            return null != fieldInfo ? fieldInfo.GetValue( message ) : base.GetObjectProperty( name );
         }
 
         protected override void SetObjectProperty( String name, Object value )
         {
             var propertyInfo = messageType.GetProperty( name, publicBinding );
 
-            if ( !name.StartsWith( "NMS" ) )
-            {
+            if ( !name.StartsWith( "NMS", StringComparison.Ordinal ) )
                 base.SetObjectProperty( name, value );
-            }
             else if ( null != propertyInfo && propertyInfo.CanWrite )
-            {
                 propertyInfo.SetValue( message, value, null );
-            }
             else
             {
                 var fieldInfo = messageType.GetField( name, publicBinding );

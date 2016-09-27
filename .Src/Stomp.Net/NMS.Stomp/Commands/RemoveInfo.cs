@@ -35,22 +35,22 @@ namespace Apache.NMS.Stomp.Commands
                                              "]";
 
         /// <summery>
-        ///     Allows a Visitor to visit this command and return a response to the
+        ///     Allows a Visitor to Visit this command and return a response to the
         ///     command based on the command type being visited.  The command will call
         ///     the proper processXXX method in the visitor.
         /// </summery>
-        public override Response visit( ICommandVisitor visitor )
+        public override Response Visit( ICommandVisitor visitor )
         {
             switch ( ObjectId.GetDataStructureType() )
             {
                 case DataStructureTypes.ConnectionIdType:
                     return visitor.ProcessRemoveConnection( (ConnectionId) ObjectId );
                 case DataStructureTypes.SessionIdType:
-                    return visitor.processRemoveSession( (SessionId) ObjectId );
+                    return visitor.ProcessRemoveSession( (SessionId) ObjectId );
                 case DataStructureTypes.ConsumerIdType:
-                    return visitor.processRemoveConsumer( (ConsumerId) ObjectId );
+                    return visitor.ProcessRemoveConsumer( (ConsumerId) ObjectId );
                 case DataStructureTypes.ProducerIdType:
-                    return visitor.processRemoveProducer( (ProducerId) ObjectId );
+                    return visitor.ProcessRemoveProducer( (ProducerId) ObjectId );
                 default:
                     throw new IOException( "Unknown remove command type: " + ObjectId.GetDataStructureType() );
             }

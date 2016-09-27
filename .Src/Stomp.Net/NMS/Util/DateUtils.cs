@@ -41,9 +41,7 @@ namespace Apache.NMS.Util
         public static DateTime ToDateTime( Int64 javaTime ) => DateTime.FromFileTime( ( javaTime + epochDiff ) * TimeSpan.TicksPerMillisecond );
 
         public static DateTime ToDateTimeUtc( Int64 javaTime ) => DateTime.FromFileTimeUtc( ( javaTime + epochDiff ) * TimeSpan.TicksPerMillisecond );
-
-        public static Int64 ToJavaTime( DateTime dateTime ) => dateTime.ToFileTime() / TimeSpan.TicksPerMillisecond - epochDiff;
-
+        
         public static Int64 ToJavaTimeUtc( DateTime dateTime ) => dateTime.ToFileTimeUtc() / TimeSpan.TicksPerMillisecond - epochDiff;
     }
 }

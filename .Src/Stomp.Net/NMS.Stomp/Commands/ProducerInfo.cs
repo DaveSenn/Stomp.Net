@@ -20,10 +20,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the isProducerInfo() query.
         /// </summery>
-        public override Boolean IsProducerInfo
-        {
-            get { return true; }
-        }
+        public override Boolean IsProducerInfo => true;
 
         #endregion
 
@@ -44,6 +41,7 @@ namespace Apache.NMS.Stomp.Commands
                                              "DispatchAsync=" + DispatchAsync +
                                              "]";
 
-        public override Response visit( ICommandVisitor visitor ) => visitor.processAddProducer( this );
+        public override Response Visit( ICommandVisitor visitor ) 
+            => visitor.ProcessAddProducer( this );
     }
 }

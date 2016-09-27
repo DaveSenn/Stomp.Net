@@ -91,7 +91,7 @@ namespace Apache.NMS.Util
             }
             catch ( Exception ex )
             {
-                throw NMSExceptionSupport.CreateMessageFormatException( ex );
+                throw NmsExceptionSupport.CreateMessageFormatException( ex );
             }
         }
 
@@ -162,7 +162,7 @@ namespace Apache.NMS.Util
             }
             catch ( FormatException ex )
             {
-                throw NMSExceptionSupport.CreateMessageFormatException( ex );
+                throw NmsExceptionSupport.CreateMessageFormatException( ex );
             }
         }
 
@@ -183,7 +183,7 @@ namespace Apache.NMS.Util
             }
             catch ( FormatException ex )
             {
-                throw NMSExceptionSupport.CreateMessageFormatException( ex );
+                throw NmsExceptionSupport.CreateMessageFormatException( ex );
             }
         }
 
@@ -209,7 +209,7 @@ namespace Apache.NMS.Util
             }
             catch ( FormatException ex )
             {
-                throw NMSExceptionSupport.CreateMessageFormatException( ex );
+                throw NmsExceptionSupport.CreateMessageFormatException( ex );
             }
         }
 
@@ -230,7 +230,7 @@ namespace Apache.NMS.Util
             }
             catch ( FormatException ex )
             {
-                throw NMSExceptionSupport.CreateMessageFormatException( ex );
+                throw NmsExceptionSupport.CreateMessageFormatException( ex );
             }
         }
 
@@ -251,7 +251,7 @@ namespace Apache.NMS.Util
             }
             catch ( FormatException ex )
             {
-                throw NMSExceptionSupport.CreateMessageFormatException( ex );
+                throw NmsExceptionSupport.CreateMessageFormatException( ex );
             }
         }
 
@@ -272,7 +272,7 @@ namespace Apache.NMS.Util
             }
             catch ( FormatException ex )
             {
-                throw NMSExceptionSupport.CreateMessageFormatException( ex );
+                throw NmsExceptionSupport.CreateMessageFormatException( ex );
             }
         }
 
@@ -293,7 +293,7 @@ namespace Apache.NMS.Util
             }
             catch ( FormatException ex )
             {
-                throw NMSExceptionSupport.CreateMessageFormatException( ex );
+                throw NmsExceptionSupport.CreateMessageFormatException( ex );
             }
         }
 
@@ -314,7 +314,7 @@ namespace Apache.NMS.Util
             }
             catch ( FormatException ex )
             {
-                throw NMSExceptionSupport.CreateMessageFormatException( ex );
+                throw NmsExceptionSupport.CreateMessageFormatException( ex );
             }
         }
 
@@ -342,7 +342,7 @@ namespace Apache.NMS.Util
             }
             catch ( FormatException ex )
             {
-                throw NMSExceptionSupport.CreateMessageFormatException( ex );
+                throw NmsExceptionSupport.CreateMessageFormatException( ex );
             }
         }
 

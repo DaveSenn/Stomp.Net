@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Stomp.Net.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -52,6 +53,7 @@
     <Compile Include="BasicCalc.cs" />
     <Compile Include="Definition\Common\Disposable.cs" />
     <Compile Include="Definition\Connection\StompConnectionSettings.cs" />
+    <Compile Include="Definition\Connection\StompProducerSettings.cs" />
     <Compile Include="Definition\Connection\StompSslSettings.cs" />
     <Compile Include="Definition\Connection\StompTransportSettings.cs" />
     <Compile Include="Definition\StompNetConfiguration.cs" />
@@ -157,8 +159,6 @@
     <Compile Include="NMS\IMessage.cs" />
     <Compile Include="NMS\IMessageConsumer.cs" />
     <Compile Include="NMS\IMessageProducer.cs" />
-    <Compile Include="NMS\INetTxConnection.cs" />
-    <Compile Include="NMS\INetTxSession.cs" />
     <Compile Include="NMS\InvalidClientIDException.cs" />
     <Compile Include="NMS\InvalidDestinationException.cs" />
     <Compile Include="NMS\InvalidSelectorException.cs" />
@@ -183,14 +183,10 @@
     <Compile Include="NMS\NMSConstants.cs" />
     <Compile Include="NMS\NMSException.cs" />
     <Compile Include="NMS\NMSSecurityException.cs" />
-    <Compile Include="NMS\policies\RedeliveryPolicy.cs" />
+    <Compile Include="NMS\Policies\RedeliveryPolicy.cs" />
     <Compile Include="NMS\ResourceAllocationException.cs" />
-    <Compile Include="NMS\SessionExtensions.cs" />
     <Compile Include="NMS\Tracer.cs" />
-    <Compile Include="NMS\TransactionInProgressException.cs" />
-    <Compile Include="NMS\TransactionRolledBackException.cs" />
     <Compile Include="NMS\Util\Atomic.cs" />
-    <Compile Include="NMS\Util\Convert.cs" />
     <Compile Include="NMS\Util\CountDownLatch.cs" />
     <Compile Include="NMS\Util\DateUtils.cs" />
     <Compile Include="NMS\Util\EndianBinaryReader.cs" />
@@ -201,9 +197,7 @@
     <Compile Include="NMS\Util\NMSExceptionSupport.cs" />
     <Compile Include="NMS\Util\PrimitiveMap.cs" />
     <Compile Include="NMS\Util\PrimitiveMapInterceptor.cs" />
-    <Compile Include="NMS\Util\SessionUtils.cs" />
-    <Compile Include="NMS\Util\URISupport.cs" />
-    <Compile Include="NMS\Util\XmlUtils.cs" />
+    <Compile Include="NMS\Util\UriSupport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

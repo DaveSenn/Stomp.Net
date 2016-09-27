@@ -84,12 +84,12 @@ namespace Apache.NMS.Stomp
             if ( destination.Options != null )
             {
                 // Get options prefixed with "consumer.*"
-                var options = URISupport.GetProperties( destination.Options, "consumer." );
+                var options = UriSupport.GetProperties( destination.Options, "consumer." );
                 // Extract out custom extension options "consumer.nms.*"
-                var customConsumerOptions = URISupport.ExtractProperties( options, "nms." );
+                var customConsumerOptions = UriSupport.ExtractProperties( options, "nms." );
 
-                URISupport.SetProperties( ConsumerInfo, options );
-                URISupport.SetProperties( this, customConsumerOptions, "nms." );
+                UriSupport.SetProperties( ConsumerInfo, options );
+                UriSupport.SetProperties( this, customConsumerOptions, "nms." );
             }
         }
 
@@ -109,14 +109,9 @@ namespace Apache.NMS.Stomp
                         clearDispatchList = false;
                         unconsumedMessages.Clear();
 
-                        if ( pendingAck != null )
-                        {
-                            // on resumption a pending delivered ack will be out of sync with
-                            // re-deliveries.
-                            if ( Tracer.IsDebugEnabled )
-                                Tracer.Debug( "removing pending delivered ack on transport interupt: " + pendingAck );
-                            pendingAck = null;
-                        }
+                        // on resumption a pending delivered ack will be out of sync with
+                        // re-deliveries.
+                        pendingAck = null;
                     }
 
                     if ( !unconsumedMessages.Closed )
@@ -233,32 +228,30 @@ namespace Apache.NMS.Stomp
         {
             MessageAck ack = null;
 
-            if ( deliveringAcks.CompareAndSet( false, true ) )
+            if ( !deliveringAcks.CompareAndSet( false, true ) )
+                return;
+
+            if ( pendingAck != null && pendingAck.AckType == (Byte) AckType.ConsumedAck )
             {
-                if ( pendingAck != null && pendingAck.AckType == (Byte) AckType.ConsumedAck )
-                {
-                    ack = pendingAck;
-                    pendingAck = null;
-                }
+                ack = pendingAck;
+                pendingAck = null;
+            }
 
-                if ( pendingAck != null )
-                {
-                    var ackToSend = ack;
+            if ( pendingAck != null )
+            {
+                var ackToSend = ack;
 
-                    try
-                    {
-                        session.SendAck( ackToSend );
-                    }
-                    catch ( Exception e )
-                    {
-                        Tracer.DebugFormat( "{0} : Failed to send ack, {1}", ConsumerInfo.ConsumerId, e );
-                    }
-                }
-                else
+                try
                 {
-                    deliveringAcks.Value = false;
+                    session.SendAck( ackToSend );
+                }
+                catch ( Exception ex )
+                {
+                    Tracer.WarnFormat( "{0} : Failed to send ack, {1}", ConsumerInfo.ConsumerId, ex );
                 }
             }
+            else
+                deliveringAcks.Value = false;
         }
 
         public Boolean Iterate()
@@ -306,7 +299,6 @@ namespace Apache.NMS.Stomp
         protected void DoClientAcknowledge( Message message )
         {
             CheckClosed();
-            Tracer.Debug( "Sending Client Ack:" );
             session.Acknowledge();
         }
 
@@ -325,19 +317,19 @@ namespace Apache.NMS.Stomp
 
             if ( dispatch == null )
             {
-                Tracer.DebugFormat( "Attempt to Ack MessageId[{0}] failed because the original dispatch is not in the Dispatch List", message.MessageId );
+                Tracer.WarnFormat( "Attempt to Ack MessageId[{0}] failed because the original dispatch is not in the Dispatch List", message.MessageId );
                 return;
             }
 
-            var ack = new MessageAck();
+            var ack = new MessageAck
+            {
+                AckType = (Byte) AckType.IndividualAck,
+                ConsumerId = ConsumerInfo.ConsumerId,
+                Destination = dispatch.Destination,
+                LastMessageId = dispatch.Message.MessageId,
+                MessageCount = 1
+            };
 
-            ack.AckType = (Byte) AckType.IndividualAck;
-            ack.ConsumerId = ConsumerInfo.ConsumerId;
-            ack.Destination = dispatch.Destination;
-            ack.LastMessageId = dispatch.Message.MessageId;
-            ack.MessageCount = 1;
-
-            Tracer.Debug( "Sending Individual Ack for MessageId: " + ack.LastMessageId );
             session.SendAck( ack );
         }
 
@@ -375,24 +367,22 @@ namespace Apache.NMS.Stomp
 
         internal void ClearMessagesInProgress()
         {
-            if ( inProgressClearRequiredFlag )
-                lock ( unconsumedMessages )
-                    if ( inProgressClearRequiredFlag )
-                    {
-                        if ( Tracer.IsDebugEnabled )
-                            Tracer.Debug( ConsumerId + " clearing dispatched list (" +
-                                          unconsumedMessages.Count + ") on transport interrupt" );
+            if ( !inProgressClearRequiredFlag )
+                return;
 
-                        unconsumedMessages.Clear();
-                        synchronizationRegistered = false;
+            lock ( unconsumedMessages )
+                if ( inProgressClearRequiredFlag )
+                {
+                    unconsumedMessages.Clear();
+                    synchronizationRegistered = false;
 
-                        // allow dispatch on this connection to resume
-                        session.Connection.TransportInterruptionProcessingComplete();
-                        inProgressClearRequiredFlag = false;
-                    }
+                    // allow dispatch on this connection to resume
+                    session.Connection.TransportInterruptionProcessingComplete();
+                    inProgressClearRequiredFlag = false;
+                }
         }
 
-        internal void Commit()
+        private void Commit()
         {
             lock ( dispatchedMessages )
                 dispatchedMessages.Clear();
@@ -412,9 +402,6 @@ namespace Apache.NMS.Stomp
             lock ( unconsumedMessages.SyncRoot )
                 lock ( dispatchedMessages )
                 {
-                    Tracer.DebugFormat( "Rollback started, rolling back {0} message",
-                                        dispatchedMessages.Count );
-
                     if ( dispatchedMessages.Count == 0 )
                         return;
 
@@ -442,7 +429,6 @@ namespace Apache.NMS.Stomp
 
                         if ( redeliveryDelay > 0 && !unconsumedMessages.Closed )
                         {
-                            Tracer.DebugFormat( "Rollback delayed for {0} seconds", redeliveryDelay );
                             var deadline = DateTime.Now.AddMilliseconds( redeliveryDelay );
                             ThreadPool.QueueUserWorkItem( RollbackHelper, deadline );
                         }
@@ -572,7 +558,7 @@ namespace Apache.NMS.Stomp
                     else
                     {
                         if ( FailureError != null )
-                            throw NMSExceptionSupport.Create( FailureError );
+                            throw NmsExceptionSupport.Create( FailureError );
                         return null;
                     }
                 }
@@ -582,7 +568,7 @@ namespace Apache.NMS.Stomp
                 }
                 else if ( !IgnoreExpiration && dispatch.Message.IsExpired() )
                 {
-                    Tracer.DebugFormat( "{0} received expired message: {1}", ConsumerInfo.ConsumerId, dispatch.Message.MessageId );
+                    Tracer.WarnFormat( "{0} received expired message: {1}", ConsumerInfo.ConsumerId, dispatch.Message.MessageId );
 
                     BeforeMessageIsConsumed( dispatch );
                     AfterMessageIsConsumed( dispatch, true );
@@ -784,25 +770,19 @@ namespace Apache.NMS.Stomp
 
         internal void DoClose()
         {
-            if ( !unconsumedMessages.Closed )
-            {
-                Tracer.Debug( "Closing down the Consumer" );
+            if ( unconsumedMessages.Closed )
+                return;
+            if ( !session.IsTransacted )
+                lock ( dispatchedMessages )
+                    dispatchedMessages.Clear();
 
-                if ( !session.IsTransacted )
-                    lock ( dispatchedMessages )
-                        dispatchedMessages.Clear();
+            unconsumedMessages.Close();
+            session.DisposeOf( ConsumerInfo.ConsumerId );
 
-                unconsumedMessages.Close();
-                session.DisposeOf( ConsumerInfo.ConsumerId );
+            var removeCommand = new RemoveInfo { ObjectId = ConsumerInfo.ConsumerId };
 
-                var removeCommand = new RemoveInfo();
-                removeCommand.ObjectId = ConsumerInfo.ConsumerId;
-
-                session.Connection.Oneway( removeCommand );
-                session = null;
-
-                Tracer.Debug( "Consumer instnace Closed." );
-            }
+            session.Connection.Oneway( removeCommand );
+            session = null;
         }
 
         #endregion

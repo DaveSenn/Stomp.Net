@@ -61,11 +61,11 @@ namespace Apache.NMS.Stomp.Commands
 
         public override Byte GetDataStructureType() => DataStructureTypes.TextMessageType;
 
-        public override Int32 Size()
+        protected override Int32 Size()
         {
             if ( Content == null && text != null )
             {
-                var size = DEFAULT_MINIMUM_MESSAGE_SIZE;
+                var size = DefaultMinimumMessageSize;
 
                 if ( MarshalledProperties != null )
                     size += MarshalledProperties.Length;

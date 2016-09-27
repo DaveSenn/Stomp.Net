@@ -10,22 +10,14 @@ namespace Apache.NMS.Stomp.Commands
     {
         #region Fields
 
-        private String key;
-        private SessionId parentId;
+        private String _key;
+        private SessionId _parentId;
 
         #endregion
 
         #region Properties
 
-        public SessionId ParentId
-        {
-            get
-            {
-                if ( parentId == null )
-                    parentId = new SessionId( this );
-                return parentId;
-            }
-        }
+        public SessionId ParentId => _parentId ?? ( _parentId = new SessionId( this ) );
 
         public String ConnectionId { get; set; }
 
@@ -51,7 +43,7 @@ namespace Apache.NMS.Stomp.Commands
         public ProducerId( String producerKey )
         {
             // Store the original.
-            key = producerKey;
+            _key = producerKey;
 
             // Try and get back the AMQ version of the data.
             var idx = producerKey.LastIndexOf( ':' );
@@ -69,7 +61,7 @@ namespace Apache.NMS.Stomp.Commands
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.Debug( ex.Message );
+                    Tracer.Warn( ex.Message );
                 }
             ConnectionId = producerKey;
         }
@@ -116,12 +108,7 @@ namespace Apache.NMS.Stomp.Commands
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString()
-        {
-            if ( key == null )
-                key = ConnectionId + ":" + SessionId + ":" + Value;
-
-            return key;
-        }
+        public override String ToString() 
+            => _key ?? ( _key = ConnectionId + ":" + SessionId + ":" + Value );
     }
 }

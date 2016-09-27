@@ -47,6 +47,6 @@ namespace Apache.NMS.Stomp.Commands
                                              "Version=" + Version +
                                              "]";
 
-        public override Response visit( ICommandVisitor visitor ) => null;
+        public override Response Visit( ICommandVisitor visitor ) => null;
     }
 }

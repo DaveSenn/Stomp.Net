@@ -12,38 +12,38 @@ namespace Apache.NMS.Stomp.State
 
         Response ProcessAddConsumer( ConsumerInfo info );
 
-        Response processAddProducer( ProducerInfo info );
+        Response ProcessAddProducer( ProducerInfo info );
 
-        Response processAddSession( SessionInfo info );
+        Response ProcessAddSession( SessionInfo info );
 
-        Response processBeginTransaction( TransactionInfo info );
+        Response ProcessBeginTransaction( TransactionInfo info );
 
-        Response processCommitTransaction( TransactionInfo info );
+        Response ProcessCommitTransaction( TransactionInfo info );
 
-        Response processConnectionError( ConnectionError error );
+        Response ProcessConnectionError( ConnectionError error );
 
-        Response processKeepAliveInfo( KeepAliveInfo info );
+        Response ProcessKeepAliveInfo( KeepAliveInfo info );
 
-        Response processMessage( BaseMessage send );
+        Response ProcessMessage( BaseMessage send );
 
-        Response processMessageAck( MessageAck ack );
+        Response ProcessMessageAck( MessageAck ack );
 
-        Response processMessageDispatch( MessageDispatch dispatch );
+        Response ProcessMessageDispatch( MessageDispatch dispatch );
 
         Response ProcessRemoveConnection( ConnectionId id );
 
-        Response processRemoveConsumer( ConsumerId id );
+        Response ProcessRemoveConsumer( ConsumerId id );
 
-        Response processRemoveProducer( ProducerId id );
+        Response ProcessRemoveProducer( ProducerId id );
 
-        Response processRemoveSession( SessionId id );
+        Response ProcessRemoveSession( SessionId id );
 
-        Response processRemoveSubscriptionInfo( RemoveSubscriptionInfo info );
+        Response ProcessRemoveSubscriptionInfo( RemoveSubscriptionInfo info );
 
-        Response processResponse( Response response );
+        Response ProcessResponse( Response response );
 
-        Response processRollbackTransaction( TransactionInfo info );
+        Response ProcessRollbackTransaction( TransactionInfo info );
 
-        Response processShutdownInfo( ShutdownInfo info );
+        Response ProcessShutdownInfo( ShutdownInfo info );
     }
 }

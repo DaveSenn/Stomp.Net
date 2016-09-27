@@ -7,49 +7,25 @@ using Apache.NMS.Stomp.State;
 
 namespace Apache.NMS.Stomp.Commands
 {
-    public abstract class BaseCommand : BaseDataStructure, ICommand, ICloneable
+    public abstract class BaseCommand : BaseDataStructure, ICommand
     {
         #region Properties
 
-        public virtual Boolean IsBrokerInfo
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsBrokerInfo => false;
 
-        public virtual Boolean IsConnectionError
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsConnectionError => false;
 
-        public virtual Boolean IsConsumerInfo
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsConsumerInfo => false;
 
-        public virtual Boolean IsControlCommand
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsControlCommand => false;
 
-        public virtual Boolean IsProducerAck
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsProducerAck => false;
 
-        public virtual Boolean IsProducerInfo
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsProducerInfo => false;
 
-        public virtual Boolean IsSessionInfo
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsSessionInfo => false;
 
-        public virtual Boolean IsTransactionInfo
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsTransactionInfo => false;
 
         #endregion
 
@@ -66,82 +42,45 @@ namespace Apache.NMS.Stomp.Commands
 
         public Int32 CommandId { get; set; }
 
-        public virtual Boolean IsConnectionInfo
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsConnectionInfo => false;
 
-        public virtual Boolean IsDestinationInfo
-        {
-            get { return false; }
-        }
+        //public virtual Boolean IsDestinationInfo => false;
 
-        public virtual Boolean IsErrorCommand
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsErrorCommand => false;
 
-        public virtual Boolean IsKeepAliveInfo
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsKeepAliveInfo => false;
 
-        public virtual Boolean IsMessage
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsMessage => false;
 
-        public virtual Boolean IsMessageAck
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsMessageAck => false;
 
-        public virtual Boolean IsMessageDispatch
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsMessageDispatch => false;
 
-        public virtual Boolean IsRemoveInfo
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsRemoveInfo => false;
 
-        public virtual Boolean IsRemoveSubscriptionInfo
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsRemoveSubscriptionInfo => false;
 
-        public virtual Boolean IsResponse
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsResponse => false;
 
-        public virtual Boolean IsShutdownInfo
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsShutdownInfo => false;
 
-        public virtual Boolean IsWireFormatInfo
-        {
-            get { return false; }
-        }
+        public virtual Boolean IsWireFormatInfo => false;
 
         public virtual Boolean ResponseRequired { get; set; } = false;
 
-        public virtual Response visit( ICommandVisitor visitor )
+        public virtual Response Visit( ICommandVisitor visitor )
         {
             throw new ApplicationException( "BaseCommand.Visit() not implemented" );
         }
 
         public override Boolean Equals( Object that )
         {
-            if ( that is BaseCommand )
-            {
-                var thatCommand = (BaseCommand) that;
-                return GetDataStructureType() == thatCommand.GetDataStructureType()
-                       && CommandId == thatCommand.CommandId;
-            }
-            return false;
+            if ( !( that is BaseCommand ) )
+                return false;
+
+            var thatCommand = (BaseCommand) that;
+            return GetDataStructureType() == thatCommand.GetDataStructureType()
+                   && CommandId == thatCommand.CommandId;
         }
 
         public override Int32 GetHashCode() => CommandId * 37 + GetDataStructureType();
@@ -151,6 +90,7 @@ namespace Apache.NMS.Stomp.Commands
             var answer = DataStructureTypes.GetDataStructureTypeAsString( GetDataStructureType() );
             if ( answer.Length == 0 )
                 answer = base.ToString();
+
             return answer + ": id = " + CommandId;
         }
     }

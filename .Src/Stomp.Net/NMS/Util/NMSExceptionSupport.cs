@@ -6,22 +6,8 @@ using System;
 
 namespace Apache.NMS.Util
 {
-    public sealed class NMSExceptionSupport
+    public static class NmsExceptionSupport
     {
-        #region Ctor
-
-        private NMSExceptionSupport()
-        {
-        }
-
-        #endregion
-
-        public static NMSException Create( String message, String errorCode, Exception cause )
-        {
-            var exception = new NMSException( message, errorCode, cause );
-            return exception;
-        }
-
         public static NMSException Create( String message, Exception cause )
         {
             var exception = new NMSException( message, cause );

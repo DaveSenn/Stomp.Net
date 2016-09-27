@@ -68,13 +68,13 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        public MsgDeliveryMode DeliveryMode { get; set; } = NMSConstants.defaultDeliveryMode;
+        public MsgDeliveryMode DeliveryMode { get; set; } = NmsConstants.defaultDeliveryMode;
 
         public Boolean DisableMessageID { get; set; } = false;
 
         public Boolean DisableMessageTimestamp { get; set; } = false;
 
-        public MsgPriority Priority { get; set; } = NMSConstants.defaultPriority;
+        public MsgPriority Priority { get; set; } = NmsConstants.defaultPriority;
 
         public ProducerTransformerDelegate ProducerTransformer { get; set; }
 
@@ -143,7 +143,7 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        public TimeSpan TimeToLive { get; set; } = NMSConstants.defaultTimeToLive;
+        public TimeSpan TimeToLive { get; set; } = NmsConstants.defaultTimeToLive;
 
         protected void Dispose( Boolean disposing )
         {

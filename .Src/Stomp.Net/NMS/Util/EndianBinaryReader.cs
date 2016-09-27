@@ -11,7 +11,6 @@ namespace Apache.NMS.Util
     ///     A BinaryWriter that switches the endian orientation of the read operations so that they
     ///     are compatible across platforms.
     /// </summary>
-    [CLSCompliant( false )]
     public class EndianBinaryReader : BinaryReader
     {
         #region Ctor

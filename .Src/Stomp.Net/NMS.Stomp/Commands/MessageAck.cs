@@ -56,6 +56,6 @@ namespace Apache.NMS.Stomp.Commands
                                              "MessageCount=" + MessageCount +
                                              "]";
 
-        public override Response visit( ICommandVisitor visitor ) => visitor.processMessageAck( this );
+        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessMessageAck( this );
     }
 }

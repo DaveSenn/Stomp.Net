@@ -8,11 +8,11 @@ using Apache.NMS.Util;
 
 namespace Apache.NMS.Stomp.Commands
 {
-    public class BaseMessage : BaseCommand, MarshallAware, ICloneable
+    public class BaseMessage : BaseCommand, MarshallAware
     {
         #region Constants
 
-        public const Int32 DEFAULT_MINIMUM_MESSAGE_SIZE = 1024;
+        protected const Int32 DefaultMinimumMessageSize = 1024;
 
         #endregion
 
@@ -26,11 +26,11 @@ namespace Apache.NMS.Stomp.Commands
 
         public MessageId MessageId { get; set; }
 
-        public TransactionId OriginalTransactionId { get; set; }
+        protected TransactionId OriginalTransactionId { get; set; }
 
-        public String GroupID { get; set; }
+        protected String GroupId { get; set; }
 
-        public Int32 GroupSequence { get; set; }
+        protected Int32 GroupSequence { get; set; }
 
         public String CorrelationId { get; set; }
 
@@ -48,7 +48,7 @@ namespace Apache.NMS.Stomp.Commands
 
         public Byte[] Content { get; set; }
 
-        public Byte[] MarshalledProperties { get; set; }
+        protected Byte[] MarshalledProperties { get; set; }
 
         public ConsumerId TargetConsumerId { get; set; }
 
@@ -61,10 +61,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summery>
         ///     Return an answer of true to the isMessage() query.
         /// </summery>
-        public override Boolean IsMessage
-        {
-            get { return true; }
-        }
+        public override Boolean IsMessage => true;
 
         #endregion
 
@@ -85,7 +82,7 @@ namespace Apache.NMS.Stomp.Commands
             return o;
         }
 
-        public Boolean IsExpired() => Expiration == 0 ? false : DateTime.UtcNow > DateUtils.ToDateTimeUtc( Expiration );
+        public Boolean IsExpired() => Expiration != 0 && DateTime.UtcNow > DateUtils.ToDateTimeUtc( Expiration );
 
         public virtual void OnMessageRollback()
         {
@@ -98,9 +95,9 @@ namespace Apache.NMS.Stomp.Commands
             ReadOnlyBody = true;
         }
 
-        public virtual Int32 Size()
+        protected virtual Int32 Size()
         {
-            var size = DEFAULT_MINIMUM_MESSAGE_SIZE;
+            var size = DefaultMinimumMessageSize;
 
             if ( MarshalledProperties != null )
                 size += MarshalledProperties.Length;
@@ -121,7 +118,7 @@ namespace Apache.NMS.Stomp.Commands
                                              "TransactionId=" + TransactionId + ", " +
                                              "MessageId=" + MessageId + ", " +
                                              "OriginalTransactionId=" + OriginalTransactionId + ", " +
-                                             "GroupID=" + GroupID + ", " +
+                                             "GroupID=" + GroupId + ", " +
                                              "GroupSequence=" + GroupSequence + ", " +
                                              "CorrelationId=" + CorrelationId + ", " +
                                              "Persistent=" + Persistent + ", " +
@@ -136,6 +133,7 @@ namespace Apache.NMS.Stomp.Commands
                                              "RedeliveryCounter=" + RedeliveryCounter +
                                              "]";
 
-        public override Response visit( ICommandVisitor visitor ) => visitor.processMessage( this );
+        public override Response Visit( ICommandVisitor visitor ) 
+            => visitor.ProcessMessage( this );
     }
 }

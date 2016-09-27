@@ -206,17 +206,9 @@ namespace Apache.NMS.Stomp.Protocol
                 writer.WriteElementString( "string", (String) value );
             }
             else if ( value is IDictionary )
-            {
-                Tracer.Debug( "Can't Marshal a Dictionary" );
-
                 throw new NotSupportedException( "Can't marshal nested Maps in Stomp" );
-            }
             else if ( value is IList )
-            {
-                Tracer.Debug( "Can't Marshal a List" );
-
                 throw new NotSupportedException( "Can't marshal nested Maps in Stomp" );
-            }
             else
             {
                 Console.WriteLine( "Can't Marshal a something other than a Primitive Value." );

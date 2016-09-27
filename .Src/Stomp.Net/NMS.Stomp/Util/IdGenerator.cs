@@ -89,7 +89,7 @@ namespace Apache.NMS.Stomp.Util
 
             if ( seed1 != null && seed2 != null )
             {
-                result = seed1.CompareTo( seed2 );
+                result = String.Compare( seed1, seed2, StringComparison.Ordinal );
 
                 if ( result == 0 )
                 {

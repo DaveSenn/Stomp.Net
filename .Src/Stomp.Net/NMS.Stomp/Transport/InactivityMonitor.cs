@@ -78,15 +78,12 @@ namespace Apache.NMS.Stomp.Transport
         {
             instanceId = ++id;
             localWireFormatInfo = wireFormat;
-            Tracer.DebugFormat( "Creating Inactivity Monitor: {0}", instanceId );
         }
 
         #endregion
 
-        public void CheckConnection( Object state )
+        private void CheckConnection( Object state )
         {
-            Tracer.DebugFormat( "CheckConnection: Timer Elapsed at {0}", DateTime.Now.ToLocalTime() );
-
             // First see if we have written or can write.
             WriteCheck();
 
@@ -136,19 +133,15 @@ namespace Apache.NMS.Stomp.Transport
         {
             if ( inWrite.Value || failed.Value )
             {
-                Tracer.DebugFormat( "InactivityMonitor[{0}]: is in write or already failed.", instanceId );
+                Tracer.WarnFormat( "InactivityMonitor[{0}]: is in write or already failed.", instanceId );
                 return;
             }
 
             if ( !commandSent.Value )
             {
-                Tracer.DebugFormat( "InactivityMonitor[{0}]: No Message sent since last write check. Sending a KeepAliveInfo.", instanceId );
+                Tracer.WarnFormat( "InactivityMonitor[{0}]: No Message sent since last write check. Sending a KeepAliveInfo.", instanceId );
                 asyncWriteTask.IsPending = true;
                 asyncTasks.Wakeup();
-            }
-            else
-            {
-                Tracer.DebugFormat( "InactivityMonitor[{0}]: Message sent since last write check. Resetting flag.", instanceId );
             }
 
             commandSent.Value = false;
@@ -193,14 +186,7 @@ namespace Apache.NMS.Stomp.Transport
                             OnException( this, ex );
                         }
                     }
-                else if ( command.IsKeepAliveInfo )
-                    if ( Tracer.IsDebugEnabled )
-                        Tracer.DebugFormat( "InactivityMonitor[{0}]: New Keep Alive Received at -> " +
-                                            DateTime.Now.ToLongTimeString()
-                                                    .TrimEnd( " APM".ToCharArray() ) +
-                                            "." + DateTime.Now.Millisecond,
-                                            instanceId );
-
+                
                 base.OnCommand( sender, command );
             }
             finally
@@ -213,7 +199,7 @@ namespace Apache.NMS.Stomp.Transport
         {
             if ( failed.CompareAndSet( false, true ) && !disposing )
             {
-                Tracer.DebugFormat( "Exception received in the Inactivity Monitor: {0}", command.Message );
+                Tracer.WarnFormat( "Exception received in the Inactivity Monitor: {0}", command.Message );
                 StopMonitorThreads();
                 base.OnException( sender, command );
             }
@@ -262,41 +248,31 @@ namespace Apache.NMS.Stomp.Transport
                     ? localWireFormatInfo.MaxInactivityDurationInitialDelay
                     : WriteCheckTime;
 
-                Tracer.DebugFormat( "InactivityMonitor[{0}]: Read Check time interval: {1}",
-                                    instanceId,
-                                    ReadCheckTime );
-                Tracer.DebugFormat( "InactivityMonitor[{0}]: Initial Delay time interval: {1}",
-                                    instanceId,
-                                    InitialDelayTime );
-
                 asyncTasks = new CompositeTaskRunner();
 
                 if ( asyncErrorTask != null )
-                {
-                    Tracer.DebugFormat( "InactivityMonitor[{0}]: Adding the Async Read Check Task to the Runner.", instanceId );
                     asyncTasks.AddTask( asyncErrorTask );
-                }
 
                 if ( asyncWriteTask != null )
                 {
-                    Tracer.DebugFormat( "InactivityMonitor[{0}]: Write Check time interval: {1}",
+                    Tracer.WarnFormat( "InactivityMonitor[{0}]: Write Check time interval: {1}",
                                         instanceId,
                                         WriteCheckTime );
                     asyncTasks.AddTask( asyncWriteTask );
                 }
 
-                if ( asyncErrorTask != null || asyncWriteTask != null )
-                {
-                    Tracer.DebugFormat( "InactivityMonitor[{0}]: Starting the Monitor Timer.", instanceId );
-                    monitorStarted.Value = true;
+                if ( asyncErrorTask == null && asyncWriteTask == null )
+                    return;
 
-                    connectionCheckTimer = new Timer(
-                        CheckConnection,
-                        null,
-                        InitialDelayTime,
-                        WriteCheckTime
-                    );
-                }
+                Tracer.WarnFormat( "InactivityMonitor[{0}]: Starting the Monitor Timer.", instanceId );
+                monitorStarted.Value = true;
+
+                connectionCheckTimer = new Timer(
+                    CheckConnection,
+                    null,
+                    InitialDelayTime,
+                    WriteCheckTime
+                );
             }
         }
 
@@ -329,22 +305,19 @@ namespace Apache.NMS.Stomp.Transport
             var elapsed = now - lastReadCheckTime;
 
             if ( !AllowReadCheck( elapsed ) )
-            {
-                Tracer.Debug( "InactivityMonitor[" + instanceId + "]: A read check is not currently allowed." );
                 return;
-            }
 
             lastReadCheckTime = now;
 
             if ( inRead.Value || failed.Value || asyncErrorTask == null )
             {
-                Tracer.DebugFormat( "InactivityMonitor[{0}]: A receive is in progress or already failed.", instanceId );
+                Tracer.WarnFormat( "InactivityMonitor[{0}]: A receive is in progress or already failed.", instanceId );
                 return;
             }
 
             if ( !commandReceived.Value )
             {
-                Tracer.DebugFormat( "InactivityMonitor[{0}]: No message received since last read check! Sending an InactivityException!", instanceId );
+                Tracer.WarnFormat( "InactivityMonitor[{0}]: No message received since last read check! Sending an InactivityException!", instanceId );
                 asyncErrorTask.IsPending = true;
                 asyncTasks.Wakeup();
             }

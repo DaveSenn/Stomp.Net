@@ -78,7 +78,7 @@ namespace Stomp.Net
         /// <param name="stompConnectionSettings">The STOM connection settings.</param>
         public ConnectionFactory( String brokerUri, StompConnectionSettings stompConnectionSettings )
         {
-            BrokerUri = URISupport.CreateCompatibleUri( brokerUri );
+            BrokerUri = UriSupport.CreateCompatibleUri( brokerUri );
             StompConnectionSettings = stompConnectionSettings;
             _transportFactory = new TransportFactory( StompConnectionSettings );
         }
@@ -169,7 +169,7 @@ namespace Stomp.Net
                     // ignored
                 }
 
-                throw NMSExceptionSupport.Create( $"Could not connect to broker URL: '{BrokerUri}'. See inner exception for details.", ex );
+                throw NmsExceptionSupport.Create( $"Could not connect to broker URL: '{BrokerUri}'. See inner exception for details.", ex );
             }
         }
 

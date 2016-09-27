@@ -49,6 +49,6 @@ namespace Apache.NMS.Stomp.Commands
         public override String ToString() => GetType()
                                                  .Name + "[" + "SessionId=" + SessionId + "]";
 
-        public override Response visit( ICommandVisitor visitor ) => visitor.processAddSession( this );
+        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessAddSession( this );
     }
 }

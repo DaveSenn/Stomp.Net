@@ -54,6 +54,6 @@ namespace Apache.NMS.Stomp.Commands
                                              "ClientId=" + ClientId +
                                              "]";
 
-        public override Response visit( ICommandVisitor visitor ) => visitor.processRemoveSubscriptionInfo( this );
+        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessRemoveSubscriptionInfo( this );
     }
 }

@@ -14,8 +14,10 @@ namespace Stomp.Net.Example.Producer
 
         private const String Destination = "TestQ";
         private const String Host = "atmfutura";
+        //private const String Host = "parsnip";
         private const String Password = "password";
         private const Int32 Port = 61902;
+        //private const Int32 Port = 63615;
         private const String User = "admin";
 
         #endregion

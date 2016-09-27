@@ -27,6 +27,7 @@ namespace Apache.NMS.Stomp.Transport
         /// <summary>
         ///     Marshals the given command object onto the stream
         /// </summary>
+        /// <param name="o"></param>
         /// <param name="writer">A binary writer.</param>
         void Marshal( Object o, BinaryWriter writer );
 

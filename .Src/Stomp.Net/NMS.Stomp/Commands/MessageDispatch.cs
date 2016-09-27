@@ -80,6 +80,6 @@ namespace Apache.NMS.Stomp.Commands
                                              "RedeliveryCounter=" + RedeliveryCounter +
                                              "]";
 
-        public override Response visit( ICommandVisitor visitor ) => visitor.processMessageDispatch( this );
+        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessMessageDispatch( this );
     }
 }

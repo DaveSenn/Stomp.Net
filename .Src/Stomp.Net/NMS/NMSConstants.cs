@@ -39,7 +39,7 @@ namespace Apache.NMS
     /// <summary>
     ///     Defines a number of constants
     /// </summary>
-    public class NMSConstants
+    public class NmsConstants
     {
         #region Constants
 

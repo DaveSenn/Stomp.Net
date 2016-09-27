@@ -387,7 +387,7 @@ namespace Apache.NMS.Stomp.Commands
             {
                 var optstring = PhysicalName.Substring( p + 1 );
                 PhysicalName = name.Substring( 0, p );
-                Options = URISupport.ParseQuery( optstring );
+                Options = UriSupport.ParseQuery( optstring );
             }
         }
     }

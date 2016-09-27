@@ -109,10 +109,7 @@ namespace Apache.NMS.Stomp.Protocol
         {
             var frame = new StompFrame( encodeHeaders );
             frame.FromStream( reader );
-
-            if ( Tracer.IsDebugEnabled )
-                Tracer.Debug( "Unmarshalled frame: " + frame );
-
+            
             var answer = CreateCommand( frame );
             return answer;
         }
@@ -120,10 +117,7 @@ namespace Apache.NMS.Stomp.Protocol
         protected virtual ICommand CreateCommand( StompFrame frame )
         {
             var command = frame.Command;
-
-            if ( Tracer.IsDebugEnabled )
-                Tracer.Debug( "StompWireFormat - Received " + frame );
-
+            
             if ( command == "RECEIPT" )
             {
                 var text = frame.RemoveProperty( "receipt-id" );
@@ -334,10 +328,7 @@ namespace Apache.NMS.Stomp.Protocol
 
             if ( MaxInactivityDuration != 0 )
                 frame.SetProperty( "heart-beat", WriteCheckInterval + "," + ReadCheckInterval );
-
-            if ( Tracer.IsDebugEnabled )
-                Tracer.Debug( "StompWireFormat - Writing " + frame );
-
+            
             connectedResponseId = command.CommandId;
 
             frame.ToStream( dataOut );
@@ -385,20 +376,14 @@ namespace Apache.NMS.Stomp.Protocol
 
             if ( command.Retroactive )
                 frame.SetProperty( "activemq.retroactive", command.Retroactive );
-
-            if ( Tracer.IsDebugEnabled )
-                Tracer.Debug( "StompWireFormat - Writing " + frame );
-
+            
             frame.ToStream( dataOut );
         }
 
         protected virtual void WriteKeepAliveInfo( KeepAliveInfo command, BinaryWriter dataOut )
         {
             var frame = new StompFrame( StompFrame.KEEPALIVE, encodeHeaders );
-
-            if ( Tracer.IsDebugEnabled )
-                Tracer.Debug( "StompWireFormat - Writing " + frame );
-
+            
             frame.ToStream( dataOut );
         }
 
@@ -462,10 +447,7 @@ namespace Apache.NMS.Stomp.Protocol
             var map = command.Properties;
             foreach ( String key in map.Keys )
                 frame.SetProperty( key, map[key] );
-
-            if ( Tracer.IsDebugEnabled )
-                Tracer.Debug( "StompWireFormat - Writing " + frame );
-
+            
             frame.ToStream( dataOut );
         }
 
@@ -480,10 +462,7 @@ namespace Apache.NMS.Stomp.Protocol
 
             if ( command.TransactionId != null )
                 frame.SetProperty( "transaction", command.TransactionId.ToString() );
-
-            if ( Tracer.IsDebugEnabled )
-                Tracer.Debug( "StompWireFormat - Writing " + frame );
-
+            
             frame.ToStream( dataOut );
         }
 
@@ -498,10 +477,7 @@ namespace Apache.NMS.Stomp.Protocol
                 if ( command.ResponseRequired )
                     frame.SetProperty( "receipt", command.CommandId );
                 frame.SetProperty( "id", consumerId.ToString() );
-
-                if ( Tracer.IsDebugEnabled )
-                    Tracer.Debug( "StompWireFormat - Writing " + frame );
-
+                
                 frame.ToStream( dataOut );
             }
         }
@@ -511,18 +487,14 @@ namespace Apache.NMS.Stomp.Protocol
             Debug.Assert( !command.ResponseRequired );
 
             var frame = new StompFrame( "DISCONNECT", encodeHeaders );
-
-            if ( Tracer.IsDebugEnabled )
-                Tracer.Debug( "StompWireFormat - Writing " + frame );
-
+            
             frame.ToStream( dataOut );
         }
 
         protected virtual void WriteTransactionInfo( TransactionInfo command, BinaryWriter dataOut )
         {
-            var type = "BEGIN";
-            var transactionType = (TransactionType) command.Type;
-            switch ( transactionType )
+            String type;
+            switch ((TransactionType)command.Type)
             {
                 case TransactionType.Commit:
                     command.ResponseRequired = true;
@@ -532,20 +504,19 @@ namespace Apache.NMS.Stomp.Protocol
                     command.ResponseRequired = true;
                     type = "ABORT";
                     break;
+                case TransactionType.Begin:
+                    type = "BEGIN";
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-
-            Tracer.Debug( "StompWireFormat - For transaction type: " + transactionType +
-                          " we are using command type: " + type );
-
+            
             var frame = new StompFrame( type, encodeHeaders );
             if ( command.ResponseRequired )
                 frame.SetProperty( "receipt", command.CommandId );
 
             frame.SetProperty( "transaction", command.TransactionId.ToString() );
-
-            if ( Tracer.IsDebugEnabled )
-                Tracer.Debug( "StompWireFormat - Writing " + frame );
-
+            
             frame.ToStream( dataOut );
         }
     }

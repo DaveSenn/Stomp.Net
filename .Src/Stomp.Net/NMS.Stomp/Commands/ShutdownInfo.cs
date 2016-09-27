@@ -34,6 +34,6 @@ namespace Apache.NMS.Stomp.Commands
         public override String ToString() => GetType()
                                                  .Name + "[" + "]";
 
-        public override Response visit( ICommandVisitor visitor ) => visitor.processShutdownInfo( this );
+        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessShutdownInfo( this );
     }
 }

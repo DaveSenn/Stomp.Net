@@ -37,10 +37,10 @@ namespace Apache.NMS.Stomp.Commands
                                              "responseRequired = " + ResponseRequired + ", " + " ]";
 
         /// <summery>
-        ///     Allows a Visitor to visit this command and return a response to the
+        ///     Allows a Visitor to Visit this command and return a response to the
         ///     command based on the command type being visited.  The command will call
         ///     the proper processXXX method in the visitor.
         /// </summery>
-        public override Response visit( ICommandVisitor visitor ) => visitor.processKeepAliveInfo( this );
+        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessKeepAliveInfo( this );
     }
 }

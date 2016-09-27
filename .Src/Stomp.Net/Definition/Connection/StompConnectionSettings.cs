@@ -61,6 +61,12 @@ namespace Stomp.Net
         /// <value>The transport settings.</value>
         public StompTransportSettings TransportSettings { get; } = new StompTransportSettings();
 
+        /// <summary>
+        ///     Gets or sets the STOMP producer settings.
+        /// </summary>
+        /// <value>The STOMP producer settings.</value>
+        public StompProducerSettings ProducerSettings { get; } = new StompProducerSettings();
+
         #endregion
     }
 }
