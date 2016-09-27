@@ -77,17 +77,24 @@ namespace Apache.NMS.Stomp.Commands
             return answer;
         }
 
+        /// <summery>
+        ///     Returns a string containing the information for this DataStructure
+        ///     such as its type and value of its elements.
+        /// </summery>
+        public override String ToString()
+            => key ?? ( key = $"{ProducerId}:{producerSequenceId}" );
+
         /// <summary>
         ///     Sets the value as a String
         /// </summary>
-        public void SetValue( String messageKey )
+        private void SetValue( String messageKey )
         {
             var mkey = messageKey;
 
             key = mkey;
 
             // Parse off the sequenceId
-            var p = mkey.LastIndexOf( ":" );
+            var p = mkey.LastIndexOf( ":", StringComparison.Ordinal );
             if ( p >= 0 )
                 if ( Int64.TryParse( mkey.Substring( p + 1 ), out producerSequenceId ) )
                     mkey = mkey.Substring( 0, p );
@@ -95,18 +102,6 @@ namespace Apache.NMS.Stomp.Commands
                     producerSequenceId = 0;
 
             ProducerId = new ProducerId( mkey );
-        }
-
-        /// <summery>
-        ///     Returns a string containing the information for this DataStructure
-        ///     such as its type and value of its elements.
-        /// </summery>
-        public override String ToString()
-        {
-            if ( null == key )
-                key = String.Format( "{0}:{1}", ProducerId, producerSequenceId );
-
-            return key;
         }
     }
 }

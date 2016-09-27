@@ -408,12 +408,12 @@ namespace Apache.NMS.Stomp.Protocol
                                command.Persistent.ToString()
                                       .ToLower() );
 
-            if ( command.NMSXGroupID != null )
+            if ( command.NmsxGroupId != null )
             {
-                frame.SetProperty( "JMSXGroupID", command.NMSXGroupID );
-                frame.SetProperty( "NMSXGroupID", command.NMSXGroupID );
-                frame.SetProperty( "JMSXGroupSeq", command.NMSXGroupSeq );
-                frame.SetProperty( "NMSXGroupSeq", command.NMSXGroupSeq );
+                frame.SetProperty( "JMSXGroupID", command.NmsxGroupId );
+                frame.SetProperty( "NMSXGroupID", command.NmsxGroupId );
+                frame.SetProperty( "JMSXGroupSeq", command.NmsxGroupSeq );
+                frame.SetProperty( "NMSXGroupSeq", command.NmsxGroupSeq );
             }
 
             // Perform any Content Marshaling.

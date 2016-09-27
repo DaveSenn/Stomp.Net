@@ -48,6 +48,6 @@ namespace Apache.NMS.Stomp.Commands
 
         public override Byte GetDataStructureType() => DataStructureTypes.TempQueueType;
 
-        public override Int32 GetDestinationType() => STOMP_TEMPORARY_QUEUE;
+        protected override Int32 GetDestinationType() => StompTemporaryQueue;
     }
 }

@@ -7,16 +7,9 @@ using Apache.NMS.Stomp.State;
 
 namespace Apache.NMS.Stomp.Commands
 {
-    /*
-     *
-     *  Command code for OpenWire format for RemoveSubscriptionInfo
-     *
-     *  NOTE!: This file is auto generated - do not modify!
-     *         if you need to make a change, please see the Java Classes
-     *         in the nms-activemq-openwire-generator module
-     *
-     */
-
+    /// <summary>
+    ///     Command code for OpenWire format for RemoveSubscriptionInfo
+    /// </summary>
     public class RemoveSubscriptionInfo : BaseCommand
     {
         #region Properties
@@ -38,19 +31,22 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType() => DataStructureTypes.RemoveSubscriptionInfoType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.RemoveSubscriptionInfoType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => GetType()
-                                                 .Name + "[" +
-                                             "ConnectionId=" + ConnectionId + ", " +
-                                             "SubscriptionName=" + SubscriptionName + ", " +
-                                             "ClientId=" + ClientId +
-                                             "]";
+        public override String ToString()
+            => GetType()
+                   .Name + "[" +
+               "ConnectionId=" + ConnectionId + ", " +
+               "SubscriptionName=" + SubscriptionName + ", " +
+               "ClientId=" + ClientId +
+               "]";
 
-        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessRemoveSubscriptionInfo( this );
+        public override Response Visit( ICommandVisitor visitor )
+            => visitor.ProcessRemoveSubscriptionInfo( this );
     }
 }

@@ -22,7 +22,6 @@ namespace Apache.NMS.Stomp.Commands
         public override Boolean ReadOnlyBody
         {
             get { return base.ReadOnlyBody; }
-
             set
             {
                 if ( _typeConverter != null )

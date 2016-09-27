@@ -19,15 +19,17 @@ namespace Apache.NMS.Stomp.Commands
 
         #endregion
 
-        public override Byte GetDataStructureType() => DataStructureTypes.ResponseType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.ResponseType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => GetType()
-                                                 .Name + "[" +
-                                             "CorrelationId=" + CorrelationId +
-                                             "]";
+        public override String ToString()
+            => GetType()
+                   .Name + "[" +
+               "CorrelationId=" + CorrelationId +
+               "]";
     }
 }

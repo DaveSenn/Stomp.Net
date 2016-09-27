@@ -24,7 +24,7 @@ namespace Apache.NMS.Stomp.Commands
 
         #endregion
 
-        override public DestinationType DestinationType => DestinationType.Queue;
+        public override DestinationType DestinationType => DestinationType.Queue;
 
         public String QueueName => PhysicalName;
 
@@ -47,6 +47,6 @@ namespace Apache.NMS.Stomp.Commands
 
         public override Byte GetDataStructureType() => DataStructureTypes.QueueType;
 
-        public override Int32 GetDestinationType() => STOMP_QUEUE;
+        protected override Int32 GetDestinationType() => StompQueue;
     }
 }

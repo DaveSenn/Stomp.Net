@@ -46,7 +46,7 @@ namespace Apache.NMS.Stomp.Commands
         public const Byte TopicType = 50;
         public const Byte TransactionIdType = 21;
         public const Byte TransactionInfoType = 20;
-        public const Byte WireFormatInfoType = 29;
+        private const Byte WireFormatInfoType = 29;
 
         #endregion
 

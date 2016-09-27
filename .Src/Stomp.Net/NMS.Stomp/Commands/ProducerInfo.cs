@@ -23,18 +23,20 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType() => DataStructureTypes.ProducerInfoType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.ProducerInfoType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => GetType()
-                                                 .Name + "[" +
-                                             "ProducerId=" + ProducerId + ", " +
-                                             "Destination=" + Destination + ", " +
-                                             "DispatchAsync=" + DispatchAsync +
-                                             "]";
+        public override String ToString()
+            => GetType()
+                   .Name + "[" +
+               "ProducerId=" + ProducerId + ", " +
+               "Destination=" + Destination + ", " +
+               "DispatchAsync=" + DispatchAsync +
+               "]";
 
         public override Response Visit( ICommandVisitor visitor )
             => visitor.ProcessAddProducer( this );

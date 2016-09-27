@@ -8,23 +8,7 @@ namespace Apache.NMS.Stomp.Commands
 {
     public class SessionId : BaseDataStructure
     {
-        #region Fields
-
-        private ConnectionId parentId;
-
-        #endregion
-
         #region Properties
-
-        public ConnectionId ParentId
-        {
-            get
-            {
-                if ( parentId == null )
-                    parentId = new ConnectionId( this );
-                return parentId;
-            }
-        }
 
         public String ConnectionId { get; set; }
 
@@ -65,16 +49,6 @@ namespace Apache.NMS.Stomp.Commands
             return false;
         }
 
-        public virtual Boolean Equals( SessionId that )
-        {
-            if ( !Equals( ConnectionId, that.ConnectionId ) )
-                return false;
-            if ( !Equals( Value, that.Value ) )
-                return false;
-
-            return true;
-        }
-
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
@@ -95,6 +69,10 @@ namespace Apache.NMS.Stomp.Commands
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => ConnectionId + ":" + Value;
+        public override String ToString()
+            => ConnectionId + ":" + Value;
+
+        protected virtual Boolean Equals( SessionId that )
+            => Equals( ConnectionId, that.ConnectionId ) && Equals( Value, that.Value );
     }
 }

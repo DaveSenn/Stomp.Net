@@ -36,23 +36,26 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType() => DataStructureTypes.MessageAckType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.MessageAckType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => GetType()
-                                                 .Name + "[" +
-                                             "Destination=" + Destination + ", " +
-                                             "TransactionId=" + TransactionId + ", " +
-                                             "ConsumerId=" + ConsumerId + ", " +
-                                             "AckType=" + AckType + ", " +
-                                             "FirstMessageId=" + FirstMessageId + ", " +
-                                             "LastMessageId=" + LastMessageId + ", " +
-                                             "MessageCount=" + MessageCount +
-                                             "]";
+        public override String ToString()
+            => GetType()
+                   .Name + "[" +
+               "Destination=" + Destination + ", " +
+               "TransactionId=" + TransactionId + ", " +
+               "ConsumerId=" + ConsumerId + ", " +
+               "AckType=" + AckType + ", " +
+               "FirstMessageId=" + FirstMessageId + ", " +
+               "LastMessageId=" + LastMessageId + ", " +
+               "MessageCount=" + MessageCount +
+               "]";
 
-        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessMessageAck( this );
+        public override Response Visit( ICommandVisitor visitor )
+            => visitor.ProcessMessageAck( this );
     }
 }

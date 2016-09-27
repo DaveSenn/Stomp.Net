@@ -61,6 +61,6 @@ namespace Apache.NMS.Stomp.Commands
         ///     Method GetDestinationType
         /// </summary>
         /// <returns>An int</returns>
-        public override Int32 GetDestinationType() => DataStructureTypes.TempDestinationType;
+        protected override Int32 GetDestinationType() => DataStructureTypes.TempDestinationType;
     }
 }

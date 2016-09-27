@@ -10,23 +10,15 @@ namespace Apache.NMS.Stomp.Commands
     {
         #region Fields
 
-        private String key;
+        private String _key;
 
-        private SessionId parentId;
+        private SessionId _parentId;
 
         #endregion
 
         #region Properties
 
-        public SessionId ParentId
-        {
-            get
-            {
-                if ( parentId == null )
-                    parentId = new SessionId( this );
-                return parentId;
-            }
-        }
+        public SessionId ParentId => _parentId ?? ( _parentId = new SessionId( this ) );
 
         public String ConnectionId { get; set; }
 
@@ -44,35 +36,36 @@ namespace Apache.NMS.Stomp.Commands
 
         public ConsumerId( String consumerKey )
         {
-            key = consumerKey;
+            _key = consumerKey;
 
             // We give the Connection ID the key for now so there's at least some
             // data stored into the Id.
             ConnectionId = consumerKey;
 
             var idx = consumerKey.LastIndexOf( ':' );
-            if ( idx >= 0 )
-                try
-                {
-                    Value = Int32.Parse( consumerKey.Substring( idx + 1 ) );
-                    consumerKey = consumerKey.Substring( 0, idx );
-                    idx = consumerKey.LastIndexOf( ':' );
-                    if ( idx >= 0 )
-                        try
-                        {
-                            SessionId = Int32.Parse( consumerKey.Substring( idx + 1 ) );
-                            consumerKey = consumerKey.Substring( 0, idx );
-                        }
-                        catch ( Exception ex )
-                        {
-                            Tracer.Warn( ex.Message );
-                        }
-                    ConnectionId = consumerKey;
-                }
-                catch ( Exception ex )
-                {
-                    Tracer.Warn( ex.Message );
-                }
+            if ( idx < 0 )
+                return;
+            try
+            {
+                Value = Int32.Parse( consumerKey.Substring( idx + 1 ) );
+                consumerKey = consumerKey.Substring( 0, idx );
+                idx = consumerKey.LastIndexOf( ':' );
+                if ( idx >= 0 )
+                    try
+                    {
+                        SessionId = Int32.Parse( consumerKey.Substring( idx + 1 ) );
+                        consumerKey = consumerKey.Substring( 0, idx );
+                    }
+                    catch ( Exception ex )
+                    {
+                        Tracer.Warn( ex.Message );
+                    }
+                ConnectionId = consumerKey;
+            }
+            catch ( Exception ex )
+            {
+                Tracer.Warn( ex.Message );
+            }
         }
 
         #endregion
@@ -82,21 +75,6 @@ namespace Apache.NMS.Stomp.Commands
             if ( that is ConsumerId )
                 return Equals( (ConsumerId) that );
             return false;
-        }
-
-        public virtual Boolean Equals( ConsumerId that )
-        {
-            if ( key != null && that.key != null )
-                return key.Equals( that.key );
-
-            if ( !Equals( ConnectionId, that.ConnectionId ) )
-                return false;
-            if ( !Equals( SessionId, that.SessionId ) )
-                return false;
-            if ( !Equals( Value, that.Value ) )
-                return false;
-
-            return true;
         }
 
         /// <summery>
@@ -120,6 +98,16 @@ namespace Apache.NMS.Stomp.Commands
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => key ?? ( key = ConnectionId + ":" + SessionId + ":" + Value );
+        public override String ToString() => _key ?? ( _key = ConnectionId + ":" + SessionId + ":" + Value );
+
+        protected virtual Boolean Equals( ConsumerId that )
+        {
+            if ( _key != null && that._key != null )
+                return _key.Equals( that._key );
+
+            if ( !Equals( ConnectionId, that.ConnectionId ) )
+                return false;
+            return Equals( SessionId, that.SessionId ) && Equals( Value, that.Value );
+        }
     }
 }

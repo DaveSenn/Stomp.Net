@@ -15,29 +15,27 @@ namespace Apache.NMS.Stomp.Commands
     {
         #region Constants
 
-//        private const String TEMP_PREFIX = "{TD{";
-//        private const String TEMP_POSTFIX = "}TD}";
-        private const String COMPOSITE_SEPARATOR = ",";
+        private const String CompositeSeparator = ",";
 
         /// <summary>
         ///     Queue Destination object
         /// </summary>
-        public const Int32 STOMP_QUEUE = 3;
+        protected const Int32 StompQueue = 3;
 
         /// <summary>
         ///     Temporary Queue Destination object
         /// </summary>
-        public const Int32 STOMP_TEMPORARY_QUEUE = 4;
+        protected const Int32 StompTemporaryQueue = 4;
 
         /// <summary>
         ///     Temporary Topic Destination object
         /// </summary>
-        public const Int32 STOMP_TEMPORARY_TOPIC = 2;
+        protected const Int32 StompTemporaryTopic = 2;
 
         /// <summary>
         ///     Topic Destination object
         /// </summary>
-        public const Int32 STOMP_TOPIC = 1;
+        protected const Int32 StompTopic = 1;
 
         #endregion
 
@@ -55,7 +53,7 @@ namespace Apache.NMS.Stomp.Commands
         ///     by the broker, most commonly the deinstinations provided by the broker
         ///     are those that appear in the ReplyTo field of a Message.
         /// </summary>
-        internal Boolean RemoteDestination { get; set; }
+        private Boolean RemoteDestination { get; set; }
 
         public String PhysicalName { get; set; } = "";
 
@@ -64,7 +62,7 @@ namespace Apache.NMS.Stomp.Commands
         ///     destinations; allowing a set of destinations to be published to or subscribed
         ///     from in one NMS operation.
         /// </summary>
-        public Boolean IsComposite => PhysicalName.IndexOf( COMPOSITE_SEPARATOR ) > 0;
+        public Boolean IsComposite => PhysicalName.IndexOf( CompositeSeparator, StringComparison.Ordinal ) > 0;
 
         #endregion
 
@@ -95,8 +93,8 @@ namespace Apache.NMS.Stomp.Commands
             get
             {
                 var destinationType = GetDestinationType();
-                return STOMP_QUEUE == destinationType
-                       || STOMP_TEMPORARY_QUEUE == destinationType;
+                return StompQueue == destinationType
+                       || StompTemporaryQueue == destinationType;
             }
         }
 
@@ -105,8 +103,8 @@ namespace Apache.NMS.Stomp.Commands
             get
             {
                 var destinationType = GetDestinationType();
-                return STOMP_TEMPORARY_QUEUE == destinationType
-                       || STOMP_TEMPORARY_TOPIC == destinationType;
+                return StompTemporaryQueue == destinationType
+                       || StompTemporaryTopic == destinationType;
             }
         }
 
@@ -115,8 +113,8 @@ namespace Apache.NMS.Stomp.Commands
             get
             {
                 var destinationType = GetDestinationType();
-                return STOMP_TOPIC == destinationType
-                       || STOMP_TEMPORARY_TOPIC == destinationType;
+                return StompTopic == destinationType
+                       || StompTemporaryTopic == destinationType;
             }
         }
 
@@ -153,7 +151,7 @@ namespace Apache.NMS.Stomp.Commands
                     return -1;
                 if ( that.PhysicalName == null )
                     return 1;
-                answer = PhysicalName.CompareTo( that.PhysicalName );
+                answer = String.Compare( PhysicalName, that.PhysicalName, StringComparison.Ordinal );
             }
 
             if ( answer == 0 )
@@ -175,39 +173,39 @@ namespace Apache.NMS.Stomp.Commands
             if ( text == null )
                 return null;
 
-            var type = STOMP_QUEUE;
+            var type = StompQueue;
             var lowertext = text.ToLower();
             var remote = false;
 
-            if ( lowertext.StartsWith( "/queue/" ) )
+            if ( lowertext.StartsWith( "/queue/", StringComparison.Ordinal ) )
             {
                 text = text.Substring( "/queue/".Length );
             }
-            else if ( lowertext.StartsWith( "/topic/" ) )
+            else if ( lowertext.StartsWith( "/topic/", StringComparison.Ordinal ) )
             {
                 text = text.Substring( "/topic/".Length );
-                type = STOMP_TOPIC;
+                type = StompTopic;
             }
-            else if ( lowertext.StartsWith( "/temp-topic/" ) )
+            else if ( lowertext.StartsWith( "/temp-topic/", StringComparison.Ordinal ) )
             {
                 text = text.Substring( "/temp-topic/".Length );
-                type = STOMP_TEMPORARY_TOPIC;
+                type = StompTemporaryTopic;
             }
-            else if ( lowertext.StartsWith( "/temp-queue/" ) )
+            else if ( lowertext.StartsWith( "/temp-queue/", StringComparison.Ordinal ) )
             {
                 text = text.Substring( "/temp-queue/".Length );
-                type = STOMP_TEMPORARY_QUEUE;
+                type = StompTemporaryQueue;
             }
-            else if ( lowertext.StartsWith( "/remote-temp-topic/" ) )
+            else if ( lowertext.StartsWith( "/remote-temp-topic/", StringComparison.Ordinal ) )
             {
                 text = text.Substring( "/remote-temp-topic/".Length );
-                type = STOMP_TEMPORARY_TOPIC;
+                type = StompTemporaryTopic;
                 remote = true;
             }
-            else if ( lowertext.StartsWith( "/remote-temp-queue/" ) )
+            else if ( lowertext.StartsWith( "/remote-temp-queue/", StringComparison.Ordinal ) )
             {
                 text = text.Substring( "/remote-temp-queue/".Length );
-                type = STOMP_TEMPORARY_QUEUE;
+                type = StompTemporaryQueue;
                 remote = true;
             }
 
@@ -241,40 +239,6 @@ namespace Apache.NMS.Stomp.Commands
         }
 
         /// <summary>
-        ///     Create a Destination using the name given, the type is determined by the
-        ///     value of the type parameter.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="pyhsicalName"></param>
-        /// <param name="remote"></param>
-        /// <returns></returns>
-        public static Destination CreateDestination( Int32 type, String pyhsicalName, Boolean remote )
-        {
-            Destination result = null;
-            if ( pyhsicalName == null )
-                return null;
-            switch ( type )
-            {
-                case STOMP_TOPIC:
-                    result = new Topic( pyhsicalName );
-                    break;
-                case STOMP_TEMPORARY_TOPIC:
-                    result = new TempTopic( pyhsicalName );
-                    break;
-                case STOMP_QUEUE:
-                    result = new Queue( pyhsicalName );
-                    break;
-                default:
-                    result = new TempQueue( pyhsicalName );
-                    break;
-            }
-
-            result.RemoteDestination = remote;
-
-            return result;
-        }
-
-        /// <summary>
         ///     Factory method to create a child destination if this destination is a composite
         /// </summary>
         /// <param name="name"></param>
@@ -297,11 +261,6 @@ namespace Apache.NMS.Stomp.Commands
             }
             return result;
         }
-
-        /// <summary>
-        /// </summary>
-        /// <returns>Returns the Destination type</returns>
-        public abstract Int32 GetDestinationType();
 
         /// <summary>
         /// </summary>
@@ -361,6 +320,45 @@ namespace Apache.NMS.Stomp.Commands
                     else if ( destination is ITopic )
                         result = new Topic( ( (ITopic) destination ).TopicName );
                 }
+            return result;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns>Returns the Destination type</returns>
+        protected abstract Int32 GetDestinationType();
+
+        /// <summary>
+        ///     Create a Destination using the name given, the type is determined by the
+        ///     value of the type parameter.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="pyhsicalName"></param>
+        /// <param name="remote"></param>
+        /// <returns></returns>
+        private static Destination CreateDestination( Int32 type, String pyhsicalName, Boolean remote )
+        {
+            Destination result = null;
+            if ( pyhsicalName == null )
+                return null;
+            switch ( type )
+            {
+                case StompTopic:
+                    result = new Topic( pyhsicalName );
+                    break;
+                case StompTemporaryTopic:
+                    result = new TempTopic( pyhsicalName );
+                    break;
+                case StompQueue:
+                    result = new Queue( pyhsicalName );
+                    break;
+                default:
+                    result = new TempQueue( pyhsicalName );
+                    break;
+            }
+
+            result.RemoteDestination = remote;
+
             return result;
         }
 

@@ -256,14 +256,6 @@ namespace Apache.NMS.Stomp.Commands
             return false;
         }
 
-        public virtual Boolean Equals( Message that )
-        {
-            var oMsg = that.MessageId;
-            var thisMsg = MessageId;
-
-            return thisMsg != null && oMsg != null && oMsg.Equals( thisMsg );
-        }
-
         public override Byte GetDataStructureType() => DataStructureTypes.MessageType;
 
         public override Int32 GetHashCode()
@@ -272,20 +264,6 @@ namespace Apache.NMS.Stomp.Commands
 
             return id != null ? id.GetHashCode() : base.GetHashCode();
         }
-
-        public Object GetObjectProperty( String name ) => Properties[name];
-
-        /*
-        // MarshallAware interface
-        public override Boolean IsMarshallAware() => true;
-        */
-
-        public void SetObjectProperty( String name, Object value )
-        {
-            Properties[name] = value;
-        }
-
-        public static Message Transform( IMessage message ) => (Message) message;
 
         protected void FailIfReadOnlyBody()
         {
@@ -299,18 +277,20 @@ namespace Apache.NMS.Stomp.Commands
                 throw new MessageNotReadableException( "Message is in Write-Only mode." );
         }
 
-        #region NMS Extension headers
+        private Boolean Equals( Message that )
+        {
+            var oMsg = that.MessageId;
+            var thisMsg = MessageId;
 
-        /// <summary>
-        ///     Returns the number of times this message has been redelivered to other consumers without being acknowledged
-        ///     successfully.
-        /// </summary>
-        public Int32 NMSXDeliveryCount => RedeliveryCounter + 1;
+            return thisMsg != null && oMsg != null && oMsg.Equals( thisMsg );
+        }
+
+        #region NMS Extension headers
 
         /// <summary>
         ///     The Message Group ID used to group messages together to the same consumer for the same group ID value
         /// </summary>
-        public String NMSXGroupID
+        public String NmsxGroupId
         {
             get { return GroupId; }
             set { GroupId = value; }
@@ -319,28 +299,10 @@ namespace Apache.NMS.Stomp.Commands
         /// <summary>
         ///     The Message Group Sequence counter to indicate the position in a group
         /// </summary>
-        public Int32 NMSXGroupSeq
+        public Int32 NmsxGroupSeq
         {
             get { return GroupSequence; }
             set { GroupSequence = value; }
-        }
-
-        /// <summary>
-        ///     Returns the ID of the producers transaction
-        /// </summary>
-        public String NMSXProducerTXID
-        {
-            get
-            {
-                var txnId = OriginalTransactionId;
-                if ( null == txnId )
-                    txnId = TransactionId;
-
-                if ( null != txnId )
-                    return "" + txnId.Value;
-
-                return String.Empty;
-            }
         }
 
         #endregion

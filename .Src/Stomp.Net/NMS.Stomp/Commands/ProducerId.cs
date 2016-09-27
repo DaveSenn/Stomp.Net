@@ -11,13 +11,10 @@ namespace Apache.NMS.Stomp.Commands
         #region Fields
 
         private String _key;
-        private SessionId _parentId;
 
         #endregion
 
         #region Properties
-
-        public SessionId ParentId => _parentId ?? ( _parentId = new SessionId( this ) );
 
         public String ConnectionId { get; set; }
 
@@ -31,13 +28,6 @@ namespace Apache.NMS.Stomp.Commands
 
         public ProducerId()
         {
-        }
-
-        public ProducerId( SessionId sessionId, Int64 consumerId )
-        {
-            ConnectionId = sessionId.ConnectionId;
-            SessionId = sessionId.Value;
-            Value = consumerId;
         }
 
         public ProducerId( String producerKey )
@@ -75,18 +65,6 @@ namespace Apache.NMS.Stomp.Commands
             return false;
         }
 
-        public virtual Boolean Equals( ProducerId that )
-        {
-            if ( !Equals( ConnectionId, that.ConnectionId ) )
-                return false;
-            if ( !Equals( Value, that.Value ) )
-                return false;
-            if ( !Equals( SessionId, that.SessionId ) )
-                return false;
-
-            return true;
-        }
-
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
@@ -110,5 +88,13 @@ namespace Apache.NMS.Stomp.Commands
         /// </summery>
         public override String ToString()
             => _key ?? ( _key = ConnectionId + ":" + SessionId + ":" + Value );
+
+        protected virtual Boolean Equals( ProducerId that )
+        {
+            if ( !Equals( ConnectionId, that.ConnectionId ) )
+                return false;
+
+            return Equals( Value, that.Value ) && Equals( SessionId, that.SessionId );
+        }
     }
 }

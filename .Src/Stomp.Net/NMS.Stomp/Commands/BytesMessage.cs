@@ -12,10 +12,10 @@ namespace Apache.NMS.Stomp.Commands
     {
         #region Fields
 
-        private EndianBinaryReader dataIn;
-        private EndianBinaryWriter dataOut;
-        private Int32 length;
-        private MemoryStream outputBuffer;
+        private EndianBinaryReader _dataIn;
+        private EndianBinaryWriter _dataOut;
+        private Int32 _length;
+        private MemoryStream _outputBuffer;
 
         #endregion
 
@@ -24,7 +24,7 @@ namespace Apache.NMS.Stomp.Commands
             get
             {
                 InitializeReading();
-                return length;
+                return _length;
             }
         }
 
@@ -34,10 +34,10 @@ namespace Apache.NMS.Stomp.Commands
             {
                 Byte[] buffer = null;
                 InitializeReading();
-                if ( length != 0 )
+                if ( _length != 0 )
                 {
-                    buffer = new Byte[length];
-                    dataIn.Read( buffer, 0, buffer.Length );
+                    buffer = new Byte[_length];
+                    _dataIn.Read( buffer, 0, buffer.Length );
                 }
                 return buffer;
             }
@@ -45,7 +45,7 @@ namespace Apache.NMS.Stomp.Commands
             set
             {
                 InitializeWriting();
-                dataOut.Write( value, 0, value.Length );
+                _dataOut.Write( value, 0, value.Length );
             }
         }
 
@@ -54,7 +54,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeReading();
             try
             {
-                return dataIn.ReadBoolean();
+                return _dataIn.ReadBoolean();
             }
             catch ( EndOfStreamException e )
             {
@@ -71,7 +71,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeReading();
             try
             {
-                return dataIn.ReadByte();
+                return _dataIn.ReadByte();
             }
             catch ( EndOfStreamException e )
             {
@@ -88,7 +88,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeReading();
             try
             {
-                return dataIn.Read( value, 0, value.Length );
+                return _dataIn.Read( value, 0, value.Length );
             }
             catch ( EndOfStreamException e )
             {
@@ -105,7 +105,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeReading();
             try
             {
-                return dataIn.Read( value, 0, length );
+                return _dataIn.Read( value, 0, length );
             }
             catch ( EndOfStreamException e )
             {
@@ -122,7 +122,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeReading();
             try
             {
-                return dataIn.ReadChar();
+                return _dataIn.ReadChar();
             }
             catch ( EndOfStreamException e )
             {
@@ -139,7 +139,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeReading();
             try
             {
-                return dataIn.ReadDouble();
+                return _dataIn.ReadDouble();
             }
             catch ( EndOfStreamException e )
             {
@@ -156,7 +156,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeReading();
             try
             {
-                return dataIn.ReadInt16();
+                return _dataIn.ReadInt16();
             }
             catch ( EndOfStreamException e )
             {
@@ -173,7 +173,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeReading();
             try
             {
-                return dataIn.ReadInt32();
+                return _dataIn.ReadInt32();
             }
             catch ( EndOfStreamException e )
             {
@@ -190,7 +190,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeReading();
             try
             {
-                return dataIn.ReadInt64();
+                return _dataIn.ReadInt64();
             }
             catch ( EndOfStreamException e )
             {
@@ -207,7 +207,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeReading();
             try
             {
-                return dataIn.ReadSingle();
+                return _dataIn.ReadSingle();
             }
             catch ( EndOfStreamException e )
             {
@@ -225,7 +225,7 @@ namespace Apache.NMS.Stomp.Commands
             try
             {
                 // JMS, CMS and NMS all encode the String using a 16 bit size header.
-                return dataIn.ReadString16();
+                return _dataIn.ReadString16();
             }
             catch ( EndOfStreamException e )
             {
@@ -240,9 +240,9 @@ namespace Apache.NMS.Stomp.Commands
         public void Reset()
         {
             StoreContent();
-            dataIn = null;
-            dataOut = null;
-            outputBuffer = null;
+            _dataIn = null;
+            _dataOut = null;
+            _outputBuffer = null;
             ReadOnlyBody = true;
         }
 
@@ -251,7 +251,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeWriting();
             try
             {
-                dataOut.Write( value );
+                _dataOut.Write( value );
             }
             catch ( Exception e )
             {
@@ -264,7 +264,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeWriting();
             try
             {
-                dataOut.Write( value );
+                _dataOut.Write( value );
             }
             catch ( Exception e )
             {
@@ -277,7 +277,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeWriting();
             try
             {
-                dataOut.Write( value, 0, value.Length );
+                _dataOut.Write( value, 0, value.Length );
             }
             catch ( Exception e )
             {
@@ -290,7 +290,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeWriting();
             try
             {
-                dataOut.Write( value, offset, length );
+                _dataOut.Write( value, offset, length );
             }
             catch ( Exception e )
             {
@@ -303,7 +303,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeWriting();
             try
             {
-                dataOut.Write( value );
+                _dataOut.Write( value );
             }
             catch ( Exception e )
             {
@@ -316,7 +316,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeWriting();
             try
             {
-                dataOut.Write( value );
+                _dataOut.Write( value );
             }
             catch ( Exception e )
             {
@@ -329,7 +329,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeWriting();
             try
             {
-                dataOut.Write( value );
+                _dataOut.Write( value );
             }
             catch ( Exception e )
             {
@@ -342,7 +342,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeWriting();
             try
             {
-                dataOut.Write( value );
+                _dataOut.Write( value );
             }
             catch ( Exception e )
             {
@@ -355,7 +355,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeWriting();
             try
             {
-                dataOut.Write( value );
+                _dataOut.Write( value );
             }
             catch ( Exception e )
             {
@@ -367,25 +367,25 @@ namespace Apache.NMS.Stomp.Commands
         {
             InitializeWriting();
             if ( value is Byte )
-                dataOut.Write( (Byte) value );
+                _dataOut.Write( (Byte) value );
             else if ( value is Char )
-                dataOut.Write( (Char) value );
+                _dataOut.Write( (Char) value );
             else if ( value is Boolean )
-                dataOut.Write( (Boolean) value );
+                _dataOut.Write( (Boolean) value );
             else if ( value is Int16 )
-                dataOut.Write( (Int16) value );
+                _dataOut.Write( (Int16) value );
             else if ( value is Int32 )
-                dataOut.Write( (Int32) value );
+                _dataOut.Write( (Int32) value );
             else if ( value is Int64 )
-                dataOut.Write( (Int64) value );
+                _dataOut.Write( (Int64) value );
             else if ( value is Single )
-                dataOut.Write( (Single) value );
+                _dataOut.Write( (Single) value );
             else if ( value is Double )
-                dataOut.Write( (Double) value );
+                _dataOut.Write( (Double) value );
             else if ( value is Byte[] )
-                dataOut.Write( (Byte[]) value );
+                _dataOut.Write( (Byte[]) value );
             else if ( value is String )
-                dataOut.WriteString16( (String) value );
+                _dataOut.WriteString16( (String) value );
             else
                 throw new MessageFormatException( "Cannot write non-primitive type:" + value.GetType() );
         }
@@ -395,7 +395,7 @@ namespace Apache.NMS.Stomp.Commands
             InitializeWriting();
             try
             {
-                dataOut.Write( value );
+                _dataOut.Write( value );
             }
             catch ( Exception e )
             {
@@ -409,7 +409,7 @@ namespace Apache.NMS.Stomp.Commands
             try
             {
                 // JMS, CMS and NMS all encode the String using a 16 bit size header.
-                dataOut.WriteString16( value );
+                _dataOut.WriteString16( value );
             }
             catch ( Exception e )
             {
@@ -420,10 +420,10 @@ namespace Apache.NMS.Stomp.Commands
         public override void ClearBody()
         {
             base.ClearBody();
-            outputBuffer = null;
-            dataIn = null;
-            dataOut = null;
-            length = 0;
+            _outputBuffer = null;
+            _dataIn = null;
+            _dataOut = null;
+            _length = 0;
         }
 
         public override Object Clone()
@@ -443,7 +443,7 @@ namespace Apache.NMS.Stomp.Commands
         private void InitializeReading()
         {
             FailIfWriteOnlyBody();
-            if ( dataIn == null )
+            if ( _dataIn == null )
             {
                 var data = base.Content;
 
@@ -452,30 +452,30 @@ namespace Apache.NMS.Stomp.Commands
 
                 Stream target = new MemoryStream( data, false );
 
-                length = data.Length;
-                dataIn = new EndianBinaryReader( target );
+                _length = data.Length;
+                _dataIn = new EndianBinaryReader( target );
             }
         }
 
         private void InitializeWriting()
         {
             FailIfReadOnlyBody();
-            if ( dataOut == null )
+            if ( _dataOut == null )
             {
-                outputBuffer = new MemoryStream();
-                dataOut = new EndianBinaryWriter( outputBuffer );
+                _outputBuffer = new MemoryStream();
+                _dataOut = new EndianBinaryWriter( _outputBuffer );
             }
         }
 
         private void StoreContent()
         {
-            if ( dataOut != null )
+            if ( _dataOut != null )
             {
-                dataOut.Close();
-                base.Content = outputBuffer.ToArray();
+                _dataOut.Close();
+                base.Content = _outputBuffer.ToArray();
 
-                dataOut = null;
-                outputBuffer = null;
+                _dataOut = null;
+                _outputBuffer = null;
             }
         }
     }

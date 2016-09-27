@@ -47,6 +47,6 @@ namespace Apache.NMS.Stomp.Commands
 
         public override Byte GetDataStructureType() => DataStructureTypes.TopicType;
 
-        public override Int32 GetDestinationType() => STOMP_TOPIC;
+        protected override Int32 GetDestinationType() => StompTopic;
     }
 }

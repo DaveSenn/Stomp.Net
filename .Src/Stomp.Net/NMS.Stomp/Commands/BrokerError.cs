@@ -23,16 +23,6 @@ namespace Apache.NMS.Stomp.Commands
 
         public BrokerError Cause { get; set; }
 
-        public String StackTrace
-        {
-            get
-            {
-                var writer = new StringWriter();
-                PrintStackTrace( writer );
-                return writer.ToString();
-            }
-        }
-
         #endregion
 
         public override Byte GetDataStructureType() => DataStructureTypes.ErrorType;
@@ -40,17 +30,13 @@ namespace Apache.NMS.Stomp.Commands
         private void PrintStackTrace( TextWriter writer )
         {
             writer.WriteLine( ExceptionClass + ": " + Message );
-            for ( var i = 0; i < StackTraceElements.Length; i++ )
-            {
-                var element = StackTraceElements[i];
+            foreach ( var element in StackTraceElements )
                 writer.WriteLine( "    at " + element.ClassName + "." + element.MethodName + "(" + element.FileName + ":" + element.LineNumber + ")" );
-            }
 
-            if ( Cause != null )
-            {
-                writer.WriteLine( "Nested Exception:" );
-                Cause.PrintStackTrace( writer );
-            }
+            if ( Cause == null )
+                return;
+            writer.WriteLine( "Nested Exception:" );
+            Cause.PrintStackTrace( writer );
         }
     }
 }

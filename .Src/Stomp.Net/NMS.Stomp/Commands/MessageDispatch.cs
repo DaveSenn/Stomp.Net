@@ -33,25 +33,12 @@ namespace Apache.NMS.Stomp.Commands
             return false;
         }
 
-        public virtual Boolean Equals( MessageDispatch that )
-        {
-            if ( !Equals( ConsumerId, that.ConsumerId ) )
-                return false;
-            if ( !Equals( Destination, that.Destination ) )
-                return false;
-            if ( !Equals( Message, that.Message ) )
-                return false;
-            if ( !Equals( RedeliveryCounter, that.RedeliveryCounter ) )
-                return false;
-
-            return true;
-        }
-
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType() => DataStructureTypes.MessageDispatchType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.MessageDispatchType;
 
         public override Int32 GetHashCode()
         {
@@ -69,14 +56,26 @@ namespace Apache.NMS.Stomp.Commands
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => GetType()
-                                                 .Name + "[" +
-                                             "ConsumerId=" + ConsumerId + ", " +
-                                             "Destination=" + Destination + ", " +
-                                             "Message=" + Message + ", " +
-                                             "RedeliveryCounter=" + RedeliveryCounter +
-                                             "]";
+        public override String ToString()
+            => GetType()
+                   .Name + "[" +
+               "ConsumerId=" + ConsumerId + ", " +
+               "Destination=" + Destination + ", " +
+               "Message=" + Message + ", " +
+               "RedeliveryCounter=" + RedeliveryCounter +
+               "]";
 
-        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessMessageDispatch( this );
+        public override Response Visit( ICommandVisitor visitor )
+            => visitor.ProcessMessageDispatch( this );
+
+        protected virtual Boolean Equals( MessageDispatch that )
+        {
+            if ( !Equals( ConsumerId, that.ConsumerId ) )
+                return false;
+            if ( !Equals( Destination, that.Destination ) )
+                return false;
+
+            return Equals( Message, that.Message ) && Equals( RedeliveryCounter, that.RedeliveryCounter );
+        }
     }
 }
