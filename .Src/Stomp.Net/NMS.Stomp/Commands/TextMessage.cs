@@ -11,7 +11,7 @@ namespace Apache.NMS.Stomp.Commands
     {
         #region Fields
 
-        private String text;
+        private String _text;
 
         #endregion
 
@@ -31,19 +31,17 @@ namespace Apache.NMS.Stomp.Commands
         public override void ClearBody()
         {
             base.ClearBody();
-            text = null;
+            _text = null;
         }
-
-        // Properties
 
         public String Text
         {
-            get { return text; }
+            get { return _text; }
 
             set
             {
                 FailIfReadOnlyBody();
-                text = value;
+                _text = value;
                 Content = null;
             }
         }
@@ -52,10 +50,10 @@ namespace Apache.NMS.Stomp.Commands
         {
             base.BeforeMarshall( wireFormat );
 
-            if ( Content == null && text != null )
+            if ( Content == null && _text != null )
             {
-                Content = wireFormat.Encoder.GetBytes( text );
-                text = null;
+                Content = wireFormat.Encoder.GetBytes( _text );
+                _text = null;
             }
         }
 
@@ -72,14 +70,14 @@ namespace Apache.NMS.Stomp.Commands
 
         protected override Int32 Size()
         {
-            if ( Content == null && text != null )
+            if ( Content == null && _text != null )
             {
                 var size = DefaultMinimumMessageSize;
 
                 if ( MarshalledProperties != null )
                     size += MarshalledProperties.Length;
 
-                return size += text.Length * 2;
+                return size += _text.Length * 2;
             }
 
             return base.Size();

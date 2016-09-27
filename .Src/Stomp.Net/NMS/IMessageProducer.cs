@@ -85,12 +85,7 @@ namespace Apache.NMS
         ///     Creates a new text message with the given body
         /// </summary>
         ITextMessage CreateTextMessage( String text );
-
-        /// <summary>
-        ///     Creates a new Map message which contains primitive key and value pairs
-        /// </summary>
-        IMapMessage CreateMapMessage();
-
+        
         /// <summary>
         ///     Creates a new binary message
         /// </summary>

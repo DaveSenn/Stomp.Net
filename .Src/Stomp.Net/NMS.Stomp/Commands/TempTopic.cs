@@ -20,9 +20,11 @@ namespace Apache.NMS.Stomp.Commands
 
         #endregion
 
-        public override DestinationType DestinationType => DestinationType.TemporaryTopic;
+        public override DestinationType DestinationType
+            => DestinationType.TemporaryTopic;
 
-        public String TopicName => PhysicalName;
+        public String TopicName
+            => PhysicalName;
 
         public override Object Clone()
         {
@@ -41,8 +43,10 @@ namespace Apache.NMS.Stomp.Commands
 
         public override Destination CreateDestination( String name ) => new TempTopic( name );
 
-        public override Byte GetDataStructureType() => DataStructureTypes.TempTopicType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.TempTopicType;
 
-        protected override Int32 GetDestinationType() => StompTemporaryTopic;
+        protected override Int32 GetDestinationType()
+            => StompTemporaryTopic;
     }
 }

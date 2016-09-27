@@ -11,9 +11,9 @@ namespace Apache.NMS.Stomp.Commands
     {
         #region Constants
 
-        public const Byte BEGIN = 0;
-        public const Byte COMMIT = 1;
-        public const Byte ROLLBACK = 2;
+        private const Byte Begin = 0;
+        private const Byte Commit = 1;
+        private const Byte Rollback = 2;
 
         #endregion
 
@@ -31,28 +31,30 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType() => DataStructureTypes.TransactionInfoType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.TransactionInfoType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => GetType()
-                                                 .Name + "[" +
-                                             "ConnectionId=" + ConnectionId + ", " +
-                                             "TransactionId=" + TransactionId + ", " +
-                                             "Type=" + Type +
-                                             "]";
+        public override String ToString()
+            => GetType()
+                   .Name + "[" +
+               "ConnectionId=" + ConnectionId + ", " +
+               "TransactionId=" + TransactionId + ", " +
+               "Type=" + Type +
+               "]";
 
         public override Response Visit( ICommandVisitor visitor )
         {
             switch ( Type )
             {
-                case BEGIN:
+                case Begin:
                     return visitor.ProcessBeginTransaction( this );
-                case COMMIT:
+                case Commit:
                     return visitor.ProcessCommitTransaction( this );
-                case ROLLBACK:
+                case Rollback:
                     return visitor.ProcessRollbackTransaction( this );
                 default:
                     throw new IoException( "Transaction info type unknown: " + Type );

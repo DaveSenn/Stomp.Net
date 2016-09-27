@@ -10,13 +10,13 @@ namespace Apache.NMS.Stomp.Commands
     {
         #region Constants
 
-        public const Byte ID_ActiveMQTempDestination = 0;
+        private const Byte IdActiveMqTempDestination = 0;
 
         #endregion
 
         #region Properties
 
-        abstract override public DestinationType DestinationType { get; }
+        public abstract override DestinationType DestinationType { get; }
 
         #endregion
 
@@ -53,14 +53,17 @@ namespace Apache.NMS.Stomp.Commands
         /// </summary>
         /// <returns>An Destination</returns>
         /// <param name="name">A  String</param>
-        public override Destination CreateDestination( String name ) => null;
+        public override Destination CreateDestination( String name )
+            => null;
 
-        public override Byte GetDataStructureType() => ID_ActiveMQTempDestination;
+        public override Byte GetDataStructureType()
+            => IdActiveMqTempDestination;
 
         /// <summary>
         ///     Method GetDestinationType
         /// </summary>
         /// <returns>An int</returns>
-        protected override Int32 GetDestinationType() => DataStructureTypes.TempDestinationType;
+        protected override Int32 GetDestinationType()
+            => DataStructureTypes.TempDestinationType;
     }
 }

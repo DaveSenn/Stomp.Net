@@ -21,16 +21,14 @@ namespace Apache.NMS.Stomp.Protocol
     {
         #region Fields
 
-        private Int32 connectedResponseId = -1;
-        private Boolean encodeHeaders;
-        private WireFormatInfo remoteWireFormatInfo;
+        private Int32 _connectedResponseId = -1;
+        private Boolean _encodeHeaders;
+        private WireFormatInfo _remoteWireFormatInfo;
 
         #endregion
 
         #region Properties
-
-        public Int32 Version => 1;
-
+        
         public Encoding Encoder { get; set; } = new UTF8Encoding();
 
         public IPrimitiveMapMarshaler MapMarshaler { get; set; } = new XmlPrimitiveMapMarshaler();
@@ -42,6 +40,8 @@ namespace Apache.NMS.Stomp.Protocol
         public Int64 ReadCheckInterval => MaxInactivityDuration;
 
         public Int64 WriteCheckInterval => MaxInactivityDuration > 3 ? MaxInactivityDuration / 3 : MaxInactivityDuration;
+
+        public ITransport Transport { get; set; }
 
         #endregion
 
@@ -94,11 +94,9 @@ namespace Apache.NMS.Stomp.Protocol
             }
         }
 
-        public ITransport Transport { get; set; }
-
         public ICommand Unmarshal( BinaryReader reader )
         {
-            var frame = new StompFrame( encodeHeaders );
+            var frame = new StompFrame( _encodeHeaders );
             frame.FromStream( reader );
 
             var answer = CreateCommand( frame );
@@ -115,7 +113,7 @@ namespace Apache.NMS.Stomp.Protocol
                 if ( text != null )
                 {
                     var answer = new Response();
-                    if ( text.StartsWith( "ignore:" ) )
+                    if ( text.StartsWith( "ignore:", StringComparison.Ordinal ) )
                         text = text.Substring( "ignore:".Length );
 
                     answer.CorrelationId = Int32.Parse( text );
@@ -130,23 +128,16 @@ namespace Apache.NMS.Stomp.Protocol
             {
                 var text = frame.RemoveProperty( "receipt-id" );
 
-                if ( text != null && text.StartsWith( "ignore:" ) )
-                {
-                    var answer = new Response();
-                    answer.CorrelationId = Int32.Parse( text.Substring( "ignore:".Length ) );
-                    return answer;
-                }
-                else
-                {
-                    var answer = new ExceptionResponse();
-                    if ( text != null )
-                        answer.CorrelationId = Int32.Parse( text );
+                if ( text != null && text.StartsWith( "ignore:", StringComparison.Ordinal ) )
+                    return new Response { CorrelationId = Int32.Parse( text.Substring( "ignore:".Length ) ) };
 
-                    var error = new BrokerError();
-                    error.Message = frame.RemoveProperty( "message" );
-                    answer.Exception = error;
-                    return answer;
-                }
+                var answer = new ExceptionResponse();
+                if ( text != null )
+                    answer.CorrelationId = Int32.Parse( text );
+
+                var error = new BrokerError { Message = frame.RemoveProperty( "message" ) };
+                answer.Exception = error;
+                return answer;
             }
             else if ( command == "KEEPALIVE" )
             {
@@ -164,17 +155,17 @@ namespace Apache.NMS.Stomp.Protocol
 
         protected virtual ICommand ReadConnected( StompFrame frame )
         {
-            remoteWireFormatInfo = new WireFormatInfo();
+            _remoteWireFormatInfo = new WireFormatInfo();
 
             if ( frame.HasProperty( "version" ) )
             {
-                remoteWireFormatInfo.Version = Single.Parse( frame.RemoveProperty( "version" ),
+                _remoteWireFormatInfo.Version = Single.Parse( frame.RemoveProperty( "version" ),
                                                              CultureInfo.InvariantCulture );
-                if ( remoteWireFormatInfo.Version > 1.0f )
-                    encodeHeaders = true;
+                if ( _remoteWireFormatInfo.Version > 1.0f )
+                    _encodeHeaders = true;
 
                 if ( frame.HasProperty( "session" ) )
-                    remoteWireFormatInfo.Session = frame.RemoveProperty( "session" );
+                    _remoteWireFormatInfo.Session = frame.RemoveProperty( "session" );
 
                 if ( frame.HasProperty( "heart-beat" ) )
                 {
@@ -183,30 +174,30 @@ namespace Apache.NMS.Stomp.Protocol
                     if ( hearBeats.Length != 2 )
                         throw new IoException( "Malformed heartbeat property in Connected Frame." );
 
-                    remoteWireFormatInfo.WriteCheckInterval = Int32.Parse( hearBeats[0].Trim() );
-                    remoteWireFormatInfo.ReadCheckInterval = Int32.Parse( hearBeats[1].Trim() );
+                    _remoteWireFormatInfo.WriteCheckInterval = Int32.Parse( hearBeats[0].Trim() );
+                    _remoteWireFormatInfo.ReadCheckInterval = Int32.Parse( hearBeats[1].Trim() );
                 }
             }
             else
             {
-                remoteWireFormatInfo.ReadCheckInterval = 0;
-                remoteWireFormatInfo.WriteCheckInterval = 0;
-                remoteWireFormatInfo.Version = 1.0f;
+                _remoteWireFormatInfo.ReadCheckInterval = 0;
+                _remoteWireFormatInfo.WriteCheckInterval = 0;
+                _remoteWireFormatInfo.Version = 1.0f;
             }
 
-            if ( connectedResponseId != -1 )
+            if ( _connectedResponseId != -1 )
             {
                 var answer = new Response();
-                answer.CorrelationId = connectedResponseId;
+                answer.CorrelationId = _connectedResponseId;
                 SendCommand( answer );
-                connectedResponseId = -1;
+                _connectedResponseId = -1;
             }
             else
             {
                 throw new IoException( "Received Connected Frame without a set Response Id for it." );
             }
 
-            return remoteWireFormatInfo;
+            return _remoteWireFormatInfo;
         }
 
         protected virtual ICommand ReadMessage( StompFrame frame )
@@ -215,18 +206,9 @@ namespace Apache.NMS.Stomp.Protocol
             var transformation = frame.RemoveProperty( "transformation" );
 
             if ( frame.HasProperty( "content-length" ) )
-            {
-                message = new BytesMessage();
-                message.Content = frame.Content;
-            }
-            else if ( transformation == "jms-map-xml" )
-            {
-                message = new MapMessage( MapMarshaler.Unmarshal( frame.Content ) as PrimitiveMap );
-            }
+                message = new BytesMessage { Content = frame.Content };
             else
-            {
                 message = new TextMessage( Encoder.GetString( frame.Content, 0, frame.Content.Length ) );
-            }
 
             // Remove any receipt header we might have attached if the outbound command was
             // sent with response required set to true
@@ -297,17 +279,13 @@ namespace Apache.NMS.Stomp.Protocol
                 Transport.Command( Transport, command );
         }
 
-        protected virtual String ToString( Object value )
-        {
-            if ( value != null )
-                return value.ToString();
-            return null;
-        }
+        protected virtual String ToString( Object value ) 
+            => value?.ToString();
 
         protected virtual void WriteConnectionInfo( ConnectionInfo command, BinaryWriter dataOut )
         {
             // lets force a receipt for the Connect Frame.
-            var frame = new StompFrame( "CONNECT", encodeHeaders );
+            var frame = new StompFrame( "CONNECT", _encodeHeaders );
 
             frame.SetProperty( "client-id", command.ClientId );
             if ( !String.IsNullOrEmpty( command.UserName ) )
@@ -320,14 +298,14 @@ namespace Apache.NMS.Stomp.Protocol
             if ( MaxInactivityDuration != 0 )
                 frame.SetProperty( "heart-beat", WriteCheckInterval + "," + ReadCheckInterval );
 
-            connectedResponseId = command.CommandId;
+            _connectedResponseId = command.CommandId;
 
             frame.ToStream( dataOut );
         }
 
         protected virtual void WriteConsumerInfo( ConsumerInfo command, BinaryWriter dataOut )
         {
-            var frame = new StompFrame( "SUBSCRIBE", encodeHeaders );
+            var frame = new StompFrame( "SUBSCRIBE", _encodeHeaders );
 
             if ( command.ResponseRequired )
                 frame.SetProperty( "receipt", command.CommandId );
@@ -342,11 +320,7 @@ namespace Apache.NMS.Stomp.Protocol
                 frame.SetProperty( "no-local", command.NoLocal.ToString() );
 
             // ActiveMQ extensions to STOMP
-
-            if ( command.Transformation != null )
-                frame.SetProperty( "transformation", command.Transformation );
-            else
-                frame.SetProperty( "transformation", "jms-xml" );
+            frame.SetProperty( "transformation", command.Transformation ?? "jms-xml" );
 
             frame.SetProperty( "activemq.dispatchAsync", command.DispatchAsync );
 
@@ -373,14 +347,14 @@ namespace Apache.NMS.Stomp.Protocol
 
         protected virtual void WriteKeepAliveInfo( KeepAliveInfo command, BinaryWriter dataOut )
         {
-            var frame = new StompFrame( StompFrame.KEEPALIVE, encodeHeaders );
+            var frame = new StompFrame( StompFrame.Keepalive, _encodeHeaders );
 
             frame.ToStream( dataOut );
         }
 
         protected virtual void WriteMessage( Message command, BinaryWriter dataOut )
         {
-            var frame = new StompFrame( "SEND", encodeHeaders );
+            var frame = new StompFrame( "SEND", _encodeHeaders );
             if ( command.ResponseRequired )
                 frame.SetProperty( "receipt", command.CommandId );
 
@@ -429,10 +403,6 @@ namespace Apache.NMS.Stomp.Protocol
 
                 frame.SetProperty( "transformation", "jms-byte" );
             }
-            else if ( command is MapMessage )
-            {
-                frame.SetProperty( "transformation", MapMarshaler.Name );
-            }
 
             // Marshal all properties to the Frame.
             var map = command.Properties;
@@ -444,7 +414,7 @@ namespace Apache.NMS.Stomp.Protocol
 
         protected virtual void WriteMessageAck( MessageAck command, BinaryWriter dataOut )
         {
-            var frame = new StompFrame( "ACK", encodeHeaders );
+            var frame = new StompFrame( "ACK", _encodeHeaders );
             if ( command.ResponseRequired )
                 frame.SetProperty( "receipt", "ignore:" + command.CommandId );
 
@@ -459,7 +429,7 @@ namespace Apache.NMS.Stomp.Protocol
 
         protected virtual void WriteRemoveInfo( RemoveInfo command, BinaryWriter dataOut )
         {
-            var frame = new StompFrame( "UNSUBSCRIBE", encodeHeaders );
+            var frame = new StompFrame( "UNSUBSCRIBE", _encodeHeaders );
             Object id = command.ObjectId;
 
             if ( id is ConsumerId )
@@ -477,7 +447,7 @@ namespace Apache.NMS.Stomp.Protocol
         {
             Debug.Assert( !command.ResponseRequired );
 
-            var frame = new StompFrame( "DISCONNECT", encodeHeaders );
+            var frame = new StompFrame( "DISCONNECT", _encodeHeaders );
 
             frame.ToStream( dataOut );
         }
@@ -502,7 +472,7 @@ namespace Apache.NMS.Stomp.Protocol
                     throw new ArgumentOutOfRangeException();
             }
 
-            var frame = new StompFrame( type, encodeHeaders );
+            var frame = new StompFrame( type, _encodeHeaders );
             if ( command.ResponseRequired )
                 frame.SetProperty( "receipt", command.CommandId );
 

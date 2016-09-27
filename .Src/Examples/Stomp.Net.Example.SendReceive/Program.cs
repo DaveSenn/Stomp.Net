@@ -26,7 +26,7 @@ namespace Stomp.Net.Example.Producer
         {
             SendReceive();
 
-            Console.WriteLine( "Press <enter> to exit." );
+            Console.WriteLine( "\n\nPress <enter> to exit." );
             Console.ReadLine();
         }
 
@@ -47,8 +47,9 @@ namespace Stomp.Net.Example.Producer
             producer.DeliveryMode = MessageDeliveryMode.Persistent;
 
             var message = session.CreateTextMessage( RandomValueEx.GetRandomString() );
+            message.Properties["test"] = "test";
             producer.Send( message );
-            Console.WriteLine( "Message sent" );
+            Console.WriteLine( "Message sent\n" );
 
             IDestination sourceQueue = session.GetQueue( Destination );
             var consumer = session.CreateConsumer( sourceQueue );
@@ -56,8 +57,10 @@ namespace Stomp.Net.Example.Producer
             var msg = consumer.Receive();
             if ( msg is ITextMessage )
             {
+                Console.WriteLine("Message received");
                 msg.Acknowledge();
-                Console.WriteLine( "Message received" );
+                foreach ( var key in msg.Properties.Keys )
+                    Console.WriteLine( $"\t{msg.Properties[key as String]}" );
             }
             else
                 Console.WriteLine( "Unexpected message type: " + msg.GetType()

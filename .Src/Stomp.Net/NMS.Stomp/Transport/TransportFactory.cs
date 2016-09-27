@@ -4,6 +4,7 @@ using System;
 using Extend;
 using JetBrains.Annotations;
 using Stomp.Net;
+using Stomp.Net.Transport;
 
 #endregion
 

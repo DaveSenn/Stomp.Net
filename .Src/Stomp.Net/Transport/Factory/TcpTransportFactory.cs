@@ -12,7 +12,7 @@ using JetBrains.Annotations;
 
 #endregion
 
-namespace Stomp.Net
+namespace Stomp.Net.Transport
 {
     /// <summary>
     ///     Factory for TCP/IP transport.

@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Text;
+using Extend;
 
 #endregion
 
@@ -13,31 +14,31 @@ namespace Apache.NMS.Stomp.Protocol
     {
         #region Constants
 
-        public const Byte BREAK = (Byte) '\n';
-        public const Byte COLON = (Byte) ':';
-        public const Byte ESCAPE = (Byte) '\\';
+        private const Byte Break = (Byte) '\n';
+        private const Byte Colon = (Byte) ':';
+        private const Byte Escape = (Byte) '\\';
 
         /// Used to mark the End of the Frame.
-        public const Byte FRAME_TERMINUS = 0;
+        private const Byte FrameTerminus = 0;
 
         /// Used to denote a Special KeepAlive command that consists of a single newline.
-        public const String KEEPALIVE = "KEEPALIVE";
+        public const String Keepalive = "KEEPALIVE";
 
         /// Used to terminate a header line or end of a headers section of the Frame.
-        public const String NEWLINE = "\n";
+        private const String Newline = "\n";
 
-        /// Used to seperate the Key / Value pairing in Frame Headers
-        public const String SEPARATOR = ":";
+        /// Used to separate the Key / Value pairing in Frame Headers
+        private const String Separator = ":";
 
         #endregion
 
         #region Fields
 
-        public readonly Byte[] COLON_ESCAPE_SEQ = new Byte[2] { 92, 99 };
+        private readonly Byte[] _colonEscapeSeq = { 92, 99 };
 
-        private readonly Encoding encoding = new UTF8Encoding();
-        public readonly Byte[] ESCAPE_ESCAPE_SEQ = new Byte[2] { 92, 92 };
-        public readonly Byte[] NEWLINE_ESCAPE_SEQ = new Byte[2] { 92, 110 };
+        private readonly Encoding _encoding = new UTF8Encoding();
+        private readonly Byte[] _escapeEscapeSeq = { 92, 92 };
+        private readonly Byte[] _newlineEscapeSeq = { 92, 110 };
 
         #endregion
 
@@ -77,40 +78,25 @@ namespace Apache.NMS.Stomp.Protocol
 
         #endregion
 
-        public void ClearProperties() => Properties.Clear();
-
         public void FromStream( BinaryReader dataIn )
         {
             ReadCommandHeader( dataIn );
 
-            if ( Command != KEEPALIVE )
-            {
-                ReadHeaders( dataIn );
-                ReadContent( dataIn );
-            }
-        }
-
-        public String GetProperty( String name ) => GetProperty( name, null );
-
-        public String GetProperty( String name, String fallback )
-        {
-            if ( Properties.Contains( name ) )
-                return Properties[name] as String;
-
-            return fallback;
+            if ( Command == Keepalive )
+                return;
+            ReadHeaders( dataIn );
+            ReadContent( dataIn );
         }
 
         public Boolean HasProperty( String name ) => Properties.Contains( name );
 
         public String RemoveProperty( String name )
         {
-            String result = null;
+            if ( !Properties.Contains( name ) )
+                return null;
 
-            if ( Properties.Contains( name ) )
-            {
-                result = Properties[name] as String;
-                Properties.Remove( name );
-            }
+            var result = Properties[name] as String;
+            Properties.Remove( name );
 
             return result;
         }
@@ -125,9 +111,9 @@ namespace Apache.NMS.Stomp.Protocol
 
         public void ToStream( BinaryWriter dataOut )
         {
-            if ( Command == KEEPALIVE )
+            if ( Command == Keepalive )
             {
-                dataOut.Write( BREAK );
+                dataOut.Write( Break );
                 dataOut.Flush();
                 return;
             }
@@ -135,23 +121,23 @@ namespace Apache.NMS.Stomp.Protocol
             var builder = new StringBuilder();
 
             builder.Append( Command );
-            builder.Append( NEWLINE );
+            builder.Append( Newline );
 
             foreach ( String key in Properties.Keys )
             {
                 builder.Append( key );
-                builder.Append( SEPARATOR );
+                builder.Append( Separator );
                 builder.Append( EncodeHeader( Properties[key] as String ) );
-                builder.Append( NEWLINE );
+                builder.Append( Newline );
             }
 
-            builder.Append( NEWLINE );
-            dataOut.Write( encoding.GetBytes( builder.ToString() ) );
+            builder.Append( Newline );
+            dataOut.Write( _encoding.GetBytes( builder.ToString() ) );
 
             if ( Content != null )
                 dataOut.Write( Content );
 
-            dataOut.Write( FRAME_TERMINUS );
+            dataOut.Write( FrameTerminus );
         }
 
         public override String ToString()
@@ -166,7 +152,7 @@ namespace Apache.NMS.Stomp.Protocol
                 builder.Append( " " + key + "=" + Properties[key] );
 
             builder.Append( "}, " );
-            builder.Append( "Content=" + Content ?? Content.ToString() );
+            builder.Append( "Content=" + Content );
             builder.Append( "]" );
 
             return builder.ToString();
@@ -176,9 +162,9 @@ namespace Apache.NMS.Stomp.Protocol
         {
             var decoded = new MemoryStream();
 
-            var value = -1;
-            var utf8buf = encoding.GetBytes( header );
-            var stream = new MemoryStream( utf8buf );
+            Int32 value;
+            var utf8Buf = _encoding.GetBytes( header );
+            var stream = new MemoryStream( utf8Buf );
 
             while ( ( value = stream.ReadByte() ) != -1 )
                 if ( value == 92 )
@@ -188,13 +174,13 @@ namespace Apache.NMS.Stomp.Protocol
                         switch ( next )
                         {
                             case 110:
-                                decoded.WriteByte( BREAK );
+                                decoded.WriteByte( Break );
                                 break;
                             case 99:
-                                decoded.WriteByte( COLON );
+                                decoded.WriteByte( Colon );
                                 break;
                             case 92:
-                                decoded.WriteByte( ESCAPE );
+                                decoded.WriteByte( Escape );
                                 break;
                             default:
                                 stream.Seek( -1, SeekOrigin.Current );
@@ -210,36 +196,35 @@ namespace Apache.NMS.Stomp.Protocol
                 }
 
             var data = decoded.ToArray();
-            return encoding.GetString( data, 0, data.Length );
+            return _encoding.GetString( data, 0, data.Length );
         }
 
         private String EncodeHeader( String header )
         {
             var result = header;
-            if ( EncodingEnabled )
-            {
-                var utf8buf = encoding.GetBytes( header );
-                var stream = new MemoryStream( utf8buf.Length );
-                foreach ( var val in utf8buf )
-                    switch ( val )
-                    {
-                        case ESCAPE:
-                            stream.Write( ESCAPE_ESCAPE_SEQ, 0, ESCAPE_ESCAPE_SEQ.Length );
-                            break;
-                        case BREAK:
-                            stream.Write( NEWLINE_ESCAPE_SEQ, 0, NEWLINE_ESCAPE_SEQ.Length );
-                            break;
-                        case COLON:
-                            stream.Write( COLON_ESCAPE_SEQ, 0, COLON_ESCAPE_SEQ.Length );
-                            break;
-                        default:
-                            stream.WriteByte( val );
-                            break;
-                    }
+            if ( !EncodingEnabled )
+                return result;
+            var utf8Buf = _encoding.GetBytes( header );
+            var stream = new MemoryStream( utf8Buf.Length );
+            foreach ( var val in utf8Buf )
+                switch ( val )
+                {
+                    case Escape:
+                        stream.Write( _escapeEscapeSeq, 0, _escapeEscapeSeq.Length );
+                        break;
+                    case Break:
+                        stream.Write( _newlineEscapeSeq, 0, _newlineEscapeSeq.Length );
+                        break;
+                    case Colon:
+                        stream.Write( _colonEscapeSeq, 0, _colonEscapeSeq.Length );
+                        break;
+                    default:
+                        stream.WriteByte( val );
+                        break;
+                }
 
-                var data = stream.ToArray();
-                result = encoding.GetString( data, 0, data.Length );
-            }
+            var data = stream.ToArray();
+            result = _encoding.GetString( data, 0, data.Length );
 
             return result;
         }
@@ -248,7 +233,7 @@ namespace Apache.NMS.Stomp.Protocol
         {
             Command = ReadLine( dataIn );
 
-            if ( String.IsNullOrEmpty( Command ) )
+            if ( Command.IsEmpty() )
                 Command = "KEEPALIVE";
         }
 
@@ -256,7 +241,8 @@ namespace Apache.NMS.Stomp.Protocol
         {
             if ( Properties.Contains( "content-length" ) )
             {
-                var size = Int32.Parse( Properties["content-length"] as String );
+                var size = Properties["content-length"].ToString()
+                                                       .SaveToInt32( Int32.MinValue );
                 Content = dataIn.ReadBytes( size );
 
                 // Read the terminating NULL byte for this frame.                
@@ -320,7 +306,7 @@ namespace Apache.NMS.Stomp.Protocol
             }
 
             var data = ms.ToArray();
-            return encoding.GetString( data, 0, data.Length );
+            return _encoding.GetString( data, 0, data.Length );
         }
     }
 }

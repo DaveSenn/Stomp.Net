@@ -15,7 +15,7 @@ namespace Apache.NMS.Stomp.Transport
     {
         #region Fields
 
-        protected readonly ITransport next;
+        protected readonly ITransport Next;
 
         #endregion
 
@@ -29,11 +29,11 @@ namespace Apache.NMS.Stomp.Transport
 
         public TransportFilter( ITransport next )
         {
-            this.next = next;
-            this.next.Command = OnCommand;
-            this.next.Exception = OnException;
-            this.next.Interrupted = OnInterrupted;
-            this.next.Resumed = OnResumed;
+            Next = next;
+            Next.Command = OnCommand;
+            Next.Exception = OnException;
+            Next.Interrupted = OnInterrupted;
+            Next.Resumed = OnResumed;
         }
 
         #endregion
@@ -50,7 +50,7 @@ namespace Apache.NMS.Stomp.Transport
         /// <summary>
         ///     Property IsStarted
         /// </summary>
-        public Boolean IsStarted => next.IsStarted;
+        public Boolean IsStarted => Next.IsStarted;
 
         /// <summary>
         ///     Method Start
@@ -63,11 +63,11 @@ namespace Apache.NMS.Stomp.Transport
             if ( Exception == null )
                 throw new InvalidOperationException( "exception cannot be null when Start is called." );
 
-            next.Start();
+            Next.Start();
         }
 
         public virtual void Stop()
-            => next.Stop();
+            => Next.Stop();
 
         /// <summary>
         ///     Method AsyncRequest
@@ -75,7 +75,7 @@ namespace Apache.NMS.Stomp.Transport
         /// <returns>A FutureResponse</returns>
         /// <param name="command">A  Command</param>
         public virtual FutureResponse AsyncRequest( ICommand command )
-            => next.AsyncRequest( command );
+            => Next.AsyncRequest( command );
 
         /// <summary>
         ///     Timeout in milliseconds to wait for sending asynchronous messages or commands.
@@ -83,8 +83,8 @@ namespace Apache.NMS.Stomp.Transport
         /// </summary>
         public Int32 AsyncTimeout
         {
-            get { return next.AsyncTimeout; }
-            set { next.AsyncTimeout = value; }
+            get { return Next.AsyncTimeout; }
+            set { Next.AsyncTimeout = value; }
         }
 
         /// <summary>
@@ -92,20 +92,20 @@ namespace Apache.NMS.Stomp.Transport
         /// </summary>
         public Action<ITransport> Interrupted { get; set; }
 
-        public Boolean IsConnected => next.IsConnected;
+        public Boolean IsConnected => Next.IsConnected;
 
-        public Boolean IsFaultTolerant => next.IsFaultTolerant;
+        public Boolean IsFaultTolerant => Next.IsFaultTolerant;
 
         public Object Narrow( Type type )
-            => GetType() == type ? this : next?.Narrow( type );
+            => GetType() == type ? this : Next?.Narrow( type );
 
         /// <summary>
         ///     Method Oneway
         /// </summary>
         /// <param name="command">A  Command</param>
-        public virtual void Oneway( ICommand command ) => next.Oneway( command );
+        public virtual void Oneway( ICommand command ) => Next.Oneway( command );
 
-        public Uri RemoteAddress => next.RemoteAddress;
+        public Uri RemoteAddress => Next.RemoteAddress;
 
         /// <summary>
         ///     Method Request with time out for Response.
@@ -113,7 +113,7 @@ namespace Apache.NMS.Stomp.Transport
         /// <returns>A Response</returns>
         /// <param name="command">A  Command</param>
         /// <param name="timeout">Timeout in milliseconds</param>
-        public virtual Response Request( ICommand command, TimeSpan timeout ) => next.Request( command, timeout );
+        public virtual Response Request( ICommand command, TimeSpan timeout ) => Next.Request( command, timeout );
 
         /// <summary>
         ///     Delegate invoked when the connection is resumed.
@@ -126,21 +126,14 @@ namespace Apache.NMS.Stomp.Transport
         /// </summary>
         public Int32 Timeout
         {
-            get { return next.Timeout; }
-            set { next.Timeout = value; }
+            get { return Next.Timeout; }
+            set { Next.Timeout = value; }
         }
-
-        /// <summary>
-        ///     Method Request
-        /// </summary>
-        /// <returns>A Response</returns>
-        /// <param name="command">A  Command</param>
-        public virtual Response Request( ICommand command ) => Request( command, TimeSpan.FromMilliseconds( System.Threading.Timeout.Infinite ) );
 
         protected virtual void Dispose( Boolean disposing )
         {
             if ( disposing )
-                next.Dispose();
+                Next.Dispose();
 
             IsDisposed = true;
         }
@@ -179,13 +172,6 @@ namespace Apache.NMS.Stomp.Transport
         {
             Dispose( false );
         }
-
-        /*
-        protected CommandHandler commandHandler;
-        protected ExceptionHandler exceptionHandler;
-        protected InterruptedHandler interruptedHandler;
-        protected ResumedHandler resumedHandler;
-        */
 
         #region Implementation of ITransport
 

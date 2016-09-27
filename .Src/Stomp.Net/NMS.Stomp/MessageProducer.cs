@@ -194,8 +194,7 @@ namespace Apache.NMS.Stomp
         public ITextMessage CreateTextMessage() => session.CreateTextMessage();
 
         public ITextMessage CreateTextMessage( String text ) => session.CreateTextMessage( text );
-
-        public IMapMessage CreateMapMessage() => session.CreateMapMessage();
+        
 
         public IBytesMessage CreateBytesMessage() => session.CreateBytesMessage();
 

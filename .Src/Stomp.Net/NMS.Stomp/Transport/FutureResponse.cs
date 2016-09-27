@@ -25,8 +25,6 @@ namespace Apache.NMS.Stomp.Transport
 
         public TimeSpan ResponseTimeout { get; set; } = TimeSpan.FromMilliseconds( Timeout.Infinite );
 
-        public WaitHandle AsyncWaitHandle => _latch.AsyncWaitHandle;
-
         public Response Response
         {
             // Blocks the caller until a value has been set

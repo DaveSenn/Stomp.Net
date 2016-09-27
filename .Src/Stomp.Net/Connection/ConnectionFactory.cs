@@ -6,7 +6,6 @@ using Apache.NMS.Policies;
 using Apache.NMS.Stomp;
 using Apache.NMS.Stomp.Transport;
 using Apache.NMS.Stomp.Util;
-using Apache.NMS.Util;
 using Extend;
 
 #endregion
@@ -78,7 +77,7 @@ namespace Stomp.Net
         /// <param name="stompConnectionSettings">The STOM connection settings.</param>
         public ConnectionFactory( String brokerUri, StompConnectionSettings stompConnectionSettings )
         {
-            BrokerUri = UriSupport.CreateCompatibleUri( brokerUri );
+            BrokerUri = new Uri( brokerUri );
             StompConnectionSettings = stompConnectionSettings;
             _transportFactory = new TransportFactory( StompConnectionSettings );
         }
@@ -131,11 +130,7 @@ namespace Stomp.Net
             try
             {
                 var transport = _transportFactory.CreateTransport( BrokerUri );
-                connection = new Connection( BrokerUri, transport, ClientIdGenerator, StompConnectionSettings )
-                {
-                    UserName = StompConnectionSettings.UserName,
-                    Password = StompConnectionSettings.Password
-                };
+                connection = new Connection( BrokerUri, transport, ClientIdGenerator, StompConnectionSettings );
 
                 ConfigureConnection( connection );
 
@@ -144,20 +139,7 @@ namespace Stomp.Net
                     connection.DefaultClientId = StompConnectionSettings.ClientId;
 
                 return connection;
-            } /*
-            catch ( NmsException ex )
-            {
-                try
-                {
-                    connection?.Close();
-                }
-                catch
-                {
-                    // ignored
-                }
-
-                throw;
-            }*/
+            }
             catch ( Exception ex )
             {
                 try
@@ -169,7 +151,7 @@ namespace Stomp.Net
                     // ignored
                 }
 
-                throw NmsExceptionSupport.Create( $"Could not connect to broker URL: '{BrokerUri}'. See inner exception for details.", ex );
+                throw new NmsException( $"Could not connect to broker URL: '{BrokerUri}'. See inner exception for details.", ex );
             }
         }
 

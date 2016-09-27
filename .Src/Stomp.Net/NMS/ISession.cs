@@ -103,12 +103,7 @@ namespace Apache.NMS
         ///     Creates a named durable consumer of messages on a given destination with a selector
         /// </summary>
         IMessageConsumer CreateDurableConsumer( ITopic destination, String name, String selector, Boolean noLocal );
-
-        /// <summary>
-        ///     Creates a new Map message which contains primitive key and value pairs
-        /// </summary>
-        IMapMessage CreateMapMessage();
-
+        
         // Factory methods to create messages
 
         /// <summary>

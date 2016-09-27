@@ -7,10 +7,11 @@ using System.Threading;
 using Apache.NMS.Stomp.Commands;
 using Apache.NMS.Stomp.Transport;
 using Apache.NMS.Util;
+using Stomp.Net.Utilities;
 
 #endregion
 
-namespace Stomp.Net
+namespace Stomp.Net.Transport
 {
     /// <summary>
     ///     An implementation of ITransport that uses sockets to communicate with the broker

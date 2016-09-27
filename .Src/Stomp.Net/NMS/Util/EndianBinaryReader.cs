@@ -104,10 +104,7 @@ namespace Apache.NMS.Util
 
             if ( utfLength < 0 )
                 return null;
-            if ( utfLength == 0 )
-                return "";
-
-            return doReadString( utfLength );
+            return utfLength == 0 ? "" : doReadString( utfLength );
         }
 
         /// <summary>
@@ -121,10 +118,7 @@ namespace Apache.NMS.Util
 
             if ( utfLength < 0 )
                 return null;
-            if ( utfLength == 0 )
-                return "";
-
-            return doReadString( utfLength );
+            return utfLength == 0 ? "" : doReadString( utfLength );
         }
 
         /// <summary>

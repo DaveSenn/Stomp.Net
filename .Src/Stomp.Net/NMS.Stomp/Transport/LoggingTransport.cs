@@ -25,7 +25,7 @@ namespace Apache.NMS.Stomp.Transport
         public override void Oneway( ICommand command )
         {
             Tracer.Info( "SENDING: " + command );
-            next.Oneway( command );
+            Next.Oneway( command );
         }
 
         protected override void OnCommand( ITransport sender, ICommand command )

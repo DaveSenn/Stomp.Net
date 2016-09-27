@@ -15,7 +15,7 @@ namespace Apache.NMS.Stomp.Protocol
         #region Properties
 
         /// <summary>
-        ///     Retreives the Name of this Marshaler.
+        ///     Retrieves the Name of this Marshaler.
         /// </summary>
         String Name { get; }
 

@@ -13,16 +13,15 @@ namespace Apache.NMS.Policies
     {
         #region Constants
 
-        private static Boolean nextBool;
-
-        private static Random randomNumberGenerator;
-        private static readonly Object syncObject = new Object();
+        private static Boolean _nextBool;
+        private static Random _randomNumberGenerator;
+        private static readonly Object SyncObject = new Object();
 
         #endregion
 
         #region Fields
 
-        private Double collisionAvoidanceFactor = .15;
+        private Double _collisionAvoidanceFactor = .15;
 
         #endregion
 
@@ -36,12 +35,12 @@ namespace Apache.NMS.Policies
         {
             get
             {
-                if ( randomNumberGenerator == null )
-                    lock ( syncObject )
-                        if ( randomNumberGenerator == null )
-                            randomNumberGenerator = new Random( DateTime.Now.Second );
+                if ( _randomNumberGenerator == null )
+                    lock ( SyncObject )
+                        if ( _randomNumberGenerator == null )
+                            _randomNumberGenerator = new Random( DateTime.Now.Second );
 
-                return randomNumberGenerator;
+                return _randomNumberGenerator;
             }
         }
 
@@ -53,10 +52,10 @@ namespace Apache.NMS.Policies
         {
             get
             {
-                lock ( syncObject )
+                lock ( SyncObject )
                 {
-                    nextBool = !nextBool;
-                    return nextBool;
+                    _nextBool = !_nextBool;
+                    return _nextBool;
                 }
             }
         }
@@ -72,8 +71,8 @@ namespace Apache.NMS.Policies
 
         public Int32 CollisionAvoidancePercent
         {
-            get { return Convert.ToInt32( Math.Round( collisionAvoidanceFactor * 100 ) ); }
-            set { collisionAvoidanceFactor = Convert.ToDouble( value ) * .01; }
+            get { return Convert.ToInt32( Math.Round( _collisionAvoidanceFactor * 100 ) ); }
+            set { _collisionAvoidanceFactor = Convert.ToDouble( value ) * .01; }
         }
 
         public Boolean UseCollisionAvoidance { get; set; } = false;
@@ -97,7 +96,7 @@ namespace Apache.NMS.Policies
             if ( UseCollisionAvoidance )
             {
                 var random = RandomNumberGenerator;
-                var variance = ( NextBool ? collisionAvoidanceFactor : collisionAvoidanceFactor *= -1 ) * random.NextDouble();
+                var variance = ( NextBool ? _collisionAvoidanceFactor : _collisionAvoidanceFactor *= -1 ) * random.NextDouble();
                 delay += Convert.ToInt32( Convert.ToDouble( delay ) * variance );
             }
 

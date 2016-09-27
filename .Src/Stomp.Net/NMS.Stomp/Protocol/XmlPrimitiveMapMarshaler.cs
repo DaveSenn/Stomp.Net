@@ -42,11 +42,12 @@ namespace Apache.NMS.Stomp.Protocol
 
             var builder = new StringBuilder();
 
-            var settings = new XmlWriterSettings();
-
-            settings.OmitXmlDeclaration = true;
-            settings.Encoding = encoder;
-            settings.NewLineHandling = NewLineHandling.None;
+            var settings = new XmlWriterSettings
+            {
+                OmitXmlDeclaration = true,
+                Encoding = encoder,
+                NewLineHandling = NewLineHandling.None
+            };
 
             var writer = XmlWriter.Create( builder, settings );
 

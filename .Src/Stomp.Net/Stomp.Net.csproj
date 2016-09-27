@@ -62,6 +62,7 @@
     <Compile Include="NMS.Stomp\TransactionType.cs" />
     <Compile Include="NMS\MessageDeliveryMode.cs" />
     <Compile Include="NMS\MessagePriority.cs" />
+    <Compile Include="Utilities\AtomicReference.cs" />
     <Compile Include="Properties\JetBrains.Annotations.cs" />
     <Compile Include="NMS.Stomp\BrokerException.cs" />
     <Compile Include="NMS.Stomp\Commands\BaseCommand.cs" />
@@ -80,7 +81,6 @@
     <Compile Include="NMS.Stomp\Commands\Destination.cs" />
     <Compile Include="NMS.Stomp\Commands\ExceptionResponse.cs" />
     <Compile Include="NMS.Stomp\Commands\KeepAliveInfo.cs" />
-    <Compile Include="NMS.Stomp\Commands\MapMessage.cs" />
     <Compile Include="NMS.Stomp\Commands\Message.cs" />
     <Compile Include="NMS.Stomp\Commands\MessageAck.cs" />
     <Compile Include="NMS.Stomp\Commands\MessageDispatch.cs" />
@@ -121,10 +121,7 @@
     <Compile Include="NMS.Stomp\Session.cs" />
     <Compile Include="NMS.Stomp\SessionExecutor.cs" />
     <Compile Include="NMS.Stomp\State\CommandVisitorAdapter.cs" />
-    <Compile Include="NMS.Stomp\State\ConnectionState.cs" />
-    <Compile Include="NMS.Stomp\State\ConsumerState.cs" />
     <Compile Include="NMS.Stomp\State\ICommandVisitor.cs" />
-    <Compile Include="NMS.Stomp\State\SynchronizedObjects.cs" />
     <Compile Include="NMS.Stomp\Threads\CompositeTask.cs" />
     <Compile Include="NMS.Stomp\Threads\CompositeTaskRunner.cs" />
     <Compile Include="NMS.Stomp\Threads\DedicatedTaskRunner.cs" />
@@ -136,7 +133,7 @@
     <Compile Include="NMS.Stomp\Transport\ICompositeTransport.cs" />
     <Compile Include="NMS.Stomp\Transport\InactivityMonitor.cs" />
     <Compile Include="Definition\Transport\ITransport.cs" />
-    <Compile Include="NMS.Stomp\Transport\ITransportFactory.cs" />
+    <Compile Include="Definition\Transport\ITransportFactory.cs" />
     <Compile Include="NMS.Stomp\Transport\IWireFormat.cs" />
     <Compile Include="NMS.Stomp\Transport\LoggingTransport.cs" />
     <Compile Include="NMS.Stomp\Transport\MutexTransport.cs" />
@@ -156,7 +153,6 @@
     <Compile Include="Definition\Connection\IConnectionFactory.cs" />
     <Compile Include="NMS\IDestination.cs" />
     <Compile Include="NMS\IllegalStateException.cs" />
-    <Compile Include="NMS\IMapMessage.cs" />
     <Compile Include="NMS\IMessage.cs" />
     <Compile Include="NMS\IMessageConsumer.cs" />
     <Compile Include="NMS\IMessageProducer.cs" />
@@ -182,7 +178,7 @@
     <Compile Include="NMS\NmsException.cs" />
     <Compile Include="NMS\Policies\RedeliveryPolicy.cs" />
     <Compile Include="NMS\Tracer.cs" />
-    <Compile Include="NMS\Util\Atomic.cs" />
+    <Compile Include="Utilities\Atomic.cs" />
     <Compile Include="NMS\Util\CountDownLatch.cs" />
     <Compile Include="NMS\Util\DateUtils.cs" />
     <Compile Include="NMS\Util\EndianBinaryReader.cs" />
@@ -190,10 +186,9 @@
     <Compile Include="NMS\Util\EndianSupport.cs" />
     <Compile Include="NMS\Util\MessagePropertyIntercepter.cs" />
     <Compile Include="NMS\Util\MessageTransformation.cs" />
-    <Compile Include="NMS\Util\NMSExceptionSupport.cs" />
+    <Compile Include="Extensions\ExceptionEx.cs" />
     <Compile Include="NMS\Util\PrimitiveMap.cs" />
     <Compile Include="NMS\Util\PrimitiveMapInterceptor.cs" />
-    <Compile Include="NMS\Util\UriSupport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

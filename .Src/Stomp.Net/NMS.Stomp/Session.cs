@@ -227,11 +227,10 @@ namespace Apache.NMS.Stomp
                 throw new IllegalStateException( "The Session is Closed" );
         }
 
-        private void ClearMessages( Object value )
+        private static void ClearMessages( Object value )
         {
             var consumer = value as MessageConsumer;
-
-            consumer.ClearMessagesInProgress();
+            consumer?.ClearMessagesInProgress();
         }
 
         private Message ConfigureMessage( Message message )
@@ -641,13 +640,7 @@ namespace Apache.NMS.Stomp
             var answer = new TextMessage( text );
             return ConfigureMessage( answer ) as ITextMessage;
         }
-
-        public IMapMessage CreateMapMessage()
-        {
-            var answer = new MapMessage();
-            return ConfigureMessage( answer ) as IMapMessage;
-        }
-
+        
         public IBytesMessage CreateBytesMessage() => ConfigureMessage( new BytesMessage() ) as IBytesMessage;
 
         public IBytesMessage CreateBytesMessage( Byte[] body )

@@ -98,14 +98,7 @@ namespace Apache.NMS.Stomp.Commands
         /// </summary>
         public String NMSMessageId
         {
-            get
-            {
-                if ( null != MessageId )
-                    return MessageId.ToString();
-
-                return String.Empty;
-            }
-
+            get { return MessageId?.ToString() ?? String.Empty; }
             set
             {
                 if ( value != null )
@@ -168,7 +161,7 @@ namespace Apache.NMS.Stomp.Commands
         }
 
         /// <summary>
-        ///     The timestamp the broker added to the message
+        ///     The time-stamp the broker added to the message.
         /// </summary>
         public DateTime NMSTimestamp
         {
@@ -220,12 +213,11 @@ namespace Apache.NMS.Stomp.Commands
         {
             get
             {
-                if ( null == properties )
-                {
-                    properties = PrimitiveMap.Unmarshal( MarshalledProperties );
-                    propertyHelper = new MessagePropertyIntercepter( this, properties, ReadOnlyProperties );
-                    propertyHelper.AllowByteArrays = false;
-                }
+                if ( null != properties )
+                    return propertyHelper;
+
+                properties = PrimitiveMap.Unmarshal( MarshalledProperties );
+                propertyHelper = new MessagePropertyIntercepter( this, properties, ReadOnlyProperties ) { AllowByteArrays = false };
 
                 return propertyHelper;
             }
@@ -262,7 +254,7 @@ namespace Apache.NMS.Stomp.Commands
         {
             var id = MessageId;
 
-            return id != null ? id.GetHashCode() : base.GetHashCode();
+            return id?.GetHashCode() ?? base.GetHashCode();
         }
 
         protected void FailIfReadOnlyBody()

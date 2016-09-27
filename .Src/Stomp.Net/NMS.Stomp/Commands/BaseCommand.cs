@@ -48,7 +48,7 @@ namespace Apache.NMS.Stomp.Commands
 
         public virtual Boolean IsWireFormatInfo => false;
 
-        public virtual Boolean ResponseRequired { get; set; } = false;
+        public virtual Boolean ResponseRequired { get; set; }
 
         public virtual Response Visit( ICommandVisitor visitor )
         {

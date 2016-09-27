@@ -17,15 +17,6 @@ namespace Apache.NMS.Stomp.Commands
 
         #region Ctor
 
-        public SessionInfo()
-        {
-        }
-
-        public SessionInfo( ConnectionInfo connectionInfo, Int64 sessionId )
-        {
-            SessionId = new SessionId( connectionInfo.ConnectionId, sessionId );
-        }
-
         #endregion
 
         /// <summery>

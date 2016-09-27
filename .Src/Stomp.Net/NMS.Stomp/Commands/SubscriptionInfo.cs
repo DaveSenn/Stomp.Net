@@ -26,19 +26,21 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType() => DataStructureTypes.SubscriptionInfoType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.SubscriptionInfoType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => GetType()
-                                                 .Name + "[" +
-                                             "ClientId=" + ClientId + ", " +
-                                             "Destination=" + Destination + ", " +
-                                             "Selector=" + Selector + ", " +
-                                             "SubscriptionName=" + SubscriptionName + ", " +
-                                             "SubscribedDestination=" + SubscribedDestination +
-                                             "]";
+        public override String ToString()
+            => GetType()
+                   .Name + "[" +
+               "ClientId=" + ClientId + ", " +
+               "Destination=" + Destination + ", " +
+               "Selector=" + Selector + ", " +
+               "SubscriptionName=" + SubscriptionName + ", " +
+               "SubscribedDestination=" + SubscribedDestination +
+               "]";
     }
 }

@@ -3,7 +3,6 @@
 using System;
 using System.IO;
 using Apache.NMS.Stomp.Commands;
-using Stomp.Net;
 
 #endregion
 
@@ -14,16 +13,6 @@ namespace Apache.NMS.Stomp.Transport
     /// </summary>
     public interface IWireFormat
     {
-        #region Properties
-
-        /// <summary>
-        ///     Gets or sets the transport.
-        /// </summary>
-        /// <value>The transport.</value>
-        ITransport Transport { get; set; }
-
-        #endregion
-
         /// <summary>
         ///     Marshals the given command object onto the stream
         /// </summary>

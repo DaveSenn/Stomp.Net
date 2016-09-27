@@ -43,13 +43,7 @@ namespace Apache.NMS.Stomp
             var message = new TextMessage { Connection = _connection };
             return message;
         }
-
-        protected override IMapMessage DoCreateMapMessage()
-        {
-            var message = new MapMessage { Connection = _connection };
-            return message;
-        }
-
+        
         protected override IDestination DoTransformDestination( IDestination destination )
             => Destination.Transform( destination );
 

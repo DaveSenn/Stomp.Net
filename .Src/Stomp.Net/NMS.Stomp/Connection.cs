@@ -11,6 +11,7 @@ using Apache.NMS.Util;
 using Extend;
 using JetBrains.Annotations;
 using Stomp.Net;
+using Stomp.Net.Utilities;
 
 #endregion
 
@@ -33,65 +34,38 @@ namespace Apache.NMS.Stomp
         private readonly Atomic<Boolean> _closed = new Atomic<Boolean>( false );
         private readonly Atomic<Boolean> _closing = new Atomic<Boolean>( false );
         private readonly Atomic<Boolean> _connected = new Atomic<Boolean>( false );
-
+        private readonly Atomic<Boolean> _started = new Atomic<Boolean>(false);
+        private readonly Atomic<Boolean> _transportFailed = new Atomic<Boolean>(false);
         private readonly Object _connectedLock = new Object();
         private readonly IDictionary _dispatchers = Hashtable.Synchronized( new Hashtable() );
         private readonly ThreadPoolExecutor _executor = new ThreadPoolExecutor();
         private readonly ConnectionInfo _info;
         private readonly Object _myLock = new Object();
         private readonly IList _sessions = ArrayList.Synchronized( new ArrayList() );
-        private readonly Atomic<Boolean> _started = new Atomic<Boolean>( false );
-
+        private readonly ITransportFactory _transportFactory;
+        private Boolean _disposed;
+        private Int32 _localTransactionCounter;
+        private Int32 _sessionCounter;
+        private Int32 _temporaryDestinationCounter;
+        private CountDownLatch _transportInterruptionProcessingComplete;
+        private Boolean _userSpecifiedClientId;
         /// <summary>
         ///     The STOMP connection settings.
         /// </summary>
         private readonly StompConnectionSettings _stompConnectionSettings;
 
-        private readonly ITransportFactory _transportFactory;
-        private readonly Atomic<Boolean> _transportFailed = new Atomic<Boolean>( false );
-
-        private Boolean _disposed;
-        private Int32 _localTransactionCounter;
-
-        private Int32 _sessionCounter;
-        private Int32 _temporaryDestinationCounter;
-        private CountDownLatch _transportInterruptionProcessingComplete;
-
-        private Boolean _userSpecifiedClientId;
-
         #endregion
 
         #region Properties
 
-        public String UserName
-        {
-            get { return _info.UserName; }
-            set { _info.UserName = value; }
-        }
+        private Uri BrokerUri { get; }
 
-        public String Password
-        {
-            get { return _info.Password; }
-            set { _info.Password = value; }
-        }
-
-        /// <summary>
-        ///     Sets the default Transformation attribute applied to Consumers.  If a consumer
-        ///     is to receive Map messages from the Broker then the user should set the "jms-map-xml"
-        ///     transformation on the consumer so that all MapMessages are sent as XML.
-        /// </summary>
-        public String Transformation { get; set; } = null;
-
-        public Uri BrokerUri { get; }
-
-        public ITransport Transport { get; set; }
-
-        public Boolean TransportFailed => _transportFailed.Value;
+        private ITransport Transport { get; set; }
 
         public Exception FirstFailureError { get; private set; }
 
         /// <summary>
-        ///     The Default Client Id used if the ClientId property is not set explicity.
+        ///     The Default Client Id used if the ClientId property is not set explicit.
         /// </summary>
         public String DefaultClientId
         {
@@ -123,12 +97,12 @@ namespace Apache.NMS.Stomp
 
             SetTransport( transport );
 
-            var id = new ConnectionId { Value = ConnectionIdGenerator.GenerateId() };
-
             _info = new ConnectionInfo
             {
-                ConnectionId = id,
-                Host = BrokerUri.Host
+                ConnectionId = new ConnectionId { Value = ConnectionIdGenerator.GenerateId() },
+                Host = BrokerUri.Host,
+                UserName = _stompConnectionSettings.UserName,
+                Password = _stompConnectionSettings.Password
             };
 
             MessageTransformation = new StompMessageTransformation( this );
@@ -215,22 +189,12 @@ namespace Apache.NMS.Stomp
         /// </summary>
         public ISession CreateSession( AcknowledgementMode sessionAcknowledgementMode )
         {
-            var info = CreateSessionInfo( sessionAcknowledgementMode );
-            var session = new Session( this, info, sessionAcknowledgementMode, _stompConnectionSettings );
-
-            // Set properties on session using parameters prefixed with "session."
-            if ( BrokerUri.Query.IsNotEmpty() && !BrokerUri.OriginalString.EndsWith( ")", StringComparison.Ordinal ) )
+            var info = CreateSessionInfo();
+            var session = new Session( this, info, sessionAcknowledgementMode, _stompConnectionSettings )
             {
-                // Since the Uri class will return the end of a Query string found in a Composite
-                // URI we must ensure that we trim that off before we proceed.
-                var query = BrokerUri.Query.Substring( BrokerUri.Query.LastIndexOf( ")", StringComparison.Ordinal ) + 1 );
-                var options = UriSupport.ParseQuery( query );
-                options = UriSupport.GetProperties( options, "session." );
-                UriSupport.SetProperties( session, options );
-            }
-
-            session.ConsumerTransformer = ConsumerTransformer;
-            session.ProducerTransformer = ProducerTransformer;
+                ConsumerTransformer = ConsumerTransformer,
+                ProducerTransformer = ProducerTransformer
+            };
 
             if ( IsStarted )
                 session.Start();
@@ -274,10 +238,11 @@ namespace Apache.NMS.Stomp
         public void Start()
         {
             CheckConnected();
-            if ( _started.CompareAndSet( false, true ) )
-                lock ( _sessions.SyncRoot )
-                    foreach ( Session session in _sessions )
-                        session.Start();
+            if ( !_started.CompareAndSet( false, true ) )
+                return;
+            lock ( _sessions.SyncRoot )
+                foreach ( Session session in _sessions )
+                    session.Start();
         }
 
         /// <summary>
@@ -287,10 +252,11 @@ namespace Apache.NMS.Stomp
         public void Stop()
         {
             CheckConnected();
-            if ( _started.CompareAndSet( true, false ) )
-                lock ( _sessions.SyncRoot )
-                    foreach ( Session session in _sessions )
-                        session.Stop();
+            if ( !_started.CompareAndSet( true, false ) )
+                return;
+            lock ( _sessions.SyncRoot )
+                foreach ( Session session in _sessions )
+                    session.Stop();
         }
 
         /// <summary>
@@ -319,7 +285,7 @@ namespace Apache.NMS.Stomp
             }
             catch ( Exception ex )
             {
-                throw NmsExceptionSupport.Create( ex );
+                throw ExceptionEx.Create( ex );
             }
         }
 
@@ -337,17 +303,16 @@ namespace Apache.NMS.Stomp
             try
             {
                 var response = Transport.Request( command, requestTimeout );
-                if ( response is ExceptionResponse )
-                {
-                    var exceptionResponse = (ExceptionResponse) response;
-                    var brokerError = exceptionResponse.Exception;
-                    throw new BrokerException( brokerError );
-                }
-                return response;
+                if ( !( response is ExceptionResponse ) )
+                    return response;
+
+                var exceptionResponse = (ExceptionResponse) response;
+                var brokerError = exceptionResponse.Exception;
+                throw new BrokerException( brokerError );
             }
             catch ( Exception ex )
             {
-                throw NmsExceptionSupport.Create( ex );
+                throw ExceptionEx.Create( ex );
             }
         }
 
@@ -355,15 +320,16 @@ namespace Apache.NMS.Stomp
 
         internal void OnSessionException( Session sender, Exception exception )
         {
-            if ( ExceptionListener != null )
-                try
-                {
-                    ExceptionListener( exception );
-                }
-                catch
-                {
-                    sender.Close();
-                }
+            if ( ExceptionListener == null )
+                return;
+            try
+            {
+                ExceptionListener( exception );
+            }
+            catch
+            {
+                sender.Close();
+            }
         }
 
         internal void RemoveDispatcher( ConsumerId id ) => _dispatchers.Remove( id );
@@ -401,7 +367,7 @@ namespace Apache.NMS.Stomp
                 Tracer.WarnFormat( "Caught Exception While disposing of Transport: {0}", ex.Message );
             }
 
-            IList sessionsCopy = null;
+            IList sessionsCopy;
             lock ( _sessions.SyncRoot )
                 sessionsCopy = new ArrayList( _sessions );
 
@@ -427,93 +393,94 @@ namespace Apache.NMS.Stomp
             if ( _closed.Value )
                 throw new ConnectionClosedException();
 
-            if ( !_connected.Value )
+            if ( _connected.Value )
+                return;
+            var timeoutTime = DateTime.Now + _stompConnectionSettings.RequestTimeout;
+            var waitCount = 1;
+
+            while ( true )
             {
-                var timeoutTime = DateTime.Now + _stompConnectionSettings.RequestTimeout;
-                var waitCount = 1;
-
-                while ( true )
-                {
-                    if ( Monitor.TryEnter( _connectedLock ) )
-                        try
+                if ( Monitor.TryEnter( _connectedLock ) )
+                    try
+                    {
+                        if ( _closed.Value || _closing.Value )
                         {
-                            if ( _closed.Value || _closing.Value )
-                            {
-                                break;
-                            }
-                            else if ( !_connected.Value )
-                            {
-                                if ( !_userSpecifiedClientId )
-                                    _info.ClientId = _clientIdGenerator.GenerateId();
+                            break;
+                        }
+                        else if ( !_connected.Value )
+                        {
+                            if ( !_userSpecifiedClientId )
+                                _info.ClientId = _clientIdGenerator.GenerateId();
 
-                                try
+                            try
+                            {
+                                if ( null != Transport )
                                 {
-                                    if ( null != Transport )
-                                    {
-                                        // Make sure the transport is started.
-                                        if ( !Transport.IsStarted )
-                                            Transport.Start();
+                                    // Make sure the transport is started.
+                                    if ( !Transport.IsStarted )
+                                        Transport.Start();
 
-                                        // Send the connection and see if an ack/nak is returned.
-                                        var response = Transport.Request( _info, _stompConnectionSettings.RequestTimeout );
-                                        if ( !( response is ExceptionResponse ) )
-                                        {
-                                            _connected.Value = true;
-                                        }
-                                        else
-                                        {
-                                            var error = response as ExceptionResponse;
-                                            var exception = CreateExceptionFromBrokerError( error.Exception );
-                                            // This is non-recoverable.
-                                            // Shutdown the transport connection, and re-create it, but don't start it.
-                                            // It will be started if the connection is re-attempted.
-                                            Transport.Stop();
-                                            var newTransport = _transportFactory.CreateTransport( BrokerUri );
-                                            SetTransport( newTransport );
-                                            throw exception;
-                                        }
+                                    // Send the connection and see if an ack/nak is returned.
+                                    var response = Transport.Request( _info, _stompConnectionSettings.RequestTimeout );
+                                    if ( !( response is ExceptionResponse ) )
+                                    {
+                                        _connected.Value = true;
+                                    }
+                                    else
+                                    {
+                                        var error = response as ExceptionResponse;
+                                        var exception = CreateExceptionFromBrokerError( error.Exception );
+                                        // This is non-recoverable.
+                                        // Shutdown the transport connection, and re-create it, but don't start it.
+                                        // It will be started if the connection is re-attempted.
+                                        Transport.Stop();
+                                        var newTransport = _transportFactory.CreateTransport( BrokerUri );
+                                        SetTransport( newTransport );
+                                        throw exception;
                                     }
                                 }
-                                catch ( Exception ex )
-                                {
-                                    Tracer.Error( ex );
-                                }
+                            }
+                            catch ( Exception ex )
+                            {
+                                Tracer.Error( ex );
                             }
                         }
-                        finally
-                        {
-                            Monitor.Exit( _connectedLock );
-                        }
+                    }
+                    finally
+                    {
+                        Monitor.Exit( _connectedLock );
+                    }
 
-                    if ( _connected.Value || _closed.Value || _closing.Value || DateTime.Now > timeoutTime )
-                        break;
+                if ( _connected.Value || _closed.Value || _closing.Value || DateTime.Now > timeoutTime )
+                    break;
 
-                    // Back off from being overly aggressive.  Having too many threads
-                    // aggressively trying to connect to a down broker pegs the CPU.
-                    Thread.Sleep( 5 * waitCount++ );
-                }
-
-                if ( !_connected.Value )
-                    throw new ConnectionClosedException();
+                // Back off from being overly aggressive.  Having too many threads
+                // aggressively trying to connect to a down broker pegs the CPU.
+                Thread.Sleep( 5 * waitCount++ );
             }
+
+            if ( !_connected.Value )
+                throw new ConnectionClosedException();
         }
 
         private static NmsException CreateExceptionFromBrokerError( BrokerError brokerError )
         {
             var exceptionClassName = brokerError.ExceptionClass;
 
-            if ( String.IsNullOrEmpty( exceptionClassName ) )
+            if ( exceptionClassName.IsEmpty() )
                 return new BrokerException( brokerError );
 
             return new InvalidClientIDException( brokerError.Message );
         }
 
-        private SessionInfo CreateSessionInfo( AcknowledgementMode sessionAcknowledgementMode )
+        private SessionInfo CreateSessionInfo()
         {
             var answer = new SessionInfo();
-            var sessionId = new SessionId();
-            sessionId.ConnectionId = _info.ConnectionId.Value;
-            sessionId.Value = Interlocked.Increment( ref _sessionCounter );
+            var sessionId = new SessionId
+            {
+                ConnectionId = _info.ConnectionId.Value,
+                Value = Interlocked.Increment( ref _sessionCounter )
+            };
             answer.SessionId = sessionId;
             return answer;
         }
@@ -581,7 +548,7 @@ namespace Apache.NMS.Stomp
             if ( ExceptionListener != null )
             {
                 if ( !( error is NmsException ) )
-                    error = NmsExceptionSupport.Create( error );
+                    error = ExceptionEx.Create( error );
                 var e = (NmsException) error;
 
                 // Called in another thread so that processing can continue
@@ -616,22 +583,21 @@ namespace Apache.NMS.Stomp
             }
             else if ( command.IsErrorCommand )
             {
-                if ( !_closing.Value && !_closed.Value )
+                if ( _closing.Value || _closed.Value )
+                    return;
+                var connectionError = (ConnectionError) command;
+                var brokerError = connectionError.Exception;
+                var message = "Broker connection error.";
+                var cause = "";
+
+                if ( null != brokerError )
                 {
-                    var connectionError = (ConnectionError) command;
-                    var brokerError = connectionError.Exception;
-                    var message = "Broker connection error.";
-                    var cause = "";
-
-                    if ( null != brokerError )
-                    {
-                        message = brokerError.Message;
-                        if ( null != brokerError.Cause )
-                            cause = brokerError.Cause.Message;
-                    }
-
-                    OnException( new NmsConnectionException( message, cause ) );
+                    message = brokerError.Message;
+                    if ( null != brokerError.Cause )
+                        cause = brokerError.Cause.Message;
                 }
+
+                OnException( new NmsConnectionException( message, cause ) );
             }
             else
             {
@@ -658,14 +624,16 @@ namespace Apache.NMS.Stomp
             foreach ( Session session in _sessions )
                 session.ClearMessagesInProgress();
 
-            if ( ConnectionInterruptedListener != null && !_closing.Value )
-                try
-                {
-                    ConnectionInterruptedListener();
-                }
-                catch
-                {
-                }
+            if ( ConnectionInterruptedListener == null || _closing.Value )
+                return;
+            try
+            {
+                ConnectionInterruptedListener();
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         private void OnTransportResumed( ITransport sender )
@@ -695,14 +663,14 @@ namespace Apache.NMS.Stomp
         private void WaitForTransportInterruptionProcessingToComplete()
         {
             var cdl = _transportInterruptionProcessingComplete;
-            if ( cdl != null )
-                if ( !_closed.Value && cdl.Remaining > 0 )
-                {
-                    Tracer.WarnFormat( "dispatch paused, waiting for outstanding dispatch interruption " +
-                                       "processing ({0}) to complete..",
-                                       cdl.Remaining );
-                    cdl.AwaitOperation( TimeSpan.FromSeconds( 10 ) );
-                }
+            if ( cdl == null )
+                return;
+            if ( _closed.Value || cdl.Remaining <= 0 )
+                return;
+            Tracer.WarnFormat( "dispatch paused, waiting for outstanding dispatch interruption " +
+                               "processing ({0}) to complete..",
+                               cdl.Remaining );
+            cdl.AwaitOperation( TimeSpan.FromSeconds( 10 ) );
         }
 
         ~Connection()

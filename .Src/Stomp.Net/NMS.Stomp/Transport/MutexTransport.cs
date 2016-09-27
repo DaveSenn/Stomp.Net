@@ -31,7 +31,7 @@ namespace Apache.NMS.Stomp.Transport
 
         public override FutureResponse AsyncRequest( ICommand command )
         {
-            GetTransmissionLock( next.AsyncTimeout );
+            GetTransmissionLock( Next.AsyncTimeout );
             try
             {
                 return base.AsyncRequest( command );
@@ -44,7 +44,7 @@ namespace Apache.NMS.Stomp.Transport
 
         public override void Oneway( ICommand command )
         {
-            GetTransmissionLock( next.Timeout );
+            GetTransmissionLock( Next.Timeout );
             try
             {
                 base.Oneway( command );

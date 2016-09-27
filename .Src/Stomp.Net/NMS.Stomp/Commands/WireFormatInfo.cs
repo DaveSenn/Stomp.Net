@@ -11,9 +11,9 @@ namespace Apache.NMS.Stomp.Commands
     {
         #region Properties
 
-        public Int64 WriteCheckInterval { get; set; } = 0;
+        public Int64 WriteCheckInterval { get; set; }
 
-        public Int64 ReadCheckInterval { get; set; } = 0;
+        public Int64 ReadCheckInterval { get; set; }
 
         public Single Version { get; set; } = 1.0f;
 
@@ -30,20 +30,23 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType() => DataStructureTypes.TransactionInfoType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.TransactionInfoType;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => GetType()
-                                                 .Name + "[" +
-                                             "WriteCheckInterval=" + WriteCheckInterval + ", " +
-                                             "ReadCheckInterval=" + ReadCheckInterval + ", " +
-                                             "Session=" + Session + ", " +
-                                             "Version=" + Version +
-                                             "]";
+        public override String ToString()
+            => GetType()
+                   .Name + "[" +
+               "WriteCheckInterval=" + WriteCheckInterval + ", " +
+               "ReadCheckInterval=" + ReadCheckInterval + ", " +
+               "Session=" + Session + ", " +
+               "Version=" + Version +
+               "]";
 
-        public override Response Visit( ICommandVisitor visitor ) => null;
+        public override Response Visit( ICommandVisitor visitor )
+            => null;
     }
 }

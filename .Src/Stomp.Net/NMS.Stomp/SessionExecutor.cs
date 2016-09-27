@@ -10,7 +10,7 @@ using Apache.NMS.Stomp.Util;
 
 namespace Apache.NMS.Stomp
 {
-    public class SessionExecutor : Task
+    public class SessionExecutor : ITask
     {
         #region Fields
 
@@ -18,7 +18,7 @@ namespace Apache.NMS.Stomp
         private readonly MessageDispatchChannel _messageQueue = new MessageDispatchChannel();
 
         private readonly Session _session;
-        private TaskRunner _taskRunner;
+        private ITaskRunner _taskRunner;
 
         #endregion
 

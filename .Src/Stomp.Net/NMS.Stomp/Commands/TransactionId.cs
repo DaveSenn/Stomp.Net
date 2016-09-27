@@ -23,16 +23,6 @@ namespace Apache.NMS.Stomp.Commands
             return false;
         }
 
-        public virtual Boolean Equals( TransactionId that )
-        {
-            if ( !Equals( Value, that.Value ) )
-                return false;
-            if ( !Equals( ConnectionId, that.ConnectionId ) )
-                return false;
-
-            return true;
-        }
-
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
@@ -53,6 +43,10 @@ namespace Apache.NMS.Stomp.Commands
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => ConnectionId + ":" + Value;
+        public override String ToString()
+            => ConnectionId + ":" + Value;
+
+        protected virtual Boolean Equals( TransactionId that )
+            => Equals( Value, that.Value ) && Equals( ConnectionId, that.ConnectionId );
     }
 }

@@ -1,6 +1,7 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 
 #endregion
 
@@ -17,6 +18,7 @@ namespace Apache.NMS
         ///     Provides access to the message properties (headers).
         /// </summary>
         IPrimitiveMap Properties { get; }
+        //Dictionary<String, String> Properties { get; }
 
         /// <summary>
         ///     The correlation ID used to correlate messages from conversations or long running business processes.

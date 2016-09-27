@@ -14,7 +14,7 @@ namespace Apache.NMS.Stomp.Threads
     ///     then the CompositeTaskRunner can return to its sleep state until
     ///     the next time its wakeup method is called or it is shut down.
     /// </summary>
-    public interface CompositeTask : Task
+    public interface ICompositeTask : ITask
     {
         #region Properties
 

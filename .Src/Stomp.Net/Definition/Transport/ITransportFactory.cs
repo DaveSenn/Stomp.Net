@@ -1,11 +1,10 @@
 #region Usings
 
 using System;
-using Stomp.Net;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Transport
+namespace Stomp.Net
 {
     public interface ITransportFactory
     {

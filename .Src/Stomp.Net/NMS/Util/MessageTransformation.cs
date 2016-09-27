@@ -16,7 +16,7 @@ namespace Apache.NMS.Util
         {
             if ( message is T )
                 return (T) message;
-            IMessage result = null;
+            IMessage result;
 
             if ( message is IBytesMessage )
             {
@@ -32,16 +32,6 @@ namespace Apache.NMS.Util
                 catch
                 {
                 }
-
-                result = msg;
-            }
-            else if ( message is IMapMessage )
-            {
-                var mapMsg = message as IMapMessage;
-                var msg = DoCreateMapMessage();
-
-                foreach ( String key in mapMsg.Body.Keys )
-                    msg.Body[key] = mapMsg.Body[key];
 
                 result = msg;
             }
@@ -93,9 +83,7 @@ namespace Apache.NMS.Util
         protected abstract IMessage DoCreateMessage();
         protected abstract IBytesMessage DoCreateBytesMessage();
         protected abstract ITextMessage DoCreateTextMessage();
-
-        protected abstract IMapMessage DoCreateMapMessage();
-
+        
         protected abstract IDestination DoTransformDestination( IDestination destination );
         protected abstract void DoPostProcessMessage( IMessage message );
 

@@ -8,9 +8,9 @@ namespace Apache.NMS.Stomp.Commands
 {
     public struct StackTraceElement
     {
-        public String ClassName;
-        public String FileName;
-        public String MethodName;
-        public Int32 LineNumber;
+        public String ClassName { get; set; }
+        public String FileName { get; set; }
+        public String MethodName { get; set; }
+        public Int32 LineNumber { get; set; }
     }
 }

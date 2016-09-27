@@ -18,12 +18,10 @@ namespace Apache.NMS.Stomp.Threads
     {
         #region Fields
 
-        private readonly ManualResetEvent executionComplete = new ManualResetEvent( true );
-        private readonly Mutex syncRoot = new Mutex();
-        private readonly Queue<Future> workQueue = new Queue<Future>();
-
-        private Boolean closing;
-        private Boolean running;
+        private readonly ManualResetEvent _executionComplete = new ManualResetEvent( true );
+        private readonly Mutex _syncRoot = new Mutex();
+        private readonly Queue<Future> _workQueue = new Queue<Future>();
+        private Boolean _running;
 
         #endregion
 
@@ -33,67 +31,40 @@ namespace Apache.NMS.Stomp.Threads
 
         #endregion
 
-        public void QueueUserWorkItem( WaitCallback worker ) => QueueUserWorkItem( worker, null );
-
         public void QueueUserWorkItem( WaitCallback worker, Object arg )
         {
             if ( worker == null )
                 throw new ArgumentNullException( "Invalid WaitCallback passed" );
 
             if ( !IsShutdown )
-                lock ( syncRoot )
-                    if ( !IsShutdown || !closing )
+                lock ( _syncRoot )
+                    if ( !IsShutdown )
                     {
-                        workQueue.Enqueue( new Future( worker, arg ) );
+                        _workQueue.Enqueue( new Future( worker, arg ) );
 
-                        if ( !running )
+                        if ( !_running )
                         {
-                            executionComplete.Reset();
-                            running = true;
+                            _executionComplete.Reset();
+                            _running = true;
                             ThreadPool.QueueUserWorkItem( QueueProcessor, null );
                         }
                     }
         }
 
-        public void Shutdown()
-        {
-            if ( !IsShutdown )
-            {
-                syncRoot.WaitOne();
-
-                if ( !IsShutdown )
-                {
-                    closing = true;
-                    workQueue.Clear();
-
-                    if ( running )
-                    {
-                        syncRoot.ReleaseMutex();
-                        executionComplete.WaitOne();
-                        syncRoot.WaitOne();
-                    }
-
-                    IsShutdown = true;
-                }
-
-                syncRoot.ReleaseMutex();
-            }
-        }
-
         private void QueueProcessor( Object unused )
         {
-            Future theTask = null;
+            Future theTask;
 
-            lock ( syncRoot )
+            lock ( _syncRoot )
             {
-                if ( workQueue.Count == 0 || closing )
+                if ( _workQueue.Count == 0 )
                 {
-                    running = false;
-                    executionComplete.Set();
+                    _running = false;
+                    _executionComplete.Set();
                     return;
                 }
 
-                theTask = workQueue.Dequeue();
+                theTask = _workQueue.Dequeue();
             }
 
             try
@@ -102,16 +73,21 @@ namespace Apache.NMS.Stomp.Threads
             }
             finally
             {
-                if ( closing )
+                ThreadPool.QueueUserWorkItem( QueueProcessor, null );
+            }
+            /*
+            finally
+            {
+                if ( _closing )
                 {
-                    running = false;
-                    executionComplete.Set();
+                    _running = false;
+                    _executionComplete.Set();
                 }
                 else
                 {
                     ThreadPool.QueueUserWorkItem( QueueProcessor, null );
                 }
-            }
+            }*/
         }
 
         #region Nested Types
@@ -120,12 +96,12 @@ namespace Apache.NMS.Stomp.Threads
         ///     Represents an asynchronous task that is executed on the ThreadPool
         ///     at some point in the future.
         /// </summary>
-        internal class Future
+        private class Future
         {
             #region Fields
 
-            private readonly WaitCallback callback;
-            private readonly Object callbackArg;
+            private readonly WaitCallback _callback;
+            private readonly Object _callbackArg;
 
             #endregion
 
@@ -133,23 +109,24 @@ namespace Apache.NMS.Stomp.Threads
 
             public Future( WaitCallback callback, Object arg )
             {
-                this.callback = callback;
-                callbackArg = arg;
+                _callback = callback;
+                _callbackArg = arg;
             }
 
             #endregion
 
             public void Run()
             {
-                if ( callback == null )
+                if ( _callback == null )
                     throw new Exception( "Future executed with null WaitCallback" );
 
                 try
                 {
-                    callback( callbackArg );
+                    _callback( _callbackArg );
                 }
                 catch
                 {
+                    // ignored
                 }
             }
         }

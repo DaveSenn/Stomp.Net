@@ -17,9 +17,9 @@ namespace Apache.NMS.Stomp.Transport
     {
         #region Fields
 
-        private readonly IDictionary requestMap = Hashtable.Synchronized( new Hashtable() );
-        private Exception error;
-        private Int32 nextCommandId;
+        private readonly IDictionary _requestMap = Hashtable.Synchronized( new Hashtable() );
+        private Exception _error;
+        private Int32 _nextCommandId;
 
         #endregion
 
@@ -40,11 +40,11 @@ namespace Apache.NMS.Stomp.Transport
             command.ResponseRequired = true;
             var future = new FutureResponse();
             Exception priorError;
-            lock ( requestMap.SyncRoot )
+            lock ( _requestMap.SyncRoot )
             {
-                priorError = error;
+                priorError = _error;
                 if ( priorError == null )
-                    requestMap[commandId] = future;
+                    _requestMap[commandId] = future;
             }
 
             if ( priorError != null )
@@ -55,7 +55,7 @@ namespace Apache.NMS.Stomp.Transport
                 throw priorError;
             }
 
-            next.Oneway( command );
+            Next.Oneway( command );
 
             return future;
         }
@@ -65,7 +65,7 @@ namespace Apache.NMS.Stomp.Transport
             command.CommandId = GetNextCommandId();
             command.ResponseRequired = false;
 
-            next.Oneway( command );
+            Next.Oneway( command );
         }
 
         public override Response Request( ICommand command, TimeSpan timeout )
@@ -100,11 +100,11 @@ namespace Apache.NMS.Stomp.Transport
             {
                 var response = (Response) command;
                 var correlationId = response.CorrelationId;
-                var future = (FutureResponse) requestMap[correlationId];
+                var future = (FutureResponse) _requestMap[correlationId];
 
                 if ( future != null )
                 {
-                    requestMap.Remove( correlationId );
+                    _requestMap.Remove( correlationId );
                     future.Response = response;
 
                     if ( response is ExceptionResponse )
@@ -130,29 +130,28 @@ namespace Apache.NMS.Stomp.Transport
             base.OnException( sender, command );
         }
 
-        internal Int32 GetNextCommandId() => Interlocked.Increment( ref nextCommandId );
-
         private void Dispose( Exception error )
         {
             ArrayList requests = null;
 
-            lock ( requestMap.SyncRoot )
-                if ( this.error == null )
+            lock ( _requestMap.SyncRoot )
+                if ( _error == null )
                 {
-                    this.error = error;
-                    requests = new ArrayList( requestMap.Values );
-                    requestMap.Clear();
+                    _error = error;
+                    requests = new ArrayList( _requestMap.Values );
+                    _requestMap.Clear();
                 }
 
             if ( requests != null )
                 foreach ( FutureResponse future in requests )
                 {
-                    var brError = new BrokerError();
-                    brError.Message = error.Message;
-                    var response = new ExceptionResponse();
-                    response.Exception = brError;
+                    var brError = new BrokerError { Message = error.Message };
+                    var response = new ExceptionResponse { Exception = brError };
                     future.Response = response;
                 }
         }
+
+        private Int32 GetNextCommandId()
+            => Interlocked.Increment( ref _nextCommandId );
     }
 }

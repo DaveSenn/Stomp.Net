@@ -1,8 +1,6 @@
 #region Usings
 
 using System;
-using System.Collections.Generic;
-using Apache.NMS.Util;
 
 #endregion
 
@@ -14,8 +12,6 @@ namespace Apache.NMS.Stomp.Commands
     public abstract class Destination : BaseDataStructure, IDestination
     {
         #region Constants
-
-        private const String CompositeSeparator = ",";
 
         /// <summary>
         ///     Queue Destination object
@@ -42,27 +38,13 @@ namespace Apache.NMS.Stomp.Commands
         #region Properties
 
         /// <summary>
-        ///     Dictionary of name/value pairs representing option values specified
-        ///     in the URI used to create this Destination.  A null value is returned
-        ///     if no options were specified.
-        /// </summary>
-        internal Dictionary<String, String> Options { get; private set; }
-
-        /// <summary>
         ///     Indicates if the Desination was created by this client or was provided
         ///     by the broker, most commonly the deinstinations provided by the broker
         ///     are those that appear in the ReplyTo field of a Message.
         /// </summary>
         private Boolean RemoteDestination { get; set; }
 
-        public String PhysicalName { get; set; } = "";
-
-        /// <summary>
-        ///     Returns true if this destination represents a collection of
-        ///     destinations; allowing a set of destinations to be published to or subscribed
-        ///     from in one NMS operation.
-        /// </summary>
-        public Boolean IsComposite => PhysicalName.IndexOf( CompositeSeparator, StringComparison.Ordinal ) > 0;
+        public String PhysicalName { get; } = String.Empty;
 
         #endregion
 
@@ -81,7 +63,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <param name="name"></param>
         protected Destination( String name )
         {
-            SetPhysicalName( name );
+            PhysicalName = name;
         }
 
         #endregion
@@ -135,37 +117,6 @@ namespace Apache.NMS.Stomp.Commands
             // likely need updating
 
             return o;
-        }
-
-        /// <summary>
-        ///     Lets sort by name first then lets sort topics greater than queues
-        /// </summary>
-        /// <param name="that">another destination to compare against</param>
-        /// <returns>1 if this is less than o else 0 if they are equal or -1 if this is less than o</returns>
-        public Int32 CompareTo( Destination that )
-        {
-            var answer = 0;
-            if ( PhysicalName != that.PhysicalName )
-            {
-                if ( PhysicalName == null )
-                    return -1;
-                if ( that.PhysicalName == null )
-                    return 1;
-                answer = String.Compare( PhysicalName, that.PhysicalName, StringComparison.Ordinal );
-            }
-
-            if ( answer == 0 )
-                if ( IsTopic )
-                {
-                    if ( that.IsQueue )
-                        return 1;
-                }
-                else
-                {
-                    if ( that.IsTopic )
-                        return -1;
-                }
-            return answer;
         }
 
         public static Destination ConvertToDestination( String text )
@@ -253,12 +204,11 @@ namespace Apache.NMS.Stomp.Commands
         public override Boolean Equals( Object obj )
         {
             var result = this == obj;
-            if ( !result && obj != null && obj is Destination )
-            {
-                var other = (Destination) obj;
-                result = GetDestinationType() == other.GetDestinationType()
-                         && PhysicalName.Equals( other.PhysicalName );
-            }
+            if ( result || !( obj is Destination ) )
+                return result;
+            var other = (Destination) obj;
+            result = GetDestinationType() == other.GetDestinationType()
+                     && PhysicalName.Equals( other.PhysicalName );
             return result;
         }
 
@@ -304,22 +254,22 @@ namespace Apache.NMS.Stomp.Commands
         public static Destination Transform( IDestination destination )
         {
             Destination result = null;
-            if ( destination != null )
-                if ( destination is Destination )
-                {
-                    result = (Destination) destination;
-                }
-                else
-                {
-                    if ( destination is ITemporaryQueue )
-                        result = new TempQueue( ( (IQueue) destination ).QueueName );
-                    else if ( destination is ITemporaryTopic )
-                        result = new TempTopic( ( (ITopic) destination ).TopicName );
-                    else if ( destination is IQueue )
-                        result = new Queue( ( (IQueue) destination ).QueueName );
-                    else if ( destination is ITopic )
-                        result = new Topic( ( (ITopic) destination ).TopicName );
-                }
+            if ( destination == null )
+                return null;
+
+            if ( destination is Destination )
+                result = (Destination) destination;
+            else
+            {
+                if ( destination is ITemporaryQueue )
+                    result = new TempQueue( ( (IQueue) destination ).QueueName );
+                else if ( destination is ITemporaryTopic )
+                    result = new TempTopic( ( (ITopic) destination ).TopicName );
+                else if ( destination is IQueue )
+                    result = new Queue( ( (IQueue) destination ).QueueName );
+                else if ( destination is ITopic )
+                    result = new Topic( ( (ITopic) destination ).TopicName );
+            }
             return result;
         }
 
@@ -338,7 +288,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <returns></returns>
         private static Destination CreateDestination( Int32 type, String pyhsicalName, Boolean remote )
         {
-            Destination result = null;
+            Destination result;
             if ( pyhsicalName == null )
                 return null;
             switch ( type )
@@ -360,19 +310,6 @@ namespace Apache.NMS.Stomp.Commands
             result.RemoteDestination = remote;
 
             return result;
-        }
-
-        private void SetPhysicalName( String name )
-        {
-            PhysicalName = name;
-
-            var p = name.IndexOf( '?' );
-            if ( p >= 0 )
-            {
-                var optstring = PhysicalName.Substring( p + 1 );
-                PhysicalName = name.Substring( 0, p );
-                Options = UriSupport.ParseQuery( optstring );
-            }
         }
     }
 }
