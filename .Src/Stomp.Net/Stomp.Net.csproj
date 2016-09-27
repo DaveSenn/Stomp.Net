@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="BasicCalc.cs" />
     <Compile Include="Definition\Connection\StompConnectionSettings.cs" />
+    <Compile Include="Definition\Connection\StompSslSettings.cs" />
     <Compile Include="Definition\Connection\StompTransportSettings.cs" />
     <Compile Include="Definition\StompNetConfiguration.cs" />
     <Compile Include="Properties\JetBrains.Annotations.cs" />

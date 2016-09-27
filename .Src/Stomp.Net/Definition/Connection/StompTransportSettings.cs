@@ -67,6 +67,12 @@ namespace Stomp.Net
         /// <value>The send timeout.</value>
         public Int32 SendTimeout { get; set; }
 
+        /// <summary>
+        ///     Gets the SSL settings.
+        /// </summary>
+        /// <value>The SSL settings.</value>
+        public StompSslSettings SslSettings { get; } = new StompSslSettings();
+
         #endregion
     }
 }

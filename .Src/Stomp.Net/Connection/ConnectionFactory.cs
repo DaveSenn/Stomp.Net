@@ -26,6 +26,11 @@ namespace Stomp.Net
         private readonly Object _syncCreateClientIdGenerator = new Object();
 
         /// <summary>
+        ///     Stores the transport factory.
+        /// </summary>
+        private readonly ITransportFactory _transportFactory;
+
+        /// <summary>
         ///     The redelivery policy.
         /// </summary>
         private IRedeliveryPolicy _redeliveryPolicy = new RedeliveryPolicy();
@@ -85,6 +90,7 @@ namespace Stomp.Net
         {
             BrokerUri = URISupport.CreateCompatibleUri( brokerUri );
             StompConnectionSettings = stompConnectionSettings;
+            _transportFactory = new TransportFactory( StompConnectionSettings );
         }
 
         #endregion
@@ -97,13 +103,6 @@ namespace Stomp.Net
         /// <param name="connection">The connection to configure.</param>
         private void ConfigureConnection( Connection connection )
         {
-            connection.AsyncSend = StompConnectionSettings.AsyncSend;
-            connection.CopyMessageOnSend = StompConnectionSettings.CopyMessageOnSend;
-            connection.AlwaysSyncSend = StompConnectionSettings.AlwaysSyncSend;
-            connection.SendAcksAsync = StompConnectionSettings.SendAcksAsync;
-            connection.DispatchAsync = StompConnectionSettings.DispatchAsync;
-            connection.AcknowledgementMode = AcknowledgementMode;
-            connection.RequestTimeout = RequestTimeout;
             connection.RedeliveryPolicy = _redeliveryPolicy.Clone() as IRedeliveryPolicy;
             connection.PrefetchPolicy = StompConnectionSettings.PrefetchPolicy.Clone() as PrefetchPolicy;
         }
@@ -141,7 +140,7 @@ namespace Stomp.Net
 
             try
             {
-                var transport = TransportFactory.CreateTransport( BrokerUri, StompConnectionSettings );
+                var transport = _transportFactory.CreateTransport( BrokerUri );
                 connection = new Connection( BrokerUri, transport, ClientIdGenerator, StompConnectionSettings )
                 {
                     UserName = StompConnectionSettings.UserName,

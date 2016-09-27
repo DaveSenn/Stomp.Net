@@ -23,7 +23,7 @@ namespace Apache.NMS.Stomp
     {
         #region Constants
 
-        private static readonly IdGenerator CONNECTION_ID_GENERATOR = new IdGenerator();
+        private static readonly IdGenerator ConnectionIdGenerator = new IdGenerator();
 
         #endregion
 
@@ -57,6 +57,7 @@ namespace Apache.NMS.Stomp
         private CountDownLatch transportInterruptionProcessingComplete;
 
         private Boolean userSpecifiedClientID;
+        private readonly ITransportFactory _transportFactory;
 
         #endregion
 
@@ -168,12 +169,13 @@ namespace Apache.NMS.Stomp
             stompConnectionSettings.ThrowIfNull( nameof( stompConnectionSettings ) );
 
             _stompConnectionSettings = stompConnectionSettings;
+            _transportFactory = new TransportFactory( _stompConnectionSettings );
             BrokerUri = connectionUri;
             this.clientIdGenerator = clientIdGenerator;
 
             SetTransport( transport );
 
-            var id = new ConnectionId { Value = CONNECTION_ID_GENERATOR.GenerateId() };
+            var id = new ConnectionId { Value = ConnectionIdGenerator.GenerateId() };
 
             info = new ConnectionInfo
             {
@@ -270,11 +272,11 @@ namespace Apache.NMS.Stomp
             var session = new Session( this, info, sessionAcknowledgementMode, DispatchAsync );
 
             // Set properties on session using parameters prefixed with "session."
-            if ( !String.IsNullOrEmpty( BrokerUri.Query ) && !BrokerUri.OriginalString.EndsWith( ")" ) )
+            if ( BrokerUri.Query.IsNotEmpty() && !BrokerUri.OriginalString.EndsWith( ")", StringComparison.Ordinal ) )
             {
                 // Since the Uri class will return the end of a Query string found in a Composite
                 // URI we must ensure that we trim that off before we proceed.
-                var query = BrokerUri.Query.Substring( BrokerUri.Query.LastIndexOf( ")" ) + 1 );
+                var query = BrokerUri.Query.Substring( BrokerUri.Query.LastIndexOf( ")", StringComparison.Ordinal ) + 1 );
                 var options = URISupport.ParseQuery( query );
                 options = URISupport.GetProperties( options, "session." );
                 URISupport.SetProperties( session, options );
@@ -607,7 +609,7 @@ namespace Apache.NMS.Stomp
                                             // Shutdown the transport connection, and re-create it, but don't start it.
                                             // It will be started if the connection is re-attempted.
                                             ITransport.Stop();
-                                            var newTransport = TransportFactory.CreateTransport( BrokerUri, _stompConnectionSettings );
+                                            var newTransport = _transportFactory.CreateTransport( BrokerUri );
                                             SetTransport( newTransport );
                                             throw exception;
                                         }
@@ -688,14 +690,13 @@ namespace Apache.NMS.Stomp
         internal void TransportInterruptionProcessingComplete()
         {
             var cdl = transportInterruptionProcessingComplete;
-            if ( cdl != null )
-                cdl.countDown();
+            cdl?.countDown();
         }
 
         private void AsyncCallExceptionListener( Object error )
         {
             var exception = error as NMSException;
-            ExceptionListener( exception );
+            ExceptionListener?.Invoke( exception );
         }
 
         private void AsyncOnExceptionHandler( Object error )

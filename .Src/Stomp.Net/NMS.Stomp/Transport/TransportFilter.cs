@@ -73,7 +73,8 @@ namespace Apache.NMS.Stomp.Transport
         /// </summary>
         /// <returns>A FutureResponse</returns>
         /// <param name="command">A  Command</param>
-        public virtual FutureResponse AsyncRequest( Command command ) => next.AsyncRequest( command );
+        public virtual FutureResponse AsyncRequest( Command command ) 
+            => next.AsyncRequest( command );
 
         /// <summary>
         ///     Timeout in milliseconds to wait for sending asynchronous messages or commands.
@@ -180,9 +181,11 @@ namespace Apache.NMS.Stomp.Transport
             IsDisposed = true;
         }
 
-        protected virtual void OnCommand( ITransport sender, Command command ) => commandHandler( sender, command );
+        protected virtual void OnCommand( ITransport sender, Command command ) 
+            => commandHandler( sender, command );
 
-        protected virtual void OnException( ITransport sender, Exception command ) => exceptionHandler( sender, command );
+        protected virtual void OnException( ITransport sender, Exception command ) 
+            => exceptionHandler( sender, command );
 
         protected virtual void OnInterrupted( ITransport sender )
         {

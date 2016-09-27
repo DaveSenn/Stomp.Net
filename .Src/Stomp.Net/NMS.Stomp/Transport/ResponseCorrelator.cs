@@ -38,7 +38,7 @@ namespace Apache.NMS.Stomp.Transport
             command.CommandId = commandId;
             command.ResponseRequired = true;
             var future = new FutureResponse();
-            Exception priorError = null;
+            Exception priorError;
             lock ( requestMap.SyncRoot )
             {
                 priorError = error;
@@ -48,10 +48,8 @@ namespace Apache.NMS.Stomp.Transport
 
             if ( priorError != null )
             {
-                var brError = new BrokerError();
-                brError.Message = priorError.Message;
-                var response = new ExceptionResponse();
-                response.Exception = brError;
+                var brError = new BrokerError { Message = priorError.Message };
+                var response = new ExceptionResponse { Exception = brError };
                 future.Response = response;
                 throw priorError;
             }
