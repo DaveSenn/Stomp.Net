@@ -112,11 +112,9 @@
     <Compile Include="NMS.Stomp\MessageConsumer.cs" />
     <Compile Include="NMS.Stomp\MessageProducer.cs" />
     <Compile Include="NMS.Stomp\PrefetchPolicy.cs" />
-    <Compile Include="NMS.Stomp\Protocol\IPrimitiveMapMarshaler.cs" />
     <Compile Include="NMS.Stomp\Protocol\StompFrame.cs" />
     <Compile Include="NMS.Stomp\Protocol\StompHelper.cs" />
     <Compile Include="NMS.Stomp\Protocol\StompWireFormat.cs" />
-    <Compile Include="NMS.Stomp\Protocol\XmlPrimitiveMapMarshaler.cs" />
     <Compile Include="NMS.Stomp\RequestTimedOutException.cs" />
     <Compile Include="NMS.Stomp\Session.cs" />
     <Compile Include="NMS.Stomp\SessionExecutor.cs" />
@@ -158,7 +156,6 @@
     <Compile Include="NMS\IMessageProducer.cs" />
     <Compile Include="NMS\InvalidClientIDException.cs" />
     <Compile Include="NMS\InvalidDestinationException.cs" />
-    <Compile Include="NMS\IPrimitiveMap.cs" />
     <Compile Include="NMS\IQueue.cs" />
     <Compile Include="NMS\IQueueBrowser.cs" />
     <Compile Include="NMS\IRedeliveryPolicy.cs" />
@@ -184,11 +181,8 @@
     <Compile Include="NMS\Util\EndianBinaryReader.cs" />
     <Compile Include="NMS\Util\EndianBinaryWriter.cs" />
     <Compile Include="NMS\Util\EndianSupport.cs" />
-    <Compile Include="NMS\Util\MessagePropertyIntercepter.cs" />
     <Compile Include="NMS\Util\MessageTransformation.cs" />
     <Compile Include="Extensions\ExceptionEx.cs" />
-    <Compile Include="NMS\Util\PrimitiveMap.cs" />
-    <Compile Include="NMS\Util\PrimitiveMapInterceptor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,7 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 using Apache.NMS.Stomp.Protocol;
 using Apache.NMS.Util;
 
@@ -13,28 +14,13 @@ namespace Apache.NMS.Stomp.Commands
     public class Message : BaseMessage, IMessage
     {
         #region Fields
-
-        private PrimitiveMap properties;
-        private MessagePropertyIntercepter propertyHelper;
-
-        private TimeSpan timeToLive = TimeSpan.FromMilliseconds( 0 );
+        
+        private TimeSpan _timeToLive = TimeSpan.FromMilliseconds( 0 );
 
         #endregion
 
         #region Properties
-
-        public override Boolean ReadOnlyProperties
-        {
-            get { return base.ReadOnlyProperties; }
-
-            set
-            {
-                if ( propertyHelper != null )
-                    propertyHelper.ReadOnly = value;
-                base.ReadOnlyProperties = value;
-            }
-        }
-
+        
         public IDestination FromDestination
         {
             get { return Destination; }
@@ -59,17 +45,12 @@ namespace Apache.NMS.Stomp.Commands
             Content = null;
         }
 
-        public virtual void ClearProperties()
-        {
-            MarshalledProperties = null;
-            ReadOnlyProperties = false;
-            Properties.Clear();
-        }
+        public virtual void ClearProperties() => Headers.Clear();
 
         /// <summary>
         ///     The correlation ID used to correlate messages with conversations or long running business processes
         /// </summary>
-        public String NMSCorrelationID
+        public String NmsCorrelationId
         {
             get { return CorrelationId; }
             set { CorrelationId = value; }
@@ -78,7 +59,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summary>
         ///     Whether or not this message is persistent
         /// </summary>
-        public MessageDeliveryMode NMSDeliveryMode
+        public MessageDeliveryMode NmsDeliveryMode
         {
             get { return Persistent ? MessageDeliveryMode.Persistent : MessageDeliveryMode.NonPersistent; }
             set { Persistent = MessageDeliveryMode.Persistent == value; }
@@ -87,7 +68,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summary>
         ///     The destination of the message
         /// </summary>
-        public IDestination NMSDestination
+        public IDestination NmsDestination
         {
             get { return Destination; }
             set { Destination = value as Destination; }
@@ -96,7 +77,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summary>
         ///     The message ID which is set by the provider
         /// </summary>
-        public String NMSMessageId
+        public String NmsMessageId
         {
             get { return MessageId?.ToString() ?? String.Empty; }
             set
@@ -122,7 +103,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summary>
         ///     The Priority on this message
         /// </summary>
-        public MessagePriority NMSPriority
+        public MessagePriority NmsPriority
         {
             get { return (MessagePriority) Priority; }
             set { Priority = (Byte) value; }
@@ -132,7 +113,7 @@ namespace Apache.NMS.Stomp.Commands
         ///     Returns true if this message has been redelivered to this or another consumer before being acknowledged
         ///     successfully.
         /// </summary>
-        public Boolean NMSRedelivered
+        public Boolean NmsRedelivered
         {
             get { return RedeliveryCounter > 0; }
 
@@ -154,7 +135,7 @@ namespace Apache.NMS.Stomp.Commands
         /// <summary>
         ///     The destination that the consumer of this message should send replies to
         /// </summary>
-        public IDestination NMSReplyTo
+        public IDestination NmsReplyTo
         {
             get { return ReplyTo; }
             set { ReplyTo = Destination.Transform( value ); }
@@ -163,35 +144,35 @@ namespace Apache.NMS.Stomp.Commands
         /// <summary>
         ///     The time-stamp the broker added to the message.
         /// </summary>
-        public DateTime NMSTimestamp
+        public DateTime NmsTimestamp
         {
             get { return DateUtils.ToDateTime( Timestamp ); }
             set
             {
                 Timestamp = DateUtils.ToJavaTimeUtc( value );
-                if ( timeToLive.TotalMilliseconds > 0 )
-                    Expiration = Timestamp + (Int64) timeToLive.TotalMilliseconds;
+                if ( _timeToLive.TotalMilliseconds > 0 )
+                    Expiration = Timestamp + (Int64) _timeToLive.TotalMilliseconds;
             }
         }
 
         /// <summary>
         ///     The time in milliseconds that this message should expire in
         /// </summary>
-        public TimeSpan NMSTimeToLive
+        public TimeSpan NmsTimeToLive
         {
-            get { return timeToLive; }
+            get { return _timeToLive; }
 
             set
             {
-                timeToLive = value;
-                if ( timeToLive.TotalMilliseconds > 0 )
+                _timeToLive = value;
+                if ( _timeToLive.TotalMilliseconds > 0 )
                 {
                     var timeStamp = Timestamp;
 
                     if ( timeStamp == 0 )
                         timeStamp = DateUtils.ToJavaTimeUtc( DateTime.UtcNow );
 
-                    Expiration = timeStamp + (Int64) timeToLive.TotalMilliseconds;
+                    Expiration = timeStamp + (Int64) _timeToLive.TotalMilliseconds;
                 }
                 else
                 {
@@ -203,41 +184,37 @@ namespace Apache.NMS.Stomp.Commands
         /// <summary>
         ///     The type name of this message
         /// </summary>
-        public String NMSType
+        public String NmsType
         {
             get { return Type; }
             set { Type = value; }
         }
 
-        public IPrimitiveMap Properties
-        {
-            get
-            {
-                if ( null != properties )
-                    return propertyHelper;
-
-                properties = PrimitiveMap.Unmarshal( MarshalledProperties );
-                propertyHelper = new MessagePropertyIntercepter( this, properties, ReadOnlyProperties ) { AllowByteArrays = false };
-
-                return propertyHelper;
-            }
-        }
+        /// <summary>
+        ///     Gets or sets the message headers.
+        /// </summary>
+        /// <value>The message headers.</value>
+        public Dictionary<String, String> Headers { get; } = new Dictionary<String, String>();
 
         public event AcknowledgeHandler Acknowledger;
 
         public virtual void BeforeMarshall( StompWireFormat wireFormat )
         {
+            /*
+             * TODO: Properties
             MarshalledProperties = null;
-            if ( properties != null )
-                MarshalledProperties = properties.Marshal();
+            if ( _properties != null )
+                MarshalledProperties = _properties.Marshal();
+            */
         }
 
         public override Object Clone()
         {
             var cloneMessage = (Message) base.Clone();
 
-            cloneMessage.propertyHelper = new MessagePropertyIntercepter( cloneMessage, cloneMessage.properties, ReadOnlyProperties );
-            cloneMessage.propertyHelper.AllowByteArrays = false;
+            // TODO Properties
+            // cloneMessage._propertyHelper = new MessagePropertyIntercepter( cloneMessage, cloneMessage._properties, ReadOnlyProperties );
+            // cloneMessage._propertyHelper.AllowByteArrays = false;
             return cloneMessage;
         }
 

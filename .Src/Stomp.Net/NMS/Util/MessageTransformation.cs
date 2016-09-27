@@ -63,19 +63,19 @@ namespace Apache.NMS.Util
         /// </summary>
         private void CopyProperties( IMessage fromMessage, IMessage toMessage )
         {
-            toMessage.NMSMessageId = fromMessage.NMSMessageId;
-            toMessage.NMSCorrelationID = fromMessage.NMSCorrelationID;
-            toMessage.NMSReplyTo = DoTransformDestination( fromMessage.NMSReplyTo );
-            toMessage.NMSDestination = DoTransformDestination( fromMessage.NMSDestination );
-            toMessage.NMSDeliveryMode = fromMessage.NMSDeliveryMode;
-            toMessage.NMSRedelivered = fromMessage.NMSRedelivered;
-            toMessage.NMSType = fromMessage.NMSType;
-            toMessage.NMSPriority = fromMessage.NMSPriority;
-            toMessage.NMSTimestamp = fromMessage.NMSTimestamp;
-            toMessage.NMSTimeToLive = fromMessage.NMSTimeToLive;
+            toMessage.NmsMessageId = fromMessage.NmsMessageId;
+            toMessage.NmsCorrelationId = fromMessage.NmsCorrelationId;
+            toMessage.NmsReplyTo = DoTransformDestination( fromMessage.NmsReplyTo );
+            toMessage.NmsDestination = DoTransformDestination( fromMessage.NmsDestination );
+            toMessage.NmsDeliveryMode = fromMessage.NmsDeliveryMode;
+            toMessage.NmsRedelivered = fromMessage.NmsRedelivered;
+            toMessage.NmsType = fromMessage.NmsType;
+            toMessage.NmsPriority = fromMessage.NmsPriority;
+            toMessage.NmsTimestamp = fromMessage.NmsTimestamp;
+            toMessage.NmsTimeToLive = fromMessage.NmsTimeToLive;
 
-            foreach ( String key in fromMessage.Properties.Keys )
-                toMessage.Properties[key] = fromMessage.Properties[key];
+            foreach ( var x in fromMessage.Headers )
+                toMessage.Headers[x.Key] = fromMessage.Headers[x.Value];
         }
 
         #region Creation Methods and Conversion Support Methods

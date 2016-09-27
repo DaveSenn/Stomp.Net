@@ -31,8 +31,7 @@ namespace Apache.NMS.Stomp.Protocol
         
         public Encoding Encoder { get; set; } = new UTF8Encoding();
 
-        public IPrimitiveMapMarshaler MapMarshaler { get; set; } = new XmlPrimitiveMapMarshaler();
-
+        
         public Int32 MaxInactivityDuration { get; set; } = 30000;
 
         public Int32 MaxInactivityDurationInitialDelay { get; set; } = 0;
@@ -202,8 +201,8 @@ namespace Apache.NMS.Stomp.Protocol
 
         protected virtual ICommand ReadMessage( StompFrame frame )
         {
-            Message message = null;
-            var transformation = frame.RemoveProperty( "transformation" );
+            Message message;
+            frame.RemoveProperty( "transformation" );
 
             if ( frame.HasProperty( "content-length" ) )
                 message = new BytesMessage { Content = frame.Content };
@@ -247,26 +246,16 @@ namespace Apache.NMS.Stomp.Protocol
             foreach ( String key in frame.Properties.Keys )
             {
                 var value = frame.Properties[key];
-                if ( value != null )
-                    if ( key == "JMSXGroupSeq" || key == "NMSXGroupSeq" )
-                    {
-                        value = Int32.Parse( value.ToString() );
-                        message.Properties["NMSXGroupSeq"] = value;
-                        continue;
-                    }
-                    else if ( key == "JMSXGroupID" || key == "NMSXGroupID" )
-                    {
-                        message.Properties["NMSXGroupID"] = value;
-                        continue;
-                    }
-                message.Properties[key] = value;
+                message.Headers[key] = value as String ?? value?.ToString();
             }
 
-            var dispatch = new MessageDispatch();
-            dispatch.Message = message;
-            dispatch.ConsumerId = message.TargetConsumerId;
-            dispatch.Destination = message.Destination;
-            dispatch.RedeliveryCounter = message.RedeliveryCounter;
+            var dispatch = new MessageDispatch
+            {
+                Message = message,
+                ConsumerId = message.TargetConsumerId,
+                Destination = message.Destination,
+                RedeliveryCounter = message.RedeliveryCounter
+            };
 
             return dispatch;
         }
@@ -405,8 +394,8 @@ namespace Apache.NMS.Stomp.Protocol
             }
 
             // Marshal all properties to the Frame.
-            var map = command.Properties;
-            foreach ( String key in map.Keys )
+            var map = command.Headers;
+            foreach ( var key in map.Keys )
                 frame.SetProperty( key, map[key] );
 
             frame.ToStream( dataOut );

@@ -113,8 +113,8 @@ namespace Apache.NMS.Stomp
 
             stompMessage.ProducerId = info.ProducerId;
             stompMessage.FromDestination = dest;
-            stompMessage.NMSDeliveryMode = deliveryMode;
-            stompMessage.NMSPriority = priority;
+            stompMessage.NmsDeliveryMode = deliveryMode;
+            stompMessage.NmsPriority = priority;
 
             // Always set the message Id regardless of the disable flag.
             var id = new MessageId
@@ -125,10 +125,10 @@ namespace Apache.NMS.Stomp
             stompMessage.MessageId = id;
 
             if ( !DisableMessageTimestamp )
-                stompMessage.NMSTimestamp = DateTime.UtcNow;
+                stompMessage.NmsTimestamp = DateTime.UtcNow;
 
             if ( timeToLive != TimeSpan.Zero )
-                stompMessage.NMSTimeToLive = timeToLive;
+                stompMessage.NmsTimeToLive = timeToLive;
 
             lock ( closedLock )
             {

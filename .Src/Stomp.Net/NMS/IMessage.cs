@@ -15,62 +15,62 @@ namespace Apache.NMS
         #region Properties
 
         /// <summary>
-        ///     Provides access to the message properties (headers).
+        ///     Gets or sets the message headers.
         /// </summary>
-        IPrimitiveMap Properties { get; }
-        //Dictionary<String, String> Properties { get; }
+        /// <value>The message headers.</value>
+        Dictionary<String, String> Headers { get; }
 
         /// <summary>
         ///     The correlation ID used to correlate messages from conversations or long running business processes.
         /// </summary>
-        String NMSCorrelationID { get; set; }
+        String NmsCorrelationId { get; set; }
 
         /// <summary>
         ///     The destination of the message.  This property is set by the IMessageProducer.
         /// </summary>
-        IDestination NMSDestination { get; set; }
+        IDestination NmsDestination { get; set; }
 
         /// <summary>
         ///     The amount of time for which this message is valid.  Zero if this message does not expire.
         /// </summary>
-        TimeSpan NMSTimeToLive { get; set; }
+        TimeSpan NmsTimeToLive { get; set; }
 
         /// <summary>
         ///     The message ID which is set by the provider.
         /// </summary>
-        String NMSMessageId { get; set; }
+        String NmsMessageId { get; set; }
 
         /// <summary>
         ///     Whether or not this message is persistent.
         /// </summary>
-        MessageDeliveryMode NMSDeliveryMode { get; set; }
+        MessageDeliveryMode NmsDeliveryMode { get; set; }
 
         /// <summary>
         ///     The Priority of this message.
         /// </summary>
-        MessagePriority NMSPriority { get; set; }
+        MessagePriority NmsPriority { get; set; }
 
         /// <summary>
         ///     Returns true if this message has been redelivered to this or another consumer before being acknowledged
         ///     successfully.
         /// </summary>
-        Boolean NMSRedelivered { get; set; }
+        Boolean NmsRedelivered { get; set; }
 
         /// <summary>
         ///     The destination that the consumer of this message should send replies to
         /// </summary>
-        IDestination NMSReplyTo { get; set; }
+        IDestination NmsReplyTo { get; set; }
 
         /// <summary>
         ///     The timestamp of when the message was pubished in UTC time.  If the publisher disables setting
         ///     the timestamp on the message, the time will be set to the start of the UNIX epoc (1970-01-01 00:00:00).
         /// </summary>
-        DateTime NMSTimestamp { get; set; }
+        DateTime NmsTimestamp { get; set; }
 
         /// <summary>
         ///     The type name of this message.
         /// </summary>
-        String NMSType { get; set; }
+        String NmsType { get; set; }
 
         #endregion
 

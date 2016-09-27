@@ -497,7 +497,6 @@ namespace Apache.NMS.Stomp
                     if ( dispatch.Message != null )
                     {
                         dispatch.Message.ReadOnlyBody = true;
-                        dispatch.Message.ReadOnlyProperties = true;
                         dispatch.Message.RedeliveryCounter = dispatch.RedeliveryCounter;
                     }
 

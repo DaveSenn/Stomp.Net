@@ -71,7 +71,7 @@ namespace Stomp.Net.Example.Selectors
             for ( var i = 0; i < messageCount; i++ )
             {
                 var message = session.CreateTextMessage( $"{selectorValue} {i,0:000} => {RandomValueEx.GetRandomString()}" );
-                message.Properties[SelectorKey] = selectorValue;
+                message.Headers[SelectorKey] = selectorValue;
                 producer.Send( message );
             }
 
@@ -127,7 +127,7 @@ namespace Stomp.Net.Example.Selectors
 
                                            consumer.Listener += x =>
                                            {
-                                               Console.WriteLine( $"{selector}\t => {x.Properties[selectorKey]} => {( (ITextMessage) x ).Text}" );
+                                               Console.WriteLine( $"{selector}\t => {x.Headers[selectorKey]} => {( (ITextMessage) x ).Text}" );
                                                x.Acknowledge();
                                            };
 

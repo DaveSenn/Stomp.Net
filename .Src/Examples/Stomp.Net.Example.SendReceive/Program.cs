@@ -47,7 +47,7 @@ namespace Stomp.Net.Example.Producer
             producer.DeliveryMode = MessageDeliveryMode.Persistent;
 
             var message = session.CreateTextMessage( RandomValueEx.GetRandomString() );
-            message.Properties["test"] = "test";
+            message.Headers["test"] = "test";
             producer.Send( message );
             Console.WriteLine( "Message sent\n" );
 
@@ -59,8 +59,8 @@ namespace Stomp.Net.Example.Producer
             {
                 Console.WriteLine("Message received");
                 msg.Acknowledge();
-                foreach ( var key in msg.Properties.Keys )
-                    Console.WriteLine( $"\t{msg.Properties[key as String]}" );
+                foreach ( var key in msg.Headers.Keys )
+                    Console.WriteLine( $"\t{msg.Headers[ key]}" );
             }
             else
                 Console.WriteLine( "Unexpected message type: " + msg.GetType()

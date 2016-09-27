@@ -47,15 +47,11 @@ namespace Apache.NMS.Stomp.Commands
         public String Type { get; set; }
 
         public Byte[] Content { get; set; }
-
-        protected Byte[] MarshalledProperties { get; set; }
-
+        
         public ConsumerId TargetConsumerId { get; set; }
 
         public Int32 RedeliveryCounter { get; set; }
-
-        public virtual Boolean ReadOnlyProperties { get; set; }
-
+        
         public virtual Boolean ReadOnlyBody { get; set; }
 
         /// <summery>
@@ -85,13 +81,10 @@ namespace Apache.NMS.Stomp.Commands
         public Boolean IsExpired()
             => Expiration != 0 && DateTime.UtcNow > DateUtils.ToDateTimeUtc( Expiration );
 
-        public void OnMessageRollback() => RedeliveryCounter++;
+        public void OnMessageRollback()
+            => RedeliveryCounter++;
 
-        public virtual void OnSend()
-        {
-            ReadOnlyProperties = true;
-            ReadOnlyBody = true;
-        }
+        public virtual void OnSend() => ReadOnlyBody = true;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
@@ -115,24 +108,11 @@ namespace Apache.NMS.Stomp.Commands
                "Timestamp=" + Timestamp + ", " +
                "Type=" + Type + ", " +
                "Content=" + Content + ", " +
-               "MarshalledProperties=" + MarshalledProperties + ", " +
                "TargetConsumerId=" + TargetConsumerId + ", " +
                "RedeliveryCounter=" + RedeliveryCounter +
                "]";
 
         public override Response Visit( ICommandVisitor visitor )
             => visitor.ProcessMessage( this );
-
-        protected virtual Int32 Size()
-        {
-            var size = DefaultMinimumMessageSize;
-
-            if ( MarshalledProperties != null )
-                size += MarshalledProperties.Length;
-            if ( Content != null )
-                size += Content.Length;
-
-            return size;
-        }
     }
 }

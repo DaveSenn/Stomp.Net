@@ -67,20 +67,5 @@ namespace Apache.NMS.Stomp.Commands
                 text = text.Substring( 0, 45 ) + "..." + text.Substring( text.Length - 12 );
             return base.ToString() + " Text = " + ( text ?? "null" );
         }
-
-        protected override Int32 Size()
-        {
-            if ( Content == null && _text != null )
-            {
-                var size = DefaultMinimumMessageSize;
-
-                if ( MarshalledProperties != null )
-                    size += MarshalledProperties.Length;
-
-                return size += _text.Length * 2;
-            }
-
-            return base.Size();
-        }
     }
 }
