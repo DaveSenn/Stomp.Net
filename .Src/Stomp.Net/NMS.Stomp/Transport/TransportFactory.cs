@@ -28,7 +28,7 @@ using Stomp.Net;
 namespace Apache.NMS.Stomp.Transport
 {
     /// <summary>
-    /// TODO
+    ///     TODO
     /// </summary>
     public class TransportFactory
     {
@@ -53,13 +53,13 @@ namespace Apache.NMS.Stomp.Transport
                 switch ( location.Scheme.ToLower() )
                 {
                     case "failover":
-                        factory = new FailoverTransportFactory(stompConnectionSettings);
+                        factory = new FailoverTransportFactory( stompConnectionSettings );
                         break;
                     case "tcp":
-                        factory = new TcpTransportFactory(stompConnectionSettings);
+                        factory = new TcpTransportFactory( stompConnectionSettings );
                         break;
                     case "ssl":
-                        factory = new SslTransportFactory(stompConnectionSettings);
+                        factory = new SslTransportFactory( stompConnectionSettings );
                         break;
                     default:
                         throw new NMSConnectionException( $"The transport {location.Scheme} is not supported." );
@@ -95,7 +95,8 @@ namespace Apache.NMS.Stomp.Transport
                 .CreateTransport( location );
 
         public static ITransport CompositeConnect( Uri location, StompConnectionSettings stompConnectionSettings )
-            => CreateTransportFactory( location, stompConnectionSettings ).CompositeConnect( location );
+            => CreateTransportFactory( location, stompConnectionSettings )
+                .CompositeConnect( location );
 
         #endregion
     }

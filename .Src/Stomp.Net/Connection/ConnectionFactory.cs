@@ -47,17 +47,18 @@ namespace Stomp.Net
         {
             get
             {
-                if ( StompConnectionSettings.ClientIdGenerator == null )
-                    lock ( _syncCreateClientIdGenerator )
-                    {
-                        if ( StompConnectionSettings.ClientIdGenerator != null )
-                            return StompConnectionSettings.ClientIdGenerator;
+                if ( StompConnectionSettings.ClientIdGenerator != null )
+                    return StompConnectionSettings.ClientIdGenerator;
 
-                        StompConnectionSettings.ClientIdGenerator = StompConnectionSettings.ClientIdPrefix.IsNotEmpty()
-                            ? new IdGenerator( StompConnectionSettings.ClientIdPrefix )
-                            : new IdGenerator();
-                    }
-                return StompConnectionSettings.ClientIdGenerator;
+                lock ( _syncCreateClientIdGenerator )
+                {
+                    if ( StompConnectionSettings.ClientIdGenerator != null )
+                        return StompConnectionSettings.ClientIdGenerator;
+
+                    return StompConnectionSettings.ClientIdGenerator = StompConnectionSettings.ClientIdPrefix.IsNotEmpty()
+                        ? new IdGenerator( StompConnectionSettings.ClientIdPrefix )
+                        : new IdGenerator();
+                }
             }
         }
 
@@ -74,7 +75,7 @@ namespace Stomp.Net
         #endregion
 
         #region Ctor
-        
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="ConnectionFactory" /> class.
         /// </summary>
@@ -87,7 +88,28 @@ namespace Stomp.Net
         }
 
         #endregion
-        
+
+        #region Private Members
+
+        /// <summary>
+        ///     Configures the given connection.
+        /// </summary>
+        /// <param name="connection">The connection to configure.</param>
+        private void ConfigureConnection( Connection connection )
+        {
+            connection.AsyncSend = StompConnectionSettings.AsyncSend;
+            connection.CopyMessageOnSend = StompConnectionSettings.CopyMessageOnSend;
+            connection.AlwaysSyncSend = StompConnectionSettings.AlwaysSyncSend;
+            connection.SendAcksAsync = StompConnectionSettings.SendAcksAsync;
+            connection.DispatchAsync = StompConnectionSettings.DispatchAsync;
+            connection.AcknowledgementMode = AcknowledgementMode;
+            connection.RequestTimeout = RequestTimeout;
+            connection.RedeliveryPolicy = _redeliveryPolicy.Clone() as IRedeliveryPolicy;
+            connection.PrefetchPolicy = StompConnectionSettings.PrefetchPolicy.Clone() as PrefetchPolicy;
+        }
+
+        #endregion
+
         #region Implementation of IConnectionFactory
 
         /// <summary>
@@ -161,28 +183,7 @@ namespace Stomp.Net
                 throw NMSExceptionSupport.Create( $"Could not connect to broker URL: '{BrokerUri}'. See inner exception for details.", ex );
             }
         }
-        
-        #endregion
 
-        #region Private Members
-
-        /// <summary>
-        ///     Configures the given connection.
-        /// </summary>
-        /// <param name="connection">The connection to configure.</param>
-        private void ConfigureConnection( Connection connection )
-        {
-            connection.AsyncSend = StompConnectionSettings.AsyncSend;
-            connection.CopyMessageOnSend = StompConnectionSettings.CopyMessageOnSend;
-            connection.AlwaysSyncSend = StompConnectionSettings.AlwaysSyncSend;
-            connection.SendAcksAsync = StompConnectionSettings.SendAcksAsync;
-            connection.DispatchAsync = StompConnectionSettings.DispatchAsync;
-            connection.AcknowledgementMode = AcknowledgementMode;
-            connection.RequestTimeout = RequestTimeout;
-            connection.RedeliveryPolicy = _redeliveryPolicy.Clone() as IRedeliveryPolicy;
-            connection.PrefetchPolicy = StompConnectionSettings.PrefetchPolicy.Clone() as PrefetchPolicy;
-        }
-        
         #endregion
     }
 }
