@@ -1,20 +1,3 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 #region Usings
 
 using System;
@@ -34,7 +17,7 @@ namespace Apache.NMS.Stomp.State
     {
         #region Constants
 
-        private static readonly Tracked TRACKED_RESPONSE_MARKER = new Tracked( null );
+        private static readonly Tracked TrackedResponseMarker = new Tracked(  );
 
         #endregion
 
@@ -61,15 +44,15 @@ namespace Apache.NMS.Stomp.State
                     DoRestoreConsumers( transport, connectionState );
             }
         }
-
-        public override Response processAddConnection( ConnectionInfo info )
+        
+        public override Response ProcessAddConnection( ConnectionInfo info )
         {
             if ( info != null )
                 connectionStates.Add( info.ConnectionId, new ConnectionState( info ) );
-            return TRACKED_RESPONSE_MARKER;
+            return TrackedResponseMarker;
         }
 
-        public override Response processAddConsumer( ConsumerInfo info )
+        public override Response ProcessAddConsumer( ConsumerInfo info )
         {
             if ( info != null )
             {
@@ -86,14 +69,14 @@ namespace Apache.NMS.Stomp.State
                     }
                 }
             }
-            return TRACKED_RESPONSE_MARKER;
+            return TrackedResponseMarker;
         }
 
-        public override Response processRemoveConnection( ConnectionId id )
+        public override Response ProcessRemoveConnection( ConnectionId id )
         {
             if ( id != null )
                 connectionStates.Remove( id );
-            return TRACKED_RESPONSE_MARKER;
+            return TrackedResponseMarker;
         }
 
         public override Response processRemoveConsumer( ConsumerId id )
@@ -113,26 +96,26 @@ namespace Apache.NMS.Stomp.State
                     }
                 }
             }
-            return TRACKED_RESPONSE_MARKER;
+            return TrackedResponseMarker;
         }
 
         /// <summary>
         /// </summary>
         /// <param name="command"></param>
         /// <returns>null if the command is not state tracked.</returns>
-        public Tracked track( ICommand command )
+        public Tracked Track( ICommand command )
         {
             try
             {
                 return (Tracked) command.visit( this );
             }
-            catch ( IOException e )
+            catch ( IOException )
             {
-                throw e;
+                throw;
             }
-            catch ( Exception e )
+            catch ( Exception ex )
             {
-                throw new IOException( e.Message );
+                throw new IOException( ex.Message );
             }
         }
 

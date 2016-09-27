@@ -5,12 +5,13 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using Apache.NMS.Stomp.Commands;
+using Apache.NMS.Stomp.Transport;
 using Apache.NMS.Util;
 using Stomp.Net;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Transport.Tcp
+namespace Stomp.Net
 {
     /// <summary>
     ///     An implementation of ITransport that uses sockets to communicate with the broker

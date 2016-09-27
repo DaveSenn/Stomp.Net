@@ -122,7 +122,6 @@
     <Compile Include="NMS.Stomp\State\ConsumerState.cs" />
     <Compile Include="NMS.Stomp\State\ICommandVisitor.cs" />
     <Compile Include="NMS.Stomp\State\SynchronizedObjects.cs" />
-    <Compile Include="NMS.Stomp\State\ThreadSimulator.cs" />
     <Compile Include="NMS.Stomp\State\Tracked.cs" />
     <Compile Include="NMS.Stomp\Threads\CompositeTask.cs" />
     <Compile Include="NMS.Stomp\Threads\CompositeTaskRunner.cs" />
@@ -142,10 +141,10 @@
     <Compile Include="NMS.Stomp\Transport\LoggingTransport.cs" />
     <Compile Include="NMS.Stomp\Transport\MutexTransport.cs" />
     <Compile Include="NMS.Stomp\Transport\ResponseCorrelator.cs" />
-    <Compile Include="NMS.Stomp\Transport\Tcp\SslTransport.cs" />
-    <Compile Include="NMS.Stomp\Transport\Tcp\SslTransportFactory.cs" />
-    <Compile Include="NMS.Stomp\Transport\Tcp\TcpTransport.cs" />
-    <Compile Include="NMS.Stomp\Transport\Tcp\TcpTransportFactory.cs" />
+    <Compile Include="Transport\SslTransport.cs" />
+    <Compile Include="Transport\Factory\SslTransportFactory.cs" />
+    <Compile Include="Transport\TcpTransport.cs" />
+    <Compile Include="Transport\Factory\TcpTransportFactory.cs" />
     <Compile Include="NMS.Stomp\Transport\TransportFactory.cs" />
     <Compile Include="NMS.Stomp\Transport\TransportFilter.cs" />
     <Compile Include="NMS.Stomp\Util\IdGenerator.cs" />
@@ -214,7 +213,9 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="NMS.Stomp\Transport\Tcp\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

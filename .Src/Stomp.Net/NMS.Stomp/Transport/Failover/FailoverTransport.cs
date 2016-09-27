@@ -1,20 +1,3 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 #region Usings
 
 using System;
@@ -257,7 +240,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
 
                     if ( command.IsRemoveInfo )
                     {
-                        stateTracker.track( command );
+                        stateTracker.Track( command );
                         // Simulate response to RemoveInfo command
                         var response = new Response();
                         response.CorrelationId = command.CommandId;
@@ -320,7 +303,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
                         // If it was a request and it was not being tracked by
                         // the state tracker, then hold it in the requestMap so
                         // that we can replay it later.
-                        var tracked = stateTracker.track( command );
+                        var tracked = stateTracker.Track( command );
                         lock ( ( (ICollection) requestMap ).SyncRoot )
                             if ( tracked != null && tracked.WaitingForResponse )
                                 requestMap.Add( command.CommandId, tracked );
@@ -476,8 +459,7 @@ namespace Apache.NMS.Stomp.Transport.Failover
                     }
 
                     var t = oo as Tracked;
-                    if ( t != null )
-                        t.onResponses();
+                    t?.OnResponses();
                 }
 
             Command( sender, command );

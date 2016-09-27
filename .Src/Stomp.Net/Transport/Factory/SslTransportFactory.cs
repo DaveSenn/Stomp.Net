@@ -2,13 +2,14 @@
 
 using System;
 using System.Net.Sockets;
+using Apache.NMS.Stomp.Transport;
 using Extend;
 using JetBrains.Annotations;
 using Stomp.Net;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Transport.Tcp
+namespace Stomp.Net
 {
     /// <summary>
     ///     SSL transport factory.
@@ -42,19 +43,6 @@ namespace Apache.NMS.Stomp.Transport.Tcp
         #endregion
 
         protected override ITransport CreateTransport( Uri location, Socket socket, IWireFormat wireFormat )
-        {
-            var transport = new SslTransport( location, socket, wireFormat )
-            {
-                ClientCertSubject = _stompConnectionSettings.TransportSettings.SslSettings.ClientCertSubject,
-                ClientCertFilename = _stompConnectionSettings.TransportSettings.SslSettings.ClientCertFilename,
-                ClientCertPassword = _stompConnectionSettings.TransportSettings.SslSettings.ClientCertPassword,
-                ServerName = _stompConnectionSettings.TransportSettings.SslSettings.ServerName,
-                KeyStoreLocation = _stompConnectionSettings.TransportSettings.SslSettings.KeyStoreLocation,
-                KeyStoreName = _stompConnectionSettings.TransportSettings.SslSettings.KeyStoreName,
-                AcceptInvalidBrokerCert = _stompConnectionSettings.TransportSettings.SslSettings.AcceptInvalidBrokerCert
-            };
-
-            return transport;
-        }
+            => new SslTransport( location, socket, wireFormat, _stompConnectionSettings );
     }
 }
