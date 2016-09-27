@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using Apache.NMS.Stomp.Transport;
 using Extend;
 using JetBrains.Annotations;
-using Stomp.Net;
 
 #endregion
 

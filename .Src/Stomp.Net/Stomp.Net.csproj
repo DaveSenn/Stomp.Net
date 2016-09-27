@@ -118,11 +118,9 @@
     <Compile Include="NMS.Stomp\SessionExecutor.cs" />
     <Compile Include="NMS.Stomp\State\CommandVisitorAdapter.cs" />
     <Compile Include="NMS.Stomp\State\ConnectionState.cs" />
-    <Compile Include="NMS.Stomp\State\ConnectionStateTracker.cs" />
     <Compile Include="NMS.Stomp\State\ConsumerState.cs" />
     <Compile Include="NMS.Stomp\State\ICommandVisitor.cs" />
     <Compile Include="NMS.Stomp\State\SynchronizedObjects.cs" />
-    <Compile Include="NMS.Stomp\State\Tracked.cs" />
     <Compile Include="NMS.Stomp\Threads\CompositeTask.cs" />
     <Compile Include="NMS.Stomp\Threads\CompositeTaskRunner.cs" />
     <Compile Include="NMS.Stomp\Threads\DedicatedTaskRunner.cs" />
@@ -130,8 +128,6 @@
     <Compile Include="NMS.Stomp\Threads\TaskRunner.cs" />
     <Compile Include="NMS.Stomp\Threads\ThreadPoolExecutor.cs" />
     <Compile Include="NMS.Stomp\TransactionContext.cs" />
-    <Compile Include="NMS.Stomp\Transport\Failover\FailoverTransport.cs" />
-    <Compile Include="NMS.Stomp\Transport\Failover\FailoverTransportFactory.cs" />
     <Compile Include="NMS.Stomp\Transport\FutureResponse.cs" />
     <Compile Include="NMS.Stomp\Transport\ICompositeTransport.cs" />
     <Compile Include="NMS.Stomp\Transport\InactivityMonitor.cs" />
@@ -213,9 +209,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="NMS.Stomp\Transport\Tcp\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

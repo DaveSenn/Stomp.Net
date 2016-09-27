@@ -1,7 +1,6 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.Transport.Failover;
 using Extend;
 using JetBrains.Annotations;
 using Stomp.Net;
@@ -59,9 +58,6 @@ namespace Apache.NMS.Stomp.Transport
             {
                 switch ( location.Scheme.ToLower() )
                 {
-                    case "failover":
-                        factory = new FailoverTransportFactory( _stompConnectionSettings );
-                        break;
                     case "tcp":
                         factory = new TcpTransportFactory( _stompConnectionSettings );
                         break;

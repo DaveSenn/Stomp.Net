@@ -7,7 +7,6 @@ using System.Threading;
 using Apache.NMS.Stomp.Commands;
 using Apache.NMS.Stomp.Transport;
 using Apache.NMS.Util;
-using Stomp.Net;
 
 #endregion
 

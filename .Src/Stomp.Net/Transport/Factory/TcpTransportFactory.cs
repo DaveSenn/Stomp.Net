@@ -9,7 +9,6 @@ using Apache.NMS.Stomp.Protocol;
 using Apache.NMS.Stomp.Transport;
 using Extend;
 using JetBrains.Annotations;
-using Stomp.Net;
 
 #endregion
 
