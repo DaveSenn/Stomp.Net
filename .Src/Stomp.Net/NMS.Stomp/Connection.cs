@@ -177,7 +177,7 @@ namespace Apache.NMS.Stomp
         ///     has been resumed.
         /// </summary>
         public event ConnectionResumedListener ConnectionResumedListener;
-        
+
         /// <summary>
         ///     Creates a new session to work on this connection
         /// </summary>
@@ -203,7 +203,7 @@ namespace Apache.NMS.Stomp
         ///     A delegate that can receive transport level exceptions.
         /// </summary>
         public event ExceptionListener ExceptionListener;
-        
+
         public void PurgeTempDestinations()
         {
         }

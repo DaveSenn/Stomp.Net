@@ -131,37 +131,6 @@ namespace Apache.NMS.Stomp
                 TransactionContext.Begin();
         }
 
-        private ConsumerId GetNextConsumerId()
-        {
-            var id = new ConsumerId
-            {
-                ConnectionId = _info.SessionId.ConnectionId,
-                SessionId = _info.SessionId.Value,
-                Value = Interlocked.Increment( ref _consumerCounter )
-            };
-
-            return id;
-        }
-
-        private ProducerId GetNextProducerId()
-        {
-            var id = new ProducerId
-            {
-                ConnectionId = _info.SessionId.ConnectionId,
-                SessionId = _info.SessionId.Value,
-                Value = Interlocked.Increment( ref _producerCounter )
-            };
-
-            return id;
-        }
-
-        private void RemoveConsumer( MessageConsumer consumer )
-        {
-            Connection.RemoveDispatcher( consumer.ConsumerId );
-            if ( !_closing )
-                _consumers.Remove( consumer.ConsumerId );
-        }
-
         public void Start()
         {
             foreach ( MessageConsumer consumer in _consumers.Values )
@@ -170,7 +139,7 @@ namespace Apache.NMS.Stomp
             Executor?.Start();
         }
 
-        public void Stop() 
+        public void Stop()
             => Executor?.Stop();
 
         protected virtual ProducerInfo CreateProducerInfo( IDestination destination )
@@ -260,6 +229,37 @@ namespace Apache.NMS.Stomp
         /// </param>
         private void DoNothingAcknowledge( Message message )
         {
+        }
+
+        private ConsumerId GetNextConsumerId()
+        {
+            var id = new ConsumerId
+            {
+                ConnectionId = _info.SessionId.ConnectionId,
+                SessionId = _info.SessionId.Value,
+                Value = Interlocked.Increment( ref _consumerCounter )
+            };
+
+            return id;
+        }
+
+        private ProducerId GetNextProducerId()
+        {
+            var id = new ProducerId
+            {
+                ConnectionId = _info.SessionId.ConnectionId,
+                SessionId = _info.SessionId.Value,
+                Value = Interlocked.Increment( ref _producerCounter )
+            };
+
+            return id;
+        }
+
+        private void RemoveConsumer( MessageConsumer consumer )
+        {
+            Connection.RemoveDispatcher( consumer.ConsumerId );
+            if ( !_closing )
+                _consumers.Remove( consumer.ConsumerId );
         }
 
         private void SendAck( MessageAck ack, Boolean lazy )
@@ -372,7 +372,7 @@ namespace Apache.NMS.Stomp
         public SessionExecutor Executor { get; }
 
         public Int64 NextDeliveryId => Interlocked.Increment( ref _nextDeliveryId );
-        
+
         #endregion
 
         #region ISession Members
@@ -506,10 +506,10 @@ namespace Apache.NMS.Stomp
             return producer;
         }
 
-        public IMessageConsumer CreateConsumer( IDestination destination ) 
+        public IMessageConsumer CreateConsumer( IDestination destination )
             => CreateConsumer( destination, null, false );
 
-        public IMessageConsumer CreateConsumer( IDestination destination, String selector ) 
+        public IMessageConsumer CreateConsumer( IDestination destination, String selector )
             => CreateConsumer( destination, selector, false );
 
         public IMessageConsumer CreateConsumer( IDestination destination, String selector, Boolean noLocal )
@@ -561,10 +561,7 @@ namespace Apache.NMS.Stomp
             try
             {
                 var dest = destination as Destination;
-                consumer = new MessageConsumer( this, GetNextConsumerId(), dest, name, selector, Connection.PrefetchPolicy.DurableTopicPrefetch, noLocal )
-                {
-                    //ConsumerTransformer = null
-                };
+                consumer = new MessageConsumer( this, GetNextConsumerId(), dest, name, selector, Connection.PrefetchPolicy.DurableTopicPrefetch, noLocal );
                 AddConsumer( consumer );
                 Connection.SyncRequest( consumer.ConsumerInfo );
 
@@ -595,7 +592,7 @@ namespace Apache.NMS.Stomp
             Connection.SyncRequest( command );
         }
 
-        public IQueue GetQueue( String name ) 
+        public IQueue GetQueue( String name )
             => new Queue( name );
 
         public ITopic GetTopic( String name )
@@ -612,7 +609,7 @@ namespace Apache.NMS.Stomp
             var answer = new TempTopic( Connection.CreateTemporaryDestinationName() );
             return answer;
         }
-        
+
         public ITextMessage CreateTextMessage()
         {
             var answer = new TextMessage();
@@ -625,7 +622,7 @@ namespace Apache.NMS.Stomp
             return ConfigureMessage( answer ) as ITextMessage;
         }
 
-        public IBytesMessage CreateBytesMessage() 
+        public IBytesMessage CreateBytesMessage()
             => ConfigureMessage( new BytesMessage() ) as IBytesMessage;
 
         public IBytesMessage CreateBytesMessage( Byte[] body )
@@ -637,7 +634,7 @@ namespace Apache.NMS.Stomp
         public void CommitTransaction()
         {
             if ( !Transacted )
-                throw new InvalidOperationException( $"You cannot perform a CommitTransaction() on a non-transacted session. Acknowledgment mode is: {AcknowledgementMode}");
+                throw new InvalidOperationException( $"You cannot perform a CommitTransaction() on a non-transacted session. Acknowledgment mode is: {AcknowledgementMode}" );
 
             TransactionContext.Commit();
         }
@@ -645,7 +642,7 @@ namespace Apache.NMS.Stomp
         public void RollbackTransaction()
         {
             if ( !Transacted )
-                throw new InvalidOperationException($"You cannot perform a CommitTransaction() on a non-transacted session. Acknowledgment mode is: {AcknowledgementMode}" );
+                throw new InvalidOperationException( $"You cannot perform a CommitTransaction() on a non-transacted session. Acknowledgment mode is: {AcknowledgementMode}" );
 
             TransactionContext.Rollback();
         }

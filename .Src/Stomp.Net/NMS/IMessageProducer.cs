@@ -12,7 +12,7 @@ namespace Apache.NMS
     public interface IMessageProducer : IDisposable
     {
         #region Properties
-        
+
         MessageDeliveryMode DeliveryMode { get; set; }
 
         TimeSpan TimeToLive { get; set; }
@@ -53,7 +53,7 @@ namespace Apache.NMS
         void Send( IDestination destination, IMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive );
 
         #region Factory methods to create messages
-        
+
         /// <summary>
         ///     Creates a new text message with an empty body
         /// </summary>

@@ -72,7 +72,7 @@ namespace Apache.NMS.Stomp
         public Boolean DisableMessageTimestamp { get; set; } = false;
 
         public MessagePriority Priority { get; set; } = NmsConstants.DefaultPriority;
-        
+
         public TimeSpan RequestTimeout { get; set; }
 
         public void Send( IMessage message ) => Send( _info.Destination, message, DeliveryMode, Priority, TimeToLive );
@@ -102,7 +102,7 @@ namespace Apache.NMS.Stomp
                 dest = Destination.Transform( destination );
             else
                 throw new NotSupportedException( "This producer can only send messages to: " + _info.Destination.PhysicalName );
-            
+
             var stompMessage = _messageTransformation.TransformMessage<Message>( message );
 
             stompMessage.ProducerId = _info.ProducerId;
@@ -182,17 +182,17 @@ namespace Apache.NMS.Stomp
         }
 
         #region Message Creation Factory Methods.
-        
+
         public ITextMessage CreateTextMessage()
             => _session.CreateTextMessage();
 
-        public ITextMessage CreateTextMessage( String text ) 
+        public ITextMessage CreateTextMessage( String text )
             => _session.CreateTextMessage( text );
 
-        public IBytesMessage CreateBytesMessage() 
+        public IBytesMessage CreateBytesMessage()
             => _session.CreateBytesMessage();
 
-        public IBytesMessage CreateBytesMessage( Byte[] body ) 
+        public IBytesMessage CreateBytesMessage( Byte[] body )
             => _session.CreateBytesMessage( body );
 
         #endregion

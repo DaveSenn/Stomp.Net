@@ -590,7 +590,7 @@ namespace Apache.NMS.Stomp
         #endregion
 
         #region IMessageConsumer Members
-        
+
         private event MessageListener _listener;
 
         public event MessageListener Listener
