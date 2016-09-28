@@ -160,7 +160,7 @@ namespace Stomp.Net.Stomp
                 _listener( message );
                 AfterMessageIsConsumed( dispatch, false );
             }
-            catch ( NmsException e )
+            catch ( StompException e )
             {
                 _session.Connection.OnSessionException( _session, e );
             }
@@ -484,7 +484,7 @@ namespace Stomp.Net.Stomp
                 CheckClosed();
 
                 if ( PrefetchSize == 0 )
-                    throw new NmsException( "Cannot set Asynchronous Listener on a Consumer with a zero Prefetch size" );
+                    throw new StompException( "Cannot set Asynchronous Listener on a Consumer with a zero Prefetch size" );
 
                 var wasStarted = _session.Started;
 
@@ -620,7 +620,7 @@ namespace Stomp.Net.Stomp
         private void CheckClosed()
         {
             if ( _unconsumedMessages.Stopped )
-                throw new NmsException( "The Consumer has been Stopped" );
+                throw new StompException( "The Consumer has been Stopped" );
         }
 
         /// <summary>
@@ -632,7 +632,7 @@ namespace Stomp.Net.Stomp
         private void CheckMessageListener()
         {
             if ( _listener != null )
-                throw new NmsException( "Cannot perform a Synchronous Receive when there is a registered asynchronous _listener." );
+                throw new StompException( "Cannot perform a Synchronous Receive when there is a registered asynchronous _listener." );
         }
 
         /// <summary>
@@ -658,7 +658,7 @@ namespace Stomp.Net.Stomp
                 return;
 
             if ( !_session.IsAutoAcknowledge )
-                throw new NmsException( "Invalid session state." );
+                throw new StompException( "Invalid session state." );
 
             if ( !_deliveringAcks.CompareAndSet( false, true ) )
                 return;
@@ -681,7 +681,7 @@ namespace Stomp.Net.Stomp
             _deliveringAcks.Value = false;
             _dispatchedMessages.Clear();
 
-            throw new NmsException( "Invalid session state." );
+            throw new StompException( "Invalid session state." );
         }
 
         #endregion

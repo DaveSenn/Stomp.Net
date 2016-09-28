@@ -11,7 +11,7 @@ namespace Stomp.Net
     ///     An attempt is made to access an invalid destination
     /// </summary>
     [Serializable]
-    public class InvalidDestinationException : NmsException
+    public class InvalidDestinationException : StompException
     {
         #region Ctor
 

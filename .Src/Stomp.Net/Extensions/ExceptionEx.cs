@@ -9,9 +9,9 @@ namespace Stomp.Net.Util
 {
     public static class ExceptionEx
     {
-        public static NmsException Create( this Exception cause )
+        public static StompException Create( this Exception cause )
         {
-            var nmsException = cause as NmsException;
+            var nmsException = cause as StompException;
             if ( nmsException != null )
                 return nmsException;
 
@@ -19,7 +19,7 @@ namespace Stomp.Net.Util
             if ( msg.IsEmpty() )
                 msg = cause.ToString();
 
-            return new NmsException( msg, cause );
+            return new StompException( msg, cause );
         }
 
         public static MessageEofException CreateMessageEofException( this Exception cause )

@@ -60,7 +60,7 @@ namespace Stomp.Net.Stomp
         public void Commit()
         {
             if ( !InTransaction )
-                throw new NmsException( "Invalid State: Not Currently in a Transaction" );
+                throw new StompException( "Invalid State: Not Currently in a Transaction" );
 
             BeforeEnd();
 
@@ -89,7 +89,7 @@ namespace Stomp.Net.Stomp
         public void Rollback()
         {
             if ( !InTransaction )
-                throw new NmsException( "Invalid State: Not Currently in a Transaction" );
+                throw new StompException( "Invalid State: Not Currently in a Transaction" );
 
             BeforeEnd();
 

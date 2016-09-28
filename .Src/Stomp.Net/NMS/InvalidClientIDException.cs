@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 namespace Stomp.Net
 {
     [Serializable]
-    public class InvalidClientIdException : NmsException
+    public class InvalidClientIdException : StompException
     {
         #region Ctor
 

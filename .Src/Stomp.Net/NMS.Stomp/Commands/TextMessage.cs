@@ -52,7 +52,7 @@ namespace Stomp.Net.Stomp.Commands
 
             if ( Content != null || _text == null )
                 return;
-            Content = wireFormat.Encoder.GetBytes( _text );
+            Content = wireFormat.Encoding.GetBytes( _text );
             _text = null;
         }
 

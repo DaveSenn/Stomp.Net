@@ -94,7 +94,7 @@ namespace Stomp.Net.Transport
         /// <summary>
         ///     Tries to create an open socket to the host with the given name/IP and port.
         /// </summary>
-        /// <exception cref="NmsConnectionException">Connection failed.</exception>
+        /// <exception cref="StompConnectionException">Connection failed.</exception>
         /// <exception cref="ArgumentNullException">host can not be null.</exception>
         /// <param name="host">The host name.</param>
         /// <param name="port">The port.</param>
@@ -149,7 +149,7 @@ namespace Stomp.Net.Transport
             }
             catch ( Exception ex )
             {
-                throw new NmsConnectionException( $"Error connecting to {host}:{port}.", ex );
+                throw new StompConnectionException( $"Error connecting to {host}:{port}.", ex );
             }
         }
 

@@ -13,7 +13,7 @@ namespace Stomp.Net.Stomp
     ///     Exception thrown when the broker returns an error
     /// </summary>
     [Serializable]
-    public class BrokerException : NmsException
+    public class BrokerException : StompException
     {
         #region Properties
 

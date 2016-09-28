@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 namespace Stomp.Net
 {
     [Serializable]
-    public class IllegalStateException : NmsException
+    public class IllegalStateException : StompException
     {
         #region Ctor
 

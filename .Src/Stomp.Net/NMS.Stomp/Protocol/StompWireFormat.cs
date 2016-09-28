@@ -28,7 +28,7 @@ namespace Stomp.Net.Stomp.Protocol
 
         #region Properties
 
-        public Encoding Encoder { get; set; } = new UTF8Encoding();
+        public Encoding Encoding { get; } = Encoding.UTF8;
 
         public Int32 MaxInactivityDuration { get; set; } = 30000;
 
@@ -103,42 +103,44 @@ namespace Stomp.Net.Stomp.Protocol
         {
             var command = frame.Command;
 
-            if ( command == "RECEIPT" )
+            switch ( command )
             {
-                var text = frame.RemoveProperty( "receipt-id" );
-                if ( text != null )
+                case "RECEIPT":
                 {
-                    var answer = new Response();
-                    if ( text.StartsWith( "ignore:", StringComparison.Ordinal ) )
-                        text = text.Substring( "ignore:".Length );
+                    var text = frame.RemoveProperty( "receipt-id" );
+                    if ( text != null )
+                    {
+                        var answer = new Response();
+                        if ( text.StartsWith( "ignore:", StringComparison.Ordinal ) )
+                            text = text.Substring( "ignore:".Length );
 
-                    answer.CorrelationId = Int32.Parse( text );
+                        answer.CorrelationId = Int32.Parse( text );
+                        return answer;
+                    }
+                }
+                    break;
+                case "CONNECTED":
+                    return ReadConnected( frame );
+                case "ERROR":
+                {
+                    var text = frame.RemoveProperty( "receipt-id" );
+
+                    if ( text != null && text.StartsWith( "ignore:", StringComparison.Ordinal ) )
+                        return new Response { CorrelationId = Int32.Parse( text.Substring( "ignore:".Length ) ) };
+
+                    var answer = new ExceptionResponse();
+                    if ( text != null )
+                        answer.CorrelationId = Int32.Parse( text );
+
+                    var error = new BrokerError { Message = frame.RemoveProperty( "message" ) };
+                    answer.Exception = error;
                     return answer;
                 }
+                case "KEEPALIVE":
+                    return new KeepAliveInfo();
+                case "MESSAGE":
+                    return ReadMessage( frame );
             }
-            else if ( command == "CONNECTED" )
-            {
-                return ReadConnected( frame );
-            }
-            else if ( command == "ERROR" )
-            {
-                var text = frame.RemoveProperty( "receipt-id" );
-
-                if ( text != null && text.StartsWith( "ignore:", StringComparison.Ordinal ) )
-                    return new Response { CorrelationId = Int32.Parse( text.Substring( "ignore:".Length ) ) };
-
-                var answer = new ExceptionResponse();
-                if ( text != null )
-                    answer.CorrelationId = Int32.Parse( text );
-
-                var error = new BrokerError { Message = frame.RemoveProperty( "message" ) };
-                answer.Exception = error;
-                return answer;
-            }
-            else if ( command == "KEEPALIVE" )
-                return new KeepAliveInfo();
-            else if ( command == "MESSAGE" )
-                return ReadMessage( frame );
 
             Tracer.Error( "Unknown command: " + frame.Command + " headers: " + frame.Properties );
 
@@ -197,7 +199,7 @@ namespace Stomp.Net.Stomp.Protocol
             if ( frame.HasProperty( "content-length" ) )
                 message = new BytesMessage { Content = frame.Content };
             else
-                message = new TextMessage( Encoder.GetString( frame.Content, 0, frame.Content.Length ) );
+                message = new TextMessage( Encoding.GetString( frame.Content, 0, frame.Content.Length ) );
 
             // Remove any receipt header we might have attached if the outbound command was
             // sent with response required set to true
@@ -233,10 +235,10 @@ namespace Stomp.Net.Stomp.Protocol
                 message.RedeliveryCounter = 1;
 
             // now lets add the generic headers
-            foreach ( String key in frame.Properties.Keys )
+            foreach ( var key in frame.Properties.Keys )
             {
                 var value = frame.Properties[key];
-                message.Headers[key] = value as String ?? value?.ToString();
+                message.Headers[key] = value ?? value;
             }
 
             var dispatch = new MessageDispatch
@@ -257,9 +259,6 @@ namespace Stomp.Net.Stomp.Protocol
             else
                 Transport.Command( Transport, command );
         }
-
-        protected virtual String ToString( Object value )
-            => value?.ToString();
 
         protected virtual void WriteConnectionInfo( ConnectionInfo command, BinaryWriter dataOut )
         {

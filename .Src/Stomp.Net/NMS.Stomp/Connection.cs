@@ -117,7 +117,7 @@ namespace Stomp.Net.Stomp
             set
             {
                 if ( _connected.Value )
-                    throw new NmsException( "You cannot change the ClientId once the Connection is connected" );
+                    throw new StompException( "You cannot change the ClientId once the Connection is connected" );
 
                 _info.ClientId = value;
                 _userSpecifiedClientId = true;
@@ -343,7 +343,7 @@ namespace Stomp.Net.Stomp
 
         private void AsyncCallExceptionListener( Object error )
         {
-            var exception = error as NmsException;
+            var exception = error as StompException;
             ExceptionListener?.Invoke( exception );
         }
 
@@ -458,7 +458,7 @@ namespace Stomp.Net.Stomp
                 throw new ConnectionClosedException();
         }
 
-        private static NmsException CreateExceptionFromBrokerError( BrokerError brokerError )
+        private static StompException CreateExceptionFromBrokerError( BrokerError brokerError )
         {
             var exceptionClassName = brokerError.ExceptionClass;
 
@@ -541,9 +541,9 @@ namespace Stomp.Net.Stomp
                 return;
             if ( ExceptionListener != null )
             {
-                if ( !( error is NmsException ) )
+                if ( !( error is StompException ) )
                     error = error.Create();
-                var e = (NmsException) error;
+                var e = (StompException) error;
 
                 // Called in another thread so that processing can continue
                 // here, ensures no lock contention.
@@ -591,7 +591,7 @@ namespace Stomp.Net.Stomp
                         cause = brokerError.Cause.Message;
                 }
 
-                OnException( new NmsConnectionException( message, cause ) );
+                OnException( new StompConnectionException( message, cause ) );
             }
             else
             {

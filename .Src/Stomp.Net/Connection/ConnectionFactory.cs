@@ -150,7 +150,7 @@ namespace Stomp.Net
                     // ignored
                 }
 
-                throw new NmsException( $"Could not connect to broker URL: '{BrokerUri}'. See inner exception for details.", ex );
+                throw new StompException( $"Could not connect to broker URL: '{BrokerUri}'. See inner exception for details.", ex );
             }
         }
 

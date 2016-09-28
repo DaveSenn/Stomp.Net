@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 namespace Stomp.Net
 {
     [Serializable]
-    public class MessageNotWriteableException : NmsException
+    public class MessageNotWriteableException : StompException
     {
         #region Ctor
 

@@ -32,7 +32,7 @@ namespace Stomp.Net.Stomp.Commands
         public void Acknowledge()
         {
             if ( null == Acknowledger )
-                throw new NmsException( "No Acknowledger has been associated with this message: " + this );
+                throw new StompException( "No Acknowledger has been associated with this message: " + this );
 
             Acknowledger( this );
         }

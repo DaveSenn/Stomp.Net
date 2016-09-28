@@ -11,7 +11,7 @@ namespace Stomp.Net.Stomp
     ///     Exception thrown when a connection is used that it already closed
     /// </summary>
     [Serializable]
-    public class ConnectionClosedException : NmsException
+    public class ConnectionClosedException : StompException
     {
         #region Ctor
 

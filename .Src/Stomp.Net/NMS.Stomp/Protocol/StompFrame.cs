@@ -1,7 +1,7 @@
 #region Usings
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Extend;
@@ -35,8 +35,7 @@ namespace Stomp.Net.Stomp.Protocol
         #region Fields
 
         private readonly Byte[] _colonEscapeSeq = { 92, 99 };
-
-        private readonly Encoding _encoding = new UTF8Encoding();
+        private readonly Encoding _encoding = Encoding.UTF8;
         private readonly Byte[] _escapeEscapeSeq = { 92, 92 };
         private readonly Byte[] _newlineEscapeSeq = { 92, 110 };
 
@@ -44,30 +43,21 @@ namespace Stomp.Net.Stomp.Protocol
 
         #region Properties
 
-        public Boolean EncodingEnabled { get; set; }
+        private Boolean EncodingEnabled { get; }
 
         public Byte[] Content { get; set; }
 
         public String Command { get; set; }
 
-        public IDictionary Properties { get; set; } = new Hashtable();
+        public Dictionary<String, String> Properties { get; } = new Dictionary<String, String>();
 
         #endregion
 
         #region Ctor
 
-        public StompFrame()
-        {
-        }
-
         public StompFrame( Boolean encodingEnabled )
         {
             EncodingEnabled = encodingEnabled;
-        }
-
-        public StompFrame( String command )
-        {
-            Command = command;
         }
 
         public StompFrame( String command, Boolean encodingEnabled )
@@ -88,14 +78,14 @@ namespace Stomp.Net.Stomp.Protocol
             ReadContent( dataIn );
         }
 
-        public Boolean HasProperty( String name ) => Properties.Contains( name );
+        public Boolean HasProperty( String name ) => Properties.ContainsKey( name );
 
         public String RemoveProperty( String name )
         {
-            if ( !Properties.Contains( name ) )
+            if ( !Properties.ContainsKey( name ) )
                 return null;
 
-            var result = Properties[name] as String;
+            var result = Properties[name];
             Properties.Remove( name );
 
             return result;
@@ -123,11 +113,11 @@ namespace Stomp.Net.Stomp.Protocol
             builder.Append( Command );
             builder.Append( Newline );
 
-            foreach ( String key in Properties.Keys )
+            foreach ( var key in Properties.Keys )
             {
                 builder.Append( key );
                 builder.Append( Separator );
-                builder.Append( EncodeHeader( Properties[key] as String ) );
+                builder.Append( EncodeHeader( Properties[key] ) );
                 builder.Append( Newline );
             }
 
@@ -148,7 +138,7 @@ namespace Stomp.Net.Stomp.Protocol
                                 .Name + "[ " );
             builder.Append( "Command=" + Command );
             builder.Append( ", Properties={" );
-            foreach ( String key in Properties.Keys )
+            foreach ( var key in Properties.Keys )
                 builder.Append( " " + key + "=" + Properties[key] );
 
             builder.Append( "}, " );
@@ -239,10 +229,9 @@ namespace Stomp.Net.Stomp.Protocol
 
         private void ReadContent( BinaryReader dataIn )
         {
-            if ( Properties.Contains( "content-length" ) )
+            if ( Properties.ContainsKey( "content-length" ) )
             {
-                var size = Properties["content-length"].ToString()
-                                                       .SaveToInt32( Int32.MinValue );
+                var size = Properties["content-length"].SaveToInt32( Int32.MinValue );
                 Content = dataIn.ReadBytes( size );
 
                 // Read the terminating NULL byte for this frame.                
@@ -281,7 +270,7 @@ namespace Stomp.Net.Stomp.Protocol
                     // Stomp v1.1+ allows multiple copies of a property, the first
                     // one is considered to be the newest, we could figure out how
                     // to store them all but for now we just throw the rest out.
-                    if ( !Properties.Contains( key ) )
+                    if ( !Properties.ContainsKey( key ) )
                         Properties[key] = DecodeHeader( value );
                 }
                 else
