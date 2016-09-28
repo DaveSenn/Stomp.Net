@@ -64,10 +64,12 @@ namespace Apache.NMS.Stomp
 
             BeforeEnd();
 
-            var info = new TransactionInfo();
-            info.ConnectionId = _session.Connection.ConnectionId;
-            info.TransactionId = TransactionId;
-            info.Type = (Int32) TransactionType.Commit;
+            var info = new TransactionInfo
+            {
+                ConnectionId = _session.Connection.ConnectionId,
+                TransactionId = TransactionId,
+                Type = (Int32) TransactionType.Commit
+            };
 
             TransactionId = null;
             _session.Connection.SyncRequest( info );
@@ -93,10 +95,12 @@ namespace Apache.NMS.Stomp
 
             BeforeEnd();
 
-            var info = new TransactionInfo();
-            info.ConnectionId = _session.Connection.ConnectionId;
-            info.TransactionId = TransactionId;
-            info.Type = (Int32) TransactionType.Rollback;
+            var info = new TransactionInfo
+            {
+                ConnectionId = _session.Connection.ConnectionId,
+                TransactionId = TransactionId,
+                Type = (Int32) TransactionType.Rollback
+            };
 
             TransactionId = null;
             _session.Connection.SyncRequest( info );

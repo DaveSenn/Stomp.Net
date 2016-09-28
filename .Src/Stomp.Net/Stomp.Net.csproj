@@ -145,7 +145,7 @@
     <Compile Include="NMS.Stomp\Transport\TransportFactory.cs" />
     <Compile Include="NMS.Stomp\Transport\TransportFilter.cs" />
     <Compile Include="NMS.Stomp\Util\IdGenerator.cs" />
-    <Compile Include="NMS.Stomp\Util\MessageDispatchChannel.cs" />
+    <Compile Include="Messaging\MessageDispatchChannel.cs" />
     <Compile Include="NMS.Stomp\Util\StompMessageTransformation.cs" />
     <Compile Include="NMS.Stomp\Util\ThreadUtil.cs" />
     <Compile Include="NMS\IBytesMessage.cs" />

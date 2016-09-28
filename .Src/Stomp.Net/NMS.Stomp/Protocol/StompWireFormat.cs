@@ -184,15 +184,12 @@ namespace Apache.NMS.Stomp.Protocol
 
             if ( _connectedResponseId != -1 )
             {
-                var answer = new Response();
-                answer.CorrelationId = _connectedResponseId;
+                var answer = new Response { CorrelationId = _connectedResponseId };
                 SendCommand( answer );
                 _connectedResponseId = -1;
             }
             else
-            {
                 throw new IoException( "Received Connected Frame without a set Response Id for it." );
-            }
 
             return _remoteWireFormatInfo;
         }

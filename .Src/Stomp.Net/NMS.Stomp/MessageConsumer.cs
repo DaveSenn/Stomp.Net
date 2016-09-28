@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Apache.NMS.Stomp.Commands;
-using Apache.NMS.Stomp.Util;
 using Apache.NMS.Util;
+using Stomp.Net;
+using Stomp.Net.Messaging;
 using Stomp.Net.Utilities;
 
 #endregion
@@ -16,7 +17,7 @@ namespace Apache.NMS.Stomp
     /// <summary>
     ///     An object capable of receiving messages from some destination
     /// </summary>
-    public class MessageConsumer : IMessageConsumer, IDispatcher
+    public class MessageConsumer : Disposable, IMessageConsumer, IDispatcher
     {
         #region Fields
 
@@ -25,13 +26,13 @@ namespace Apache.NMS.Stomp
         private readonly MessageTransformation _messageTransformation;
 
         private readonly Atomic<Boolean> _started = new Atomic<Boolean>();
+        private readonly Object _syncRoot = new Object();
         private readonly MessageDispatchChannel _unconsumedMessages = new MessageDispatchChannel();
         private Int32 _additionalWindowSize;
         private Boolean _clearDispatchList;
         private Int32 _deliveredCounter;
         private Int32 _dispatchedCount;
 
-        private Boolean _disposed;
         private Boolean _inProgressClearRequiredFlag;
 
         private MessageAck _pendingAck;
@@ -90,7 +91,7 @@ namespace Apache.NMS.Stomp
 
             try
             {
-                lock ( _unconsumedMessages.SyncRoot )
+                lock ( _syncRoot )
                 {
                     if ( _clearDispatchList )
                     {
@@ -103,8 +104,8 @@ namespace Apache.NMS.Stomp
                         _pendingAck = null;
                     }
 
-                    if ( !_unconsumedMessages.Closed )
-                        if ( listener != null && _unconsumedMessages.Running )
+                    if ( !_unconsumedMessages.Stopped )
+                        if ( listener != null && _unconsumedMessages.Started )
                         {
                             var message = CreateStompMessage( dispatch );
 
@@ -175,13 +176,32 @@ namespace Apache.NMS.Stomp
 
         public void Start()
         {
-            if ( _unconsumedMessages.Closed )
+            if ( _unconsumedMessages.Stopped )
                 return;
 
             _started.Value = true;
             _unconsumedMessages.Start();
             _session.Executor.Wakeup();
         }
+
+        #region Override of Disposable
+
+        /// <summary>
+        ///     Method invoked when the instance gets disposed.
+        /// </summary>
+        protected override void Disposed()
+        {
+            try
+            {
+                Close();
+            }
+            catch
+            {
+                // Ignore network errors.
+            }
+        }
+
+        #endregion
 
         internal void Acknowledge()
         {
@@ -237,7 +257,7 @@ namespace Apache.NMS.Stomp
 
         internal void Rollback()
         {
-            lock ( _unconsumedMessages.SyncRoot )
+            lock ( _syncRoot )
                 lock ( _dispatchedMessages )
                 {
                     if ( _dispatchedMessages.Count == 0 )
@@ -263,9 +283,9 @@ namespace Apache.NMS.Stomp
                         _unconsumedMessages.Stop();
 
                         foreach ( var dispatch in _dispatchedMessages )
-                            _unconsumedMessages.EnqueueFirst( dispatch );
+                            _unconsumedMessages.Enqueue( dispatch, true );
 
-                        if ( _redeliveryDelay > 0 && !_unconsumedMessages.Closed )
+                        if ( _redeliveryDelay > 0 && !_unconsumedMessages.Stopped )
                         {
                             var deadline = DateTime.Now.AddMilliseconds( _redeliveryDelay );
                             ThreadPool.QueueUserWorkItem( RollbackHelper, deadline );
@@ -286,6 +306,8 @@ namespace Apache.NMS.Stomp
                 _session.Redispatch( _unconsumedMessages );
         }
 
+        private event Action<IMessage> _listener;
+
         private void AckLater( MessageDispatch dispatch )
         {
             // Don't acknowledge now, but we may need to let the broker know the
@@ -305,12 +327,14 @@ namespace Apache.NMS.Stomp
 
             var oldPendingAck = _pendingAck;
 
-            _pendingAck = new MessageAck();
-            _pendingAck.AckType = (Byte) AckType.ConsumedAck;
-            _pendingAck.ConsumerId = ConsumerInfo.ConsumerId;
-            _pendingAck.Destination = dispatch.Destination;
-            _pendingAck.LastMessageId = dispatch.Message.MessageId;
-            _pendingAck.MessageCount = _deliveredCounter;
+            _pendingAck = new MessageAck
+            {
+                AckType = (Byte) AckType.ConsumedAck,
+                ConsumerId = ConsumerInfo.ConsumerId,
+                Destination = dispatch.Destination,
+                LastMessageId = dispatch.Message.MessageId,
+                MessageCount = _deliveredCounter
+            };
 
             if ( _session.IsTransacted && _session.TransactionContext.InTransaction )
                 _pendingAck.TransactionId = _session.TransactionContext.TransactionId;
@@ -328,7 +352,7 @@ namespace Apache.NMS.Stomp
 
         private void AfterMessageIsConsumed( MessageDispatch dispatch, Boolean expired )
         {
-            if ( _unconsumedMessages.Closed )
+            if ( _unconsumedMessages.Stopped )
                 return;
 
             if ( expired )
@@ -387,18 +411,6 @@ namespace Apache.NMS.Stomp
                 AckLater( dispatch );
         }
 
-        private void CheckClosed()
-        {
-            if ( _unconsumedMessages.Closed )
-                throw new NmsException( "The Consumer has been Closed" );
-        }
-
-        private void CheckMessageListener()
-        {
-            if ( _listener != null )
-                throw new NmsException( "Cannot perform a Synchronous Receive when there is a registered asynchronous _listener." );
-        }
-
         private void Commit()
         {
             lock ( _dispatchedMessages )
@@ -424,71 +436,6 @@ namespace Apache.NMS.Stomp
                 message.Acknowledger += DoNothingAcknowledge;
 
             return message;
-        }
-
-        /// <summary>
-        ///     Used to get an enqueued message from the unconsumedMessages list. The
-        ///     amount of time this method blocks is based on the timeout value.  if
-        ///     timeout == Timeout.Infinite then it blocks until a message is received.
-        ///     if timeout == 0 then it tries to not block at all, it returns a
-        ///     message if it is available if timeout > 0 then it blocks up to timeout
-        ///     amount of time.  Expired messages will consumed by this method.
-        /// </summary>
-        private MessageDispatch Dequeue( TimeSpan timeout )
-        {
-            var deadline = DateTime.Now;
-
-            if ( timeout > TimeSpan.Zero )
-                deadline += timeout;
-
-            while ( true )
-            {
-                var dispatch = _unconsumedMessages.Dequeue( timeout );
-
-                // Grab a single date/time for calculations to avoid timing errors.
-                var dispatchTime = DateTime.Now;
-
-                if ( dispatch == null )
-                {
-                    if ( timeout > TimeSpan.Zero && !_unconsumedMessages.Closed )
-                    {
-                        if ( dispatchTime > deadline )
-                            timeout = TimeSpan.Zero;
-                        else
-                            timeout = deadline - dispatchTime;
-                    }
-                    else
-                    {
-                        if ( FailureError != null )
-                            throw FailureError.Create();
-                        return null;
-                    }
-                }
-                else if ( dispatch.Message == null )
-                {
-                    return null;
-                }
-                else if ( !IgnoreExpiration && dispatch.Message.IsExpired() )
-                {
-                    Tracer.WarnFormat( "{0} received expired message: {1}", ConsumerInfo.ConsumerId, dispatch.Message.MessageId );
-
-                    BeforeMessageIsConsumed( dispatch );
-                    AfterMessageIsConsumed( dispatch, true );
-                    // Refresh the dispatch time
-                    dispatchTime = DateTime.Now;
-
-                    if ( timeout <= TimeSpan.Zero || _unconsumedMessages.Closed )
-                        continue;
-                    if ( dispatchTime > deadline )
-                        timeout = TimeSpan.Zero;
-                    else
-                        timeout = deadline - dispatchTime;
-                }
-                else
-                {
-                    return dispatch;
-                }
-            }
         }
 
         private void DoClientAcknowledge( Message message )
@@ -539,14 +486,15 @@ namespace Apache.NMS.Stomp
                     return null;
 
                 var dispatch = _dispatchedMessages.First.Value;
-                var ack = new MessageAck();
-
-                ack.AckType = (Byte) AckType.ConsumedAck;
-                ack.ConsumerId = ConsumerInfo.ConsumerId;
-                ack.Destination = dispatch.Destination;
-                ack.LastMessageId = dispatch.Message.MessageId;
-                ack.MessageCount = _dispatchedMessages.Count;
-                ack.FirstMessageId = _dispatchedMessages.Last.Value.Message.MessageId;
+                var ack = new MessageAck
+                {
+                    AckType = (Byte) AckType.ConsumedAck,
+                    ConsumerId = ConsumerInfo.ConsumerId,
+                    Destination = dispatch.Destination,
+                    LastMessageId = dispatch.Message.MessageId,
+                    MessageCount = _dispatchedMessages.Count,
+                    FirstMessageId = _dispatchedMessages.Last.Value.Message.MessageId
+                };
 
                 return ack;
             }
@@ -565,14 +513,9 @@ namespace Apache.NMS.Stomp
             }
             catch ( Exception e )
             {
-                if ( !_unconsumedMessages.Closed )
+                if ( !_unconsumedMessages.Stopped )
                     _session.Connection.OnSessionException( _session, e );
             }
-        }
-
-        ~MessageConsumer()
-        {
-            Dispose( false );
         }
 
         #region Property Accessors
@@ -591,9 +534,7 @@ namespace Apache.NMS.Stomp
 
         #region IMessageConsumer Members
 
-        private event MessageListener _listener;
-
-        public event MessageListener Listener
+        public event Action<IMessage> Listener
         {
             add
             {
@@ -616,13 +557,19 @@ namespace Apache.NMS.Stomp
             remove { _listener -= value; }
         }
 
-        public IMessage Receive()
+        /// <summary>
+        ///     If a message is available within the timeout duration it is returned otherwise this method returns null
+        /// </summary>
+        /// <param name="timeout">An optimal timeout, if not specified infinity will be used.</param>
+        /// <returns>Returns the received message, or null in case of a timeout.</returns>
+        public IMessage Receive( TimeSpan? timeout = null )
         {
+            timeout = timeout ?? TimeSpan.FromMilliseconds( Timeout.Infinite );
+
             CheckClosed();
             CheckMessageListener();
 
-            var dispatch = Dequeue( TimeSpan.FromMilliseconds( -1 ) );
-
+            var dispatch = Dequeue( timeout.Value );
             if ( dispatch == null )
                 return null;
 
@@ -632,92 +579,137 @@ namespace Apache.NMS.Stomp
             return CreateStompMessage( dispatch );
         }
 
-        public IMessage Receive( TimeSpan timeout )
-        {
-            CheckClosed();
-            CheckMessageListener();
-
-            var dispatch = Dequeue( timeout );
-
-            if ( dispatch == null )
-                return null;
-
-            BeforeMessageIsConsumed( dispatch );
-            AfterMessageIsConsumed( dispatch, false );
-
-            return CreateStompMessage( dispatch );
-        }
-
-        public IMessage ReceiveNoWait()
-        {
-            CheckClosed();
-            CheckMessageListener();
-
-            var dispatch = Dequeue( TimeSpan.Zero );
-
-            if ( dispatch == null )
-                return null;
-
-            BeforeMessageIsConsumed( dispatch );
-            AfterMessageIsConsumed( dispatch, false );
-
-            return CreateStompMessage( dispatch );
-        }
-
-        public void Dispose()
-        {
-            Dispose( true );
-            GC.SuppressFinalize( this );
-        }
-
-        private void Dispose( Boolean disposing )
-        {
-            if ( _disposed )
-                return;
-
-            if ( disposing )
-            {
-                // Dispose managed code here.
-            }
-
-            try
-            {
-                Close();
-            }
-            catch
-            {
-                // Ignore network errors.
-            }
-
-            _disposed = true;
-        }
-
+        /// <summary>
+        ///     Closes the message consumer.
+        /// </summary>
+        /// <remarks>
+        ///     Clients should close message consumers them when they are not needed.
+        ///     This call blocks until a receive or message listener in progress has completed.
+        ///     A blocked message consumer receive call returns null when this message consumer is closed.
+        /// </remarks>
         public void Close()
         {
-            if ( _unconsumedMessages.Closed )
+            if ( _unconsumedMessages.Stopped )
                 return;
 
+            // In case of transaction => close the consumer after the transaction has completed
             if ( _session.IsTransacted && _session.TransactionContext.InTransaction )
                 _session.TransactionContext.AddSynchronization( new ConsumerCloseSynchronization( this ) );
             else
-                DoClose();
+                CloseInternal();
         }
 
-        internal void DoClose()
+        #endregion
+
+        #region Private Members
+
+        /// <summary>
+        ///     Used to get an enqueued message from the unconsumedMessages list. The
+        ///     amount of time this method blocks is based on the timeout value.  if
+        ///     timeout == Timeout.Infinite then it blocks until a message is received.
+        ///     if timeout == 0 then it tries to not block at all, it returns a
+        ///     message if it is available if timeout > 0 then it blocks up to timeout
+        ///     amount of time.  Expired messages will consumed by this method.
+        /// </summary>
+        private MessageDispatch Dequeue( TimeSpan timeout )
         {
-            if ( _unconsumedMessages.Closed )
+            var deadline = DateTime.Now;
+            if ( timeout > TimeSpan.Zero )
+                deadline += timeout;
+
+            while ( true )
+            {
+                var dispatch = _unconsumedMessages.Dequeue( timeout );
+
+                // Grab a single date/time for calculations to avoid timing errors.
+                var dispatchTime = DateTime.Now;
+
+                if ( dispatch == null )
+                {
+                    if ( timeout > TimeSpan.Zero && !_unconsumedMessages.Stopped )
+                    {
+                        if ( dispatchTime > deadline )
+                            timeout = TimeSpan.Zero;
+                        else
+                            timeout = deadline - dispatchTime;
+                    }
+                    else
+                    {
+                        if ( FailureError != null )
+                            throw FailureError.Create();
+                        return null;
+                    }
+                }
+                else if ( dispatch.Message == null )
+                {
+                    return null;
+                }
+                else if ( !IgnoreExpiration && dispatch.Message.IsExpired() )
+                {
+                    Tracer.WarnFormat( "{0} received expired message: {1}", ConsumerInfo.ConsumerId, dispatch.Message.MessageId );
+
+                    BeforeMessageIsConsumed( dispatch );
+                    AfterMessageIsConsumed( dispatch, true );
+                    // Refresh the dispatch time
+                    dispatchTime = DateTime.Now;
+
+                    if ( timeout <= TimeSpan.Zero || _unconsumedMessages.Stopped )
+                        continue;
+                    if ( dispatchTime > deadline )
+                        timeout = TimeSpan.Zero;
+                    else
+                        timeout = deadline - dispatchTime;
+                }
+                else
+                {
+                    return dispatch;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Closes the consumer, for real.
+        /// </summary>
+        private void CloseInternal()
+        {
+            if ( _unconsumedMessages.Stopped )
                 return;
+
             if ( !_session.IsTransacted )
                 lock ( _dispatchedMessages )
                     _dispatchedMessages.Clear();
 
-            _unconsumedMessages.Close();
+            _unconsumedMessages.Stop();
             _session.DisposeOf( ConsumerInfo.ConsumerId );
 
-            var removeCommand = new RemoveInfo { ObjectId = ConsumerInfo.ConsumerId };
+            var removeCommand = new RemoveInfo
+            {
+                ObjectId = ConsumerInfo.ConsumerId
+            };
 
             _session.Connection.Oneway( removeCommand );
             _session = null;
+        }
+
+        /// <summary>
+        ///     Checks if the message dispatcher is still open.
+        /// </summary>
+        private void CheckClosed()
+        {
+            if ( _unconsumedMessages.Stopped )
+                throw new NmsException( "The Consumer has been Stopped" );
+        }
+
+        /// <summary>
+        ///     Checks if the consumer should publish message event or not.
+        /// </summary>
+        /// <remarks>
+        ///     You can not perform a manual receive on a consumer with a event listener.
+        /// </remarks>
+        private void CheckMessageListener()
+        {
+            if ( _listener != null )
+                throw new NmsException( "Cannot perform a Synchronous Receive when there is a registered asynchronous _listener." );
         }
 
         #endregion
@@ -777,9 +769,11 @@ namespace Apache.NMS.Stomp
 
             #endregion
 
-            public void AfterCommit() => _consumer.DoClose();
+            public void AfterCommit() =>
+                _consumer.CloseInternal();
 
-            public void AfterRollback() => _consumer.DoClose();
+            public void AfterRollback()
+                => _consumer.CloseInternal();
 
             public void BeforeEnd()
             {

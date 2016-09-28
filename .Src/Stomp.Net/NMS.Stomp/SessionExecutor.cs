@@ -5,7 +5,7 @@ using System.Collections;
 using System.Linq;
 using Apache.NMS.Stomp.Commands;
 using Apache.NMS.Stomp.Threads;
-using Apache.NMS.Stomp.Util;
+using Stomp.Net.Messaging;
 
 #endregion
 
@@ -19,19 +19,18 @@ namespace Apache.NMS.Stomp
         private readonly MessageDispatchChannel _messageQueue = new MessageDispatchChannel();
 
         private readonly Session _session;
+        private readonly Object _syncRoot = new Object();
         private ITaskRunner _taskRunner;
 
         #endregion
 
         #region Properties
 
-        public MessageDispatch[] UnconsumedMessages => _messageQueue.RemoveAll();
+        public MessageDispatch[] UnconsumedMessages => _messageQueue.EnqueueAll();
 
-        private Boolean HasUncomsumedMessages => !_messageQueue.Closed && _messageQueue.Running && !_messageQueue.Empty;
+        private Boolean HasUncomsumedMessages => _messageQueue.Started && _messageQueue.HasMessages;
 
-        public Boolean Running => _messageQueue.Running;
-
-        public Boolean Empty => _messageQueue.Empty;
+        public Boolean Running => _messageQueue.Started;
 
         #endregion
 
@@ -62,7 +61,7 @@ namespace Apache.NMS.Stomp
                     return false;
 
                 Dispatch( message );
-                return !_messageQueue.Empty;
+                return _messageQueue.HasMessages;
             }
             catch ( Exception ex )
             {
@@ -85,13 +84,13 @@ namespace Apache.NMS.Stomp
         public void ExecuteFirst( MessageDispatch dispatch )
         {
             // Add the data to the queue.
-            _messageQueue.EnqueueFirst( dispatch );
+            _messageQueue.Enqueue( dispatch, true );
             Wakeup();
         }
 
         public void Start()
         {
-            if ( _messageQueue.Running )
+            if ( _messageQueue.Started )
                 return;
             _messageQueue.Start();
 
@@ -101,7 +100,7 @@ namespace Apache.NMS.Stomp
 
         public void Stop()
         {
-            if ( !_messageQueue.Running )
+            if ( !_messageQueue.Started )
                 return;
             _messageQueue.Stop();
             var taskRunner = _taskRunner;
@@ -116,7 +115,7 @@ namespace Apache.NMS.Stomp
         {
             ITaskRunner taskRunner;
 
-            lock ( _messageQueue.SyncRoot )
+            lock ( _syncRoot )
             {
                 if ( _taskRunner == null )
                     _taskRunner = new DedicatedTaskRunner( this );
@@ -129,7 +128,7 @@ namespace Apache.NMS.Stomp
 
         private void Clear() => _messageQueue.Clear();
 
-        private void Close() => _messageQueue.Close();
+        private void Close() => _messageQueue.Stop();
 
         private void Dispatch( MessageDispatch dispatch )
         {

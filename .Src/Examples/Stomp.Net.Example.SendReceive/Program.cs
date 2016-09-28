@@ -2,6 +2,7 @@
 
 using System;
 using System.Text;
+using System.Threading;
 using Apache.NMS;
 using Extend;
 
@@ -25,7 +26,8 @@ namespace Stomp.Net.Example.Producer
 
         public static void Main( String[] args )
         {
-            SendReceiveByte();
+            //SendReceiveByte();
+            //WaitForMessageTest();
 
             Console.WriteLine( "\n\n\n" );
             SendReceiveText();
@@ -111,6 +113,51 @@ namespace Stomp.Net.Example.Producer
                 Console.WriteLine( "Unexpected message type: " + msg.GetType()
                                                                     .Name );
 
+            connection.Close();
+        }
+
+        private static void WaitForMessageTest()
+        {
+            var brokerUri = "tcp://" + Host + ":" + Port;
+            var factory = new ConnectionFactory( brokerUri, new StompConnectionSettings { UserName = User, Password = Password } );
+
+            // Create connection for both requests and responses
+            var connection = factory.CreateConnection();
+            connection.Start();
+
+            // Create session for both requests and responses
+            var session = connection.CreateSession( AcknowledgementMode.IndividualAcknowledge );
+
+            IDestination destinationQueue = session.GetQueue( Destination );
+            var producer = session.CreateProducer( destinationQueue );
+            producer.DeliveryMode = MessageDeliveryMode.Persistent;
+
+            IDestination sourceQueue = session.GetQueue( Destination );
+            var consumer = session.CreateConsumer( sourceQueue );
+
+            const Int32 messageCount = 10;
+            // Receive messages
+            for ( var i = 0; i < messageCount; i++ )
+            {
+                var thread = new Thread( () =>
+                                         {
+                                             var msg = consumer.Receive();
+                                             Console.WriteLine( $"Thread {Thread.CurrentThread.Name} received a message" );
+                                             msg.Acknowledge();
+                                         } ) { Name = $"Thread {i}" };
+                thread.Start();
+            }
+
+            // Send messages
+            for ( var i = 0; i < messageCount; i++ )
+                new Thread( () =>
+                            {
+                                var message = session.CreateTextMessage( RandomValueEx.GetRandomString() );
+                                message.Headers["test"] = "test";
+                                producer.Send( message );
+                            } ).Start();
+
+            Thread.Sleep( 10.ToSeconds() );
             connection.Close();
         }
     }

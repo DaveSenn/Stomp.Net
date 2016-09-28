@@ -4,10 +4,10 @@ using System;
 using System.Collections;
 using System.Threading;
 using Apache.NMS.Stomp.Commands;
-using Apache.NMS.Stomp.Util;
 using Extend;
 using JetBrains.Annotations;
 using Stomp.Net;
+using Stomp.Net.Messaging;
 using Queue = Apache.NMS.Stomp.Commands.Queue;
 
 #endregion
@@ -174,7 +174,7 @@ namespace Apache.NMS.Stomp
 
         internal void Redispatch( MessageDispatchChannel channel )
         {
-            var messages = channel.RemoveAll();
+            var messages = channel.EnqueueAll();
             Array.Reverse( messages );
 
             foreach ( var message in messages )
@@ -199,7 +199,7 @@ namespace Apache.NMS.Stomp
         private void CheckClosed()
         {
             if ( _closed )
-                throw new IllegalStateException( "The Session is Closed" );
+                throw new IllegalStateException( "The Session is Stopped" );
         }
 
         private static void ClearMessages( Object value )
@@ -416,7 +416,7 @@ namespace Apache.NMS.Stomp
                 {
                     Tracer.InfoFormat( "Closing The Session with Id {0}", _info.SessionId.ToString() );
                     DoClose();
-                    Tracer.InfoFormat( "Closed The Session with Id {0}", _info.SessionId.ToString() );
+                    Tracer.InfoFormat( "Stopped The Session with Id {0}", _info.SessionId.ToString() );
                 }
                 catch ( Exception ex )
                 {
@@ -449,7 +449,7 @@ namespace Apache.NMS.Stomp
                         foreach ( MessageConsumer consumer in _consumers.Values )
                         {
                             consumer.FailureError = Connection.FirstFailureError;
-                            consumer.DoClose();
+                            consumer.Close();
                         }
                     _consumers.Clear();
 
