@@ -7,12 +7,6 @@ using System;
 namespace Apache.NMS
 {
     /// <summary>
-    ///     A delegate that is notified whenever a Transational evemt occurs for
-    ///     the specified session such as TX started, committed or rolled back.
-    /// </summary>
-    public delegate void SessionTxEventDelegate( ISession session );
-
-    /// <summary>
     ///     Represents a single unit of work on an IConnection.
     ///     So the ISession can be used to perform transactional receive and sends
     /// </summary>
@@ -123,9 +117,9 @@ namespace Apache.NMS
         /// </summary>
         void RollbackTransaction();
 
-        event SessionTxEventDelegate TransactionCommittedListener;
-        event SessionTxEventDelegate TransactionRolledBackListener;
-        event SessionTxEventDelegate TransactionStartedListener;
+        event Action<ISession> TransactionCommittedListener;
+        event Action<ISession> TransactionRolledBackListener;
+        event Action<ISession> TransactionStartedListener;
 
         #region Attributes
 

@@ -280,19 +280,19 @@ namespace Apache.NMS.Stomp
         // We delegate the events to the TransactionContext since it knows
         // what the state is at all times.
 
-        public event SessionTxEventDelegate TransactionStartedListener
+        public event Action<ISession> TransactionStartedListener
         {
             add { TransactionContext.TransactionStartedListener += value; }
             remove { TransactionContext.TransactionStartedListener += value; }
         }
 
-        public event SessionTxEventDelegate TransactionCommittedListener
+        public event Action<ISession> TransactionCommittedListener
         {
             add { TransactionContext.TransactionCommittedListener += value; }
             remove { TransactionContext.TransactionCommittedListener += value; }
         }
 
-        public event SessionTxEventDelegate TransactionRolledBackListener
+        public event Action<ISession> TransactionRolledBackListener
         {
             add { TransactionContext.TransactionRolledBackListener += value; }
             remove { TransactionContext.TransactionRolledBackListener += value; }

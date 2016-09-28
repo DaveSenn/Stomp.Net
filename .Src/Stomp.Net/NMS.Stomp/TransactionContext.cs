@@ -136,9 +136,9 @@ namespace Apache.NMS.Stomp
 
         #region Transaction State Events
 
-        public event SessionTxEventDelegate TransactionStartedListener;
-        public event SessionTxEventDelegate TransactionCommittedListener;
-        public event SessionTxEventDelegate TransactionRolledBackListener;
+        public event Action<ISession> TransactionStartedListener;
+        public event Action<ISession> TransactionCommittedListener;
+        public event Action<ISession> TransactionRolledBackListener;
 
         #endregion
     }
