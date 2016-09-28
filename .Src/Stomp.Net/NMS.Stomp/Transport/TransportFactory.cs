@@ -3,12 +3,11 @@
 using System;
 using Extend;
 using JetBrains.Annotations;
-using Stomp.Net;
 using Stomp.Net.Transport;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Transport
+namespace Stomp.Net.Stomp.Transport
 {
     /// <summary>
     ///     Transport factory, creating transports based on the given connection type.

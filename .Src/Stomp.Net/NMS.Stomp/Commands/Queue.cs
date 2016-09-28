@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     /// <summary>
     ///     Summary description for Queue.
@@ -26,7 +26,8 @@ namespace Apache.NMS.Stomp.Commands
 
         public override DestinationType DestinationType => DestinationType.Queue;
 
-        public String QueueName => PhysicalName;
+        public String QueueName
+            => PhysicalName;
 
         public override Object Clone()
         {
@@ -43,10 +44,13 @@ namespace Apache.NMS.Stomp.Commands
             return o;
         }
 
-        public override Destination CreateDestination( String name ) => new Queue( name );
+        public override Destination CreateDestination( String name )
+            => new Queue( name );
 
-        public override Byte GetDataStructureType() => DataStructureTypes.QueueType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.QueueType;
 
-        protected override Int32 GetDestinationType() => StompQueue;
+        protected override Int32 GetDestinationType()
+            => StompQueue;
     }
 }

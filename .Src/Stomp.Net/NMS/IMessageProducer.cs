@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS
+namespace Stomp.Net
 {
     /// <summary>
     ///     An object capable of sending messages to some destination

@@ -5,7 +5,7 @@ using System.Threading;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Util
+namespace Stomp.Net.Stomp.Util
 {
     public static class ThreadUtil
     {

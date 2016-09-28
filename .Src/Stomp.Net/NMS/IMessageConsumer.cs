@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS
+namespace Stomp.Net
 {
     /// <summary>
     ///     A consumer of messages

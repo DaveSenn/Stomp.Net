@@ -1,11 +1,10 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.State;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     public class RemoveInfo : BaseCommand
     {
@@ -32,27 +31,5 @@ namespace Apache.NMS.Stomp.Commands
                    .Name + "[" +
                "ObjectId=" + ObjectId +
                "]";
-
-        /// <summery>
-        ///     Allows a Visitor to Visit this command and return a response to the
-        ///     command based on the command type being visited.  The command will call
-        ///     the proper processXXX method in the visitor.
-        /// </summery>
-        public override Response Visit( ICommandVisitor visitor )
-        {
-            switch ( ObjectId.GetDataStructureType() )
-            {
-                case DataStructureTypes.ConnectionIdType:
-                    return visitor.ProcessRemoveConnection( (ConnectionId) ObjectId );
-                case DataStructureTypes.SessionIdType:
-                    return visitor.ProcessRemoveSession( (SessionId) ObjectId );
-                case DataStructureTypes.ConsumerIdType:
-                    return visitor.ProcessRemoveConsumer( (ConsumerId) ObjectId );
-                case DataStructureTypes.ProducerIdType:
-                    return visitor.ProcessRemoveProducer( (ProducerId) ObjectId );
-                default:
-                    throw new IoException( "Unknown remove command type: " + ObjectId.GetDataStructureType() );
-            }
-        }
     }
 }

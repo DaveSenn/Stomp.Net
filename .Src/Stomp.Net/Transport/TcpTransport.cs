@@ -4,8 +4,8 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
-using Apache.NMS.Stomp.Commands;
-using Apache.NMS.Stomp.Transport;
+using Stomp.Net.Stomp.Commands;
+using Stomp.Net.Stomp.Transport;
 using Stomp.Net.Utilities;
 
 #endregion

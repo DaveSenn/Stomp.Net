@@ -1,4 +1,4 @@
-namespace Apache.NMS.Stomp
+namespace Stomp.Net.Stomp
 {
     public enum AckType
     {

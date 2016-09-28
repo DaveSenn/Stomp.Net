@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS
+namespace Stomp.Net
 {
     /// <summary>
     ///     Represents a topic in a message broker. A message sent to a topic

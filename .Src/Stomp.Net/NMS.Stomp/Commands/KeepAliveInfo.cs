@@ -1,11 +1,10 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.State;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     public class KeepAliveInfo : BaseCommand
     {
@@ -34,13 +33,5 @@ namespace Apache.NMS.Stomp.Commands
                    .Name + "[ " +
                "commandId = " + CommandId + ", " +
                "responseRequired = " + ResponseRequired + ", " + " ]";
-
-        /// <summery>
-        ///     Allows a Visitor to Visit this command and return a response to the
-        ///     command based on the command type being visited.  The command will call
-        ///     the proper processXXX method in the visitor.
-        /// </summery>
-        public override Response Visit( ICommandVisitor visitor )
-            => visitor.ProcessKeepAliveInfo( this );
     }
 }

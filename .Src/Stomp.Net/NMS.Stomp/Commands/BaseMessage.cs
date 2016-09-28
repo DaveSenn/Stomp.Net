@@ -1,12 +1,11 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.State;
-using Apache.NMS.Util;
+using Stomp.Net.Util;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     public class BaseMessage : BaseCommand
     {
@@ -84,7 +83,7 @@ namespace Apache.NMS.Stomp.Commands
         public void OnMessageRollback()
             => RedeliveryCounter++;
 
-        public virtual void OnSend() => ReadOnlyBody = true;
+        public void OnSend() => ReadOnlyBody = true;
 
         /// <summery>
         ///     Returns a string containing the information for this DataStructure
@@ -111,8 +110,5 @@ namespace Apache.NMS.Stomp.Commands
                "TargetConsumerId=" + TargetConsumerId + ", " +
                "RedeliveryCounter=" + RedeliveryCounter +
                "]";
-
-        public override Response Visit( ICommandVisitor visitor )
-            => visitor.ProcessMessage( this );
     }
 }

@@ -1,11 +1,11 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.Protocol;
+using Stomp.Net.Stomp.Protocol;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     public class TextMessage : Message, ITextMessage
     {

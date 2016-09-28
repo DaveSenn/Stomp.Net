@@ -1,4 +1,4 @@
-namespace Apache.NMS
+namespace Stomp.Net
 {
     /// <summary>
     ///     Represents a temporary topic which exists for the duration

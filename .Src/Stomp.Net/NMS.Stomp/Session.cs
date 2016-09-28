@@ -3,16 +3,15 @@
 using System;
 using System.Collections;
 using System.Threading;
-using Apache.NMS.Stomp.Commands;
 using Extend;
 using JetBrains.Annotations;
-using Stomp.Net;
 using Stomp.Net.Messaging;
-using Queue = Apache.NMS.Stomp.Commands.Queue;
+using Stomp.Net.Stomp.Commands;
+using Queue = Stomp.Net.Stomp.Commands.Queue;
 
 #endregion
 
-namespace Apache.NMS.Stomp
+namespace Stomp.Net.Stomp
 {
     /// <summary>
     ///     Default provider of ISession
@@ -184,7 +183,8 @@ namespace Apache.NMS.Stomp
             }
         }
 
-        internal void SendAck( MessageAck ack ) => SendAck( ack, false );
+        internal void SendAck( MessageAck ack )
+            => SendAck( ack, false );
 
         private void AddConsumer( MessageConsumer consumer )
         {

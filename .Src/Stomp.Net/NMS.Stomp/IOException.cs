@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS.Stomp
+namespace Stomp.Net.Stomp
 {
     /// <summary>
     ///     Exception thrown when an IO error occurs

@@ -4,15 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Apache.NMS.Stomp.Commands;
-using Apache.NMS.Util;
-using Stomp.Net;
 using Stomp.Net.Messaging;
+using Stomp.Net.Stomp.Commands;
+using Stomp.Net.Util;
 using Stomp.Net.Utilities;
 
 #endregion
 
-namespace Apache.NMS.Stomp
+namespace Stomp.Net.Stomp
 {
     /// <summary>
     ///     An object capable of receiving messages from some destination
@@ -22,9 +21,7 @@ namespace Apache.NMS.Stomp
         #region Fields
 
         private readonly Atomic<Boolean> _deliveringAcks = new Atomic<Boolean>();
-        private readonly LinkedList<MessageDispatch> _dispatchedMessages = new LinkedList<MessageDispatch>();
-        private readonly MessageTransformation _messageTransformation;
-
+        private readonly List<MessageDispatch> _dispatchedMessages = new List<MessageDispatch>();
         private readonly Atomic<Boolean> _started = new Atomic<Boolean>();
         private readonly Object _syncRoot = new Object();
         private readonly MessageDispatchChannel _unconsumedMessages = new MessageDispatchChannel();
@@ -32,9 +29,7 @@ namespace Apache.NMS.Stomp
         private Boolean _clearDispatchList;
         private Int32 _deliveredCounter;
         private Int32 _dispatchedCount;
-
         private Boolean _inProgressClearRequiredFlag;
-
         private MessageAck _pendingAck;
         private Int64 _redeliveryDelay;
         private Session _session;
@@ -51,14 +46,13 @@ namespace Apache.NMS.Stomp
         #region Ctor
 
         // Constructor internal to prevent clients from creating an instance.
-        internal MessageConsumer( Session session, ConsumerId id, Destination destination, String name, String selector, Int32 prefetch, Boolean noLocal )
+        internal MessageConsumer( Session session, ConsumerId id, IDestination destination, String name, String selector, Int32 prefetch, Boolean noLocal )
         {
             if ( destination == null )
                 throw new InvalidDestinationException( "Consumer cannot receive on null Destinations." );
 
             _session = session;
             RedeliveryPolicy = _session.Connection.RedeliveryPolicy;
-            _messageTransformation = _session.Connection.MessageTransformation;
 
             ConsumerInfo = new ConsumerInfo
             {
@@ -264,7 +258,7 @@ namespace Apache.NMS.Stomp
                         return;
 
                     // Only increase the redelivery delay after the first redelivery..
-                    var lastMd = _dispatchedMessages.First.Value;
+                    var lastMd = _dispatchedMessages.First();
                     var currentRedeliveryCount = lastMd.Message.RedeliveryCounter;
 
                     _redeliveryDelay = RedeliveryPolicy.RedeliveryDelay( currentRedeliveryCount );
@@ -350,62 +344,10 @@ namespace Apache.NMS.Stomp
             _additionalWindowSize = 0;
         }
 
-        private void AfterMessageIsConsumed( MessageDispatch dispatch, Boolean expired )
-        {
-            if ( _unconsumedMessages.Stopped )
-                return;
-
-            if ( expired )
-            {
-                lock ( _dispatchedMessages )
-                    _dispatchedMessages.Remove( dispatch );
-
-                // TODO - Not sure if we need to ack this in stomp.
-                // AckLater(dispatch, AckType.ConsumedAck);
-            }
-            else
-            {
-                if ( _session.IsTransacted )
-                {
-                    // Do nothing.
-                }
-                else if ( _session.IsAutoAcknowledge )
-                {
-                    if ( !_deliveringAcks.CompareAndSet( false, true ) )
-                        return;
-                    lock ( _dispatchedMessages )
-                        if ( _dispatchedMessages.Count > 0 )
-                        {
-                            var ack = new MessageAck
-                            {
-                                AckType = (Byte) AckType.ConsumedAck,
-                                ConsumerId = ConsumerInfo.ConsumerId,
-                                Destination = dispatch.Destination,
-                                LastMessageId = dispatch.Message.MessageId,
-                                MessageCount = 1
-                            };
-
-                            _session.SendAck( ack );
-                        }
-
-                    _deliveringAcks.Value = false;
-                    _dispatchedMessages.Clear();
-                }
-                else if ( _session.IsClientAcknowledge || _session.IsIndividualAcknowledge )
-                {
-                    // Do nothing.
-                }
-                else
-                {
-                    throw new NmsException( "Invalid session state." );
-                }
-            }
-        }
-
         private void BeforeMessageIsConsumed( MessageDispatch dispatch )
         {
             lock ( _dispatchedMessages )
-                _dispatchedMessages.AddFirst( dispatch );
+                _dispatchedMessages.Insert( 0, dispatch );
 
             if ( _session.IsTransacted )
                 AckLater( dispatch );
@@ -485,7 +427,7 @@ namespace Apache.NMS.Stomp
                 if ( _dispatchedMessages.Count == 0 )
                     return null;
 
-                var dispatch = _dispatchedMessages.First.Value;
+                var dispatch = _dispatchedMessages.First();
                 var ack = new MessageAck
                 {
                     AckType = (Byte) AckType.ConsumedAck,
@@ -493,7 +435,8 @@ namespace Apache.NMS.Stomp
                     Destination = dispatch.Destination,
                     LastMessageId = dispatch.Message.MessageId,
                     MessageCount = _dispatchedMessages.Count,
-                    FirstMessageId = _dispatchedMessages.Last.Value.Message.MessageId
+                    FirstMessageId = _dispatchedMessages.First()
+                                                        .Message.MessageId
                 };
 
                 return ack;
@@ -615,7 +558,7 @@ namespace Apache.NMS.Stomp
         {
             // Calculate the deadline
             DateTime deadline;
-            if (timeout > TimeSpan.Zero)
+            if ( timeout > TimeSpan.Zero )
                 deadline = DateTime.Now + timeout;
             else
                 deadline = DateTime.MaxValue;
@@ -623,18 +566,18 @@ namespace Apache.NMS.Stomp
             while ( true )
             {
                 // Check if deadline is reached
-                if (DateTime.Now > deadline)
+                if ( DateTime.Now > deadline )
                     return null;
-                
+
                 // Fetch the message
                 var dispatch = _unconsumedMessages.Dequeue( timeout );
-                if (dispatch == null)
+                if ( dispatch == null )
                 {
-                    if (FailureError != null)
+                    if ( FailureError != null )
                         throw FailureError.Create();
                     return null;
                 }
-                if (dispatch.Message == null)
+                if ( dispatch.Message == null )
                     return null;
 
                 if ( IgnoreExpiration || !dispatch.Message.IsExpired() )
@@ -690,6 +633,55 @@ namespace Apache.NMS.Stomp
         {
             if ( _listener != null )
                 throw new NmsException( "Cannot perform a Synchronous Receive when there is a registered asynchronous _listener." );
+        }
+
+        /// <summary>
+        ///     Handles the ACK of the given message.
+        /// </summary>
+        /// <param name="dispatch">The message.</param>
+        /// <param name="expired">A value indicating whether the message was expired or not.</param>
+        private void AfterMessageIsConsumed( MessageDispatch dispatch, Boolean expired )
+        {
+            if ( _unconsumedMessages.Stopped )
+                return;
+
+            // Message was expired
+            if ( expired )
+            {
+                lock ( _dispatchedMessages )
+                    _dispatchedMessages.Remove( dispatch );
+                return;
+            }
+
+            // Do noting
+            if ( _session.IsClientAcknowledge || _session.IsIndividualAcknowledge || _session.IsTransacted )
+                return;
+
+            if ( !_session.IsAutoAcknowledge )
+                throw new NmsException( "Invalid session state." );
+
+            if ( !_deliveringAcks.CompareAndSet( false, true ) )
+                return;
+
+            lock ( _dispatchedMessages )
+                if ( _dispatchedMessages.Count > 0 )
+                {
+                    var ack = new MessageAck
+                    {
+                        AckType = (Byte) AckType.ConsumedAck,
+                        ConsumerId = ConsumerInfo.ConsumerId,
+                        Destination = dispatch.Destination,
+                        LastMessageId = dispatch.Message.MessageId,
+                        MessageCount = 1
+                    };
+
+                    _session.SendAck( ack );
+                }
+
+            _deliveringAcks.Value = false;
+            _dispatchedMessages.Clear();
+
+            throw new NmsException( "Invalid session state." );
         }
 
         #endregion

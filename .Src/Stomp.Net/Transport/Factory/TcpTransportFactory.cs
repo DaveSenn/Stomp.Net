@@ -4,11 +4,10 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using Apache.NMS;
-using Apache.NMS.Stomp.Protocol;
-using Apache.NMS.Stomp.Transport;
 using Extend;
 using JetBrains.Annotations;
+using Stomp.Net.Stomp.Protocol;
+using Stomp.Net.Stomp.Transport;
 
 #endregion
 

@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     /// <summary>
     ///     Summary description for Topic.

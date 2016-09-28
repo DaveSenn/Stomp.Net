@@ -5,7 +5,7 @@ using System.Threading;
 
 #endregion
 
-namespace Apache.NMS.Util
+namespace Stomp.Net.Util
 {
     public class CountDownLatch
     {

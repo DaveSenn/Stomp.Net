@@ -7,10 +7,9 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using Apache.NMS;
-using Apache.NMS.Stomp.Transport;
 using Extend;
 using JetBrains.Annotations;
+using Stomp.Net.Stomp.Transport;
 
 #endregion
 

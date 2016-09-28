@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS.Util
+namespace Stomp.Net.Util
 {
     /// <summary>
     ///     Apache MQ related converter class. This class is Apache MQ specific :(

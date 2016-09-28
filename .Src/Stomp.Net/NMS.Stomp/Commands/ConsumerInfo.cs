@@ -1,11 +1,10 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.State;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     public class ConsumerInfo : BaseCommand
     {
@@ -71,7 +70,5 @@ namespace Apache.NMS.Stomp.Commands
                                              "Priority=" + Priority + ", " +
                                              "Transformation" + Transformation +
                                              "]";
-
-        public override Response Visit( ICommandVisitor visitor ) => visitor.ProcessAddConsumer( this );
     }
 }

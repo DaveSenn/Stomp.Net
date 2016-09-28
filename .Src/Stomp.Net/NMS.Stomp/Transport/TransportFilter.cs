@@ -1,12 +1,11 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.Commands;
-using Stomp.Net;
+using Stomp.Net.Stomp.Commands;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Transport
+namespace Stomp.Net.Stomp.Transport
 {
     /// <summary>
     ///     Used to implement a filter on the transport layer.
@@ -92,9 +91,11 @@ namespace Apache.NMS.Stomp.Transport
         /// </summary>
         public Action<ITransport> Interrupted { get; set; }
 
-        public Boolean IsConnected => Next.IsConnected;
+        public Boolean IsConnected
+            => Next.IsConnected;
 
-        public Boolean IsFaultTolerant => Next.IsFaultTolerant;
+        public Boolean IsFaultTolerant
+            => Next.IsFaultTolerant;
 
         public Object Narrow( Type type )
             => GetType() == type ? this : Next?.Narrow( type );
@@ -113,7 +114,8 @@ namespace Apache.NMS.Stomp.Transport
         /// <returns>A Response</returns>
         /// <param name="command">A  Command</param>
         /// <param name="timeout">Timeout in milliseconds</param>
-        public virtual Response Request( ICommand command, TimeSpan timeout ) => Next.Request( command, timeout );
+        public virtual Response Request( ICommand command, TimeSpan timeout )
+            => Next.Request( command, timeout );
 
         /// <summary>
         ///     Delegate invoked when the connection is resumed.

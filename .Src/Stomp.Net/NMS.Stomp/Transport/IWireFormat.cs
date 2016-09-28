@@ -2,11 +2,11 @@
 
 using System;
 using System.IO;
-using Apache.NMS.Stomp.Commands;
+using Stomp.Net.Stomp.Commands;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Transport
+namespace Stomp.Net.Stomp.Transport
 {
     /// <summary>
     ///     Represents the marshaling of commands to and from an IO stream

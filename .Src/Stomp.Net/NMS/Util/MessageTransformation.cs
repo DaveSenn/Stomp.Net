@@ -8,7 +8,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS.Util
+namespace Stomp.Net.Util
 {
     /// <summary>
     ///     Base Utility class for conversion between IMessage type objects for different

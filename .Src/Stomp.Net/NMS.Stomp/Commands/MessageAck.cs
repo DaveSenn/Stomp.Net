@@ -1,11 +1,10 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.State;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     public class MessageAck : BaseCommand
     {
@@ -54,8 +53,5 @@ namespace Apache.NMS.Stomp.Commands
                "LastMessageId=" + LastMessageId + ", " +
                "MessageCount=" + MessageCount +
                "]";
-
-        public override Response Visit( ICommandVisitor visitor )
-            => visitor.ProcessMessageAck( this );
     }
 }

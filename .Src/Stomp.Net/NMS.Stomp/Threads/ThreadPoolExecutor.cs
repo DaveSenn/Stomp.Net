@@ -7,7 +7,7 @@ using Extend;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Threads
+namespace Stomp.Net.Stomp.Threads
 {
     /// <summary>
     ///     This class provides a wrapper around the ThreadPool mechanism in .NET

@@ -1,11 +1,10 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.State;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     public class TransactionInfo : BaseCommand
     {
@@ -45,20 +44,5 @@ namespace Apache.NMS.Stomp.Commands
                "TransactionId=" + TransactionId + ", " +
                "Type=" + Type +
                "]";
-
-        public override Response Visit( ICommandVisitor visitor )
-        {
-            switch ( Type )
-            {
-                case Begin:
-                    return visitor.ProcessBeginTransaction( this );
-                case Commit:
-                    return visitor.ProcessCommitTransaction( this );
-                case Rollback:
-                    return visitor.ProcessRollbackTransaction( this );
-                default:
-                    throw new IoException( "Transaction info type unknown: " + Type );
-            }
-        }
     }
 }

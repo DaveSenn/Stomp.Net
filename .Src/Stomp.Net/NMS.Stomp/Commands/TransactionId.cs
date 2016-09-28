@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     public class TransactionId : BaseDataStructure
     {
@@ -27,7 +27,8 @@ namespace Apache.NMS.Stomp.Commands
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
         /// </summery>
-        public override Byte GetDataStructureType() => DataStructureTypes.TransactionIdType;
+        public override Byte GetDataStructureType()
+            => DataStructureTypes.TransactionIdType;
 
         public override Int32 GetHashCode()
         {

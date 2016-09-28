@@ -7,7 +7,7 @@ using System.Threading;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Threads
+namespace Stomp.Net.Stomp.Threads
 {
     /// <summary>
     ///     A TaskRunner that dedicates a single thread to running a single Task.
@@ -78,28 +78,6 @@ namespace Apache.NMS.Stomp.Threads
             {
                 _tasks.AddLast( task );
                 Wakeup();
-            }
-        }
-
-        public void Shutdown( TimeSpan timeout )
-        {
-            Monitor.Enter( _mutex );
-
-            _shutdown = true;
-            _pending = true;
-
-            _waiter.Set();
-
-            // Wait till the thread stops ( no need to wait if shutdown
-            // is called from thread that is shutting down)
-            if ( Thread.CurrentThread != _theThread && !_terminated )
-            {
-                Monitor.Exit( _mutex );
-                _isShutdown.WaitOne( timeout.Milliseconds, false );
-            }
-            else
-            {
-                Monitor.Exit( _mutex );
             }
         }
 

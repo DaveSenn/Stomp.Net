@@ -3,7 +3,6 @@
 using System;
 using System.Text;
 using System.Threading;
-using Apache.NMS;
 using Extend;
 
 #endregion
@@ -101,7 +100,7 @@ namespace Stomp.Net.Example.Producer
             IDestination sourceQueue = session.GetQueue( Destination );
             var consumer = session.CreateConsumer( sourceQueue );
 
-            var msg = consumer.Receive(2.ToSeconds());
+            var msg = consumer.Receive();
             if ( msg is ITextMessage )
             {
                 Console.WriteLine( "Message received" );

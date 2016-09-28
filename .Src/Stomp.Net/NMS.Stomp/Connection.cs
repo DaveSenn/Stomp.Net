@@ -3,19 +3,18 @@
 using System;
 using System.Collections;
 using System.Threading;
-using Apache.NMS.Stomp.Commands;
-using Apache.NMS.Stomp.Threads;
-using Apache.NMS.Stomp.Transport;
-using Apache.NMS.Stomp.Util;
-using Apache.NMS.Util;
 using Extend;
 using JetBrains.Annotations;
-using Stomp.Net;
+using Stomp.Net.Stomp.Commands;
+using Stomp.Net.Stomp.Threads;
+using Stomp.Net.Stomp.Transport;
+using Stomp.Net.Stomp.Util;
+using Stomp.Net.Util;
 using Stomp.Net.Utilities;
 
 #endregion
 
-namespace Apache.NMS.Stomp
+namespace Stomp.Net.Stomp
 {
     /// <summary>
     ///     Represents a connection with a message broker
@@ -202,7 +201,7 @@ namespace Apache.NMS.Stomp
         /// <summary>
         ///     A delegate that can receive transport level exceptions.
         /// </summary>
-        public event ExceptionListener ExceptionListener;
+        public event Action<Exception> ExceptionListener;
 
         public void PurgeTempDestinations()
         {

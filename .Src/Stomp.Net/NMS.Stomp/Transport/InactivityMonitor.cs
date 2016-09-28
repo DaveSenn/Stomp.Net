@@ -2,16 +2,15 @@
 
 using System;
 using System.Threading;
-using Apache.NMS.Stomp.Commands;
-using Apache.NMS.Stomp.Protocol;
-using Apache.NMS.Stomp.Threads;
-using Apache.NMS.Stomp.Util;
-using Stomp.Net;
+using Stomp.Net.Stomp.Commands;
+using Stomp.Net.Stomp.Protocol;
+using Stomp.Net.Stomp.Threads;
+using Stomp.Net.Stomp.Util;
 using Stomp.Net.Utilities;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Transport
+namespace Stomp.Net.Stomp.Transport
 {
     /// <summary>
     ///     This class make sure that the connection is still alive,

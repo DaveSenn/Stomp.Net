@@ -2,7 +2,7 @@
 
 #endregion
 
-namespace Apache.NMS.Stomp.Threads
+namespace Stomp.Net.Stomp.Threads
 {
     /// <summary>
     ///     Allows you to request a thread execute the associated Task.

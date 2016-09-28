@@ -1,12 +1,11 @@
 #region Usings
 
 using System;
-using Apache.NMS;
-using Apache.NMS.Policies;
-using Apache.NMS.Stomp;
-using Apache.NMS.Stomp.Transport;
-using Apache.NMS.Stomp.Util;
 using Extend;
+using Stomp.Net.Policies;
+using Stomp.Net.Stomp;
+using Stomp.Net.Stomp.Transport;
+using Stomp.Net.Stomp.Util;
 
 #endregion
 

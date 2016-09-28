@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 #endregion
 
-namespace Apache.NMS
+namespace Stomp.Net
 {
     [Serializable]
     public class IllegalStateException : NmsException
@@ -32,10 +32,6 @@ namespace Apache.NMS
         {
         }
 
-        #region ISerializable interface implementation
-
-#if !NETCF
-
         /// <summary>
         ///     Initializes a new instance of the IllegalStateException class with serialized data.
         ///     Throws System.ArgumentNullException if the info parameter is null.
@@ -48,10 +44,6 @@ namespace Apache.NMS
             : base( info, context )
         {
         }
-
-#endif
-
-        #endregion
 
         #endregion
     }

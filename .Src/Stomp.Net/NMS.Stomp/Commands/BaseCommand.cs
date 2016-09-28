@@ -1,11 +1,10 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.State;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     public abstract class BaseCommand : BaseDataStructure, ICommand
     {
@@ -49,11 +48,6 @@ namespace Apache.NMS.Stomp.Commands
         public virtual Boolean IsWireFormatInfo => false;
 
         public virtual Boolean ResponseRequired { get; set; }
-
-        public virtual Response Visit( ICommandVisitor visitor )
-        {
-            throw new ApplicationException( "BaseCommand.Visit() not implemented" );
-        }
 
         public override Boolean Equals( Object that )
         {

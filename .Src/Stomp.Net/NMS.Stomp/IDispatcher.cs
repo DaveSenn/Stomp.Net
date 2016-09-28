@@ -1,10 +1,10 @@
 #region Usings
 
-using Apache.NMS.Stomp.Commands;
+using Stomp.Net.Stomp.Commands;
 
 #endregion
 
-namespace Apache.NMS.Stomp
+namespace Stomp.Net.Stomp
 {
     /// <summary>
     ///     Interface that provides for a Class to provide dispatching service for

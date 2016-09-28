@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS.Policies
+namespace Stomp.Net.Policies
 {
     /// <summary>
     ///     A policy used to customize exactly how you want the redelivery to work.

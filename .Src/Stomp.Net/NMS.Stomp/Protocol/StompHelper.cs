@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Protocol
+namespace Stomp.Net.Stomp.Protocol
 {
     /// <summary>
     ///     Some <a href="http://stomp.codehaus.org/">STOMP</a> protocol conversion helper methods.

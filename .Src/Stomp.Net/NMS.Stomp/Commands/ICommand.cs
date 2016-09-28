@@ -1,11 +1,10 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.State;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     /// <summary>
     ///     An Stomp command
@@ -35,7 +34,5 @@ namespace Apache.NMS.Stomp.Commands
         Boolean IsWireFormatInfo { get; }
 
         #endregion
-
-        Response Visit( ICommandVisitor visitor );
     }
 }

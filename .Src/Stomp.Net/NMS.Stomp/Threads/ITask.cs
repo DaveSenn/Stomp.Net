@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Threads
+namespace Stomp.Net.Stomp.Threads
 {
     /// <summary>
     ///     Represents a task that may take a few iterations to complete.

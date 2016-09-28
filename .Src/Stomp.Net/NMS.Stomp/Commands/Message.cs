@@ -2,15 +2,13 @@
 
 using System;
 using System.Collections.Generic;
-using Apache.NMS.Stomp.Protocol;
-using Apache.NMS.Util;
+using Stomp.Net.Stomp.Protocol;
+using Stomp.Net.Util;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
-    public delegate void AcknowledgeHandler( Message message );
-
     public class Message : BaseMessage, IMessage
     {
         #region Fields
@@ -44,8 +42,6 @@ namespace Apache.NMS.Stomp.Commands
             ReadOnlyBody = false;
             Content = null;
         }
-
-        public virtual void ClearProperties() => Headers.Clear();
 
         /// <summary>
         ///     Gets or sets the message headers.
@@ -196,7 +192,7 @@ namespace Apache.NMS.Stomp.Commands
             set { Type = value; }
         }
 
-        public event AcknowledgeHandler Acknowledger;
+        public event Action<Message> Acknowledger;
 
         public virtual void BeforeMarshall( StompWireFormat wireFormat )
         {

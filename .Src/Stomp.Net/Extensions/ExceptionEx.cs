@@ -5,7 +5,7 @@ using Extend;
 
 #endregion
 
-namespace Apache.NMS.Util
+namespace Stomp.Net.Util
 {
     public static class ExceptionEx
     {

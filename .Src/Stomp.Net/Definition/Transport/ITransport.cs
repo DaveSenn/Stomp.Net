@@ -1,8 +1,8 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.Commands;
-using Apache.NMS.Stomp.Transport;
+using Stomp.Net.Stomp.Commands;
+using Stomp.Net.Stomp.Transport;
 
 #endregion
 

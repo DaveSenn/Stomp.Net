@@ -3,11 +3,11 @@
 using System;
 using System.Runtime.Serialization;
 using System.Text;
-using Apache.NMS.Stomp.Commands;
+using Stomp.Net.Stomp.Commands;
 
 #endregion
 
-namespace Apache.NMS.Stomp
+namespace Stomp.Net.Stomp
 {
     /// <summary>
     ///     Exception thrown when the broker returns an error

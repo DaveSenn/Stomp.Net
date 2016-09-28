@@ -1,11 +1,10 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.State;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     public class ConnectionInfo : BaseCommand
     {
@@ -48,8 +47,5 @@ namespace Apache.NMS.Stomp.Commands
                "Password=" + Password + ", " +
                "UserName=" + UserName +
                "]";
-
-        public override Response Visit( ICommandVisitor visitor )
-            => visitor.ProcessAddConnection( this );
     }
 }

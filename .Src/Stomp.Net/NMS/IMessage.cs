@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 #endregion
 
-namespace Apache.NMS
+namespace Stomp.Net
 {
     /// <summary>
     ///     Represents a message either to be sent to a message broker or received from a message broker.
@@ -87,11 +87,5 @@ namespace Apache.NMS
         ///     the same state as an empty body in a newly created message.
         /// </summary>
         void ClearBody();
-
-        /// <summary>
-        ///     Clears a message's properties.
-        ///     The message's header fields and body are not cleared.
-        /// </summary>
-        void ClearProperties();
     }
 }

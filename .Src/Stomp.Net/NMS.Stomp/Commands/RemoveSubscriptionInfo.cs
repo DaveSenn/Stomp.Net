@@ -1,11 +1,10 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.State;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     /// <summary>
     ///     Command code for OpenWire format for RemoveSubscriptionInfo
@@ -45,8 +44,5 @@ namespace Apache.NMS.Stomp.Commands
                "SubscriptionName=" + SubscriptionName + ", " +
                "ClientId=" + ClientId +
                "]";
-
-        public override Response Visit( ICommandVisitor visitor )
-            => visitor.ProcessRemoveSubscriptionInfo( this );
     }
 }

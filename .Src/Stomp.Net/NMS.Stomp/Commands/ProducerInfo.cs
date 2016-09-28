@@ -1,11 +1,10 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.State;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     public class ProducerInfo : BaseCommand
     {
@@ -37,8 +36,5 @@ namespace Apache.NMS.Stomp.Commands
                "Destination=" + Destination + ", " +
                "DispatchAsync=" + DispatchAsync +
                "]";
-
-        public override Response Visit( ICommandVisitor visitor )
-            => visitor.ProcessAddProducer( this );
     }
 }

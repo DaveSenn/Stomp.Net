@@ -2,12 +2,11 @@
 
 using System;
 using System.Threading;
-using Apache.NMS.Stomp.Commands;
-using Stomp.Net;
+using Stomp.Net.Stomp.Commands;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Transport
+namespace Stomp.Net.Stomp.Transport
 {
     /// <summary>
     ///     A Transport which guards access to the next transport using a mutex.

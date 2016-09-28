@@ -1,12 +1,11 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.Commands;
-using Stomp.Net;
+using Stomp.Net.Stomp.Commands;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Transport
+namespace Stomp.Net.Stomp.Transport
 {
     /// <summary>
     ///     A Transport filter that is used to log the commands sent and received.

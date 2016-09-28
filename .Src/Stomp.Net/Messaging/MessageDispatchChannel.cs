@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Apache.NMS.Stomp.Commands;
 using Extend;
 using JetBrains.Annotations;
+using Stomp.Net.Stomp.Commands;
 
 #endregion
 

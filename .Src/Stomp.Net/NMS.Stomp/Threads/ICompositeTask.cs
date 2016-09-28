@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Threads
+namespace Stomp.Net.Stomp.Threads
 {
     /// <summary>
     ///     A Composite task is one of N tasks that can be managed by a

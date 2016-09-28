@@ -1,11 +1,10 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.State;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     public class MessageDispatch : BaseCommand
     {
@@ -64,9 +63,6 @@ namespace Apache.NMS.Stomp.Commands
                "Message=" + Message + ", " +
                "RedeliveryCounter=" + RedeliveryCounter +
                "]";
-
-        public override Response Visit( ICommandVisitor visitor )
-            => visitor.ProcessMessageDispatch( this );
 
         protected virtual Boolean Equals( MessageDispatch that )
         {

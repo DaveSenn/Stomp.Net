@@ -1,7 +1,6 @@
 #region Usings
 
 using System;
-using Apache.NMS;
 
 #endregion
 

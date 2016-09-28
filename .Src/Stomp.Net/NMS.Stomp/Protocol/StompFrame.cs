@@ -8,7 +8,7 @@ using Extend;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Protocol
+namespace Stomp.Net.Stomp.Protocol
 {
     public class StompFrame
     {

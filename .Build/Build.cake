@@ -61,7 +61,7 @@ Task("RunTests")
 
 // Copy the build output
 Task("CopyBuildOutput")
-    .IsDependentOn("RunTests")
+    .IsDependentOn("Build")
     .Does(() =>
 {
     // Create the directory

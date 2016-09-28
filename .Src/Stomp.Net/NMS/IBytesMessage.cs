@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS
+namespace Stomp.Net
 {
     /// <summary>
     ///     A BytesMessage object is used to send a message containing a stream of uninterpreted

@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 #endregion
 
-namespace Apache.NMS
+namespace Stomp.Net
 {
     [Serializable]
     public class MessageFormatException : NmsException

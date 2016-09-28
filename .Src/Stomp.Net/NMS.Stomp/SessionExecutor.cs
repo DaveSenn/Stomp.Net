@@ -3,13 +3,13 @@
 using System;
 using System.Collections;
 using System.Linq;
-using Apache.NMS.Stomp.Commands;
-using Apache.NMS.Stomp.Threads;
 using Stomp.Net.Messaging;
+using Stomp.Net.Stomp.Commands;
+using Stomp.Net.Stomp.Threads;
 
 #endregion
 
-namespace Apache.NMS.Stomp
+namespace Stomp.Net.Stomp
 {
     public class SessionExecutor : ITask
     {
@@ -126,9 +126,11 @@ namespace Apache.NMS.Stomp
             taskRunner.Wakeup();
         }
 
-        private void Clear() => _messageQueue.Clear();
+        private void Clear()
+            => _messageQueue.Clear();
 
-        private void Close() => _messageQueue.Stop();
+        private void Close()
+            => _messageQueue.Stop();
 
         private void Dispatch( MessageDispatch dispatch )
         {

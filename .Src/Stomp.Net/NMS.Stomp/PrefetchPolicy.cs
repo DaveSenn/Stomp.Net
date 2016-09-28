@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Apache.NMS.Stomp
+namespace Stomp.Net.Stomp
 {
     /// <summary>
     ///     Class used to define the various limits that should be used for the Prefetch
@@ -64,7 +64,8 @@ namespace Apache.NMS.Stomp
 
         #endregion
 
-        public Object Clone() => MemberwiseClone();
+        public Object Clone()
+            => MemberwiseClone();
 
         public void SetAll( Int32 value )
         {

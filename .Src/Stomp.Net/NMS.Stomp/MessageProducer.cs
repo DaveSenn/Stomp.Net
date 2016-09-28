@@ -2,12 +2,12 @@
 
 using System;
 using System.Threading;
-using Apache.NMS.Stomp.Commands;
-using Apache.NMS.Util;
+using Stomp.Net.Stomp.Commands;
+using Stomp.Net.Util;
 
 #endregion
 
-namespace Apache.NMS.Stomp
+namespace Stomp.Net.Stomp
 {
     /// <summary>
     ///     An object capable of sending messages to some destination

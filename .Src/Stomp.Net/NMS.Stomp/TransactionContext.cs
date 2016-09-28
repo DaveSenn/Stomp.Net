@@ -2,11 +2,11 @@
 
 using System;
 using System.Collections;
-using Apache.NMS.Stomp.Commands;
+using Stomp.Net.Stomp.Commands;
 
 #endregion
 
-namespace Apache.NMS.Stomp
+namespace Stomp.Net.Stomp
 {
     public class TransactionContext
     {
@@ -77,8 +77,6 @@ namespace Apache.NMS.Stomp
             AfterCommit();
             _synchronizations.Clear();
         }
-
-        public void RemoveSynchronization( ISynchronization synchronization ) => _synchronizations.Remove( synchronization );
 
         public void ResetTransactionInProgress()
         {

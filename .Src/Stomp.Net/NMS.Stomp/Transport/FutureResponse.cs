@@ -2,12 +2,12 @@
 
 using System;
 using System.Threading;
-using Apache.NMS.Stomp.Commands;
-using Apache.NMS.Util;
+using Stomp.Net.Stomp.Commands;
+using Stomp.Net.Util;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Transport
+namespace Stomp.Net.Stomp.Transport
 {
     /// <summary>
     ///     Handles asynchronous responses.

@@ -4,19 +4,8 @@ using System;
 
 #endregion
 
-namespace Apache.NMS
+namespace Stomp.Net
 {
-    /// <summary>
-    ///     Represents the type of the destination such as a queue or topic.
-    /// </summary>
-    public enum DestinationType
-    {
-        Queue,
-        Topic,
-        TemporaryQueue,
-        TemporaryTopic
-    }
-
     /// <summary>
     ///     A base interface for destinations such as queues or topics
     /// </summary>

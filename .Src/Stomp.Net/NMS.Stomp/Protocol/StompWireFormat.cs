@@ -5,14 +5,13 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using Apache.NMS.Stomp.Commands;
-using Apache.NMS.Stomp.Transport;
 using Extend;
-using Stomp.Net;
+using Stomp.Net.Stomp.Commands;
+using Stomp.Net.Stomp.Transport;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Protocol
+namespace Stomp.Net.Stomp.Protocol
 {
     /// <summary>
     ///     Implements the <a href="http://stomp.codehaus.org/">STOMP</a> protocol.
@@ -137,13 +136,9 @@ namespace Apache.NMS.Stomp.Protocol
                 return answer;
             }
             else if ( command == "KEEPALIVE" )
-            {
                 return new KeepAliveInfo();
-            }
             else if ( command == "MESSAGE" )
-            {
                 return ReadMessage( frame );
-            }
 
             Tracer.Error( "Unknown command: " + frame.Command + " headers: " + frame.Properties );
 

@@ -1,4 +1,4 @@
-namespace Apache.NMS
+namespace Stomp.Net
 {
     /// <summary>
     ///     Define an enumerated array of message priorities.

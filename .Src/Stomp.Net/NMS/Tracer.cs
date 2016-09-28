@@ -5,7 +5,7 @@ using Extend;
 
 #endregion
 
-namespace Apache.NMS
+namespace Stomp.Net
 {
     public static class Tracer
     {

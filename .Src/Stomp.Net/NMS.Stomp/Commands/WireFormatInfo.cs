@@ -1,11 +1,10 @@
 #region Usings
 
 using System;
-using Apache.NMS.Stomp.State;
 
 #endregion
 
-namespace Apache.NMS.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands
 {
     public class WireFormatInfo : BaseCommand
     {
@@ -45,8 +44,5 @@ namespace Apache.NMS.Stomp.Commands
                "Session=" + Session + ", " +
                "Version=" + Version +
                "]";
-
-        public override Response Visit( ICommandVisitor visitor )
-            => null;
     }
 }
