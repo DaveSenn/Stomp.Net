@@ -101,7 +101,7 @@ namespace Stomp.Net.Example.Producer
             IDestination sourceQueue = session.GetQueue( Destination );
             var consumer = session.CreateConsumer( sourceQueue );
 
-            var msg = consumer.Receive();
+            var msg = consumer.Receive(2.ToSeconds());
             if ( msg is ITextMessage )
             {
                 Console.WriteLine( "Message received" );

@@ -613,57 +613,37 @@ namespace Apache.NMS.Stomp
         /// </summary>
         private MessageDispatch Dequeue( TimeSpan timeout )
         {
-            var deadline = DateTime.Now;
-            if ( timeout > TimeSpan.Zero )
-                deadline += timeout;
+            // Calculate the deadline
+            DateTime deadline;
+            if (timeout > TimeSpan.Zero)
+                deadline = DateTime.Now + timeout;
+            else
+                deadline = DateTime.MaxValue;
 
             while ( true )
             {
+                // Check if deadline is reached
+                if (DateTime.Now > deadline)
+                    return null;
+                
+                // Fetch the message
                 var dispatch = _unconsumedMessages.Dequeue( timeout );
-
-                // Grab a single date/time for calculations to avoid timing errors.
-                var dispatchTime = DateTime.Now;
-
-                if ( dispatch == null )
+                if (dispatch == null)
                 {
-                    if ( timeout > TimeSpan.Zero && !_unconsumedMessages.Stopped )
-                    {
-                        if ( dispatchTime > deadline )
-                            timeout = TimeSpan.Zero;
-                        else
-                            timeout = deadline - dispatchTime;
-                    }
-                    else
-                    {
-                        if ( FailureError != null )
-                            throw FailureError.Create();
-                        return null;
-                    }
-                }
-                else if ( dispatch.Message == null )
-                {
+                    if (FailureError != null)
+                        throw FailureError.Create();
                     return null;
                 }
-                else if ( !IgnoreExpiration && dispatch.Message.IsExpired() )
-                {
-                    Tracer.WarnFormat( "{0} received expired message: {1}", ConsumerInfo.ConsumerId, dispatch.Message.MessageId );
+                if (dispatch.Message == null)
+                    return null;
 
-                    BeforeMessageIsConsumed( dispatch );
-                    AfterMessageIsConsumed( dispatch, true );
-                    // Refresh the dispatch time
-                    dispatchTime = DateTime.Now;
-
-                    if ( timeout <= TimeSpan.Zero || _unconsumedMessages.Stopped )
-                        continue;
-                    if ( dispatchTime > deadline )
-                        timeout = TimeSpan.Zero;
-                    else
-                        timeout = deadline - dispatchTime;
-                }
-                else
-                {
+                if ( IgnoreExpiration || !dispatch.Message.IsExpired() )
                     return dispatch;
-                }
+
+                Tracer.WarnFormat( "{0} received expired message: {1}", ConsumerInfo.ConsumerId, dispatch.Message.MessageId );
+                BeforeMessageIsConsumed( dispatch );
+                AfterMessageIsConsumed( dispatch, true );
+                return null;
             }
         }
 
