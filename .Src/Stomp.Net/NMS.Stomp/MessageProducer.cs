@@ -65,13 +65,13 @@ namespace Stomp.Net.Stomp
             }
         }
 
-        public MessageDeliveryMode DeliveryMode { get; set; } = NmsConstants.DefaultDeliveryMode;
+        public MessageDeliveryMode DeliveryMode { get; set; } = StompConstants.DefaultDeliveryMode;
 
         public Boolean DisableMessageId { get; set; } = false;
 
         public Boolean DisableMessageTimestamp { get; set; } = false;
 
-        public MessagePriority Priority { get; set; } = NmsConstants.DefaultPriority;
+        public MessagePriority Priority { get; set; } = StompConstants.DefaultPriority;
 
         public TimeSpan RequestTimeout { get; set; }
 
@@ -107,8 +107,8 @@ namespace Stomp.Net.Stomp
 
             stompMessage.ProducerId = _info.ProducerId;
             stompMessage.FromDestination = dest;
-            stompMessage.NmsDeliveryMode = deliveryMode;
-            stompMessage.NmsPriority = priority;
+            stompMessage.StompDeliveryMode = deliveryMode;
+            stompMessage.StompPriority = priority;
 
             // Always set the message Id regardless of the disable flag.
             var id = new MessageId
@@ -119,10 +119,10 @@ namespace Stomp.Net.Stomp
             stompMessage.MessageId = id;
 
             if ( !DisableMessageTimestamp )
-                stompMessage.NmsTimestamp = DateTime.UtcNow;
+                stompMessage.StompTimestamp = DateTime.UtcNow;
 
             if ( timeToLive != TimeSpan.Zero )
-                stompMessage.NmsTimeToLive = timeToLive;
+                stompMessage.StompTimeToLive = timeToLive;
 
             lock ( _closedLock )
             {
@@ -132,7 +132,7 @@ namespace Stomp.Net.Stomp
             }
         }
 
-        public TimeSpan TimeToLive { get; set; } = NmsConstants.DefaultTimeToLive;
+        public TimeSpan TimeToLive { get; set; } = StompConstants.DefaultTimeToLive;
 
         internal void DoClose()
         {

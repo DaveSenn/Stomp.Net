@@ -244,7 +244,7 @@
     <Compile Include="NMS\MessageNotReadableException.cs" />
     <Compile Include="NMS\MessageNotWriteableException.cs" />
     <Compile Include="NMS\StompConnectionException.cs" />
-    <Compile Include="NMS\NMSConstants.cs" />
+    <Compile Include="NMS\StompConstants.cs" />
     <Compile Include="NMS\StompException.cs" />
     <Compile Include="NMS\Policies\RedeliveryPolicy.cs" />
     <Compile Include="NMS\Tracer.cs" />

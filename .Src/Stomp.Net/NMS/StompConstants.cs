@@ -9,7 +9,7 @@ namespace Stomp.Net
     /// <summary>
     ///     Defines a number of constants
     /// </summary>
-    public class NmsConstants
+    public class StompConstants
     {
         #region Constants
 

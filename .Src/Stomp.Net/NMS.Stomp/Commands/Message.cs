@@ -52,7 +52,7 @@ namespace Stomp.Net.Stomp.Commands
         /// <summary>
         ///     The correlation ID used to correlate messages with conversations or long running business processes
         /// </summary>
-        public String NmsCorrelationId
+        public String StompCorrelationId
         {
             get { return CorrelationId; }
             set { CorrelationId = value; }
@@ -61,7 +61,7 @@ namespace Stomp.Net.Stomp.Commands
         /// <summary>
         ///     Whether or not this message is persistent
         /// </summary>
-        public MessageDeliveryMode NmsDeliveryMode
+        public MessageDeliveryMode StompDeliveryMode
         {
             get { return Persistent ? MessageDeliveryMode.Persistent : MessageDeliveryMode.NonPersistent; }
             set { Persistent = MessageDeliveryMode.Persistent == value; }
@@ -70,7 +70,7 @@ namespace Stomp.Net.Stomp.Commands
         /// <summary>
         ///     The destination of the message
         /// </summary>
-        public IDestination NmsDestination
+        public IDestination StompDestination
         {
             get { return Destination; }
             set { Destination = value as Destination; }
@@ -79,7 +79,7 @@ namespace Stomp.Net.Stomp.Commands
         /// <summary>
         ///     The message ID which is set by the provider
         /// </summary>
-        public String NmsMessageId
+        public String StompMessageId
         {
             get { return MessageId?.ToString() ?? String.Empty; }
             set
@@ -105,7 +105,7 @@ namespace Stomp.Net.Stomp.Commands
         /// <summary>
         ///     The Priority on this message
         /// </summary>
-        public MessagePriority NmsPriority
+        public MessagePriority StompPriority
         {
             get { return (MessagePriority) Priority; }
             set { Priority = (Byte) value; }
@@ -115,7 +115,7 @@ namespace Stomp.Net.Stomp.Commands
         ///     Returns true if this message has been redelivered to this or another consumer before being acknowledged
         ///     successfully.
         /// </summary>
-        public Boolean NmsRedelivered
+        public Boolean StompRedelivered
         {
             get { return RedeliveryCounter > 0; }
 
@@ -137,7 +137,7 @@ namespace Stomp.Net.Stomp.Commands
         /// <summary>
         ///     The destination that the consumer of this message should send replies to
         /// </summary>
-        public IDestination NmsReplyTo
+        public IDestination StompReplyTo
         {
             get { return ReplyTo; }
             set { ReplyTo = Destination.Transform( value ); }
@@ -146,7 +146,7 @@ namespace Stomp.Net.Stomp.Commands
         /// <summary>
         ///     The time-stamp the broker added to the message.
         /// </summary>
-        public DateTime NmsTimestamp
+        public DateTime StompTimestamp
         {
             get { return DateUtils.ToDateTime( Timestamp ); }
             set
@@ -160,7 +160,7 @@ namespace Stomp.Net.Stomp.Commands
         /// <summary>
         ///     The time in milliseconds that this message should expire in
         /// </summary>
-        public TimeSpan NmsTimeToLive
+        public TimeSpan StompTimeToLive
         {
             get { return _timeToLive; }
 
@@ -186,7 +186,7 @@ namespace Stomp.Net.Stomp.Commands
         /// <summary>
         ///     The type name of this message
         /// </summary>
-        public String NmsType
+        public String StompType
         {
             get { return Type; }
             set { Type = value; }
@@ -255,7 +255,7 @@ namespace Stomp.Net.Stomp.Commands
         /// <summary>
         ///     The Message Group ID used to group messages together to the same consumer for the same group ID value
         /// </summary>
-        public String NmsxGroupId
+        public String StompGroupId
         {
             get { return GroupId; }
             set { GroupId = value; }
@@ -264,7 +264,7 @@ namespace Stomp.Net.Stomp.Commands
         /// <summary>
         ///     The Message Group Sequence counter to indicate the position in a group
         /// </summary>
-        public Int32 NmsxGroupSeq
+        public Int32 StompGroupSeq
         {
             get { return GroupSequence; }
             set { GroupSequence = value; }

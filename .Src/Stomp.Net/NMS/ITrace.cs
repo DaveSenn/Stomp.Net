@@ -19,9 +19,28 @@ namespace Stomp.Net
     /// </remarks>
     public interface ITrace
     {
+        /// <summary>
+        ///     Writes a message on the error level.
+        /// </summary>
+        /// <param name="message">The message.</param>
         void Error( String message );
+
+        /// <summary>
+        ///     Writes a message on the fatal level.
+        /// </summary>
+        /// <param name="message">The message.</param>
         void Fatal( String message );
+
+        /// <summary>
+        ///     Writes a message on the info level.
+        /// </summary>
+        /// <param name="message">The message.</param>
         void Info( String message );
+
+        /// <summary>
+        ///     Writes a message on the warn level.
+        /// </summary>
+        /// <param name="message">The message.</param>
         void Warn( String message );
     }
 }
