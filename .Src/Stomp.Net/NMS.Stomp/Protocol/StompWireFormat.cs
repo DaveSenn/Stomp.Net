@@ -360,12 +360,12 @@ namespace Stomp.Net.Stomp.Protocol
                                command.Persistent.ToString()
                                       .ToLower() );
 
-            if ( command.NmsxGroupId != null )
+            if ( command.StompGroupId != null )
             {
-                frame.SetProperty( "JMSXGroupID", command.NmsxGroupId );
-                frame.SetProperty( "NMSXGroupID", command.NmsxGroupId );
-                frame.SetProperty( "JMSXGroupSeq", command.NmsxGroupSeq );
-                frame.SetProperty( "NMSXGroupSeq", command.NmsxGroupSeq );
+                frame.SetProperty( "JMSXGroupID", command.StompGroupId );
+                frame.SetProperty( "NMSXGroupID", command.StompGroupId );
+                frame.SetProperty( "JMSXGroupSeq", command.StompGroupSeq );
+                frame.SetProperty( "NMSXGroupSeq", command.StompGroupSeq );
             }
 
             // Perform any Content Marshaling.

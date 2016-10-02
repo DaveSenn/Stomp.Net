@@ -67,16 +67,16 @@ namespace Stomp.Net.Util
         /// </summary>
         private void CopyProperties( IMessage fromMessage, IMessage toMessage )
         {
-            toMessage.NmsMessageId = fromMessage.NmsMessageId;
-            toMessage.NmsCorrelationId = fromMessage.NmsCorrelationId;
-            toMessage.NmsReplyTo = DoTransformDestination( fromMessage.NmsReplyTo );
-            toMessage.NmsDestination = DoTransformDestination( fromMessage.NmsDestination );
-            toMessage.NmsDeliveryMode = fromMessage.NmsDeliveryMode;
-            toMessage.NmsRedelivered = fromMessage.NmsRedelivered;
-            toMessage.NmsType = fromMessage.NmsType;
-            toMessage.NmsPriority = fromMessage.NmsPriority;
-            toMessage.NmsTimestamp = fromMessage.NmsTimestamp;
-            toMessage.NmsTimeToLive = fromMessage.NmsTimeToLive;
+            toMessage.StompMessageId = fromMessage.StompMessageId;
+            toMessage.StompCorrelationId = fromMessage.StompCorrelationId;
+            toMessage.StompReplyTo = DoTransformDestination( fromMessage.StompReplyTo );
+            toMessage.StompDestination = DoTransformDestination( fromMessage.StompDestination );
+            toMessage.StompDeliveryMode = fromMessage.StompDeliveryMode;
+            toMessage.StompRedelivered = fromMessage.StompRedelivered;
+            toMessage.StompType = fromMessage.StompType;
+            toMessage.StompPriority = fromMessage.StompPriority;
+            toMessage.StompTimestamp = fromMessage.StompTimestamp;
+            toMessage.StompTimeToLive = fromMessage.StompTimeToLive;
 
             foreach ( var x in fromMessage.Headers )
                 toMessage.Headers[x.Key] = fromMessage.Headers[x.Value];

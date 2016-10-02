@@ -23,54 +23,54 @@ namespace Stomp.Net
         /// <summary>
         ///     The correlation ID used to correlate messages from conversations or long running business processes.
         /// </summary>
-        String NmsCorrelationId { get; set; }
+        String StompCorrelationId { get; set; }
 
         /// <summary>
         ///     The destination of the message.  This property is set by the IMessageProducer.
         /// </summary>
-        IDestination NmsDestination { get; set; }
+        IDestination StompDestination { get; set; }
 
         /// <summary>
         ///     The amount of time for which this message is valid.  Zero if this message does not expire.
         /// </summary>
-        TimeSpan NmsTimeToLive { get; set; }
+        TimeSpan StompTimeToLive { get; set; }
 
         /// <summary>
         ///     The message ID which is set by the provider.
         /// </summary>
-        String NmsMessageId { get; set; }
+        String StompMessageId { get; set; }
 
         /// <summary>
         ///     Whether or not this message is persistent.
         /// </summary>
-        MessageDeliveryMode NmsDeliveryMode { get; set; }
+        MessageDeliveryMode StompDeliveryMode { get; set; }
 
         /// <summary>
         ///     The Priority of this message.
         /// </summary>
-        MessagePriority NmsPriority { get; set; }
+        MessagePriority StompPriority { get; set; }
 
         /// <summary>
         ///     Returns true if this message has been redelivered to this or another consumer before being acknowledged
         ///     successfully.
         /// </summary>
-        Boolean NmsRedelivered { get; set; }
+        Boolean StompRedelivered { get; set; }
 
         /// <summary>
         ///     The destination that the consumer of this message should send replies to
         /// </summary>
-        IDestination NmsReplyTo { get; set; }
+        IDestination StompReplyTo { get; set; }
 
         /// <summary>
         ///     The timestamp of when the message was pubished in UTC time.  If the publisher disables setting
         ///     the timestamp on the message, the time will be set to the start of the UNIX epoc (1970-01-01 00:00:00).
         /// </summary>
-        DateTime NmsTimestamp { get; set; }
+        DateTime StompTimestamp { get; set; }
 
         /// <summary>
         ///     The type name of this message.
         /// </summary>
-        String NmsType { get; set; }
+        String StompType { get; set; }
 
         #endregion
 
