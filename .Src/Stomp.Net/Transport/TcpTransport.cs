@@ -137,16 +137,14 @@ namespace Stomp.Net.Transport
         public Action<ITransport> Resumed { get; set; }
 
         /// <summary>
-        ///     Timeout in milliseconds to wait for sending synchronous messages or commands.
-        ///     Set to -1 for infinite timeout.
+        ///     Gets or sets the timeout for sending synchronous messages or commands.
         /// </summary>
-        public Int32 Timeout { get; set; } = -1;
+        public TimeSpan Timeout { get; set; } = TimeSpan.Zero;
 
         /// <summary>
-        ///     Timeout in milliseconds to wait for sending asynchronous messages or commands.
-        ///     Set to -1 for infinite timeout.
+        ///     Gets or sets the timeout for sending asynchronous messages or commands.
         /// </summary>
-        public Int32 AsyncTimeout { get; set; } = -1;
+        public TimeSpan AsyncTimeout { get; set; } = TimeSpan.Zero;
 
         /// <value>
         ///     The Remote Address that this transport is currently connected to.

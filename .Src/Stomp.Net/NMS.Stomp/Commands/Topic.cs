@@ -12,11 +12,7 @@ namespace Stomp.Net.Stomp.Commands
     public class Topic : Destination, ITopic
     {
         #region Ctor
-
-        public Topic()
-        {
-        }
-
+        
         public Topic( String name )
             : base( name )
         {

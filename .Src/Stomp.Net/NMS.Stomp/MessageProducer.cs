@@ -12,19 +12,15 @@ namespace Stomp.Net.Stomp
     /// <summary>
     ///     An object capable of sending messages to some destination
     /// </summary>
-    public class MessageProducer : IMessageProducer
+    public class MessageProducer : Disposable, IMessageProducer
     {
         #region Fields
 
         private readonly Object _closedLock = new Object();
         private readonly ProducerInfo _info;
-
         private readonly MessageTransformation _messageTransformation;
         private Boolean _closed;
-        private Boolean _disposed;
-
         private Int32 _producerSequenceId;
-
         private Session _session;
 
         #endregion
@@ -46,12 +42,6 @@ namespace Stomp.Net.Stomp
         }
 
         #endregion
-
-        public void Dispose()
-        {
-            Dispose( true );
-            GC.SuppressFinalize( this );
-        }
 
         public void Close()
         {
@@ -134,6 +124,21 @@ namespace Stomp.Net.Stomp
 
         public TimeSpan TimeToLive { get; set; } = NmsConstants.DefaultTimeToLive;
 
+        /// <summary>
+        ///     Method invoked when the instance gets disposed.
+        /// </summary>
+        protected override void Disposed()
+        {
+            try
+            {
+                Close();
+            }
+            catch
+            {
+                // Ignore network errors.
+            }
+        }
+
         internal void DoClose()
         {
             lock ( _closedLock )
@@ -152,33 +157,6 @@ namespace Stomp.Net.Stomp
 
                 _closed = true;
             }
-        }
-
-        private void Dispose( Boolean disposing )
-        {
-            if ( _disposed )
-                return;
-
-            if ( disposing )
-            {
-                // Dispose managed code here.
-            }
-
-            try
-            {
-                Close();
-            }
-            catch
-            {
-                // Ignore network errors.
-            }
-
-            _disposed = true;
-        }
-
-        ~MessageProducer()
-        {
-            Dispose( false );
         }
 
         #region Message Creation Factory Methods.

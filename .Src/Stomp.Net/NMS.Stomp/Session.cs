@@ -16,7 +16,7 @@ namespace Stomp.Net.Stomp
     /// <summary>
     ///     Default provider of ISession
     /// </summary>
-    public class Session : ISession, IDispatcher
+    public class Session : Disposable, ISession, IDispatcher
     {
         #region Fields
 
@@ -39,8 +39,7 @@ namespace Stomp.Net.Stomp
         private Boolean _closed;
         private Boolean _closing;
         private Int32 _consumerCounter;
-
-        private Boolean _disposed;
+        
         private Int32 _nextDeliveryId;
         private Int32 _producerCounter;
 
@@ -262,7 +261,7 @@ namespace Stomp.Net.Stomp
                 _consumers.Remove( consumer.ConsumerId );
         }
 
-        private void SendAck( MessageAck ack, Boolean lazy )
+        private void SendAck( ICommand ack, Boolean lazy )
         {
             if ( lazy || _stompConnectionSettings.SendAcksAsync || IsTransacted )
                 Connection.Oneway( ack );
@@ -270,10 +269,7 @@ namespace Stomp.Net.Stomp
                 Connection.SyncRequest( ack );
         }
 
-        ~Session()
-        {
-            Dispose( false );
-        }
+       
 
         #region Session Transaction Events
 
@@ -376,23 +372,13 @@ namespace Stomp.Net.Stomp
         #endregion
 
         #region ISession Members
+        
 
-        public void Dispose()
+        /// <summary>
+        ///     Method invoked when the instance gets disposed.
+        /// </summary>
+        protected override void Disposed()
         {
-            Dispose( true );
-            GC.SuppressFinalize( this );
-        }
-
-        private void Dispose( Boolean disposing )
-        {
-            if ( _disposed )
-                return;
-
-            if ( disposing )
-            {
-                // Dispose managed code here.
-            }
-
             try
             {
                 Close();
@@ -401,8 +387,6 @@ namespace Stomp.Net.Stomp
             {
                 // Ignore network errors.
             }
-
-            _disposed = true;
         }
 
         public void Close()

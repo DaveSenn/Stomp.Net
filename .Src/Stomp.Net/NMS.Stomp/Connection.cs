@@ -19,7 +19,7 @@ namespace Stomp.Net.Stomp
     /// <summary>
     ///     Represents a connection with a message broker
     /// </summary>
-    public class Connection : IConnection
+    public class Connection : Disposable, IConnection
     {
         #region Constants
 
@@ -48,7 +48,6 @@ namespace Stomp.Net.Stomp
 
         private readonly ITransportFactory _transportFactory;
         private readonly Atomic<Boolean> _transportFailed = new Atomic<Boolean>( false );
-        private Boolean _disposed;
         private Int32 _localTransactionCounter;
         private Int32 _sessionCounter;
         private Int32 _temporaryDestinationCounter;
@@ -212,17 +211,12 @@ namespace Stomp.Net.Stomp
         /// </summary>
         public IRedeliveryPolicy RedeliveryPolicy { get; set; }
 
-        public void Dispose()
-        {
-            Dispose( true );
-            GC.SuppressFinalize( this );
-        }
-
         /// <summary>
         ///     This property determines if the asynchronous message delivery of incoming
         ///     messages has been started for this connection.
         /// </summary>
-        public Boolean IsStarted => _started.Value;
+        public Boolean IsStarted
+            => _started.Value;
 
         /// <summary>
         ///     Starts asynchronous message delivery of incoming messages for this connection.
@@ -284,8 +278,6 @@ namespace Stomp.Net.Stomp
             }
         }
 
-        // Implementation methods
-
         /// <summary>
         ///     Performs a synchronous request-response with the broker
         /// </summary>
@@ -308,6 +300,24 @@ namespace Stomp.Net.Stomp
             catch ( Exception ex )
             {
                 throw ex.Create();
+            }
+        }
+
+        /// <summary>
+        ///     Method invoked when the instance gets disposed.
+        /// </summary>
+        protected override void Disposed()
+        {
+            try
+            {
+                // For now we do not distinguish between Dispose() and Close().
+                // In theory Dispose should possibly be lighter-weight and perform a (faster)
+                // disorderly close.
+                Close();
+            }
+            catch
+            {
+                // Ignore network errors.
             }
         }
 
@@ -503,31 +513,6 @@ namespace Stomp.Net.Stomp
             Tracer.ErrorFormat( "No such consumer active: {0}.", dispatch.ConsumerId );
         }
 
-        private void Dispose( Boolean disposing )
-        {
-            if ( _disposed )
-                return;
-
-            if ( disposing )
-            {
-                // Dispose managed code here.
-            }
-
-            try
-            {
-                // For now we do not distinguish between Dispose() and Close().
-                // In theory Dispose should possibly be lighter-weight and perform a (faster)
-                // disorderly close.
-                Close();
-            }
-            catch
-            {
-                // Ignore network errors.
-            }
-
-            _disposed = true;
-        }
-
         private void MarkTransportFailed( Exception error )
         {
             _transportFailed.Value = true;
@@ -665,11 +650,6 @@ namespace Stomp.Net.Stomp
                                "processing ({0}) to complete..",
                                cdl.Remaining );
             cdl.AwaitOperation( TimeSpan.FromSeconds( 10 ) );
-        }
-
-        ~Connection()
-        {
-            Dispose( false );
         }
     }
 }

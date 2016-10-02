@@ -99,11 +99,7 @@ namespace Stomp.Net.Stomp.Commands
                        || StompTemporaryTopic == destinationType;
             }
         }
-
-        public void Dispose()
-        {
-        }
-
+        
         public override Object Clone()
         {
             // Since we are a derived class use the base's Clone()

@@ -9,14 +9,16 @@ namespace Stomp.Net
     /// <summary>
     ///     A base interface for destinations such as queues or topics
     /// </summary>
-    public interface IDestination : IDisposable
+    public interface IDestination
     {
         #region Properties
 
         DestinationType DestinationType { get; }
 
         Boolean IsTopic { get; }
+
         Boolean IsQueue { get; }
+
         Boolean IsTemporary { get; }
 
         #endregion

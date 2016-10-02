@@ -81,6 +81,28 @@ namespace Stomp.Net.Stomp.Transport
 
         #endregion
 
+        
+
+
+        #region Overrides of Disposable
+
+        /// <summary>
+        ///     Method invoked when the instance gets disposed.
+        /// </summary>
+        protected override void Disposed()
+        {
+            lock ( _monitor )
+            {
+                _localWireFormatInfo = null;
+                _remoteWireFormatInfo = null;
+                _disposing = true;
+                StopMonitorThreads();
+            }
+        }
+
+        #endregion
+
+
         public override void Oneway( ICommand command )
         {
             // Disable inactivity monitoring while processing a command.
@@ -118,7 +140,7 @@ namespace Stomp.Net.Stomp.Transport
         /// <summary>
         ///     Check the write to the broker
         /// </summary>
-        public void WriteCheck()
+        private void WriteCheck()
         {
             if ( _inWrite.Value || _failed.Value )
             {
@@ -138,23 +160,6 @@ namespace Stomp.Net.Stomp.Transport
 
         #endregion
 
-        protected override void Dispose( Boolean disposing )
-        {
-            if ( disposing )
-            {
-                // get rid of unmanaged stuff
-            }
-
-            lock ( _monitor )
-            {
-                _localWireFormatInfo = null;
-                _remoteWireFormatInfo = null;
-                _disposing = true;
-                StopMonitorThreads();
-            }
-
-            base.Dispose( disposing );
-        }
 
         protected override void OnCommand( ITransport sender, ICommand command )
         {
@@ -283,6 +288,8 @@ namespace Stomp.Net.Stomp.Transport
                     // forever, if they don't shutdown after two seconds, just quit.
                     ThreadUtil.DisposeTimer( _connectionCheckTimer, 2000 );
 
+                    _connectionCheckTimer.Dispose();
+
                     _asyncTasks.Shutdown();
                     _asyncTasks = null;
                     _asyncWriteTask = null;
@@ -290,14 +297,10 @@ namespace Stomp.Net.Stomp.Transport
                 }
         }
 
-        ~InactivityMonitor()
-        {
-            Dispose( false );
-        }
 
         #region ReadCheck Related
 
-        public void ReadCheck()
+        private void ReadCheck()
         {
             var now = DateTime.Now;
             var elapsed = now - _lastReadCheckTime;
@@ -331,7 +334,7 @@ namespace Stomp.Net.Stomp.Transport
         /// </summary>
         /// <param name="elapsed"></param>
         /// <returns></returns>
-        public Boolean AllowReadCheck( TimeSpan elapsed ) => elapsed.TotalMilliseconds > ReadCheckTime;
+        private Boolean AllowReadCheck( TimeSpan elapsed ) => elapsed.TotalMilliseconds > ReadCheckTime;
 
         #endregion
 

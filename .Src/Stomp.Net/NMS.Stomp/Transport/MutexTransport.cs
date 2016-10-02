@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using Extend;
 using Stomp.Net.Stomp.Commands;
 
 #endregion
@@ -56,7 +57,8 @@ namespace Stomp.Net.Stomp.Transport
 
         public override Response Request( ICommand command, TimeSpan timeout )
         {
-            GetTransmissionLock( (Int32) timeout.TotalMilliseconds );
+            GetTransmissionLock( timeout );
+
             try
             {
                 return base.Request( command, timeout );
@@ -67,11 +69,11 @@ namespace Stomp.Net.Stomp.Transport
             }
         }
 
-        private void GetTransmissionLock( Int32 timeout )
+        private void GetTransmissionLock( TimeSpan timeout )
         {
-            if ( timeout > 0 )
+            if ( timeout > TimeSpan.Zero )
             {
-                var timeoutTime = DateTime.Now + TimeSpan.FromMilliseconds( timeout );
+                var deadline = DateTime.Now + timeout;
                 var waitCount = 1;
 
                 while ( true )
@@ -79,8 +81,8 @@ namespace Stomp.Net.Stomp.Transport
                     if ( Monitor.TryEnter( _transmissionLock ) )
                         break;
 
-                    if ( DateTime.Now > timeoutTime )
-                        throw new IoException( $"Oneway timed out after {timeout} milliseconds." );
+                    if ( DateTime.Now > deadline )
+                        throw new IoException( $"Command timed out after {timeout} milliseconds." );
 
                     // Back off from being overly aggressive.
                     // Having too many threads aggressively trying to get the lock pegs the CPU.
@@ -88,9 +90,18 @@ namespace Stomp.Net.Stomp.Transport
                 }
             }
             else
-            {
                 Monitor.Enter( _transmissionLock );
-            }
         }
+
+        #region Overrides of Disposable
+
+        /// <summary>
+        ///     Method invoked when the instance gets disposed.
+        /// </summary>
+        protected override void Disposed()
+        {
+        }
+
+        #endregion
     }
 }
