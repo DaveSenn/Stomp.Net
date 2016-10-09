@@ -43,20 +43,9 @@ namespace Stomp.Net.Transport
 
         #endregion
 
-        #region Protected Members
-
-        /// <summary>
-        ///     Override in a subclass to create the specific type of transport that is
-        ///     being implemented.
-        /// </summary>
-        protected virtual ITransport CreateTransport( Uri location, Socket socket, IWireFormat wireFormat )
-            => new TcpTransport( location, socket, wireFormat );
-
-        #endregion
-
         #region Implementation of ITransportFactory
 
-        public ITransport CompositeConnect( Uri location )
+        public ITransport CreateTransport( Uri location )
         {
             var socket = Connect( location.Host, location.Port );
             socket.ReceiveBufferSize = _stompConnectionSettings.TransportSettings.ReceiveBufferSize;
@@ -74,18 +63,22 @@ namespace Stomp.Net.Transport
             if ( _stompConnectionSettings.TransportSettings.UseInactivityMonitor )
                 transport = new InactivityMonitor( transport, wireformat );
 
-            return transport;
-        }
-
-        public ITransport CreateTransport( Uri location )
-        {
-            var transport = CompositeConnect( location );
-
             transport = new MutexTransport( transport );
             transport = new ResponseCorrelator( transport );
 
             return transport;
         }
+
+        #endregion
+
+        #region Protected Members
+
+        /// <summary>
+        ///     Override in a subclass to create the specific type of transport that is
+        ///     being implemented.
+        /// </summary>
+        protected virtual ITransport CreateTransport( Uri location, Socket socket, IWireFormat wireFormat )
+            => new TcpTransport( location, socket, wireFormat );
 
         #endregion
 

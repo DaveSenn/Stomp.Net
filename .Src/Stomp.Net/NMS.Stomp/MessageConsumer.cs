@@ -93,7 +93,7 @@ namespace Stomp.Net.Stomp
                         _clearDispatchList = false;
                         _unconsumedMessages.Clear();
 
-                        // on resumption a pending delivered ack will be out of sync with
+                        // on resumption a pending delivered ACK will be out of sync with
                         // re-deliveries.
                         _pendingAck = null;
                     }

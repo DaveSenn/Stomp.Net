@@ -30,13 +30,25 @@ namespace Stomp.Net.Stomp.Transport
         protected override void OnCommand( ITransport sender, ICommand command )
         {
             Tracer.Info( "RECEIVED: " + command );
-            Command( sender, command );
+            Command?.Invoke( sender, command );
         }
 
         protected override void OnException( ITransport sender, Exception error )
         {
             Tracer.Error( "RECEIVED Exception: " + error );
-            Exception( sender, error );
+            Exception?.Invoke( sender, error );
         }
+
+        #region Overrides of Disposable
+
+        /// <summary>
+        ///     Method invoked when the instance gets disposed.
+        /// </summary>
+        protected override void Disposed()
+        {
+            
+        }
+
+        #endregion
     }
 }

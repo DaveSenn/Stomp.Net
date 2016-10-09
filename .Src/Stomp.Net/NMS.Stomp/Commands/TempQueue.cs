@@ -12,10 +12,7 @@ namespace Stomp.Net.Stomp.Commands
     public class TempQueue : TempDestination, ITemporaryQueue
     {
         #region Ctor
-
-        public TempQueue()
-        {
-        }
+        
 
         public TempQueue( String name )
             : base( name )

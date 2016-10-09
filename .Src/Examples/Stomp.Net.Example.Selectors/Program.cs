@@ -79,7 +79,7 @@ namespace Stomp.Net.Example.Selectors
 
         #region Nested Types
 
-        private class Consumer : IDisposable
+        private class Consumer : Disposable
         {
             #region Fields
 
@@ -95,6 +95,8 @@ namespace Stomp.Net.Example.Selectors
             }
 
             #endregion
+
+            #region Private Members
 
             private void Create( String selectorKey, String selector )
                 => new Thread( () =>
@@ -136,28 +138,15 @@ namespace Stomp.Net.Example.Selectors
                                    }
                                } ).Start();
 
-            #region Implementation of IDisposable
+            #endregion
 
-            /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-            public void Dispose()
-            {
-                Dispose( true );
-                GC.SuppressFinalize( this );
-            }
+            #region Override of Disposable
 
-            protected virtual void Dispose( Boolean disposing )
-            {
-                if ( !disposing )
-                    return;
-
-                _running = false;
-            }
-
-            ~Consumer()
-            {
-                // Finalizer calls Dispose(false)
-                Dispose( false );
-            }
+            /// <summary>
+            ///     Method invoked when the instance gets disposed.
+            /// </summary>
+            protected override void Disposed()
+                => _running = false;
 
             #endregion
         }

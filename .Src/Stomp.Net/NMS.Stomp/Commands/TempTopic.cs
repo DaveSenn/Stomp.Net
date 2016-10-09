@@ -41,7 +41,8 @@ namespace Stomp.Net.Stomp.Commands
             return o;
         }
 
-        public override Destination CreateDestination( String name ) => new TempTopic( name );
+        public override Destination CreateDestination( String name )
+            => new TempTopic( name );
 
         public override Byte GetDataStructureType()
             => DataStructureTypes.TempTopicType;

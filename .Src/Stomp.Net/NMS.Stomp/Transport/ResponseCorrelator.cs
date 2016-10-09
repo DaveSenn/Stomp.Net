@@ -31,6 +31,7 @@ namespace Stomp.Net.Stomp.Transport
 
         #endregion
 
+        
         public override FutureResponse AsyncRequest( ICommand command )
         {
             var commandId = GetNextCommandId();
@@ -125,29 +126,40 @@ namespace Stomp.Net.Stomp.Transport
             base.OnException( sender, command );
         }
 
-        private void Dispose( Exception error )
+
+        private Int32 GetNextCommandId()
+            => Interlocked.Increment( ref _nextCommandId );
+
+        #region Overrides of Disposable
+
+        /// <summary>
+        ///     Method invoked when the instance gets disposed.
+        /// </summary>
+        protected override void Disposed() 
+            => Dispose( null );
+
+        #endregion
+
+        private void Dispose(Exception error)
         {
             ArrayList requests = null;
 
-            lock ( _requestMap.SyncRoot )
-                if ( _error == null )
+            lock (_requestMap.SyncRoot)
+                if (_error == null)
                 {
                     _error = error;
-                    requests = new ArrayList( _requestMap.Values );
+                    requests = new ArrayList(_requestMap.Values);
                     _requestMap.Clear();
                 }
 
-            if ( requests == null )
+            if (requests == null)
                 return;
-            foreach ( FutureResponse future in requests )
+            foreach (FutureResponse future in requests)
             {
-                var brError = new BrokerError { Message = error.Message };
+                var brError = new BrokerError { Message = error?.Message };
                 var response = new ExceptionResponse { Exception = brError };
                 future.Response = response;
             }
         }
-
-        private Int32 GetNextCommandId()
-            => Interlocked.Increment( ref _nextCommandId );
     }
 }

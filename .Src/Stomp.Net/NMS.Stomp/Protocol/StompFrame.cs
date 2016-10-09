@@ -78,7 +78,8 @@ namespace Stomp.Net.Stomp.Protocol
             ReadContent( dataIn );
         }
 
-        public Boolean HasProperty( String name ) => Properties.ContainsKey( name );
+        public Boolean HasProperty( String name ) 
+            => Properties.ContainsKey( name );
 
         public String RemoveProperty( String name )
         {
@@ -289,8 +290,10 @@ namespace Stomp.Net.Stomp.Protocol
                 var nextChar = dataIn.Read();
                 if ( nextChar < 0 )
                     throw new IoException( "Peer closed the stream." );
+
                 if ( nextChar == 10 )
                     break;
+
                 ms.WriteByte( (Byte) nextChar );
             }
 

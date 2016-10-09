@@ -86,11 +86,7 @@ namespace Stomp.Net.Stomp.Transport
         #endregion
 
         #region Implementation of ITransportFactory
-
-        public ITransport CompositeConnect( Uri location )
-            => CreateTransportFactory( location )
-                .CompositeConnect( location );
-
+        
         public ITransport CreateTransport( Uri location )
             => CreateTransportFactory( location )
                 .CreateTransport( location );

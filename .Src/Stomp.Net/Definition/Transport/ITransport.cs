@@ -20,16 +20,14 @@ namespace Stomp.Net
         #region Properties
 
         /// <summary>
-        ///     Timeout in milliseconds to wait for sending synchronous messages or commands.
-        ///     Set to -1 for infinite timeout.
+        ///     Gets or sets the timeout for sending synchronous messages or commands.
         /// </summary>
-        Int32 Timeout { get; set; }
+        TimeSpan Timeout { get; set; }
 
         /// <summary>
-        ///     Timeout in milliseconds to wait for sending asynchronous messages or commands.
-        ///     Set to -1 for infinite timeout.
+        ///     Gets or sets the timeout for sending asynchronous messages or commands.
         /// </summary>
-        Int32 AsyncTimeout { get; set; }
+        TimeSpan AsyncTimeout { get; set; }
 
         /// <summary>
         ///     Delegate invoked when a command was received.

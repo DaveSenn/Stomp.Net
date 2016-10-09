@@ -10,7 +10,7 @@ namespace Stomp.Net.Stomp.Transport
     /// <summary>
     ///     Used to implement a filter on the transport layer.
     /// </summary>
-    public class TransportFilter : ITransport
+    public abstract class TransportFilter : Disposable, ITransport
     {
         #region Fields
 
@@ -26,7 +26,7 @@ namespace Stomp.Net.Stomp.Transport
 
         #region Ctor
 
-        public TransportFilter( ITransport next )
+        protected TransportFilter( ITransport next )
         {
             Next = next;
             Next.Command = OnCommand;
@@ -36,20 +36,12 @@ namespace Stomp.Net.Stomp.Transport
         }
 
         #endregion
-
-        /// <summary>
-        ///     Method Dispose
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose( true );
-            GC.SuppressFinalize( this );
-        }
-
+       
         /// <summary>
         ///     Property IsStarted
         /// </summary>
-        public Boolean IsStarted => Next.IsStarted;
+        public Boolean IsStarted 
+            => Next.IsStarted;
 
         /// <summary>
         ///     Method Start
@@ -77,10 +69,9 @@ namespace Stomp.Net.Stomp.Transport
             => Next.AsyncRequest( command );
 
         /// <summary>
-        ///     Timeout in milliseconds to wait for sending asynchronous messages or commands.
-        ///     Set to -1 for infinite timeout.
+        ///     Gets or sets the timeout for sending asynchronous messages or commands.
         /// </summary>
-        public Int32 AsyncTimeout
+        public TimeSpan AsyncTimeout
         {
             get { return Next.AsyncTimeout; }
             set { Next.AsyncTimeout = value; }
@@ -123,22 +114,14 @@ namespace Stomp.Net.Stomp.Transport
         public Action<ITransport> Resumed { get; set; }
 
         /// <summary>
-        ///     Timeout in milliseconds to wait for sending synchronous messages or commands.
-        ///     Set to -1 for infinite timeout.
+        ///     Gets or sets the timeout for sending synchronous messages or commands.
         /// </summary>
-        public Int32 Timeout
+        public TimeSpan Timeout
         {
             get { return Next.Timeout; }
             set { Next.Timeout = value; }
         }
 
-        protected virtual void Dispose( Boolean disposing )
-        {
-            if ( disposing )
-                Next.Dispose();
-
-            IsDisposed = true;
-        }
 
         /// <summary>
         ///     Invokes the command delegate.
@@ -170,10 +153,6 @@ namespace Stomp.Net.Stomp.Transport
         private void OnResumed( ITransport sender )
             => Resumed?.Invoke( sender );
 
-        ~TransportFilter()
-        {
-            Dispose( false );
-        }
 
         #region Implementation of ITransport
 

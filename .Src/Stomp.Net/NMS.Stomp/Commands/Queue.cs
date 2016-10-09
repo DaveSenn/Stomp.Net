@@ -12,11 +12,7 @@ namespace Stomp.Net.Stomp.Commands
     public class Queue : Destination, IQueue
     {
         #region Ctor
-
-        public Queue()
-        {
-        }
-
+        
         public Queue( String name )
             : base( name )
         {
@@ -24,10 +20,22 @@ namespace Stomp.Net.Stomp.Commands
 
         #endregion
 
-        public override DestinationType DestinationType => DestinationType.Queue;
+        #region Public Members
+
+        public override DestinationType DestinationType 
+            => DestinationType.Queue;
+
+        #endregion
+
+        #region Implementation of IQueue
 
         public String QueueName
             => PhysicalName;
+        
+
+        #endregion
+
+        #region Overrides
 
         public override Object Clone()
         {
@@ -40,7 +48,6 @@ namespace Stomp.Net.Stomp.Commands
             // Now do the deep work required
             // If any new variables are added then this routine will
             // likely need updating
-
             return o;
         }
 
@@ -52,5 +59,7 @@ namespace Stomp.Net.Stomp.Commands
 
         protected override Int32 GetDestinationType()
             => StompQueue;
+
+        #endregion
     }
 }
