@@ -30,13 +30,46 @@ namespace Stomp.Net
         /// </summary>
         public String ClientId { get; set; }
 
+        /// <summary>
+        ///     Gets or set the user name.
+        /// </summary>
+        /// <value>The user name.</value>
         public String UserName { get; set; }
+
+        /// <summary>
+        ///     Gets or set the password.
+        /// </summary>
+        /// <value>The password.</value>
         public String Password { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the async send option.
+        /// </summary>
+        /// <value>The async send option.</value>
         public Boolean AsyncSend { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the copy message on send option.
+        /// </summary>
+        /// <value>The copy message on send option.</value>
         public Boolean CopyMessageOnSend { get; set; } = true;
+
+        /// <summary>
+        ///     Gets or sets the always sync send option.
+        /// </summary>
+        /// <value>The copy always sync send option.</value>
         public Boolean AlwaysSyncSend { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the send ACK async option.
+        /// </summary>
+        /// <value>The send ACK async option.</value>
         public Boolean SendAcksAsync { get; set; } = true;
 
+        /// <summary>
+        ///     Gets or sets the dispatch async option.
+        /// </summary>
+        /// <value>The dispatch async option.</value>
         public Boolean DispatchAsync { get; set; } = true;
 
         /// <summary>

@@ -13,6 +13,10 @@ namespace Stomp.Net
     {
         #region Properties
 
+        /// <summary>
+        ///     Gets or sets the dispatch async option.
+        /// </summary>
+        /// <value>The dispatch async option.</value>
         public Boolean DispatchAsync { get; set; }
 
         #endregion
