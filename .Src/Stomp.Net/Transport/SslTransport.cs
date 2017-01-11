@@ -74,11 +74,8 @@ namespace Stomp.Net.Transport
             }
             catch ( Exception ex )
             {
-                Tracer.ErrorFormat( "Exception: {0}", ex.Message );
-                if ( ex.InnerException != null )
-                    Tracer.ErrorFormat( "Inner exception: {0}", ex.InnerException.Message );
                 Tracer.Error( "Authentication failed - closing the connection." );
-
+                Tracer.ErrorFormat( "Exception: {0}", ex.ToString() );
                 throw;
             }
 
@@ -156,8 +153,8 @@ namespace Stomp.Net.Transport
                     Tracer.Error( "Chain Status errors: " );
                     foreach ( var status in chain.ChainStatus )
                     {
-                        Tracer.Error( "*** Chain Status error: " + status.Status );
-                        Tracer.Error( "*** Chain Status information: " + status.StatusInformation );
+                        Tracer.Error( "Chain Status error: " + status.Status );
+                        Tracer.Error( "Chain Status information: " + status.StatusInformation );
                     }
                     break;
                 case SslPolicyErrors.RemoteCertificateNameMismatch:
