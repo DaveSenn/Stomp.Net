@@ -71,6 +71,8 @@ namespace Stomp.Net.Transport
             {
                 var remoteCertName = _stompConnectionSettings.TransportSettings.SslSettings.ServerName ?? RemoteAddress.Host;
                 _sslStream.AuthenticateAsClient( remoteCertName, LoadCertificates(), SslProtocols.Default, false );
+
+                Tracer.Info( "SSL connection established." );
             }
             catch ( Exception ex )
             {
@@ -129,15 +131,24 @@ namespace Stomp.Net.Transport
                                                         String[] acceptableIssuers )
         {
             if ( localCertificates.Count == 1 )
+            {
+                Tracer.Info( "Found only one matching cert. skip CE compare" );
                 return localCertificates[0];
+            }
             if ( localCertificates.Count <= 1 || _stompConnectionSettings.TransportSettings.SslSettings.ClientCertSubject == null )
                 return null;
 
-            return localCertificates
+
+            var match = localCertificates
                 .Cast<X509Certificate2>()
                 .FirstOrDefault(
                     certificate =>
-                            String.Compare( certificate.Subject, _stompConnectionSettings.TransportSettings.SslSettings.ClientCertSubject, StringComparison.OrdinalIgnoreCase ) == 0 );
+                        String.Compare( certificate.Subject, _stompConnectionSettings.TransportSettings.SslSettings.ClientCertSubject, StringComparison.OrdinalIgnoreCase ) == 0 );
+
+            if ( match == null )
+                Tracer.Warn( $"Found no matching cert. with Subject '{_stompConnectionSettings.TransportSettings.SslSettings.ClientCertSubject}'" );
+
+            return match;
         }
 
         private Boolean ValidateServerCertificate( Object sender,
