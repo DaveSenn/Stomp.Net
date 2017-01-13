@@ -9,11 +9,11 @@
     <projectUrl>https://github.com/DaveSenn/Stomp.Net</projectUrl>
 	<iconUrl>https://raw.githubusercontent.com/DaveSenn/Stomp.Net/master/.Art/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>C# STOMP library.</description>
-    <copyright>Copyright © Dave Senn 2016</copyright>
+    <description>.Net STOMP library.</description>
+    <copyright>Copyright © Dave Senn 2017</copyright>
     <tags>C# STOMP</tags>
 	<dependencies>
-        <dependency id="Extend " version="1.1.9.11" />
+        <dependency id="Extend " version="1.1.11.58" />
 	</dependencies>
   </metadata>
 </package>

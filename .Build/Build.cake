@@ -127,5 +127,6 @@ private String GetBuildVersion()
 		version = assembly.GetName().Version.ToString();
 	}
 	
-	return version + "-alpha";
+	return version;
+	// return version + "-alpha";
 }
