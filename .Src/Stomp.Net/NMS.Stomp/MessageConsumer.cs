@@ -121,18 +121,13 @@ namespace Stomp.Net.Stomp
                                     // Redeliver the message
                                 }
                                 else
-                                {
-                                    // Transacted or Client ack: Deliver the next message.
                                     AfterMessageIsConsumed( dispatch, false );
-                                }
 
                                 Tracer.Error( ConsumerInfo.ConsumerId + " Exception while processing message: " + e );
                             }
                         }
                         else
-                        {
                             _unconsumedMessages.Enqueue( dispatch );
-                        }
                 }
 
                 if ( ++_dispatchedCount % 1000 != 0 )
@@ -150,13 +145,16 @@ namespace Stomp.Net.Stomp
         {
             if ( _listener == null )
                 return false;
+
             var dispatch = _unconsumedMessages.DequeueNoWait();
             if ( dispatch == null )
                 return false;
+
             try
             {
                 var message = CreateStompMessage( dispatch );
                 BeforeMessageIsConsumed( dispatch );
+                // ReSharper disable once PossibleNullReferenceException
                 _listener( message );
                 AfterMessageIsConsumed( dispatch, false );
             }
@@ -268,9 +266,7 @@ namespace Stomp.Net.Stomp
 
                     if ( RedeliveryPolicy.MaximumRedeliveries >= 0 &&
                          lastMd.Message.RedeliveryCounter > RedeliveryPolicy.MaximumRedeliveries )
-                    {
                         _redeliveryDelay = 0;
-                    }
                     else
                     {
                         // stop the delivery of messages.
@@ -285,9 +281,7 @@ namespace Stomp.Net.Stomp
                             ThreadPool.QueueUserWorkItem( RollbackHelper, deadline );
                         }
                         else
-                        {
                             Start();
-                        }
                     }
 
                     _deliveredCounter -= _dispatchedMessages.Count;
@@ -497,7 +491,7 @@ namespace Stomp.Net.Stomp
                 if ( wasStarted )
                     _session.Start();
             }
-            remove { _listener -= value; }
+            remove => _listener -= value;
         }
 
         /// <summary>
@@ -698,10 +692,7 @@ namespace Stomp.Net.Stomp
 
             #region Ctor
 
-            public MessageConsumerSynchronization( MessageConsumer consumer )
-            {
-                _consumer = consumer;
-            }
+            public MessageConsumerSynchronization( MessageConsumer consumer ) => _consumer = consumer;
 
             #endregion
 
@@ -734,10 +725,7 @@ namespace Stomp.Net.Stomp
 
             #region Ctor
 
-            public ConsumerCloseSynchronization( MessageConsumer consumer )
-            {
-                _consumer = consumer;
-            }
+            public ConsumerCloseSynchronization( MessageConsumer consumer ) => _consumer = consumer;
 
             #endregion
 

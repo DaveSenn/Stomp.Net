@@ -12,7 +12,7 @@ namespace Stomp.Net.Stomp.Commands
 
         public Int64 WriteCheckInterval { get; set; }
 
-        public Int64 ReadCheckInterval { get; set; }
+        public Int32 ReadCheckInterval { get; set; }
 
         public Single Version { get; set; } = 1.0f;
 

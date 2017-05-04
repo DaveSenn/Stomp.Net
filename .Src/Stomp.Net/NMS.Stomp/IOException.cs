@@ -9,7 +9,7 @@ namespace Stomp.Net.Stomp
     /// <summary>
     ///     Exception thrown when an IO error occurs
     /// </summary>
-    [Serializable]
+    
     public class IoException : StompException
     {
         #region Ctor

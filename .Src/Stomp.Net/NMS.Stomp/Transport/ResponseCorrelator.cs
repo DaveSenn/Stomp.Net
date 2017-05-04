@@ -1,7 +1,8 @@
 #region Usings
 
 using System;
-using System.Collections;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using Stomp.Net.Stomp.Commands;
 
@@ -15,8 +16,8 @@ namespace Stomp.Net.Stomp.Transport
     public class ResponseCorrelator : TransportFilter
     {
         #region Fields
-
-        private readonly IDictionary _requestMap = Hashtable.Synchronized( new Hashtable() );
+        
+        private readonly ConcurrentDictionary<Int32, FutureResponse> _requestMap = new ConcurrentDictionary<Int32, FutureResponse>();
         private Exception _error;
         private Int32 _nextCommandId;
 
@@ -39,13 +40,11 @@ namespace Stomp.Net.Stomp.Transport
             command.CommandId = commandId;
             command.ResponseRequired = true;
             var future = new FutureResponse();
-            Exception priorError;
-            lock ( _requestMap.SyncRoot )
-            {
-                priorError = _error;
+
+            var priorError = _error;
                 if ( priorError == null )
-                    _requestMap[commandId] = future;
-            }
+                    _requestMap.AddOrUpdate( commandId, future, ( key, value ) => future );
+            
 
             if ( priorError != null )
             {
@@ -97,15 +96,16 @@ namespace Stomp.Net.Stomp.Transport
             {
                 var response = (Response) command;
                 var correlationId = response.CorrelationId;
-                var future = (FutureResponse) _requestMap[correlationId];
+                _requestMap.TryGetValue( correlationId, out FutureResponse future );
 
                 if ( future != null )
                 {
-                    _requestMap.Remove( correlationId );
+                    _requestMap.TryRemove( correlationId, out future );
                     future.Response = response;
 
                     if ( !( response is ExceptionResponse ) )
                         return;
+
                     var er = response as ExceptionResponse;
                     var brokerError = er.Exception;
                     var exception = new BrokerException( brokerError );
@@ -115,9 +115,7 @@ namespace Stomp.Net.Stomp.Transport
                     Tracer.Warn( "Unknown response ID: " + response.CommandId + " for response: " + response );
             }
             else
-            {
                 Command( sender, command );
-            }
         }
 
         protected override void OnException( ITransport sender, Exception command )
@@ -140,21 +138,21 @@ namespace Stomp.Net.Stomp.Transport
 
         #endregion
 
-        private void Dispose(Exception error)
+        private void Dispose( Exception error )
         {
-            ArrayList requests = null;
+            List<FutureResponse> requests = null;
 
-            lock (_requestMap.SyncRoot)
-                if (_error == null)
-                {
-                    _error = error;
-                    requests = new ArrayList(_requestMap.Values);
-                    _requestMap.Clear();
-                }
+            if ( _error == null )
+            {
+                _error = error;
+                requests = new List<FutureResponse>( _requestMap.Values );
+                _requestMap.Clear();
+            }
 
-            if (requests == null)
+            if ( requests == null )
                 return;
-            foreach (FutureResponse future in requests)
+
+            foreach ( var future in requests )
             {
                 var brError = new BrokerError { Message = error?.Message };
                 var response = new ExceptionResponse { Exception = brError };

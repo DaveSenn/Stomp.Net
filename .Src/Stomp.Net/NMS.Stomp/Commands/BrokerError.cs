@@ -9,7 +9,7 @@ namespace Stomp.Net.Stomp.Commands
     /// <summary>
     ///     Represents an exception on the broker
     /// </summary>
-    [Serializable]
+    
     public class BrokerError : BaseCommand
     {
         #region Properties

@@ -1,7 +1,8 @@
 #region Usings
 
 using System;
-using System.Collections;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using Extend;
 using JetBrains.Annotations;
@@ -34,11 +35,17 @@ namespace Stomp.Net.Stomp
         private readonly Atomic<Boolean> _closing = new Atomic<Boolean>( false );
         private readonly Atomic<Boolean> _connected = new Atomic<Boolean>( false );
         private readonly Object _connectedLock = new Object();
-        private readonly IDictionary _dispatchers = Hashtable.Synchronized( new Hashtable() );
+        private readonly ConcurrentDictionary<ConsumerId, IDispatcher> _dispatchers = new ConcurrentDictionary<ConsumerId, IDispatcher>();
+
         private readonly ThreadPoolExecutor _executor = new ThreadPoolExecutor();
         private readonly ConnectionInfo _info;
+
         private readonly Object _myLock = new Object();
-        private readonly IList _sessions = ArrayList.Synchronized( new ArrayList() );
+
+        //private readonly IList _sessions = ArrayList.Synchronized( new ArrayList() );
+        private readonly List<Session> _sessions = new List<Session>();
+
+        private readonly Object _sessionsLock = new Object();
         private readonly Atomic<Boolean> _started = new Atomic<Boolean>( false );
 
         /// <summary>
@@ -88,7 +95,7 @@ namespace Stomp.Net.Stomp
 
         public Connection( Uri connectionUri, ITransport transport, IdGenerator clientIdGenerator, [NotNull] StompConnectionSettings stompConnectionSettings )
         {
-            stompConnectionSettings.ThrowIfNull( nameof( stompConnectionSettings ) );
+            stompConnectionSettings.ThrowIfNull( nameof(stompConnectionSettings) );
 
             _stompConnectionSettings = stompConnectionSettings;
             _transportFactory = new TransportFactory( _stompConnectionSettings );
@@ -112,7 +119,7 @@ namespace Stomp.Net.Stomp
 
         public String ClientId
         {
-            get { return _info.ClientId; }
+            get => _info.ClientId;
             set
             {
                 if ( _connected.Value )
@@ -135,10 +142,13 @@ namespace Stomp.Net.Stomp
                 {
                     Tracer.Info( "Closing Connection." );
                     _closing.Value = true;
-                    lock ( _sessions.SyncRoot )
-                        foreach ( Session session in _sessions )
+                    lock ( _sessionsLock )
+                    {
+                        foreach ( var session in _sessions )
                             session.DoClose();
-                    _sessions.Clear();
+
+                        _sessions.Clear();
+                    }
 
                     if ( _connected.Value )
                     {
@@ -193,7 +203,9 @@ namespace Stomp.Net.Stomp
             if ( IsStarted )
                 session.Start();
 
-            _sessions.Add( session );
+            lock ( _sessionsLock )
+                _sessions.Add( session );
+
             return session;
         }
 
@@ -227,8 +239,9 @@ namespace Stomp.Net.Stomp
             CheckConnected();
             if ( !_started.CompareAndSet( false, true ) )
                 return;
-            lock ( _sessions.SyncRoot )
-                foreach ( Session session in _sessions )
+
+            lock ( _sessionsLock )
+                foreach ( var session in _sessions )
                     session.Start();
         }
 
@@ -241,8 +254,9 @@ namespace Stomp.Net.Stomp
             CheckConnected();
             if ( !_started.CompareAndSet( true, false ) )
                 return;
-            lock ( _sessions.SyncRoot )
-                foreach ( Session session in _sessions )
+
+            lock ( _sessionsLock )
+                foreach ( var session in _sessions )
                     session.Stop();
         }
 
@@ -321,7 +335,7 @@ namespace Stomp.Net.Stomp
             }
         }
 
-        internal void AddDispatcher( ConsumerId id, IDispatcher dispatcher ) => _dispatchers.Add( id, dispatcher );
+        internal void AddDispatcher( ConsumerId id, IDispatcher dispatcher ) => _dispatchers.TryAdd( id, dispatcher );
 
         internal void OnSessionException( Session sender, Exception exception )
         {
@@ -337,12 +351,13 @@ namespace Stomp.Net.Stomp
             }
         }
 
-        internal void RemoveDispatcher( ConsumerId id ) => _dispatchers.Remove( id );
+        internal void RemoveDispatcher( ConsumerId id ) => _dispatchers.TryRemove( id, out IDispatcher dispatcher );
 
         internal void RemoveSession( Session session )
         {
             if ( !_closing.Value )
-                _sessions.Remove( session );
+                lock ( _sessionsLock )
+                    _sessions.Remove( session );
         }
 
         internal void TransportInterruptionProcessingComplete()
@@ -372,13 +387,13 @@ namespace Stomp.Net.Stomp
                 Tracer.WarnFormat( "Caught Exception While disposing of Transport: {0}", ex.Message );
             }
 
-            IList sessionsCopy;
-            lock ( _sessions.SyncRoot )
-                sessionsCopy = new ArrayList( _sessions );
+            List<Session> sessionsCopy;
+            lock ( _sessionsLock )
+                sessionsCopy = new List<Session>( _sessions );
 
             // Use a copy so we don't concurrently modify the Sessions list if the
             // client is closing at the same time.
-            foreach ( Session session in sessionsCopy )
+            foreach ( var session in sessionsCopy )
                 try
                 {
                     session.Dispose();
@@ -400,6 +415,7 @@ namespace Stomp.Net.Stomp
 
             if ( _connected.Value )
                 return;
+
             var timeoutTime = DateTime.Now + _stompConnectionSettings.RequestTimeout;
             var waitCount = 1;
 
@@ -409,9 +425,7 @@ namespace Stomp.Net.Stomp
                     try
                     {
                         if ( _closed.Value || _closing.Value )
-                        {
                             break;
-                        }
                         else if ( !_connected.Value )
                         {
                             if ( !_userSpecifiedClientId )
@@ -428,9 +442,7 @@ namespace Stomp.Net.Stomp
                                     // Send the connection and see if an ack/nak is returned.
                                     var response = Transport.Request( _info, _stompConnectionSettings.RequestTimeout );
                                     if ( !( response is ExceptionResponse ) )
-                                    {
                                         _connected.Value = true;
-                                    }
                                     else
                                     {
                                         var error = response as ExceptionResponse;
@@ -492,25 +504,22 @@ namespace Stomp.Net.Stomp
 
         private void DispatchMessage( MessageDispatch dispatch )
         {
-            lock ( _dispatchers.SyncRoot )
-                if ( _dispatchers.Contains( dispatch.ConsumerId ) )
-                {
-                    var dispatcher = (IDispatcher) _dispatchers[dispatch.ConsumerId];
+            _dispatchers.TryGetValue( dispatch.ConsumerId, out IDispatcher dispatcher );
+            if ( dispatcher == null )
+            {
+                Tracer.ErrorFormat( "No such consumer active: {0}.", dispatch.ConsumerId );
+                return;
+            }
 
-                    // Can be null when a consumer has sent a MessagePull and there was
-                    // no available message at the broker to dispatch.
-                    if ( dispatch.Message != null )
-                    {
-                        dispatch.Message.ReadOnlyBody = true;
-                        dispatch.Message.RedeliveryCounter = dispatch.RedeliveryCounter;
-                    }
+            // Can be null when a consumer has sent a MessagePull and there was
+            // no available message at the broker to dispatch.
+            if ( dispatch.Message != null )
+            {
+                dispatch.Message.ReadOnlyBody = true;
+                dispatch.Message.RedeliveryCounter = dispatch.RedeliveryCounter;
+            }
 
-                    dispatcher.Dispatch( dispatch );
-
-                    return;
-                }
-
-            Tracer.ErrorFormat( "No such consumer active: {0}.", dispatch.ConsumerId );
+            dispatcher.Dispatch( dispatch );
         }
 
         private void MarkTransportFailed( Exception error )
@@ -579,9 +588,7 @@ namespace Stomp.Net.Stomp
                 OnException( new StompConnectionException( message, cause ) );
             }
             else
-            {
                 Tracer.ErrorFormat( "Unknown command: {0}", command );
-            }
         }
 
         private void OnException( Exception error )
@@ -600,7 +607,7 @@ namespace Stomp.Net.Stomp
             _transportInterruptionProcessingComplete = new CountDownLatch( _dispatchers.Count );
             Tracer.WarnFormat( "Transport interrupted, dispatchers: {0}", _dispatchers.Count );
 
-            foreach ( Session session in _sessions )
+            foreach ( var session in _sessions )
                 session.ClearMessagesInProgress();
 
             if ( ConnectionInterruptedListener == null || _closing.Value )
@@ -644,8 +651,10 @@ namespace Stomp.Net.Stomp
             var cdl = _transportInterruptionProcessingComplete;
             if ( cdl == null )
                 return;
+
             if ( _closed.Value || cdl.Remaining <= 0 )
                 return;
+
             Tracer.WarnFormat( "dispatch paused, waiting for outstanding dispatch interruption " +
                                "processing ({0}) to complete..",
                                cdl.Remaining );

@@ -5,7 +5,6 @@ using System.Threading;
 using Stomp.Net.Stomp.Commands;
 using Stomp.Net.Stomp.Protocol;
 using Stomp.Net.Stomp.Threads;
-using Stomp.Net.Stomp.Util;
 using Stomp.Net.Utilities;
 
 #endregion
@@ -59,9 +58,9 @@ namespace Stomp.Net.Stomp.Transport
 
         public Int64 ReadCheckTime { get; set; } = 30000;
 
-        public Int64 WriteCheckTime { get; set; } = 10000;
+        public Int32 WriteCheckTime { get; set; } = 10000;
 
-        public Int64 InitialDelayTime { get; set; }
+        public Int32 InitialDelayTime { get; set; }
 
         #endregion
 
@@ -284,10 +283,6 @@ namespace Stomp.Net.Stomp.Transport
             lock ( _monitor )
                 if ( _monitorStarted.CompareAndSet( true, false ) )
                 {
-                    // Attempt to wait for the Timer to shutdown, but don't wait
-                    // forever, if they don't shutdown after two seconds, just quit.
-                    ThreadUtil.DisposeTimer( _connectionCheckTimer, 2000 );
-
                     _connectionCheckTimer.Dispose();
 
                     _asyncTasks.Shutdown();
@@ -323,14 +318,12 @@ namespace Stomp.Net.Stomp.Transport
                 _asyncTasks.Wakeup();
             }
             else
-            {
                 _commandReceived.Value = false;
-            }
         }
 
         /// <summary>
         ///     Checks if we should allow the read check(if less than 90% of the read
-        ///     check time elapsed then we dont do the readcheck
+        ///     check time elapsed then we don't do the read check
         /// </summary>
         /// <param name="elapsed"></param>
         /// <returns></returns>
@@ -363,8 +356,8 @@ namespace Stomp.Net.Stomp.Transport
 
             public Boolean IsPending
             {
-                get { return _pending.Value; }
-                set { _pending.Value = value; }
+                get => _pending.Value;
+                set => _pending.Value = value;
             }
 
             public Boolean Iterate()
@@ -391,17 +384,14 @@ namespace Stomp.Net.Stomp.Transport
 
             #region Ctor
 
-            public AsyncWriteTask( InactivityMonitor parent )
-            {
-                _parent = parent;
-            }
+            public AsyncWriteTask( InactivityMonitor parent ) => _parent = parent;
 
             #endregion
 
             public Boolean IsPending
             {
-                get { return _pending.Value; }
-                set { _pending.Value = value; }
+                get => _pending.Value;
+                set => _pending.Value = value;
             }
 
             public Boolean Iterate()

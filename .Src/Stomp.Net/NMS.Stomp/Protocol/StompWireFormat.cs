@@ -36,7 +36,7 @@ namespace Stomp.Net.Stomp.Protocol
 
         public Int64 ReadCheckInterval => MaxInactivityDuration;
 
-        public Int64 WriteCheckInterval => MaxInactivityDuration > 3 ? MaxInactivityDuration / 3 : MaxInactivityDuration;
+        public Int32 WriteCheckInterval => MaxInactivityDuration > 3 ? MaxInactivityDuration / 3 : MaxInactivityDuration;
 
         public ITransport Transport { get; set; }
 
@@ -45,37 +45,21 @@ namespace Stomp.Net.Stomp.Protocol
         public void Marshal( Object o, BinaryWriter writer )
         {
             if ( o is ConnectionInfo )
-            {
                 WriteConnectionInfo( (ConnectionInfo) o, writer );
-            }
             else if ( o is Message )
-            {
                 WriteMessage( (Message) o, writer );
-            }
             else if ( o is ConsumerInfo )
-            {
                 WriteConsumerInfo( (ConsumerInfo) o, writer );
-            }
             else if ( o is MessageAck )
-            {
                 WriteMessageAck( (MessageAck) o, writer );
-            }
             else if ( o is TransactionInfo )
-            {
                 WriteTransactionInfo( (TransactionInfo) o, writer );
-            }
             else if ( o is ShutdownInfo )
-            {
                 WriteShutdownInfo( (ShutdownInfo) o, writer );
-            }
             else if ( o is RemoveInfo )
-            {
                 WriteRemoveInfo( (RemoveInfo) o, writer );
-            }
             else if ( o is KeepAliveInfo )
-            {
                 WriteKeepAliveInfo( (KeepAliveInfo) o, writer );
-            }
             else if ( o is ICommand )
             {
                 var command = o as ICommand;
@@ -85,9 +69,7 @@ namespace Stomp.Net.Stomp.Protocol
                 SendCommand( response );
             }
             else
-            {
                 Tracer.Warn( $"StompWireFormat - Ignored command: {o.GetType()} => '{0}'" );
-            }
         }
 
         public ICommand Unmarshal( BinaryReader reader )
@@ -238,7 +220,7 @@ namespace Stomp.Net.Stomp.Protocol
             foreach ( var key in frame.Properties.Keys )
             {
                 var value = frame.Properties[key];
-                message.Headers[key] = value ?? value;
+                message.Headers[key] = value;
             }
 
             var dispatch = new MessageDispatch

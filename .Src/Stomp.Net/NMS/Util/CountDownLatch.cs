@@ -36,10 +36,7 @@ namespace Stomp.Net.Util
 
         #region Ctor
 
-        public CountDownLatch( Int32 i )
-        {
-            _remaining = i;
-        }
+        public CountDownLatch( Int32 i ) => _remaining = i;
 
         #endregion
 
@@ -48,7 +45,7 @@ namespace Stomp.Net.Util
         ///     the thread is interrupted, or the specified waiting time elapses.
         /// </summary>
         public Boolean AwaitOperation( TimeSpan timeout )
-            => _resetEvent.WaitOne( (Int32) timeout.TotalMilliseconds, false );
+            => _resetEvent.WaitOne( (Int32) timeout.TotalMilliseconds );
 
         /// <summary>
         ///     Decrement the count, releasing any waiting Threads when the count reaches Zero.

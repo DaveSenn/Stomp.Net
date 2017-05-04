@@ -1,7 +1,7 @@
 #region Usings
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using Stomp.Net.Stomp.Commands;
 
 #endregion
@@ -13,7 +13,9 @@ namespace Stomp.Net.Stomp
         #region Fields
 
         private readonly Session _session;
-        private readonly ArrayList _synchronizations = ArrayList.Synchronized( new ArrayList() );
+        private readonly List<Object> _synchronizations = new List<Object>();
+
+        private readonly Object _synchronizationsLock = new Object();
 
         #endregion
 
@@ -27,17 +29,18 @@ namespace Stomp.Net.Stomp
 
         #region Ctor
 
-        public TransactionContext( Session session )
-        {
-            _session = session;
-        }
+        public TransactionContext( Session session ) => _session = session;
 
         #endregion
 
         /// <summary>
         ///     Method AddSynchronization
         /// </summary>
-        public void AddSynchronization( ISynchronization synchronization ) => _synchronizations.Add( synchronization );
+        public void AddSynchronization( ISynchronization synchronization )
+        {
+            lock ( _synchronizationsLock )
+                _synchronizations.Add( synchronization );
+        }
 
         public void Begin()
         {
@@ -75,7 +78,8 @@ namespace Stomp.Net.Stomp
             _session.Connection.SyncRequest( info );
 
             AfterCommit();
-            _synchronizations.Clear();
+            lock ( _synchronizationsLock )
+                _synchronizations.Clear();
         }
 
         public void ResetTransactionInProgress()
@@ -83,7 +87,8 @@ namespace Stomp.Net.Stomp
             if ( !InTransaction )
                 return;
             TransactionId = null;
-            _synchronizations.Clear();
+            lock ( _synchronizationsLock )
+                _synchronizations.Clear();
         }
 
         public void Rollback()
@@ -104,12 +109,13 @@ namespace Stomp.Net.Stomp
             _session.Connection.SyncRequest( info );
 
             AfterRollback();
-            _synchronizations.Clear();
+            lock ( _synchronizationsLock )
+                _synchronizations.Clear();
         }
 
         private void AfterCommit()
         {
-            lock ( _synchronizations.SyncRoot )
+            lock ( _synchronizationsLock )
             {
                 foreach ( ISynchronization synchronization in _synchronizations )
                     synchronization.AfterCommit();
@@ -120,7 +126,7 @@ namespace Stomp.Net.Stomp
 
         private void AfterRollback()
         {
-            lock ( _synchronizations.SyncRoot )
+            lock ( _synchronizationsLock )
             {
                 foreach ( ISynchronization synchronization in _synchronizations )
                     synchronization.AfterRollback();
@@ -131,7 +137,7 @@ namespace Stomp.Net.Stomp
 
         private void BeforeEnd()
         {
-            lock ( _synchronizations.SyncRoot )
+            lock ( _synchronizationsLock )
                 foreach ( ISynchronization synchronization in _synchronizations )
                     synchronization.BeforeEnd();
         }

@@ -1,269 +1,62 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0F77AFE3-B490-49DF-B5F2-4E4BD3236AF7}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFrameworks>netcoreapp1.1;net461;netstandard1.3</TargetFrameworks>
+    <PackageId>Stomp.Net</PackageId>
+    <Version>1.2.0.0</Version>
+    <Authors>Dave Senn</Authors>
+    <Company>Dave Senn</Company>
+    <Description>.Net STOMP library.</Description>
+    <Copyright>Copyright © Dave Senn 2017</Copyright>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/DaveSenn/Stomp.Net/master/License.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/DaveSenn/Stomp.Net</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/DaveSenn/Stomp.Net/master/.Art/logo.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/DaveSenn/Stomp.Net</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>C# STOMP</PackageTags>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	
+	<AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
     <RootNamespace>Stomp.Net</RootNamespace>
-    <AssemblyName>Stomp.Net</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Stomp.Net.XML</DocumentationFile>
-    <NoWarn>1591</NoWarn>
-    <WarningsAsErrors>
-    </WarningsAsErrors>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp1.1|AnyCPU'">
+    <DocumentationFile>bin\Debug\netcoreapp1.1\Stomp.Net.xml</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Stomp.Net.XML</DocumentationFile>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Extend, Version=1.1.11.58, Culture=neutral, PublicKeyToken=869d4c589c0473ac, processorArchitecture=MSIL">
-      <HintPath>..\packages\Extend.1.1.11.58\lib\net45\Extend.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="extend" Version="1.2.0.92" />
+    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
+    <PackageReference Include="System.Threading.ThreadPool" Version="4.3.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Definition\Common\Disposable.cs" />
-    <Compile Include="Definition\Connection\StompConnectionSettings.cs" />
-    <Compile Include="Definition\Connection\StompProducerSettings.cs" />
-    <Compile Include="Definition\Connection\StompSslSettings.cs" />
-    <Compile Include="Definition\Connection\StompTransportSettings.cs" />
-    <Compile Include="Definition\StompNetConfiguration.cs" />
-    <Compile Include="NMS.Stomp\AckType.cs" />
-    <Compile Include="NMS.Stomp\Commands\StackTraceElement.cs" />
-    <Compile Include="NMS.Stomp\TransactionType.cs" />
-    <Compile Include="NMS\AcknowledgementMode.cs" />
-    <Compile Include="NMS\ConnectionInterruptedListener.cs" />
-    <Compile Include="NMS\ConnectionResumedListener.cs" />
-    <Compile Include="NMS\DestinationType.cs" />
-    <Compile Include="NMS\MessageDeliveryMode.cs" />
-    <Compile Include="NMS\MessagePriority.cs" />
-    <Compile Include="Properties\AspChildControlTypeAttribute.cs" />
-    <Compile Include="Properties\AspDataFieldAttribute.cs" />
-    <Compile Include="Properties\AspDataFieldsAttribute.cs" />
-    <Compile Include="Properties\AspMethodPropertyAttribute.cs" />
-    <Compile Include="Properties\AspMvcActionAttribute.cs" />
-    <Compile Include="Properties\AspMvcActionSelectorAttribute.cs" />
-    <Compile Include="Properties\AspMvcAreaAttribute.cs" />
-    <Compile Include="Properties\AspMvcAreaMasterLocationFormatAttribute.cs" />
-    <Compile Include="Properties\AspMvcAreaPartialViewLocationFormatAttribute.cs" />
-    <Compile Include="Properties\AspMvcAreaViewLocationFormatAttribute.cs" />
-    <Compile Include="Properties\AspMvcControllerAttribute.cs" />
-    <Compile Include="Properties\AspMvcDisplayTemplateAttribute.cs" />
-    <Compile Include="Properties\AspMvcEditorTemplateAttribute.cs" />
-    <Compile Include="Properties\AspMvcMasterAttribute.cs" />
-    <Compile Include="Properties\AspMvcMasterLocationFormatAttribute.cs" />
-    <Compile Include="Properties\AspMvcModelTypeAttribute.cs" />
-    <Compile Include="Properties\AspMvcPartialViewAttribute.cs" />
-    <Compile Include="Properties\AspMvcPartialViewLocationFormatAttribute.cs" />
-    <Compile Include="Properties\AspMvcSuppressViewErrorAttribute.cs" />
-    <Compile Include="Properties\AspMvcTemplateAttribute.cs" />
-    <Compile Include="Properties\AspMvcViewAttribute.cs" />
-    <Compile Include="Properties\AspMvcViewComponentAttribute.cs" />
-    <Compile Include="Properties\AspMvcViewComponentViewAttribute.cs" />
-    <Compile Include="Properties\AspMvcViewLocationFormatAttribute.cs" />
-    <Compile Include="Properties\AspRequiredAttributeAttribute.cs" />
-    <Compile Include="Properties\AspTypePropertyAttribute.cs" />
-    <Compile Include="Properties\AssertionConditionAttribute.cs" />
-    <Compile Include="Properties\AssertionConditionType.cs" />
-    <Compile Include="Properties\AssertionMethodAttribute.cs" />
-    <Compile Include="Properties\BaseTypeRequiredAttribute.cs" />
-    <Compile Include="Properties\CannotApplyEqualityOperatorAttribute.cs" />
-    <Compile Include="Properties\CollectionAccessAttribute.cs" />
-    <Compile Include="Properties\CollectionAccessType.cs" />
-    <Compile Include="Properties\ContractAnnotationAttribute.cs" />
-    <Compile Include="Properties\HtmlAttributeValueAttribute.cs" />
-    <Compile Include="Properties\HtmlElementAttributesAttribute.cs" />
-    <Compile Include="Properties\ImplicitUseKindFlags.cs" />
-    <Compile Include="Properties\ImplicitUseTargetFlags.cs" />
-    <Compile Include="Properties\InstantHandleAttribute.cs" />
-    <Compile Include="Properties\InvokerParameterNameAttribute.cs" />
-    <Compile Include="Properties\ItemCanBeNullAttribute.cs" />
-    <Compile Include="Properties\ItemNotNullAttribute.cs" />
-    <Compile Include="Properties\LinqTunnelAttribute.cs" />
-    <Compile Include="Properties\LocalizationRequiredAttribute.cs" />
-    <Compile Include="Properties\MacroAttribute.cs" />
-    <Compile Include="Properties\MeansImplicitUseAttribute.cs" />
-    <Compile Include="Properties\MustUseReturnValueAttribute.cs" />
-    <Compile Include="Properties\NoEnumerationAttribute.cs" />
-    <Compile Include="Properties\NoReorder.cs" />
-    <Compile Include="Properties\NotifyPropertyChangedInvocatorAttribute.cs" />
-    <Compile Include="Properties\NotNullAttribute.cs" />
-    <Compile Include="Properties\PathReferenceAttribute.cs" />
-    <Compile Include="Properties\ProvidesContextAttribute.cs" />
-    <Compile Include="Properties\PublicAPIAttribute.cs" />
-    <Compile Include="Properties\PureAttribute.cs" />
-    <Compile Include="Properties\RazorHelperCommonAttribute.cs" />
-    <Compile Include="Properties\RazorImportNamespaceAttribute.cs" />
-    <Compile Include="Properties\RazorInjectionAttribute.cs" />
-    <Compile Include="Properties\RazorLayoutAttribute.cs" />
-    <Compile Include="Properties\RazorSectionAttribute.cs" />
-    <Compile Include="Properties\RazorWriteLiteralMethodAttribute.cs" />
-    <Compile Include="Properties\RazorWriteMethodAttribute.cs" />
-    <Compile Include="Properties\RazorWriteMethodParameterAttribute.cs" />
-    <Compile Include="Properties\RegexPatternAttribute.cs" />
-    <Compile Include="Properties\SourceTemplateAttribute.cs" />
-    <Compile Include="Properties\StringFormatMethodAttribute.cs" />
-    <Compile Include="Properties\TerminatesProgramAttribute.cs" />
-    <Compile Include="Properties\UsedImplicitlyAttribute.cs" />
-    <Compile Include="Properties\ValueProviderAttribute.cs" />
-    <Compile Include="Properties\XamlItemBindingOfItemsControlAttribute.cs" />
-    <Compile Include="Properties\XamlItemsControlAttribute.cs" />
-    <Compile Include="Utilities\AtomicReference.cs" />
-    <Compile Include="Properties\CanBeNullAttribute.cs" />
-    <Compile Include="NMS.Stomp\BrokerException.cs" />
-    <Compile Include="NMS.Stomp\Commands\BaseCommand.cs" />
-    <Compile Include="NMS.Stomp\Commands\BaseDataStructure.cs" />
-    <Compile Include="NMS.Stomp\Commands\BaseMessage.cs" />
-    <Compile Include="NMS.Stomp\Commands\BrokerError.cs" />
-    <Compile Include="NMS.Stomp\Commands\BytesMessage.cs" />
-    <Compile Include="NMS.Stomp\Commands\ICommand.cs" />
-    <Compile Include="NMS.Stomp\Commands\ConnectionError.cs" />
-    <Compile Include="NMS.Stomp\Commands\ConnectionId.cs" />
-    <Compile Include="NMS.Stomp\Commands\ConnectionInfo.cs" />
-    <Compile Include="NMS.Stomp\Commands\ConsumerId.cs" />
-    <Compile Include="NMS.Stomp\Commands\ConsumerInfo.cs" />
-    <Compile Include="NMS.Stomp\Commands\IDataStructure.cs" />
-    <Compile Include="NMS.Stomp\Commands\DataStructureTypes.cs" />
-    <Compile Include="NMS.Stomp\Commands\Destination.cs" />
-    <Compile Include="NMS.Stomp\Commands\ExceptionResponse.cs" />
-    <Compile Include="NMS.Stomp\Commands\KeepAliveInfo.cs" />
-    <Compile Include="NMS.Stomp\Commands\Message.cs" />
-    <Compile Include="NMS.Stomp\Commands\MessageAck.cs" />
-    <Compile Include="NMS.Stomp\Commands\MessageDispatch.cs" />
-    <Compile Include="NMS.Stomp\Commands\MessageId.cs" />
-    <Compile Include="NMS.Stomp\Commands\ProducerId.cs" />
-    <Compile Include="NMS.Stomp\Commands\ProducerInfo.cs" />
-    <Compile Include="NMS.Stomp\Commands\Queue.cs" />
-    <Compile Include="NMS.Stomp\Commands\RemoveInfo.cs" />
-    <Compile Include="NMS.Stomp\Commands\RemoveSubscriptionInfo.cs" />
-    <Compile Include="NMS.Stomp\Commands\Response.cs" />
-    <Compile Include="NMS.Stomp\Commands\SessionId.cs" />
-    <Compile Include="NMS.Stomp\Commands\SessionInfo.cs" />
-    <Compile Include="NMS.Stomp\Commands\ShutdownInfo.cs" />
-    <Compile Include="NMS.Stomp\Commands\SubscriptionInfo.cs" />
-    <Compile Include="NMS.Stomp\Commands\TempDestination.cs" />
-    <Compile Include="NMS.Stomp\Commands\TempQueue.cs" />
-    <Compile Include="NMS.Stomp\Commands\TempTopic.cs" />
-    <Compile Include="NMS.Stomp\Commands\TextMessage.cs" />
-    <Compile Include="NMS.Stomp\Commands\Topic.cs" />
-    <Compile Include="NMS.Stomp\Commands\TransactionId.cs" />
-    <Compile Include="NMS.Stomp\Commands\TransactionInfo.cs" />
-    <Compile Include="NMS.Stomp\Commands\WireFormatInfo.cs" />
-    <Compile Include="NMS.Stomp\Connection.cs" />
-    <Compile Include="NMS.Stomp\ConnectionClosedException.cs" />
-    <Compile Include="Connection\ConnectionFactory.cs" />
-    <Compile Include="NMS.Stomp\IDispatcher.cs" />
-    <Compile Include="NMS.Stomp\IOException.cs" />
-    <Compile Include="NMS.Stomp\ISynchronization.cs" />
-    <Compile Include="NMS.Stomp\MessageConsumer.cs" />
-    <Compile Include="NMS.Stomp\MessageProducer.cs" />
-    <Compile Include="NMS.Stomp\PrefetchPolicy.cs" />
-    <Compile Include="NMS.Stomp\Protocol\StompFrame.cs" />
-    <Compile Include="NMS.Stomp\Protocol\StompHelper.cs" />
-    <Compile Include="NMS.Stomp\Protocol\StompWireFormat.cs" />
-    <Compile Include="NMS.Stomp\RequestTimedOutException.cs" />
-    <Compile Include="NMS.Stomp\Session.cs" />
-    <Compile Include="NMS.Stomp\SessionExecutor.cs" />
-    <Compile Include="NMS.Stomp\Threads\ICompositeTask.cs" />
-    <Compile Include="NMS.Stomp\Threads\CompositeTaskRunner.cs" />
-    <Compile Include="NMS.Stomp\Threads\DedicatedTaskRunner.cs" />
-    <Compile Include="NMS.Stomp\Threads\ITask.cs" />
-    <Compile Include="NMS.Stomp\Threads\ITaskRunner.cs" />
-    <Compile Include="NMS.Stomp\Threads\ThreadPoolExecutor.cs" />
-    <Compile Include="NMS.Stomp\TransactionContext.cs" />
-    <Compile Include="NMS.Stomp\Transport\FutureResponse.cs" />
-    <Compile Include="NMS.Stomp\Transport\ICompositeTransport.cs" />
-    <Compile Include="NMS.Stomp\Transport\InactivityMonitor.cs" />
-    <Compile Include="Definition\Transport\ITransport.cs" />
-    <Compile Include="Definition\Transport\ITransportFactory.cs" />
-    <Compile Include="NMS.Stomp\Transport\IWireFormat.cs" />
-    <Compile Include="NMS.Stomp\Transport\LoggingTransport.cs" />
-    <Compile Include="NMS.Stomp\Transport\MutexTransport.cs" />
-    <Compile Include="NMS.Stomp\Transport\ResponseCorrelator.cs" />
-    <Compile Include="Transport\SslTransport.cs" />
-    <Compile Include="Transport\Factory\SslTransportFactory.cs" />
-    <Compile Include="Transport\TcpTransport.cs" />
-    <Compile Include="Transport\Factory\TcpTransportFactory.cs" />
-    <Compile Include="NMS.Stomp\Transport\TransportFactory.cs" />
-    <Compile Include="NMS.Stomp\Transport\TransportFilter.cs" />
-    <Compile Include="NMS.Stomp\Util\IdGenerator.cs" />
-    <Compile Include="Messaging\MessageDispatchChannel.cs" />
-    <Compile Include="NMS.Stomp\Util\StompMessageTransformation.cs" />
-    <Compile Include="NMS.Stomp\Util\ThreadUtil.cs" />
-    <Compile Include="NMS\IBytesMessage.cs" />
-    <Compile Include="NMS\IConnection.cs" />
-    <Compile Include="Definition\Connection\IConnectionFactory.cs" />
-    <Compile Include="NMS\IDestination.cs" />
-    <Compile Include="NMS\IllegalStateException.cs" />
-    <Compile Include="NMS\IMessage.cs" />
-    <Compile Include="NMS\IMessageConsumer.cs" />
-    <Compile Include="NMS\IMessageProducer.cs" />
-    <Compile Include="NMS\InvalidClientIDException.cs" />
-    <Compile Include="NMS\InvalidDestinationException.cs" />
-    <Compile Include="NMS\IQueue.cs" />
-    <Compile Include="NMS\IRedeliveryPolicy.cs" />
-    <Compile Include="NMS\ISession.cs" />
-    <Compile Include="Definition\Common\IStartStoppable.cs" />
-    <Compile Include="NMS\ITemporaryQueue.cs" />
-    <Compile Include="NMS\ITemporaryTopic.cs" />
-    <Compile Include="NMS\ITextMessage.cs" />
-    <Compile Include="NMS\ITopic.cs" />
-    <Compile Include="NMS\ITrace.cs" />
-    <Compile Include="NMS\MessageEofException.cs" />
-    <Compile Include="NMS\MessageFormatException.cs" />
-    <Compile Include="NMS\MessageNotReadableException.cs" />
-    <Compile Include="NMS\MessageNotWriteableException.cs" />
-    <Compile Include="NMS\StompConnectionException.cs" />
-    <Compile Include="NMS\StompConstants.cs" />
-    <Compile Include="NMS\StompException.cs" />
-    <Compile Include="NMS\Policies\RedeliveryPolicy.cs" />
-    <Compile Include="NMS\Tracer.cs" />
-    <Compile Include="Utilities\Atomic.cs" />
-    <Compile Include="NMS\Util\CountDownLatch.cs" />
-    <Compile Include="NMS\Util\DateUtils.cs" />
-    <Compile Include="NMS\Util\MessageTransformation.cs" />
-    <Compile Include="Extensions\ExceptionEx.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <PackageReference Include="System.Net.NameResolution">
+      <Version>4.3.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Net.Security">
+      <Version>4.3.0</Version>
+    </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <PackageReference Include="System.Net.NameResolution">
+      <Version>4.3.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Net.Security">
+      <Version>4.3.0</Version>
+    </PackageReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp1.1'">
+    <PackageReference Include="System.Net.NameResolution">
+      <Version>4.3.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Net.Security">
+      <Version>4.3.0</Version>
+    </PackageReference>
+  </ItemGroup>
+
+
 </Project>

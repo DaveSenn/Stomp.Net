@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using Extend;
 using JetBrains.Annotations;
 using Stomp.Net.Stomp.Protocol;
@@ -190,7 +191,8 @@ namespace Stomp.Net.Transport
         {
             try
             {
-                return Dns.GetHostEntry( host );
+                return Task.Run(async () => await Dns.GetHostEntryAsync(host)).ConfigureAwait(false).GetAwaiter().GetResult();
+                //return Dns.GetHostEntry( host );
             }
             catch
             {

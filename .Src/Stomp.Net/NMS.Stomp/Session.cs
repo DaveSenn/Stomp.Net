@@ -1,13 +1,12 @@
 #region Usings
 
 using System;
-using System.Collections;
+using System.Collections.Concurrent;
 using System.Threading;
 using Extend;
 using JetBrains.Annotations;
 using Stomp.Net.Messaging;
 using Stomp.Net.Stomp.Commands;
-using Queue = Stomp.Net.Stomp.Commands.Queue;
 
 #endregion
 
@@ -20,7 +19,7 @@ namespace Stomp.Net.Stomp
     {
         #region Fields
 
-        private readonly IDictionary _consumers = Hashtable.Synchronized( new Hashtable() );
+        private readonly ConcurrentDictionary<ConsumerId, MessageConsumer> _consumers = new ConcurrentDictionary<ConsumerId, MessageConsumer>();
 
         private readonly SessionInfo _info;
 
@@ -29,7 +28,7 @@ namespace Stomp.Net.Stomp
         /// </summary>
         private readonly Object _myLock = new Object();
 
-        private readonly IDictionary _producers = Hashtable.Synchronized( new Hashtable() );
+        private readonly ConcurrentDictionary<ProducerId, MessageProducer> _producers = new ConcurrentDictionary<ProducerId, MessageProducer>();
 
         /// <summary>
         ///     Stores the STOMP connections settings.
@@ -39,7 +38,7 @@ namespace Stomp.Net.Stomp
         private Boolean _closed;
         private Boolean _closing;
         private Int32 _consumerCounter;
-        
+
         private Int32 _nextDeliveryId;
         private Int32 _producerCounter;
 
@@ -55,7 +54,7 @@ namespace Stomp.Net.Stomp
 
         public Session( Connection connection, SessionInfo info, AcknowledgementMode acknowledgementMode, [NotNull] StompConnectionSettings stompConnectionSettings )
         {
-            stompConnectionSettings.ThrowIfNull( nameof( stompConnectionSettings ) );
+            stompConnectionSettings.ThrowIfNull( nameof(stompConnectionSettings) );
             _stompConnectionSettings = stompConnectionSettings;
 
             Connection = connection;
@@ -79,13 +78,13 @@ namespace Stomp.Net.Stomp
         {
             Connection.RemoveDispatcher( objectId );
             if ( !_closing )
-                _consumers.Remove( objectId );
+                _consumers.TryRemove( objectId, out MessageConsumer m );
         }
 
         public void DisposeOf( ProducerId objectId )
         {
             if ( !_closing )
-                _producers.Remove( objectId );
+                _producers.TryRemove( objectId, out MessageProducer m );
         }
 
         public void DoSend( Message message, TimeSpan sendTimeout )
@@ -108,9 +107,7 @@ namespace Stomp.Net.Stomp
 
             if ( sendTimeout.TotalMilliseconds <= 0 && !msg.ResponseRequired && !_stompConnectionSettings.AlwaysSyncSend &&
                  ( !msg.Persistent || _stompConnectionSettings.AsyncSend || msg.TransactionId != null ) )
-            {
                 Connection.Oneway( msg );
-            }
             else
             {
                 if ( sendTimeout.TotalMilliseconds > 0 )
@@ -131,7 +128,7 @@ namespace Stomp.Net.Stomp
 
         public void Start()
         {
-            foreach ( MessageConsumer consumer in _consumers.Values )
+            foreach ( var consumer in _consumers.Values )
                 consumer.Start();
 
             Executor?.Start();
@@ -150,9 +147,8 @@ namespace Stomp.Net.Stomp
 
         internal void Acknowledge()
         {
-            lock ( _consumers.SyncRoot )
-                foreach ( MessageConsumer consumer in _consumers.Values )
-                    consumer.Acknowledge();
+            foreach ( var consumer in _consumers.Values )
+                consumer.Acknowledge();
         }
 
         internal void ClearMessagesInProgress()
@@ -162,12 +158,11 @@ namespace Stomp.Net.Stomp
             if ( Transacted )
                 TransactionContext.ResetTransactionInProgress();
 
-            lock ( _consumers.SyncRoot )
-                foreach ( MessageConsumer consumer in _consumers.Values )
-                {
-                    consumer.InProgressClearRequired();
-                    ThreadPool.QueueUserWorkItem( ClearMessages, consumer );
-                }
+            foreach ( var consumer in _consumers.Values )
+            {
+                consumer.InProgressClearRequired();
+                ThreadPool.QueueUserWorkItem( ClearMessages, consumer );
+            }
         }
 
         internal void Redispatch( MessageDispatchChannel channel )
@@ -191,7 +186,7 @@ namespace Stomp.Net.Stomp
                 return;
 
             // Registered with Connection before we register at the broker.
-            _consumers[consumer.ConsumerId] = consumer;
+            _consumers.AddOrUpdate( consumer.ConsumerId, consumer, ( k, v ) => consumer );
             Connection.AddDispatcher( consumer.ConsumerId, this );
         }
 
@@ -258,7 +253,7 @@ namespace Stomp.Net.Stomp
         {
             Connection.RemoveDispatcher( consumer.ConsumerId );
             if ( !_closing )
-                _consumers.Remove( consumer.ConsumerId );
+                _consumers.TryRemove( consumer.ConsumerId, out MessageConsumer m );
         }
 
         private void SendAck( ICommand ack, Boolean lazy )
@@ -269,8 +264,6 @@ namespace Stomp.Net.Stomp
                 Connection.SyncRequest( ack );
         }
 
-       
-
         #region Session Transaction Events
 
         // We delegate the events to the TransactionContext since it knows
@@ -278,20 +271,20 @@ namespace Stomp.Net.Stomp
 
         public event Action<ISession> TransactionStartedListener
         {
-            add { TransactionContext.TransactionStartedListener += value; }
-            remove { TransactionContext.TransactionStartedListener += value; }
+            add => TransactionContext.TransactionStartedListener += value;
+            remove => TransactionContext.TransactionStartedListener += value;
         }
 
         public event Action<ISession> TransactionCommittedListener
         {
-            add { TransactionContext.TransactionCommittedListener += value; }
-            remove { TransactionContext.TransactionCommittedListener += value; }
+            add => TransactionContext.TransactionCommittedListener += value;
+            remove => TransactionContext.TransactionCommittedListener += value;
         }
 
         public event Action<ISession> TransactionRolledBackListener
         {
-            add { TransactionContext.TransactionRolledBackListener += value; }
-            remove { TransactionContext.TransactionRolledBackListener += value; }
+            add => TransactionContext.TransactionRolledBackListener += value;
+            remove => TransactionContext.TransactionRolledBackListener += value;
         }
 
         #endregion
@@ -304,7 +297,7 @@ namespace Stomp.Net.Stomp
         /// </summary>
         public Int32 PrefetchSize
         {
-            set { Connection.PrefetchPolicy.SetAll( value ); }
+            set => Connection.PrefetchPolicy.SetAll( value );
         }
 
         /// <summary>
@@ -315,7 +308,7 @@ namespace Stomp.Net.Stomp
         /// </summary>
         public Int32 MaximumPendingMessageLimit
         {
-            set { Connection.PrefetchPolicy.MaximumPendingMessageLimit = value; }
+            set => Connection.PrefetchPolicy.MaximumPendingMessageLimit = value;
         }
 
         /// <summary>
@@ -372,7 +365,6 @@ namespace Stomp.Net.Stomp
         #endregion
 
         #region ISession Members
-        
 
         /// <summary>
         ///     Method invoked when the instance gets disposed.
@@ -429,17 +421,15 @@ namespace Stomp.Net.Stomp
                     // Stop all message deliveries from this Session
                     Stop();
 
-                    lock ( _consumers.SyncRoot )
-                        foreach ( MessageConsumer consumer in _consumers.Values )
-                        {
-                            consumer.FailureError = Connection.FirstFailureError;
-                            consumer.Close();
-                        }
+                    foreach ( var consumer in _consumers.Values )
+                    {
+                        consumer.FailureError = Connection.FirstFailureError;
+                        consumer.Close();
+                    }
                     _consumers.Clear();
 
-                    lock ( _producers.SyncRoot )
-                        foreach ( MessageProducer producer in _producers.Values )
-                            producer.DoClose();
+                    foreach ( var producer in _producers.Values )
+                        producer.DoClose();
                     _producers.Clear();
 
                     // If in a transaction roll it back
@@ -478,7 +468,7 @@ namespace Stomp.Net.Stomp
             try
             {
                 producer = new MessageProducer( this, command );
-                _producers[producerId] = producer;
+                _producers.AddOrUpdate( producerId, producer, ( k, v ) => producer );
             }
             catch ( Exception )
             {
@@ -638,9 +628,8 @@ namespace Stomp.Net.Stomp
             if ( AcknowledgementMode == AcknowledgementMode.Transactional )
                 throw new IllegalStateException( "Cannot Recover a Transacted Session" );
 
-            lock ( _consumers.SyncRoot )
-                foreach ( MessageConsumer consumer in _consumers.Values )
-                    consumer.Rollback();
+            foreach ( var consumer in _consumers.Values )
+                consumer.Rollback();
         }
 
         #endregion
