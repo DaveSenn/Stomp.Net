@@ -9,7 +9,6 @@ namespace Stomp.Net
     /// <summary>
     ///     Represents a connection failure.
     /// </summary>
-    
     public class StompConnectionException : StompException
     {
         #region Ctor
@@ -34,7 +33,7 @@ namespace Stomp.Net
             : base( message, errorCode, innerException )
         {
         }
-        
+
         #endregion
     }
 }

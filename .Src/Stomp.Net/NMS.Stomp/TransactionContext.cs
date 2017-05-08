@@ -1,7 +1,8 @@
 #region Usings
 
 using System;
-using System.Collections.Generic;
+using System.Collections;
+using System.Collections.Concurrent;
 using Stomp.Net.Stomp.Commands;
 
 #endregion
@@ -13,9 +14,7 @@ namespace Stomp.Net.Stomp
         #region Fields
 
         private readonly Session _session;
-        private readonly List<Object> _synchronizations = new List<Object>();
-
-        private readonly Object _synchronizationsLock = new Object();
+        private readonly ConcurrentDictionary<ISynchronization, ISynchronization> _synchronizations = new ConcurrentDictionary<ISynchronization, ISynchronization>();
 
         #endregion
 
@@ -29,7 +28,10 @@ namespace Stomp.Net.Stomp
 
         #region Ctor
 
-        public TransactionContext( Session session ) => _session = session;
+        public TransactionContext( Session session )
+        {
+            _session = session;
+        }
 
         #endregion
 
@@ -38,8 +40,8 @@ namespace Stomp.Net.Stomp
         /// </summary>
         public void AddSynchronization( ISynchronization synchronization )
         {
-            lock ( _synchronizationsLock )
-                _synchronizations.Add( synchronization );
+            if ( !_synchronizations.TryAdd( synchronization, synchronization ) )
+                Tracer.Warn( "Failed to add synchronization." );
         }
 
         public void Begin()
@@ -78,17 +80,16 @@ namespace Stomp.Net.Stomp
             _session.Connection.SyncRequest( info );
 
             AfterCommit();
-            lock ( _synchronizationsLock )
-                _synchronizations.Clear();
+            _synchronizations.Clear();
         }
 
         public void ResetTransactionInProgress()
         {
             if ( !InTransaction )
                 return;
+
             TransactionId = null;
-            lock ( _synchronizationsLock )
-                _synchronizations.Clear();
+            _synchronizations.Clear();
         }
 
         public void Rollback()
@@ -109,37 +110,29 @@ namespace Stomp.Net.Stomp
             _session.Connection.SyncRequest( info );
 
             AfterRollback();
-            lock ( _synchronizationsLock )
-                _synchronizations.Clear();
+            _synchronizations.Clear();
         }
 
         private void AfterCommit()
         {
-            lock ( _synchronizationsLock )
-            {
-                foreach ( ISynchronization synchronization in _synchronizations )
-                    synchronization.AfterCommit();
+            foreach ( var synchronization in _synchronizations )
+                synchronization.Value.AfterCommit();
 
-                TransactionCommittedListener?.Invoke( _session );
-            }
+            TransactionCommittedListener?.Invoke( _session );
         }
 
         private void AfterRollback()
         {
-            lock ( _synchronizationsLock )
-            {
-                foreach ( ISynchronization synchronization in _synchronizations )
-                    synchronization.AfterRollback();
+            foreach ( var synchronization in _synchronizations )
+                synchronization.Value.AfterRollback();
 
-                TransactionRolledBackListener?.Invoke( _session );
-            }
+            TransactionRolledBackListener?.Invoke( _session );
         }
 
         private void BeforeEnd()
         {
-            lock ( _synchronizationsLock )
-                foreach ( ISynchronization synchronization in _synchronizations )
-                    synchronization.BeforeEnd();
+            foreach ( var synchronization in _synchronizations )
+                synchronization.Value.BeforeEnd();
         }
 
         #region Transaction State Events

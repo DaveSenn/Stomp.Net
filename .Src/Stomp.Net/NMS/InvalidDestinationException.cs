@@ -9,7 +9,6 @@ namespace Stomp.Net
     /// <summary>
     ///     An attempt is made to access an invalid destination
     /// </summary>
-    
     public class InvalidDestinationException : StompException
     {
         #region Ctor

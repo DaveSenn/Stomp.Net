@@ -48,7 +48,7 @@ namespace Stomp.Net.Transport
         public SslTransport( Uri location, Socket socket, IWireFormat wireFormat, [NotNull] StompConnectionSettings stompConnectionSettings )
             : base( location, socket, wireFormat )
         {
-            stompConnectionSettings.ThrowIfNull( nameof(stompConnectionSettings) );
+            stompConnectionSettings.ThrowIfNull( nameof( stompConnectionSettings ) );
 
             _stompConnectionSettings = stompConnectionSettings;
         }
@@ -70,8 +70,11 @@ namespace Stomp.Net.Transport
 
             try
             {
-                var targetHost = _stompConnectionSettings.TransportSettings.SslSettings.ServerName ?? RemoteAddress.Host;
-                Task.Run( async () => await _sslStream.AuthenticateAsClientAsync( targetHost, LoadCertificates(), SslProtocols.Tls, false ) )
+                var remoteCertName = _stompConnectionSettings.TransportSettings.SslSettings.ServerName ?? RemoteAddress.Host;
+                //_sslStream.AuthenticateAsClient( remoteCertName, LoadCertificates(), SslProtocols.Default, false );
+
+                // TODO: Review
+                Task.Run(() => _sslStream.AuthenticateAsClientAsync( remoteCertName, LoadCertificates(), SslProtocols.Tls, false ))
                     .ConfigureAwait( false )
                     .GetAwaiter()
                     .GetResult();
@@ -143,6 +146,7 @@ namespace Stomp.Net.Transport
             if ( localCertificates.Count <= 1 || _stompConnectionSettings.TransportSettings.SslSettings.ClientCertSubject == null )
                 return null;
 
+
             var match = localCertificates
                 .Cast<X509Certificate2>()
                 .FirstOrDefault(
@@ -179,7 +183,7 @@ namespace Stomp.Net.Transport
                     Tracer.Error( "The Remote Certificate was not Available." );
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException( nameof(sslPolicyErrors), sslPolicyErrors, $"Policy '{sslPolicyErrors}' is not supported." );
+                    throw new ArgumentOutOfRangeException( nameof( sslPolicyErrors ), sslPolicyErrors, $"Policy '{sslPolicyErrors}' is not supported." );
             }
 
             // Configuration may or may not allow us to connect with an invalid broker cert.

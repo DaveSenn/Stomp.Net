@@ -6,7 +6,6 @@ using System;
 
 namespace Stomp.Net
 {
-    
     public class MessageNotReadableException : StompException
     {
         #region Ctor

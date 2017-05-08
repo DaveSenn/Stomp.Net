@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Stomp.Net.Stomp.Commands;
 
@@ -18,6 +18,7 @@ namespace Stomp.Net.Stomp.Transport
         #region Fields
         
         private readonly ConcurrentDictionary<Int32, FutureResponse> _requestMap = new ConcurrentDictionary<Int32, FutureResponse>();
+
         private Exception _error;
         private Int32 _nextCommandId;
 
@@ -32,7 +33,6 @@ namespace Stomp.Net.Stomp.Transport
 
         #endregion
 
-        
         public override FutureResponse AsyncRequest( ICommand command )
         {
             var commandId = GetNextCommandId();
@@ -42,9 +42,8 @@ namespace Stomp.Net.Stomp.Transport
             var future = new FutureResponse();
 
             var priorError = _error;
-                if ( priorError == null )
-                    _requestMap.AddOrUpdate( commandId, future, ( key, value ) => future );
-            
+            if ( priorError == null )
+                _requestMap.AddOrUpdate( commandId, future, ( k, v ) => future );
 
             if ( priorError != null )
             {
@@ -90,22 +89,32 @@ namespace Stomp.Net.Stomp.Transport
             base.Stop();
         }
 
+        #region Overrides of Disposable
+
+        /// <summary>
+        ///     Method invoked when the instance gets disposed.
+        /// </summary>
+        protected override void Disposed()
+            => Dispose( null );
+
+        #endregion
+
         protected override void OnCommand( ITransport sender, ICommand command )
         {
             if ( command is Response )
             {
                 var response = (Response) command;
                 var correlationId = response.CorrelationId;
-                _requestMap.TryGetValue( correlationId, out FutureResponse future );
 
-                if ( future != null )
+                if ( _requestMap.TryGetValue( correlationId, out FutureResponse future ) )
                 {
-                    _requestMap.TryRemove( correlationId, out future );
+                    if ( !_requestMap.TryRemove( correlationId, out FutureResponse _ ) )
+                        Tracer.Warn( $"Failed to remove future response with id: '{correlationId}'." );
+
                     future.Response = response;
 
                     if ( !( response is ExceptionResponse ) )
                         return;
-
                     var er = response as ExceptionResponse;
                     var brokerError = er.Exception;
                     var exception = new BrokerException( brokerError );
@@ -124,33 +133,15 @@ namespace Stomp.Net.Stomp.Transport
             base.OnException( sender, command );
         }
 
-
-        private Int32 GetNextCommandId()
-            => Interlocked.Increment( ref _nextCommandId );
-
-        #region Overrides of Disposable
-
-        /// <summary>
-        ///     Method invoked when the instance gets disposed.
-        /// </summary>
-        protected override void Disposed() 
-            => Dispose( null );
-
-        #endregion
-
         private void Dispose( Exception error )
         {
-            List<FutureResponse> requests = null;
+            var requests = _requestMap.Values.ToList();
 
             if ( _error == null )
             {
                 _error = error;
-                requests = new List<FutureResponse>( _requestMap.Values );
                 _requestMap.Clear();
             }
-
-            if ( requests == null )
-                return;
 
             foreach ( var future in requests )
             {
@@ -159,5 +150,8 @@ namespace Stomp.Net.Stomp.Transport
                 future.Response = response;
             }
         }
+
+        private Int32 GetNextCommandId()
+            => Interlocked.Increment( ref _nextCommandId );
     }
 }

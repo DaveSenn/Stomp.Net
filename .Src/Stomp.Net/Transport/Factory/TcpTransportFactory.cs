@@ -191,8 +191,13 @@ namespace Stomp.Net.Transport
         {
             try
             {
-                return Task.Run(async () => await Dns.GetHostEntryAsync(host)).ConfigureAwait(false).GetAwaiter().GetResult();
                 //return Dns.GetHostEntry( host );
+                
+                // TODO: Review
+                return Task.Run( () => Dns.GetHostEntryAsync( host ) )
+                    .ConfigureAwait( false )
+                    .GetAwaiter()
+                    .GetResult();
             }
             catch
             {

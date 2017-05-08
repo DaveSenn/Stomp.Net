@@ -77,8 +77,8 @@ namespace Stomp.Net.Policies
 
         public Int32 CollisionAvoidancePercent
         {
-            get => Convert.ToInt32( Math.Round( _collisionAvoidanceFactor * 100 ) );
-            set => _collisionAvoidanceFactor = Convert.ToDouble( value ) * .01;
+            get { return Convert.ToInt32( Math.Round( _collisionAvoidanceFactor * 100 ) ); }
+            set { _collisionAvoidanceFactor = Convert.ToDouble( value ) * .01; }
         }
 
         public Boolean UseCollisionAvoidance { get; set; } = false;

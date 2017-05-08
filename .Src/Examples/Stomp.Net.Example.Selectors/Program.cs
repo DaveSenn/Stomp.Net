@@ -14,7 +14,7 @@ namespace Stomp.Net.Example.Selectors
     {
         #region Constants
 
-        private const String Host = "atmfutura";
+        private const String Host = "atmfutura3";
         private const String Password = "password";
         private const Int32 Port = 61902;
         private const String QueueName = "TestQ";
@@ -121,7 +121,7 @@ namespace Stomp.Net.Example.Selectors
                                        // Create session for both requests and responses
                                        using ( var session = connection.CreateSession( AcknowledgementMode.IndividualAcknowledge ) )
                                        {
-                                           String selectorString = $"{selectorKey} = '{selector}'";
+                                           var selectorString = $"{selectorKey} = '{selector}'";
                                            Console.WriteLine( $"Create consumer with selector {selectorString}" );
                                            IDestination responseQ = session.GetQueue( QueueName );
                                            var consumer = session.CreateConsumer( responseQ, selectorString );

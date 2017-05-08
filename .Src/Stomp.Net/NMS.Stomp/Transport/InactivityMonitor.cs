@@ -5,6 +5,7 @@ using System.Threading;
 using Stomp.Net.Stomp.Commands;
 using Stomp.Net.Stomp.Protocol;
 using Stomp.Net.Stomp.Threads;
+using Stomp.Net.Stomp.Util;
 using Stomp.Net.Utilities;
 
 #endregion
@@ -56,7 +57,7 @@ namespace Stomp.Net.Stomp.Transport
 
         #region Properties
 
-        public Int64 ReadCheckTime { get; set; } = 30000;
+        public Int32 ReadCheckTime { get; set; } = 30000;
 
         public Int32 WriteCheckTime { get; set; } = 10000;
 
@@ -79,28 +80,6 @@ namespace Stomp.Net.Stomp.Transport
         }
 
         #endregion
-
-        
-
-
-        #region Overrides of Disposable
-
-        /// <summary>
-        ///     Method invoked when the instance gets disposed.
-        /// </summary>
-        protected override void Disposed()
-        {
-            lock ( _monitor )
-            {
-                _localWireFormatInfo = null;
-                _remoteWireFormatInfo = null;
-                _disposing = true;
-                StopMonitorThreads();
-            }
-        }
-
-        #endregion
-
 
         public override void Oneway( ICommand command )
         {
@@ -134,31 +113,23 @@ namespace Stomp.Net.Stomp.Transport
             Next.Stop();
         }
 
-        #region WriteCheck Related
+        #region Overrides of Disposable
 
         /// <summary>
-        ///     Check the write to the broker
+        ///     Method invoked when the instance gets disposed.
         /// </summary>
-        private void WriteCheck()
+        protected override void Disposed()
         {
-            if ( _inWrite.Value || _failed.Value )
+            lock ( _monitor )
             {
-                Tracer.WarnFormat( "InactivityMonitor[{0}]: is in write or already failed.", _instanceId );
-                return;
+                _localWireFormatInfo = null;
+                _remoteWireFormatInfo = null;
+                _disposing = true;
+                StopMonitorThreads();
             }
-
-            if ( !_commandSent.Value )
-            {
-                Tracer.WarnFormat( "InactivityMonitor[{0}]: No Message sent since last write check. Sending a KeepAliveInfo.", _instanceId );
-                _asyncWriteTask.IsPending = true;
-                _asyncTasks.Wakeup();
-            }
-
-            _commandSent.Value = false;
         }
 
         #endregion
-
 
         protected override void OnCommand( ITransport sender, ICommand command )
         {
@@ -285,6 +256,8 @@ namespace Stomp.Net.Stomp.Transport
                 {
                     _connectionCheckTimer.Dispose();
 
+                    _connectionCheckTimer.Dispose();
+
                     _asyncTasks.Shutdown();
                     _asyncTasks = null;
                     _asyncWriteTask = null;
@@ -292,6 +265,30 @@ namespace Stomp.Net.Stomp.Transport
                 }
         }
 
+        #region WriteCheck Related
+
+        /// <summary>
+        ///     Check the write to the broker
+        /// </summary>
+        private void WriteCheck()
+        {
+            if ( _inWrite.Value || _failed.Value )
+            {
+                Tracer.WarnFormat( "InactivityMonitor[{0}]: is in write or already failed.", _instanceId );
+                return;
+            }
+
+            if ( !_commandSent.Value )
+            {
+                Tracer.WarnFormat( "InactivityMonitor[{0}]: No Message sent since last write check. Sending a KeepAliveInfo.", _instanceId );
+                _asyncWriteTask.IsPending = true;
+                _asyncTasks.Wakeup();
+            }
+
+            _commandSent.Value = false;
+        }
+
+        #endregion
 
         #region ReadCheck Related
 
@@ -323,7 +320,7 @@ namespace Stomp.Net.Stomp.Transport
 
         /// <summary>
         ///     Checks if we should allow the read check(if less than 90% of the read
-        ///     check time elapsed then we don't do the read check
+        ///     check time elapsed then we dont do the readcheck
         /// </summary>
         /// <param name="elapsed"></param>
         /// <returns></returns>

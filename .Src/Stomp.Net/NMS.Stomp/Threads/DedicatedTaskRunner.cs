@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using Extend;
 
 #endregion
 
@@ -30,11 +31,9 @@ namespace Stomp.Net.Stomp.Threads
 
         public DedicatedTaskRunner( ITask task )
         {
-            if ( task == null )
-                throw new NullReferenceException( "Task was null" );
+            task.ThrowIfNull( nameof(task) );
 
             _task = task;
-
             _theThread = new Thread( Run ) { IsBackground = true };
             _theThread.Start();
         }
@@ -58,7 +57,9 @@ namespace Stomp.Net.Stomp.Threads
                 _isShutdown.WaitOne();
             }
             else
+            {
                 Monitor.Exit( _mutex );
+            }
         }
 
         public void Wakeup()

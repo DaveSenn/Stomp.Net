@@ -10,7 +10,7 @@ namespace Stomp.Net.Stomp.Commands
     {
         #region Properties
 
-        public Int64 WriteCheckInterval { get; set; }
+        public Int32 WriteCheckInterval { get; set; }
 
         public Int32 ReadCheckInterval { get; set; }
 

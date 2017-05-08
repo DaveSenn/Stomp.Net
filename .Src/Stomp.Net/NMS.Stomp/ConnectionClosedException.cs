@@ -9,7 +9,6 @@ namespace Stomp.Net.Stomp
     /// <summary>
     ///     Exception thrown when a connection is used that it already closed
     /// </summary>
-    
     public class ConnectionClosedException : StompException
     {
         #region Ctor
@@ -42,7 +41,7 @@ namespace Stomp.Net.Stomp
             : base( message, errorCode, innerException )
         {
         }
-
+        
         #endregion
     }
 }

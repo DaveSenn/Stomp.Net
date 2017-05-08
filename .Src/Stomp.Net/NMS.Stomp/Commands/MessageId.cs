@@ -21,8 +21,8 @@ namespace Stomp.Net.Stomp.Commands
 
         public Int64 ProducerSequenceId
         {
-            get => _producerSequenceId;
-            set => _producerSequenceId = value;
+            get { return _producerSequenceId; }
+            set { _producerSequenceId = value; }
         }
 
         public Int64 BrokerSequenceId { get; set; }

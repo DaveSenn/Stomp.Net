@@ -6,7 +6,6 @@ using System;
 
 namespace Stomp.Net
 {
-    
     public class MessageNotWriteableException : StompException
     {
         #region Ctor
@@ -33,7 +32,7 @@ namespace Stomp.Net
             : base( message, errorCode, innerException )
         {
         }
-        
+
         #endregion
     }
 }

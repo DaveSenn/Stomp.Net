@@ -61,9 +61,10 @@ namespace Stomp.Net.Stomp.Util
             UniqueStub = stub;
         }
 
-        /// <summary>
-        ///     Construct an IdGenerator
-        /// </summary>
+        /**
+         * Construct an IdGenerator
+         */
+
         public IdGenerator( String prefix )
         {
             lock ( UniqueStub )

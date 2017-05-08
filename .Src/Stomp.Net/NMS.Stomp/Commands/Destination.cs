@@ -61,7 +61,10 @@ namespace Stomp.Net.Stomp.Commands
         ///     Construct the Destination with a defined physical name;
         /// </summary>
         /// <param name="name"></param>
-        protected Destination( String name ) => PhysicalName = name;
+        protected Destination( String name )
+        {
+            PhysicalName = name;
+        }
 
         #endregion
 
@@ -122,7 +125,9 @@ namespace Stomp.Net.Stomp.Commands
             var remote = false;
 
             if ( lowertext.StartsWith( "/queue/", StringComparison.Ordinal ) )
+            {
                 text = text.Substring( "/queue/".Length );
+            }
             else if ( lowertext.StartsWith( "/topic/", StringComparison.Ordinal ) )
             {
                 text = text.Substring( "/topic/".Length );
@@ -244,24 +249,29 @@ namespace Stomp.Net.Stomp.Commands
         /// <returns></returns>
         public static Destination Transform( IDestination destination )
         {
-            Destination result = null;
             if ( destination == null )
                 return null;
 
-            if ( destination is Destination )
-                result = (Destination) destination;
-            else
-            {
-                if ( destination is ITemporaryQueue )
-                    result = new TempQueue( ( (IQueue) destination ).QueueName );
-                else if ( destination is ITemporaryTopic )
-                    result = new TempTopic( ( (ITopic) destination ).TopicName );
-                else if ( destination is IQueue )
-                    result = new Queue( ( (IQueue) destination ).QueueName );
-                else if ( destination is ITopic )
-                    result = new Topic( ( (ITopic) destination ).TopicName );
-            }
-            return result;
+            var dest = destination as Destination;
+            if ( dest != null )
+                return dest;
+
+            var tempQueue = destination as ITemporaryQueue;
+            if ( tempQueue != null )
+                return new TempQueue( tempQueue.QueueName );
+
+            var tempTopic = destination as ITemporaryTopic;
+            if ( tempTopic != null )
+                return new TempTopic( tempTopic.TopicName );
+
+            var queue = destination as IQueue;
+            if ( queue != null )
+                return new Queue( queue.QueueName );
+
+            var topic = destination as ITopic;
+            return topic != null
+                ? new Topic( topic.TopicName )
+                : null;
         }
 
         /// <summary>

@@ -73,8 +73,8 @@ namespace Stomp.Net.Stomp.Transport
         /// </summary>
         public TimeSpan AsyncTimeout
         {
-            get => Next.AsyncTimeout;
-            set => Next.AsyncTimeout = value;
+            get { return Next.AsyncTimeout; }
+            set { Next.AsyncTimeout = value; }
         }
 
         /// <summary>
@@ -118,8 +118,8 @@ namespace Stomp.Net.Stomp.Transport
         /// </summary>
         public TimeSpan Timeout
         {
-            get => Next.Timeout;
-            set => Next.Timeout = value;
+            get { return Next.Timeout; }
+            set { Next.Timeout = value; }
         }
 
 

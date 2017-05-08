@@ -74,17 +74,24 @@ namespace Stomp.Net.Stomp
         public void Dispatch( MessageDispatch dispatch )
             => Executor?.Execute( dispatch );
 
-        public void DisposeOf( ConsumerId objectId )
+        public void DisposeOf( ConsumerId consumerId )
         {
-            Connection.RemoveDispatcher( objectId );
-            if ( !_closing )
-                _consumers.TryRemove( objectId, out MessageConsumer m );
+            Connection.RemoveDispatcher( consumerId );
+
+            if ( _closing )
+                return;
+
+            if ( !_consumers.TryRemove( consumerId, out MessageConsumer _ ) )
+                Tracer.Warn( $"Failed to remove message consumer with consumer id: '{consumerId}'." );
         }
 
-        public void DisposeOf( ProducerId objectId )
+        public void DisposeOf( ProducerId producerId )
         {
-            if ( !_closing )
-                _producers.TryRemove( objectId, out MessageProducer m );
+            if ( _closing )
+                return;
+
+            if ( !_producers.TryRemove( producerId, out MessageProducer _ ) )
+                Tracer.Warn( $"Failed to remove message producer with producer id: '{producerId}'." );
         }
 
         public void DoSend( Message message, TimeSpan sendTimeout )
@@ -128,8 +135,8 @@ namespace Stomp.Net.Stomp
 
         public void Start()
         {
-            foreach ( var consumer in _consumers.Values )
-                consumer.Start();
+            foreach ( var consumer in _consumers )
+                consumer.Value.Start();
 
             Executor?.Start();
         }
@@ -147,8 +154,8 @@ namespace Stomp.Net.Stomp
 
         internal void Acknowledge()
         {
-            foreach ( var consumer in _consumers.Values )
-                consumer.Acknowledge();
+            foreach ( var consumer in _consumers )
+                consumer.Value.Acknowledge();
         }
 
         internal void ClearMessagesInProgress()
@@ -158,9 +165,9 @@ namespace Stomp.Net.Stomp
             if ( Transacted )
                 TransactionContext.ResetTransactionInProgress();
 
-            foreach ( var consumer in _consumers.Values )
+            foreach ( var consumer in _consumers )
             {
-                consumer.InProgressClearRequired();
+                consumer.Value.InProgressClearRequired();
                 ThreadPool.QueueUserWorkItem( ClearMessages, consumer );
             }
         }
@@ -187,6 +194,7 @@ namespace Stomp.Net.Stomp
 
             // Registered with Connection before we register at the broker.
             _consumers.AddOrUpdate( consumer.ConsumerId, consumer, ( k, v ) => consumer );
+
             Connection.AddDispatcher( consumer.ConsumerId, this );
         }
 
@@ -252,8 +260,11 @@ namespace Stomp.Net.Stomp
         private void RemoveConsumer( MessageConsumer consumer )
         {
             Connection.RemoveDispatcher( consumer.ConsumerId );
-            if ( !_closing )
-                _consumers.TryRemove( consumer.ConsumerId, out MessageConsumer m );
+            if ( _closing )
+                return;
+
+            if ( !_consumers.TryRemove( consumer.ConsumerId, out MessageConsumer _ ) )
+                Tracer.Warn( $"Failed to remove consumer with consumer id: '{consumer.ConsumerId}'." );
         }
 
         private void SendAck( ICommand ack, Boolean lazy )
@@ -421,15 +432,15 @@ namespace Stomp.Net.Stomp
                     // Stop all message deliveries from this Session
                     Stop();
 
-                    foreach ( var consumer in _consumers.Values )
+                    foreach ( var consumer in _consumers )
                     {
-                        consumer.FailureError = Connection.FirstFailureError;
-                        consumer.Close();
+                        consumer.Value.FailureError = Connection.FirstFailureError;
+                        consumer.Value.Close();
                     }
                     _consumers.Clear();
 
-                    foreach ( var producer in _producers.Values )
-                        producer.DoClose();
+                    foreach ( var producer in _producers )
+                        producer.Value.DoClose();
                     _producers.Clear();
 
                     // If in a transaction roll it back
@@ -628,8 +639,8 @@ namespace Stomp.Net.Stomp
             if ( AcknowledgementMode == AcknowledgementMode.Transactional )
                 throw new IllegalStateException( "Cannot Recover a Transacted Session" );
 
-            foreach ( var consumer in _consumers.Values )
-                consumer.Rollback();
+            foreach ( var consumer in _consumers )
+                consumer.Value.Rollback();
         }
 
         #endregion

@@ -47,7 +47,9 @@ namespace Stomp.Net.Util
                 result = msg;
             }
             else
+            {
                 result = DoCreateMessage();
+            }
 
             CopyProperties( message, result );
 

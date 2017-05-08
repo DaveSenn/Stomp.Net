@@ -6,7 +6,6 @@ using System;
 
 namespace Stomp.Net
 {
-    
     public class InvalidClientIdException : StompException
     {
         #region Ctor
@@ -30,7 +29,6 @@ namespace Stomp.Net
             : base( message, errorCode, innerException )
         {
         }
-        
         #endregion
     }
 }

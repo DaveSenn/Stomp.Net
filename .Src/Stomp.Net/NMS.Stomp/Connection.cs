@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
 using Extend;
 using JetBrains.Annotations;
@@ -36,16 +35,10 @@ namespace Stomp.Net.Stomp
         private readonly Atomic<Boolean> _connected = new Atomic<Boolean>( false );
         private readonly Object _connectedLock = new Object();
         private readonly ConcurrentDictionary<ConsumerId, IDispatcher> _dispatchers = new ConcurrentDictionary<ConsumerId, IDispatcher>();
-
         private readonly ThreadPoolExecutor _executor = new ThreadPoolExecutor();
         private readonly ConnectionInfo _info;
-
         private readonly Object _myLock = new Object();
-
-        //private readonly IList _sessions = ArrayList.Synchronized( new ArrayList() );
-        private readonly List<Session> _sessions = new List<Session>();
-
-        private readonly Object _sessionsLock = new Object();
+        private readonly ConcurrentDictionary<Session, Session> _sessions = new ConcurrentDictionary<Session, Session>();
         private readonly Atomic<Boolean> _started = new Atomic<Boolean>( false );
 
         /// <summary>
@@ -142,13 +135,10 @@ namespace Stomp.Net.Stomp
                 {
                     Tracer.Info( "Closing Connection." );
                     _closing.Value = true;
-                    lock ( _sessionsLock )
-                    {
-                        foreach ( var session in _sessions )
-                            session.DoClose();
 
-                        _sessions.Clear();
-                    }
+                    foreach ( var session in _sessions )
+                        session.Value.DoClose();
+                    _sessions.Clear();
 
                     if ( _connected.Value )
                     {
@@ -203,8 +193,8 @@ namespace Stomp.Net.Stomp
             if ( IsStarted )
                 session.Start();
 
-            lock ( _sessionsLock )
-                _sessions.Add( session );
+            if ( !_sessions.TryAdd( session, session ) )
+                Tracer.Warn( $"Failed to add session with id: '{session.SessionId}'." );
 
             return session;
         }
@@ -240,9 +230,8 @@ namespace Stomp.Net.Stomp
             if ( !_started.CompareAndSet( false, true ) )
                 return;
 
-            lock ( _sessionsLock )
-                foreach ( var session in _sessions )
-                    session.Start();
+            foreach ( var session in _sessions )
+                session.Value.Start();
         }
 
         /// <summary>
@@ -255,9 +244,8 @@ namespace Stomp.Net.Stomp
             if ( !_started.CompareAndSet( true, false ) )
                 return;
 
-            lock ( _sessionsLock )
-                foreach ( var session in _sessions )
-                    session.Stop();
+            foreach ( var session in _sessions )
+                session.Value.Stop();
         }
 
         /// <summary>
@@ -335,7 +323,11 @@ namespace Stomp.Net.Stomp
             }
         }
 
-        internal void AddDispatcher( ConsumerId id, IDispatcher dispatcher ) => _dispatchers.TryAdd( id, dispatcher );
+        internal void AddDispatcher( ConsumerId id, IDispatcher dispatcher )
+        {
+            if ( !_dispatchers.TryAdd( id, dispatcher ) )
+                Tracer.Warn( $"Failed to add dispatcher with id '{id}'." );
+        }
 
         internal void OnSessionException( Session sender, Exception exception )
         {
@@ -351,13 +343,19 @@ namespace Stomp.Net.Stomp
             }
         }
 
-        internal void RemoveDispatcher( ConsumerId id ) => _dispatchers.TryRemove( id, out IDispatcher dispatcher );
+        internal void RemoveDispatcher( ConsumerId id )
+        {
+            if ( !_dispatchers.TryRemove( id, out IDispatcher _ ) )
+                Tracer.Warn( $"Failed to remove dispatcher with id '{id}'." );
+        }
 
         internal void RemoveSession( Session session )
         {
-            if ( !_closing.Value )
-                lock ( _sessionsLock )
-                    _sessions.Remove( session );
+            if ( _closing.Value )
+                return;
+
+            if ( !_sessions.TryRemove( session, out Session _) )
+                Tracer.Warn( $"Failed to remove session with session id: '{session.SessionId}'." );
         }
 
         internal void TransportInterruptionProcessingComplete()
@@ -387,16 +385,10 @@ namespace Stomp.Net.Stomp
                 Tracer.WarnFormat( "Caught Exception While disposing of Transport: {0}", ex.Message );
             }
 
-            List<Session> sessionsCopy;
-            lock ( _sessionsLock )
-                sessionsCopy = new List<Session>( _sessions );
-
-            // Use a copy so we don't concurrently modify the Sessions list if the
-            // client is closing at the same time.
-            foreach ( var session in sessionsCopy )
+            foreach ( var session in _sessions )
                 try
                 {
-                    session.Dispose();
+                    session.Value.Dispose();
                 }
                 catch ( Exception ex )
                 {
@@ -415,7 +407,6 @@ namespace Stomp.Net.Stomp
 
             if ( _connected.Value )
                 return;
-
             var timeoutTime = DateTime.Now + _stompConnectionSettings.RequestTimeout;
             var waitCount = 1;
 
@@ -504,22 +495,22 @@ namespace Stomp.Net.Stomp
 
         private void DispatchMessage( MessageDispatch dispatch )
         {
-            _dispatchers.TryGetValue( dispatch.ConsumerId, out IDispatcher dispatcher );
-            if ( dispatcher == null )
+            if ( _dispatchers.TryGetValue( dispatch.ConsumerId, out IDispatcher dispatcher ) )
             {
-                Tracer.ErrorFormat( "No such consumer active: {0}.", dispatch.ConsumerId );
+                // Can be null when a consumer has sent a MessagePull and there was
+                // no available message at the broker to dispatch.
+                if ( dispatch.Message != null )
+                {
+                    dispatch.Message.ReadOnlyBody = true;
+                    dispatch.Message.RedeliveryCounter = dispatch.RedeliveryCounter;
+                }
+
+                dispatcher.Dispatch( dispatch );
+
                 return;
             }
 
-            // Can be null when a consumer has sent a MessagePull and there was
-            // no available message at the broker to dispatch.
-            if ( dispatch.Message != null )
-            {
-                dispatch.Message.ReadOnlyBody = true;
-                dispatch.Message.RedeliveryCounter = dispatch.RedeliveryCounter;
-            }
-
-            dispatcher.Dispatch( dispatch );
+            Tracer.ErrorFormat( "No such consumer active: {0}.", dispatch.ConsumerId );
         }
 
         private void MarkTransportFailed( Exception error )
@@ -608,7 +599,7 @@ namespace Stomp.Net.Stomp
             Tracer.WarnFormat( "Transport interrupted, dispatchers: {0}", _dispatchers.Count );
 
             foreach ( var session in _sessions )
-                session.ClearMessagesInProgress();
+                session.Value.ClearMessagesInProgress();
 
             if ( ConnectionInterruptedListener == null || _closing.Value )
                 return;
@@ -651,10 +642,8 @@ namespace Stomp.Net.Stomp
             var cdl = _transportInterruptionProcessingComplete;
             if ( cdl == null )
                 return;
-
             if ( _closed.Value || cdl.Remaining <= 0 )
                 return;
-
             Tracer.WarnFormat( "dispatch paused, waiting for outstanding dispatch interruption " +
                                "processing ({0}) to complete..",
                                cdl.Remaining );

@@ -11,7 +11,6 @@ namespace Stomp.Net.Stomp
     /// <summary>
     ///     Exception thrown when the broker returns an error
     /// </summary>
-    
     public class BrokerException : StompException
     {
         #region Properties
@@ -34,10 +33,15 @@ namespace Stomp.Net.Stomp
 
         public BrokerException( BrokerError brokerError, Exception innerException )
             : base( brokerError.ExceptionClass + " : " + brokerError.Message + "\n" + StackTraceDump( brokerError.StackTraceElements ),
-                    innerException ) => BrokerError = brokerError;
+                    innerException )
+        {
+            BrokerError = brokerError;
+        }
 
+        
         #endregion
-      
+
+     
         /// <summary>
         ///     Generates a nice textual stack trace
         /// </summary>

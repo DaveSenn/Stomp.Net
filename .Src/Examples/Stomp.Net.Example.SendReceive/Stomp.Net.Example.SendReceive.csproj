@@ -34,9 +34,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Extend, Version=1.1.11.58, Culture=neutral, PublicKeyToken=869d4c589c0473ac, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Extend.1.1.11.58\lib\net45\Extend.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Extend, Version=1.2.0.92, Culture=neutral, PublicKeyToken=869d4c589c0473ac, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Extend.1.2.0.92\lib\net461\Extend.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -57,7 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Stomp.Net\Stomp.Net.csproj">
-      <Project>{0f77afe3-b490-49df-b5f2-4e4bd3236af7}</Project>
+      <Project>{16bb1fd2-a492-406f-a7da-79470781a3f4}</Project>
       <Name>Stomp.Net</Name>
     </ProjectReference>
   </ItemGroup>

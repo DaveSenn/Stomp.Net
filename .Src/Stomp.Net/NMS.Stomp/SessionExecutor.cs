@@ -1,7 +1,7 @@
 #region Usings
 
 using System;
-using System.Collections;
+using System.Collections.Concurrent;
 using System.Linq;
 using Stomp.Net.Messaging;
 using Stomp.Net.Stomp.Commands;
@@ -15,7 +15,7 @@ namespace Stomp.Net.Stomp
     {
         #region Fields
 
-        private readonly IDictionary _consumers;
+        private readonly ConcurrentDictionary<ConsumerId, MessageConsumer> _consumers;
         private readonly MessageDispatchChannel _messageQueue = new MessageDispatchChannel();
 
         private readonly Session _session;
@@ -36,7 +36,7 @@ namespace Stomp.Net.Stomp
 
         #region Ctor
 
-        public SessionExecutor( Session session, IDictionary consumers )
+        public SessionExecutor( Session session, ConcurrentDictionary<ConsumerId, MessageConsumer> consumers )
         {
             _session = session;
             _consumers = consumers;
@@ -48,10 +48,8 @@ namespace Stomp.Net.Stomp
         {
             try
             {
-                lock ( _consumers.SyncRoot )
-                    if ( _consumers.Values.Cast<MessageConsumer>()
-                                   .Any( consumer => consumer.Iterate() ) )
-                        return true;
+                if ( _consumers.Any( consumer => consumer.Value.Iterate() ) )
+                    return true;
 
                 // No messages left queued on the listeners.. so now dispatch messages
                 // queued on the session
@@ -136,15 +134,10 @@ namespace Stomp.Net.Stomp
         {
             try
             {
-                MessageConsumer consumer = null;
-
-                lock ( _consumers.SyncRoot )
-                    if ( _consumers.Contains( dispatch.ConsumerId ) )
-                        consumer = _consumers[dispatch.ConsumerId] as MessageConsumer;
-
                 // If the consumer is not available, just ignore the message.
                 // Otherwise, dispatch the message to the consumer.
-                consumer?.Dispatch( dispatch );
+                if ( _consumers.TryGetValue( dispatch.ConsumerId, out MessageConsumer consumer ) )
+                    consumer.Dispatch( dispatch );
             }
             catch ( Exception ex )
             {

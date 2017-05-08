@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using Extend;
 using Stomp.Net.Stomp.Commands;
 
 #endregion

@@ -20,11 +20,20 @@ namespace Stomp.Net.Stomp.Commands
         {
         }
 
-        public ConnectionId( SessionId sessionId ) => Value = sessionId.ConnectionId;
+        public ConnectionId( SessionId sessionId )
+        {
+            Value = sessionId.ConnectionId;
+        }
 
-        public ConnectionId( ProducerId producerId ) => Value = producerId.ConnectionId;
+        public ConnectionId( ProducerId producerId )
+        {
+            Value = producerId.ConnectionId;
+        }
 
-        public ConnectionId( ConsumerId consumerId ) => Value = consumerId.ConnectionId;
+        public ConnectionId( ConsumerId consumerId )
+        {
+            Value = consumerId.ConnectionId;
+        }
 
         #endregion
 

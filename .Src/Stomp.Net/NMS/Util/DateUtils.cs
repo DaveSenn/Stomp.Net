@@ -33,7 +33,10 @@ namespace Stomp.Net.Util
 
         #region Ctor
 
-        static DateUtils() => EpochDiff = ( JavaEpoch.ToFileTimeUtc() - WindowsEpoch.ToFileTimeUtc() ) / TimeSpan.TicksPerMillisecond;
+        static DateUtils()
+        {
+            EpochDiff = ( JavaEpoch.ToFileTimeUtc() - WindowsEpoch.ToFileTimeUtc() ) / TimeSpan.TicksPerMillisecond;
+        }
 
         #endregion
 
