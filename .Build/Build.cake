@@ -8,107 +8,108 @@ var sourceDirectory = Directory("../.Src");
 var toolDirectory = Directory("../.Tools");
 var buildDirectory = Directory("../.Build");
 var outputDirectory = Directory("../.Output");
-var outputNuGetDirectory = Directory("../.Output/NuGet");
 
 // The path to the solution file
 var solution = sourceDirectory + File("Stomp.Net.sln");
+var libDirectory = sourceDirectory + Directory("Extend");
+var libBinDirectory = libDirectory + Directory("bin") + Directory(configuration);
 
 // Executables
 var nuGet = toolDirectory + File("NuGet/nuget.exe");
-var nUnit = toolDirectory + File("NUnit/nunit3-console.exe");
 
 // Clean all build output
 Task("Clean")
     .Does(() =>
 {	
     CleanDirectory( sourceDirectory + Directory("Stomp.Net/bin") );
-    CleanDirectory( sourceDirectory + Directory("Stomp.Net.Test/bin") );
     CleanDirectory( outputDirectory );
 });
 
 // Restore all NuGet packages
-Task("RestorePackages")
+Task("Restore")
     .IsDependentOn("Clean")
     .Does(() =>
 {
-    NuGetRestore(solution, new NuGetRestoreSettings
-        { 
-            ToolPath = nuGet
-        } );
+    DotNetCoreRestore(solution);
+});
+
+// Patches the version of the library
+Task("PatchVersion")
+    .IsDependentOn("Restore")
+    .Does(() =>
+{
+    // Get the current version => null on local system
+    var currentVersion = GetBuildVersion();
+    Information("Current version is: '" + currentVersion + "'");
+
+    var projects = GetFiles(libDirectory.ToString() + "/**/*.csproj");
+    foreach (var project in GetFiles(libDirectory.ToString() + "/**/*.csproj"))
+    {
+        var x = new System.Xml.XmlDocument();
+        using ( var fs = System.IO.File.OpenRead( project.ToString() ) )
+            x.Load( fs );
+        
+        var fileVersion = x.GetElementsByTagName( "FileVersion" );
+        if(currentVersion == null)
+            currentVersion = fileVersion[0].InnerText;
+        fileVersion[0].InnerText = currentVersion;
+
+        var version = x.GetElementsByTagName( "Version" );
+        version[0].InnerText = currentVersion;
+
+        var assemblyVersion = x.GetElementsByTagName( "AssemblyVersion" );
+        assemblyVersion[0].InnerText = currentVersion;       
+
+        using ( var fs = System.IO.File.Open( project.ToString(), FileMode.Create) )
+            x.Save( fs );
+    }
 });
 
 // Build the solution
 Task("Build")
-    .IsDependentOn("RestorePackages")
+    .IsDependentOn("PatchVersion")
     .Does(() =>
 {	
-    MSBuild(solution, settings => 
-        settings.SetConfiguration(configuration)
-            .SetVerbosity( Verbosity.Minimal ) );
+    DotNetCoreBuild(
+                solution,
+                new DotNetCoreBuildSettings()
+                {
+                    Configuration = configuration
+                });
 });
 
-// Run the unit tests
-Task("RunTests")
+// Build NuGet package
+Task("Pack")
     .IsDependentOn("Build")
     .Does(() =>
-{
-    NUnit3( sourceDirectory.ToString() + "/**/bin/Release/*.Test.dll", new NUnit3Settings
-        { 
-            NoResults = true,
-            ToolPath = nUnit
-        });
-});
-
-// Copy the build output
-Task("CopyBuildOutput")
-    .IsDependentOn("Build")
-    .Does(() =>
-{
-    // Create the directory
-    CreateDirectory( outputDirectory );
-    var nugetDirectory = outputDirectory + Directory("NuGet/lib/461");
-    CreateDirectory( nugetDirectory );
-    
-    // Fetch and copy the build output
-    var buildOutputDirectory = 	sourceDirectory + Directory("Stomp.Net/bin") + Directory(configuration);
-    var files = System.IO.Directory.EnumerateFiles(buildOutputDirectory, "Stomp.Net.*").Where(x => x.Contains(".XML") || x.Contains(".dll")).ToList();
-    foreach(var file in files) 
     {
-        System.IO.File.Copy(file, nugetDirectory + File(System.IO.Path.GetFileName(file)));
-    }
-});
-
-// Creates the NuGet package
-Task("CreateNuGetPackage")
-    .IsDependentOn("CopyBuildOutput")
-    .Does(() =>
-{
-    // Copy the NuGet file
-    var nuspecSource = buildDirectory + Directory("NuGet") + File("Stomp.Net.nuspec");
-    var nuspec = outputNuGetDirectory + File("Stomp.Net.nuspec");
-    CopyFile(nuspecSource, nuspec);
-    
-    // Create the NuGet package
-    NuGetPack(nuspec, new NuGetPackSettings 
+        foreach (var project in GetFiles(libDirectory.ToString() + "/**/*.csproj"))
         {
-            ToolPath = nuGet,
-            Version = GetBuildVersion(),
-            OutputDirectory = outputNuGetDirectory 
-        } );
-});
+            DotNetCorePack(
+                project.ToString(),
+                new DotNetCorePackSettings()
+                {
+                    Configuration = configuration,
+                    OutputDirectory = outputDirectory
+                });
+        }
+
+        CopyDirectory(libBinDirectory, outputDirectory);
+    });
 
 // Default task
 Task("Default")
-  .IsDependentOn("CreateNuGetPackage")
+  .IsDependentOn("Pack")
   .Does(() =>
 {
     Information("Default task started");
 });
 
+// Run the target task
 RunTarget(target);
 
 /// <summary>
-/// Gets the version of the current build.
+///     Gets the version of the current build.
 /// </summary>
 /// <returns>Returns the version of the current build.</returns>
 private String GetBuildVersion()
@@ -118,15 +119,7 @@ private String GetBuildVersion()
     // Try to get the version from AppVeyor
     var appVeyorProvider = BuildSystem.AppVeyor;
     if( appVeyorProvider.IsRunningOnAppVeyor )
-        version = appVeyorProvider.Environment.Build.Version;
-	else
-	{
-	    // Get the version from the built DLL
-		var outputDll = System.IO.Directory.EnumerateFiles( outputNuGetDirectory, "*", System.IO.SearchOption.AllDirectories).First( x => x.Contains( ".dll" ) );
-		var assembly = System.Reflection.Assembly.LoadFile(  MakeAbsolute( File( outputDll ) ).ToString() );
-		version = assembly.GetName().Version.ToString();
-	}
+        return appVeyorProvider.Environment.Build.Version; //+ "-alpha";
 	
-	return version;
-	// return version + "-alpha";
+    return null;
 }
