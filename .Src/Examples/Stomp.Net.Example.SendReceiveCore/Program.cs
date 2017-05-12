@@ -12,7 +12,7 @@ namespace Stomp.Net.Example.SendReceiveCore
         #region Constants
 
         private const String Destination = "TestQ";
-        private const String Host = "atmfutura3";
+        private const String Host = "HostNameOrIp";
         private const String Password = "password";
         private const Int32 Port = 61902;
         private const String User = "admin";
@@ -32,44 +32,57 @@ namespace Stomp.Net.Example.SendReceiveCore
 
         private static void SendReceiveText()
         {
+            // Create a connection factory
             var brokerUri = "tcp://" + Host + ":" + Port;
             var factory = new ConnectionFactory( brokerUri, new StompConnectionSettings { UserName = User, Password = Password } );
 
             // Create connection for both requests and responses
-            var connection = factory.CreateConnection();
-            connection.Start();
-
-            // Create session for both requests and responses
-            var session = connection.CreateSession( AcknowledgementMode.IndividualAcknowledge );
-
-            IDestination destinationQueue = session.GetQueue( Destination );
-            var producer = session.CreateProducer( destinationQueue );
-            producer.DeliveryMode = MessageDeliveryMode.Persistent;
-
-            var message = session.CreateTextMessage( RandomValueEx.GetRandomString() );
-            message.Headers["test"] = "test";
-            producer.Send( message );
-            Console.WriteLine( "Message sent\n" );
-
-            IDestination sourceQueue = session.GetQueue( Destination );
-            var consumer = session.CreateConsumer( sourceQueue );
-
-            var msg = consumer.Receive();
-            if ( msg is ITextMessage )
+            using ( var connection = factory.CreateConnection() )
             {
-                Console.WriteLine( "Message received" );
-                msg.Acknowledge();
-                foreach ( var key in msg.Headers.Keys )
-                    Console.WriteLine( $"\t{msg.Headers[key]}" );
-            }
-            else
-                Console.WriteLine( "Unexpected message type: " + msg.GetType()
-                                                                    .Name );
+                // Open the connection
+                connection.Start();
 
-            connection.Close();
+                // Create session for both requests and responses
+                using ( var session = connection.CreateSession( AcknowledgementMode.IndividualAcknowledge ) )
+                {
+                    // Create a message producer
+                    IDestination destinationQueue = session.GetQueue( Destination );
+                    using ( var producer = session.CreateProducer( destinationQueue ) )
+                    {
+                        producer.DeliveryMode = MessageDeliveryMode.Persistent;
+
+                        // Send a message to the destination
+                        var message = session.CreateTextMessage( RandomValueEx.GetRandomString() );
+                        message.Headers["test"] = "test";
+                        producer.Send( message );
+                        Console.WriteLine( "Message sent\n" );
+                    }
+
+                    // Create a message consumer
+                    IDestination sourceQueue = session.GetQueue( Destination );
+                    using ( var consumer = session.CreateConsumer( sourceQueue ) )
+                    {
+                        // Wait for a message => blocking call; use consumer.Listener to receive messages as events (none blocking call)
+                        var msg = consumer.Receive();
+                        if ( msg is ITextMessage )
+                        {
+                            Console.WriteLine( "Message received" );
+                            msg.Acknowledge();
+                            foreach ( var key in msg.Headers.Keys )
+                                Console.WriteLine( $"\t{msg.Headers[key]}" );
+                        }
+                        else
+                            Console.WriteLine( "Unexpected message type: " + msg.GetType()
+                                                                                .Name );
+                    }
+                }
+            }
         }
     }
 
+    /// <summary>
+    ///     Console logger for Stomp.Net
+    /// </summary>
     public class ConsoleLogger : ITrace
     {
         #region Implementation of ITrace
