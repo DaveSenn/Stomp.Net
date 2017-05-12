@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.26430.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stomp.Net", "Stomp.Net\Stomp.Net.csproj", "{16BB1FD2-A492-406F-A7DA-79470781A3F4}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stomp.Net.Example.Selectors", "Examples\Stomp.Net.Example.Selectors\Stomp.Net.Example.Selectors.csproj", "{4C6C6D1C-C946-451A-8743-3DFF891EA6FA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stomp.Net.Example.SendReceive", "Examples\Stomp.Net.Example.SendReceive\Stomp.Net.Example.SendReceive.csproj", "{D2E67615-A804-489C-AD95-2658671D86EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stomp.Net.Example.SendReceiveCore", "Examples\Stomp.Net.Example.SendReceiveCore\Stomp.Net.Example.SendReceiveCore.csproj", "{DA9362AA-2A1A-48C0-B969-1AABBE18AEED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,10 @@ Global
 		{D2E67615-A804-489C-AD95-2658671D86EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2E67615-A804-489C-AD95-2658671D86EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2E67615-A804-489C-AD95-2658671D86EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA9362AA-2A1A-48C0-B969-1AABBE18AEED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA9362AA-2A1A-48C0-B969-1AABBE18AEED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA9362AA-2A1A-48C0-B969-1AABBE18AEED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA9362AA-2A1A-48C0-B969-1AABBE18AEED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -36,5 +42,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{4C6C6D1C-C946-451A-8743-3DFF891EA6FA} = {7767F6AF-0AB9-4131-BD5B-37368DAB40C3}
 		{D2E67615-A804-489C-AD95-2658671D86EB} = {7767F6AF-0AB9-4131-BD5B-37368DAB40C3}
+		{DA9362AA-2A1A-48C0-B969-1AABBE18AEED} = {7767F6AF-0AB9-4131-BD5B-37368DAB40C3}
 	EndGlobalSection
 EndGlobal
