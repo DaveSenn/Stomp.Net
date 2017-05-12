@@ -26,33 +26,27 @@ notifications:
 #---------------------------------
 
 # Version format
-version: 1.1.{build}
+version: 1.2.0.{build}
 
-# Patch assembly info
-assembly_info:
-  patch: true
-  file: AssemblyInfo.*
-  assembly_version: '{version}'
-  assembly_file_version: '{version}'
-  assembly_informational_version: '{version}'
+pull_requests:
+  # Do not increment build number for pull requests
+  do_not_increment_build_number: true
 
-# Cache configuration
-cache:
-  # Cache NuGet packages until packages.config changes
-  - .Src\packages -> **\packages.config
+nuget:
+  # Do not publish NuGet packages for pull requests
+  disable_publish_on_pr: true
 
 #---------------------------------
 # Build configuration
 #---------------------------------
 
-# Build OS
-os: Visual Studio 2015
-
+# Set the build worker image
+image: Visual Studio 2017
+build:
+  verbosity: minimal
+  
 # Build configuration
 configuration: Release
-
-# Build platform
-platform: Any CPU
 
 #---------------------------------
 # Build
@@ -69,7 +63,7 @@ build_script:
 # Define artifacts
 artifacts:
   - path: .Output
-  - path: '.Output\NuGet\*.nupkg'
+  - path: '.Output\**\*.nupkg'
     name: NuGetPackage.nupkg
 
 # Deploy to NuGet
@@ -78,3 +72,6 @@ deploy:
   api_key:
     secure: EuMTEOZnx2khhY8a77sGO/tC4STC3rZe2eABB2Bq33dXoIHnATxMnMnMoOohn7eQ
   artifact: /.*\.nupkg/
+  on:
+    # Only publish from the master branch
+    branch: master

@@ -11,7 +11,7 @@ var outputDirectory = Directory("../.Output");
 
 // The path to the solution file
 var solution = sourceDirectory + File("Stomp.Net.sln");
-var libDirectory = sourceDirectory + Directory("Extend");
+var libDirectory = sourceDirectory + Directory("Stomp.Net");
 var libBinDirectory = libDirectory + Directory("bin") + Directory(configuration);
 
 // Executables
