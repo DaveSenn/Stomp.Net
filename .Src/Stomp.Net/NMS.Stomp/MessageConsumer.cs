@@ -121,18 +121,14 @@ namespace Stomp.Net.Stomp
                                     // Redeliver the message
                                 }
                                 else
-                                {
-                                    // Transacted or Client ack: Deliver the next message.
+                                    // Transacted or Client ACK: Deliver the next message.
                                     AfterMessageIsConsumed( dispatch, false );
-                                }
 
                                 Tracer.Error( ConsumerInfo.ConsumerId + " Exception while processing message: " + e );
                             }
                         }
                         else
-                        {
                             _unconsumedMessages.Enqueue( dispatch );
-                        }
                 }
 
                 if ( ++_dispatchedCount % 1000 != 0 )
@@ -150,19 +146,23 @@ namespace Stomp.Net.Stomp
         {
             if ( _listener == null )
                 return false;
+
             var dispatch = _unconsumedMessages.DequeueNoWait();
             if ( dispatch == null )
                 return false;
+
             try
             {
                 var message = CreateStompMessage( dispatch );
                 BeforeMessageIsConsumed( dispatch );
+
+                // ReSharper disable once PossibleNullReferenceException
                 _listener( message );
                 AfterMessageIsConsumed( dispatch, false );
             }
-            catch ( StompException e )
+            catch ( StompException ex )
             {
-                _session.Connection.OnSessionException( _session, e );
+                _session.Connection.OnSessionException( _session, ex );
             }
 
             return true;
@@ -268,9 +268,7 @@ namespace Stomp.Net.Stomp
 
                     if ( RedeliveryPolicy.MaximumRedeliveries >= 0 &&
                          lastMd.Message.RedeliveryCounter > RedeliveryPolicy.MaximumRedeliveries )
-                    {
                         _redeliveryDelay = 0;
-                    }
                     else
                     {
                         // stop the delivery of messages.
@@ -285,9 +283,7 @@ namespace Stomp.Net.Stomp
                             ThreadPool.QueueUserWorkItem( RollbackHelper, deadline );
                         }
                         else
-                        {
                             Start();
-                        }
                     }
 
                     _deliveredCounter -= _dispatchedMessages.Count;
@@ -400,7 +396,7 @@ namespace Stomp.Net.Stomp
 
             if ( dispatch == null )
             {
-                Tracer.WarnFormat( "Attempt to Ack MessageId[{0}] failed because the original dispatch is not in the Dispatch List", message.MessageId );
+                Tracer.Warn( $"Attempt to Ack MessageId[{message.MessageId}] failed because the original dispatch is not in the Dispatch List" );
                 return;
             }
 
@@ -497,7 +493,7 @@ namespace Stomp.Net.Stomp
                 if ( wasStarted )
                     _session.Start();
             }
-            remove { _listener -= value; }
+            remove => _listener -= value;
         }
 
         /// <summary>
@@ -583,7 +579,7 @@ namespace Stomp.Net.Stomp
                 if ( IgnoreExpiration || !dispatch.Message.IsExpired() )
                     return dispatch;
 
-                Tracer.WarnFormat( "{0} received expired message: {1}", ConsumerInfo.ConsumerId, dispatch.Message.MessageId );
+                Tracer.Warn( $"{ConsumerInfo.ConsumerId} received expired message: {dispatch.Message.MessageId}" );
                 BeforeMessageIsConsumed( dispatch );
                 AfterMessageIsConsumed( dispatch, true );
                 return null;
@@ -698,10 +694,7 @@ namespace Stomp.Net.Stomp
 
             #region Ctor
 
-            public MessageConsumerSynchronization( MessageConsumer consumer )
-            {
-                _consumer = consumer;
-            }
+            public MessageConsumerSynchronization( MessageConsumer consumer ) => _consumer = consumer;
 
             #endregion
 
@@ -734,10 +727,7 @@ namespace Stomp.Net.Stomp
 
             #region Ctor
 
-            public ConsumerCloseSynchronization( MessageConsumer consumer )
-            {
-                _consumer = consumer;
-            }
+            public ConsumerCloseSynchronization( MessageConsumer consumer ) => _consumer = consumer;
 
             #endregion
 

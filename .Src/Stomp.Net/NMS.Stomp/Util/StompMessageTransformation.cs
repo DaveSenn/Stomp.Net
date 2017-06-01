@@ -17,10 +17,7 @@ namespace Stomp.Net.Stomp
 
         #region Ctor
 
-        public StompMessageTransformation( Connection connection )
-        {
-            _connection = connection;
-        }
+        public StompMessageTransformation( Connection connection ) => _connection = connection;
 
         #endregion
 

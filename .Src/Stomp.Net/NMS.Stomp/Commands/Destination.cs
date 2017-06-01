@@ -61,10 +61,8 @@ namespace Stomp.Net.Stomp.Commands
         ///     Construct the Destination with a defined physical name;
         /// </summary>
         /// <param name="name"></param>
-        protected Destination( String name )
-        {
-            PhysicalName = name;
-        }
+        protected Destination( String name ) 
+            => PhysicalName = name;
 
         #endregion
 
@@ -125,9 +123,7 @@ namespace Stomp.Net.Stomp.Commands
             var remote = false;
 
             if ( lowertext.StartsWith( "/queue/", StringComparison.Ordinal ) )
-            {
                 text = text.Substring( "/queue/".Length );
-            }
             else if ( lowertext.StartsWith( "/topic/", StringComparison.Ordinal ) )
             {
                 text = text.Substring( "/topic/".Length );

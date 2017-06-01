@@ -21,8 +21,8 @@ namespace Stomp.Net.Stomp.Commands
 
         public IDestination FromDestination
         {
-            get { return Destination; }
-            set { Destination = Destination.Transform( value ); }
+            get => Destination;
+            set => Destination = Destination.Transform( value );
         }
 
         public Connection Connection { get; set; }
@@ -54,8 +54,8 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         public String StompCorrelationId
         {
-            get { return CorrelationId; }
-            set { CorrelationId = value; }
+            get => CorrelationId;
+            set => CorrelationId = value;
         }
 
         /// <summary>
@@ -63,8 +63,8 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         public MessageDeliveryMode StompDeliveryMode
         {
-            get { return Persistent ? MessageDeliveryMode.Persistent : MessageDeliveryMode.NonPersistent; }
-            set { Persistent = MessageDeliveryMode.Persistent == value; }
+            get => Persistent ? MessageDeliveryMode.Persistent : MessageDeliveryMode.NonPersistent;
+            set => Persistent = MessageDeliveryMode.Persistent == value;
         }
 
         /// <summary>
@@ -72,8 +72,8 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         public IDestination StompDestination
         {
-            get { return Destination; }
-            set { Destination = value as Destination; }
+            get => Destination;
+            set => Destination = value as Destination;
         }
 
         /// <summary>
@@ -107,8 +107,8 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         public MessagePriority StompPriority
         {
-            get { return (MessagePriority) Priority; }
-            set { Priority = (Byte) value; }
+            get => (MessagePriority) Priority;
+            set => Priority = (Byte) value;
         }
 
         /// <summary>
@@ -139,8 +139,8 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         public IDestination StompReplyTo
         {
-            get { return ReplyTo; }
-            set { ReplyTo = Destination.Transform( value ); }
+            get => ReplyTo;
+            set => ReplyTo = Destination.Transform( value );
         }
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         public DateTime StompTimestamp
         {
-            get { return DateUtils.ToDateTime( Timestamp ); }
+            get => DateUtils.ToDateTime( Timestamp );
             set
             {
                 Timestamp = DateUtils.ToJavaTimeUtc( value );
@@ -162,7 +162,7 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         public TimeSpan StompTimeToLive
         {
-            get { return _timeToLive; }
+            get => _timeToLive;
 
             set
             {
@@ -177,9 +177,7 @@ namespace Stomp.Net.Stomp.Commands
                     Expiration = timeStamp + (Int64) _timeToLive.TotalMilliseconds;
                 }
                 else
-                {
                     Expiration = 0;
-                }
             }
         }
 
@@ -188,8 +186,8 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         public String StompType
         {
-            get { return Type; }
-            set { Type = value; }
+            get => Type;
+            set => Type = value;
         }
 
         public event Action<Message> Acknowledger;
@@ -257,8 +255,8 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         public String StompGroupId
         {
-            get { return GroupId; }
-            set { GroupId = value; }
+            get => GroupId;
+            set => GroupId = value;
         }
 
         /// <summary>
@@ -266,8 +264,8 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         public Int32 StompGroupSeq
         {
-            get { return GroupSequence; }
-            set { GroupSequence = value; }
+            get => GroupSequence;
+            set => GroupSequence = value;
         }
 
         #endregion

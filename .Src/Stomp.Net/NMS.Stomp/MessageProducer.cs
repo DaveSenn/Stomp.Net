@@ -152,7 +152,7 @@ namespace Stomp.Net.Stomp
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.ErrorFormat( "Error during producer close: {0}", ex );
+                    Tracer.Error( $"Error during producer close: {ex}" );
                 }
 
                 _closed = true;

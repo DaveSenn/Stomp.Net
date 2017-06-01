@@ -51,20 +51,15 @@ namespace Stomp.Net.Stomp.Commands
                 consumerKey = consumerKey.Substring( 0, idx );
                 idx = consumerKey.LastIndexOf( ':' );
                 if ( idx >= 0 )
-                    try
-                    {
-                        SessionId = Int32.Parse( consumerKey.Substring( idx + 1 ) );
-                        consumerKey = consumerKey.Substring( 0, idx );
-                    }
-                    catch ( Exception ex )
-                    {
-                        Tracer.Warn( ex.Message );
-                    }
+                {
+                    SessionId = Int32.Parse( consumerKey.Substring( idx + 1 ) );
+                    consumerKey = consumerKey.Substring( 0, idx );
+                }
                 ConnectionId = consumerKey;
             }
             catch ( Exception ex )
             {
-                Tracer.Warn( ex.Message );
+                Tracer.Warn( $"Failed to get session id or consumer key '{ex}'." );
             }
         }
 

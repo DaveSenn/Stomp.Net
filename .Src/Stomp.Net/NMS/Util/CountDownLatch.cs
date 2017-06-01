@@ -36,10 +36,7 @@ namespace Stomp.Net.Util
 
         #region Ctor
 
-        public CountDownLatch( Int32 i )
-        {
-            _remaining = i;
-        }
+        public CountDownLatch( Int32 i ) => _remaining = i;
 
         #endregion
 

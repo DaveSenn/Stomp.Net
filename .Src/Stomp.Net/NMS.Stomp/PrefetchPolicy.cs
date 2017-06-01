@@ -33,20 +33,20 @@ namespace Stomp.Net.Stomp
 
         public Int32 QueuePrefetch
         {
-            get { return _queuePrefetch; }
-            set { _queuePrefetch = RestrictToMaximum( value ); }
+            get => _queuePrefetch;
+            set => _queuePrefetch = RestrictToMaximum( value );
         }
 
         public Int32 TopicPrefetch
         {
-            get { return _topicPrefetch; }
-            set { _topicPrefetch = RestrictToMaximum( value ); }
+            get => _topicPrefetch;
+            set => _topicPrefetch = RestrictToMaximum( value );
         }
 
         public Int32 DurableTopicPrefetch
         {
-            get { return _durableTopicPrefetch; }
-            set { _durableTopicPrefetch = RestrictToMaximum( value ); }
+            get => _durableTopicPrefetch;
+            set => _durableTopicPrefetch = RestrictToMaximum( value );
         }
 
         public Int32 MaximumPendingMessageLimit { get; set; }

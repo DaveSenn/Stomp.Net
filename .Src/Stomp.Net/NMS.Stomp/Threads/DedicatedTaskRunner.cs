@@ -57,9 +57,7 @@ namespace Stomp.Net.Stomp.Threads
                 _isShutdown.WaitOne();
             }
             else
-            {
                 Monitor.Exit( _mutex );
-            }
         }
 
         public void Wakeup()

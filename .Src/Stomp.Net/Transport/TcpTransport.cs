@@ -198,18 +198,14 @@ namespace Stomp.Net.Transport
         ///     wait for the response, instead a FutureResponse object is returned that the
         ///     caller can use to wait on the Broker's response.
         /// </summary>
-        public FutureResponse AsyncRequest( ICommand command )
-        {
+        public FutureResponse AsyncRequest( ICommand command ) => 
             throw new NotImplementedException( "Use a ResponseCorrelator if you want to issue AsyncRequest calls" );
-        }
 
         /// <summary>
         ///     Sends a Command to the Broker and waits for the given TimeSpan to expire for a response before returning.
         /// </summary>
-        public Response Request( ICommand command, TimeSpan timeout )
-        {
-            throw new NotImplementedException( "Use a ResponseCorrelator if you want to issue Request calls" );
-        }
+        public Response Request( ICommand command, TimeSpan timeout ) 
+            => throw new NotImplementedException( "Use a ResponseCorrelator if you want to issue Request calls" );
 
         #endregion
 

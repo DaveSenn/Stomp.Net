@@ -25,20 +25,12 @@ namespace Stomp.Net.Stomp
             : base( "Broker failed with missing exception log" )
         {
         }
-
-        public BrokerException( BrokerError brokerError )
-            : this( brokerError, null )
-        {
-        }
-
-        public BrokerException( BrokerError brokerError, Exception innerException )
-            : base( brokerError.ExceptionClass + " : " + brokerError.Message + "\n" + StackTraceDump( brokerError.StackTraceElements ),
-                    innerException )
-        {
-            BrokerError = brokerError;
-        }
-
         
+        public BrokerException( BrokerError brokerError, Exception innerException  = null)
+            : base( brokerError.ExceptionClass + " : " + brokerError.Message + "\n" + StackTraceDump( brokerError.StackTraceElements ),
+                    innerException ) 
+            => BrokerError = brokerError;
+
         #endregion
 
      

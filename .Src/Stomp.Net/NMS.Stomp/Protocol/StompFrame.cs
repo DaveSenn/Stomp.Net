@@ -55,10 +55,7 @@ namespace Stomp.Net.Stomp.Protocol
 
         #region Ctor
 
-        public StompFrame( Boolean encodingEnabled )
-        {
-            EncodingEnabled = encodingEnabled;
-        }
+        public StompFrame( Boolean encodingEnabled ) => EncodingEnabled = encodingEnabled;
 
         public StompFrame( String command, Boolean encodingEnabled )
         {
@@ -182,9 +179,7 @@ namespace Stomp.Net.Stomp.Protocol
                         decoded.WriteByte( (Byte) value );
                 }
                 else
-                {
                     decoded.WriteByte( (Byte) value );
-                }
 
             var data = decoded.ToArray();
             return _encoding.GetString( data, 0, data.Length );
@@ -275,9 +270,7 @@ namespace Stomp.Net.Stomp.Protocol
                         Properties[key] = DecodeHeader( value );
                 }
                 else
-                {
                     Tracer.Warn( "StompFrame - Read Malformed Header: " + line );
-                }
             }
         }
 

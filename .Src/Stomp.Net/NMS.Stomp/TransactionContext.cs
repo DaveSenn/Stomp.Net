@@ -1,7 +1,6 @@
 #region Usings
 
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using Stomp.Net.Stomp.Commands;
 
@@ -28,10 +27,7 @@ namespace Stomp.Net.Stomp
 
         #region Ctor
 
-        public TransactionContext( Session session )
-        {
-            _session = session;
-        }
+        public TransactionContext( Session session ) => _session = session;
 
         #endregion
 

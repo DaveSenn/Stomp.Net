@@ -152,7 +152,7 @@ namespace Stomp.Net.Stomp
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.ErrorFormat( "Error during connection close: {0}", ex.Message );
+                    Tracer.Error( $"Error during connection close: {ex}" );
                 }
                 finally
                 {
@@ -382,7 +382,7 @@ namespace Stomp.Net.Stomp
             }
             catch ( Exception ex )
             {
-                Tracer.WarnFormat( "Caught Exception While disposing of Transport: {0}", ex.Message );
+                Tracer.Warn( $"Caught Exception While disposing of Transport: {ex}.");
             }
 
             foreach ( var session in _sessions )
@@ -392,7 +392,7 @@ namespace Stomp.Net.Stomp
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.WarnFormat( "Caught Exception While disposing of Sessions: {0}", ex.Message );
+                    Tracer.Warn( $"Caught Exception While disposing of Sessions: {ex}.");
                 }
         }
 
@@ -450,7 +450,7 @@ namespace Stomp.Net.Stomp
                             }
                             catch ( Exception ex )
                             {
-                                Tracer.Error( ex );
+                                Tracer.Error( ex.ToString() );
                             }
                         }
                     }
@@ -510,7 +510,7 @@ namespace Stomp.Net.Stomp
                 return;
             }
 
-            Tracer.ErrorFormat( "No such consumer active: {0}.", dispatch.ConsumerId );
+            Tracer.Error( $"No such consumer active: {dispatch.ConsumerId}." );
         }
 
         private void MarkTransportFailed( Exception error )
@@ -535,7 +535,7 @@ namespace Stomp.Net.Stomp
                 _executor.QueueUserWorkItem( AsyncCallExceptionListener, e );
             }
             else
-                Tracer.WarnFormat( "Async exception with no exception listener: {0}", error.Message );
+                Tracer.Warn( $"Async exception with no exception listener: {error}" );
         }
 
         /// <summary>
@@ -579,7 +579,7 @@ namespace Stomp.Net.Stomp
                 OnException( new StompConnectionException( message, cause ) );
             }
             else
-                Tracer.ErrorFormat( "Unknown command: {0}", command );
+                Tracer.Error( $"Unknown command: {command}" );
         }
 
         private void OnException( Exception error )
@@ -596,7 +596,7 @@ namespace Stomp.Net.Stomp
         private void OnTransportInterrupted( ITransport sender )
         {
             _transportInterruptionProcessingComplete = new CountDownLatch( _dispatchers.Count );
-            Tracer.WarnFormat( "Transport interrupted, dispatchers: {0}", _dispatchers.Count );
+            Tracer.Warn( $"Transport interrupted, dispatchers: '{_dispatchers.Count}'" );
 
             foreach ( var session in _sessions )
                 session.Value.ClearMessagesInProgress();
@@ -642,12 +642,12 @@ namespace Stomp.Net.Stomp
             var cdl = _transportInterruptionProcessingComplete;
             if ( cdl == null )
                 return;
+
             if ( _closed.Value || cdl.Remaining <= 0 )
                 return;
-            Tracer.WarnFormat( "dispatch paused, waiting for outstanding dispatch interruption " +
-                               "processing ({0}) to complete..",
-                               cdl.Remaining );
-            cdl.AwaitOperation( TimeSpan.FromSeconds( 10 ) );
+
+            Tracer.Warn( $"Dispatch paused, waiting for outstanding dispatch interruption processing ({cdl.Remaining}) to complete.." );
+            cdl.AwaitOperation( 10.ToSeconds() );
         }
     }
 }

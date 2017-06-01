@@ -1,9 +1,7 @@
 #region Usings
 
 using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Extend;
 
 #endregion
 
@@ -19,49 +17,46 @@ namespace Stomp.Net
         /// <value>A <see cref="ITrace" />.</value>
         // ReSharper disable once MemberCanBePrivate.Global
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
-        public static ITrace Trace { get; set; } = null;
+        public static ITrace Trace { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value determining whether the caller info will be added to the log output or not.
+        /// </summary>
+        /// <value>A value determining whether the caller info will be added to the log output or not.</value>
+        public static Boolean AddCallerInfo { get; set; } = true;
 
         #endregion
 
-        public static void Error( Object message )
-            => Trace?.Error( message.ToString() );
-
-        public static void ErrorFormat( String format, params Object[] args )
-            => Trace?.Error( format.F( args ) );
-
-        public static void Fatal( Object message )
-            => Trace?.Fatal( message.ToString() );
-
-        public static void Info( Object message )
-            => Trace?.Info( message.ToString() );
-
-        public static void InfoFormat( String format, params Object[] args )
-            => Trace?.Info( format.F( args ) );
-
-        public static void Warn( Object message )
+        public static void Error( String message, [CallerMemberName] String callerName = "", [CallerFilePath] String callerFilePath = "", [CallerLineNumber] Int32 callerLineNumber = 0 )
         {
-            Trace?.Warn( message.ToString() );
+            if ( AddCallerInfo )
+                Trace?.Error( message + $"    ({callerName} Ln {callerLineNumber} [{callerFilePath}])" );
+            else
+                Trace?.Error( message );
         }
 
-        public static void WarnFormat( String format, params Object[] args )
+        public static void Fatal( String message, [CallerMemberName] String callerName = "", [CallerFilePath] String callerFilePath = "", [CallerLineNumber] Int32 callerLineNumber = 0 )
         {
-            //var callerInfo = GetCallerInfo();
-            //Trace?.Warn( format.F( args ) + "\t" + callerInfo );
-            Trace?.Warn( format.F( args ) );
+            if ( AddCallerInfo )
+                Trace?.Fatal( message + $"    ({callerName} Ln {callerLineNumber} [{callerFilePath}])" );
+            else
+                Trace?.Fatal( message );
         }
 
-        /*
-        private static String GetCallerInfo()
+        public static void Info( String message, [CallerMemberName] String callerName = "", [CallerFilePath] String callerFilePath = "", [CallerLineNumber] Int32 callerLineNumber = 0 )
         {
-            var stackTrace = new StackTrace();
-
-            var callerFrame = stackTrace.GetFrame( 2 );
-            var callingMethod = callerFrame.GetMethod();
-
-            return $"{callingMethod?.DeclaringType?.Name}.{callingMethod?.Name}";
+            if ( AddCallerInfo )
+                Trace?.Info( message + $"    ({callerName} Ln {callerLineNumber} [{callerFilePath}])" );
+            else
+                Trace?.Info( message );
         }
-        */
-        private static String Test( String message, [CallerMemberName] String callerName = "", [CallerFilePath] String callerFilePath = "", [CallerLineNumber] Int32 CallerLineNumber = 0 )
-            => message;
+
+        public static void Warn( String message, [CallerMemberName] String callerName = "", [CallerFilePath] String callerFilePath = "", [CallerLineNumber] Int32 callerLineNumber = 0 )
+        {
+            if ( AddCallerInfo )
+                Trace?.Warn( message + $"    ({callerName} Ln {callerLineNumber} [{callerFilePath}])" );
+            else
+                Trace?.Warn( message );
+        }
     }
 }

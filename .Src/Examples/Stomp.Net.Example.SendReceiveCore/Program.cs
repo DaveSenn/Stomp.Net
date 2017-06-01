@@ -34,7 +34,26 @@ namespace Stomp.Net.Example.SendReceiveCore
         {
             // Create a connection factory
             var brokerUri = "tcp://" + Host + ":" + Port;
-            var factory = new ConnectionFactory( brokerUri, new StompConnectionSettings { UserName = User, Password = Password } );
+            //var brokerUri = "ssl://" + Host + ":" + Port;
+
+            var factory = new ConnectionFactory( brokerUri,
+                                                 new StompConnectionSettings
+                                                 {
+                                                     UserName = User,
+                                                     Password = Password
+                                                     /*
+                                                     ,TransportSettings =
+                                                     {
+                                                         SslSettings =
+                                                         {
+                                                             ServerName = "ServerName",
+                                                             ClientCertSubject = "ClientCertSubject",
+                                                             KeyStoreName = "My",
+                                                             KeyStoreLocation = "LocalMachine"
+                                                         }
+                                                     }
+                                                     */
+                                                 } );
 
             // Create connection for both requests and responses
             using ( var connection = factory.CreateConnection() )

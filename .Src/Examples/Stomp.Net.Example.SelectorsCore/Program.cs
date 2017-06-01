@@ -27,18 +27,28 @@ namespace Stomp.Net.Example.SelectorsCore
 
         public static void Main( String[] args )
         {
-            // Send some messages for each selector
-            Selectors
-                .ForEach( x => Send( x, 20 ) );
+            // Configure a logger to capture the output of the library
+            Tracer.Trace = new ConsoleLogger();
 
-            // Receive the messages
-            var consumers = Selectors
-                .Select( Receive )
-                .ToList();
+            try
+            {
+                // Send some messages for each selector
+                Selectors
+                    .ForEach( x => Send( x, 20 ) );
 
-            // Wait before disposing the consumers
-            Thread.Sleep( 10000 );
-            consumers.ForEach( x => x.Dispose() );
+                // Receive the messages
+                var consumers = Selectors
+                    .Select( Receive )
+                    .ToList();
+
+                // Wait before disposing the consumers
+                Thread.Sleep( 10000 );
+                consumers.ForEach( x => x.Dispose() );
+            }
+            catch ( Exception ex )
+            {
+                Console.WriteLine( $"Error: {ex}" );
+            }
 
             Console.WriteLine( "Press <enter> to exit." );
             Console.ReadLine();

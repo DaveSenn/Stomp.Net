@@ -179,7 +179,7 @@ namespace Stomp.Net.Stomp
 
             foreach ( var message in messages )
             {
-                Tracer.WarnFormat( "Resending Message Dispatch: ", message.ToString() );
+                Tracer.Warn( $"Resending Message Dispatch: {message}" );
                 Executor.ExecuteFirst( message );
             }
         }
@@ -401,13 +401,13 @@ namespace Stomp.Net.Stomp
 
                 try
                 {
-                    Tracer.InfoFormat( "Closing The Session with Id {0}", _info.SessionId.ToString() );
+                    Tracer.Info( $"Closing The Session with Id {_info.SessionId}" );
                     DoClose();
-                    Tracer.InfoFormat( "Stopped The Session with Id {0}", _info.SessionId.ToString() );
+                    Tracer.Info( $"Stopped The Session with Id {_info.SessionId}" );
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.ErrorFormat( "Error during session close: {0}", ex );
+                    Tracer.Error( $"Error during session close: {ex}" );
                 }
                 finally
                 {
@@ -458,7 +458,7 @@ namespace Stomp.Net.Stomp
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.ErrorFormat( "Error during session close: {0}", ex );
+                    Tracer.Error( $"Error during session close: {ex}" );
                 }
                 finally
                 {

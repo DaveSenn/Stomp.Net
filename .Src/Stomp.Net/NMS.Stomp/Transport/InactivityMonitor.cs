@@ -5,7 +5,6 @@ using System.Threading;
 using Stomp.Net.Stomp.Commands;
 using Stomp.Net.Stomp.Protocol;
 using Stomp.Net.Stomp.Threads;
-using Stomp.Net.Stomp.Util;
 using Stomp.Net.Utilities;
 
 #endregion
@@ -163,7 +162,8 @@ namespace Stomp.Net.Stomp.Transport
         {
             if ( !_failed.CompareAndSet( false, true ) || _disposing )
                 return;
-            Tracer.WarnFormat( "Exception received in the Inactivity Monitor: {0}", command.Message );
+
+            Tracer.Warn( $"Exception received in the Inactivity Monitor: {command.Message}" );
             StopMonitorThreads();
             base.OnException( sender, command );
         }
@@ -228,16 +228,14 @@ namespace Stomp.Net.Stomp.Transport
 
                 if ( _asyncWriteTask != null )
                 {
-                    Tracer.WarnFormat( "InactivityMonitor[{0}]: Write Check time interval: {1}",
-                                       _instanceId,
-                                       WriteCheckTime );
+                    Tracer.Warn( $"InactivityMonitor[{_instanceId}]: Write Check time interval: {WriteCheckTime}" );
                     _asyncTasks.AddTask( _asyncWriteTask );
                 }
 
                 if ( _asyncErrorTask == null && _asyncWriteTask == null )
                     return;
 
-                Tracer.WarnFormat( "InactivityMonitor[{0}]: Starting the Monitor Timer.", _instanceId );
+                Tracer.Warn( $"InactivityMonitor[{_instanceId}]: Starting the Monitor Timer." );
                 _monitorStarted.Value = true;
 
                 _connectionCheckTimer = new Timer(
@@ -274,13 +272,13 @@ namespace Stomp.Net.Stomp.Transport
         {
             if ( _inWrite.Value || _failed.Value )
             {
-                Tracer.WarnFormat( "InactivityMonitor[{0}]: is in write or already failed.", _instanceId );
+                Tracer.Warn( $"InactivityMonitor[{_instanceId}]: is in write or already failed." );
                 return;
             }
 
             if ( !_commandSent.Value )
             {
-                Tracer.WarnFormat( "InactivityMonitor[{0}]: No Message sent since last write check. Sending a KeepAliveInfo.", _instanceId );
+                Tracer.Warn( $"InactivityMonitor[{_instanceId}]: No Message sent since last write check. Sending a KeepAliveInfo." );
                 _asyncWriteTask.IsPending = true;
                 _asyncTasks.Wakeup();
             }
@@ -304,13 +302,13 @@ namespace Stomp.Net.Stomp.Transport
 
             if ( _inRead.Value || _failed.Value || _asyncErrorTask == null )
             {
-                Tracer.WarnFormat( "InactivityMonitor[{0}]: A receive is in progress or already failed.", _instanceId );
+                Tracer.Warn($"InactivityMonitor[{_instanceId}]: A receive is in progress or already failed.");
                 return;
             }
 
             if ( !_commandReceived.Value )
             {
-                Tracer.WarnFormat( "InactivityMonitor[{0}]: No message received since last read check! Sending an InactivityException!", _instanceId );
+                Tracer.Warn( "InactivityMonitor[{_instanceId}]: No message received since last read check! Sending an InactivityException!" );
                 _asyncErrorTask.IsPending = true;
                 _asyncTasks.Wakeup();
             }
@@ -320,7 +318,7 @@ namespace Stomp.Net.Stomp.Transport
 
         /// <summary>
         ///     Checks if we should allow the read check(if less than 90% of the read
-        ///     check time elapsed then we dont do the readcheck
+        ///     check time elapsed then we don't do the read-check
         /// </summary>
         /// <param name="elapsed"></param>
         /// <returns></returns>

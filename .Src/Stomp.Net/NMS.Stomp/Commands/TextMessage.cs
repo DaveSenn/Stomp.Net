@@ -21,10 +21,7 @@ namespace Stomp.Net.Stomp.Commands
         {
         }
 
-        public TextMessage( String text )
-        {
-            Text = text;
-        }
+        public TextMessage( String text ) => Text = text;
 
         #endregion
 
@@ -36,7 +33,7 @@ namespace Stomp.Net.Stomp.Commands
 
         public String Text
         {
-            get { return _text; }
+            get => _text;
 
             set
             {

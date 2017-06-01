@@ -63,7 +63,7 @@ namespace Stomp.Net.Stomp
             }
             catch ( Exception ex )
             {
-                Tracer.WarnFormat( "Caught Exception While Dispatching: {0}", ex.Message );
+                Tracer.Warn( $"Caught Exception While Dispatching: {ex}" );
                 _session.Connection.OnSessionException( _session, ex );
             }
 
@@ -141,7 +141,7 @@ namespace Stomp.Net.Stomp
             }
             catch ( Exception ex )
             {
-                Tracer.WarnFormat( "Caught Exception While Dispatching: {0}", ex.Message );
+                Tracer.Warn( $"Caught Exception While Dispatching: {ex}" );
             }
         }
 
