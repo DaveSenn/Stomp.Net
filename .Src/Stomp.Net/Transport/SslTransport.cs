@@ -71,10 +71,8 @@ namespace Stomp.Net.Transport
             try
             {
                 var remoteCertName = _stompConnectionSettings.TransportSettings.SslSettings.ServerName ?? RemoteAddress.Host;
-                //_sslStream.AuthenticateAsClient( remoteCertName, LoadCertificates(), SslProtocols.Default, false );
-
-                // TODO: Review
-                Task.Run(() => _sslStream.AuthenticateAsClientAsync( remoteCertName, LoadCertificates(), SslProtocols.Tls, false ))
+                
+                Task.Run(() => _sslStream.AuthenticateAsClientAsync( remoteCertName, LoadCertificates(), SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12, false ))
                     .ConfigureAwait( false )
                     .GetAwaiter()
                     .GetResult();
@@ -84,7 +82,7 @@ namespace Stomp.Net.Transport
             catch ( Exception ex )
             {
                 Tracer.Error( "Authentication failed - closing the connection." );
-                Tracer.ErrorFormat( "Exception: {0}", ex.ToString() );
+                Tracer.Error( $"Exception: {ex}" );
                 throw;
             }
 
