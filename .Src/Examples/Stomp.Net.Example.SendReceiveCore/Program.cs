@@ -12,9 +12,9 @@ namespace Stomp.Net.Example.SendReceiveCore
         #region Constants
 
         private const String Destination = "TestQ";
-        private const String Host = "HostNameOrIp";
+        private const String Host = "127.0.0.1";
         private const String Password = "password";
-        private const Int32 Port = 61902;
+        private const Int32 Port = 64011;
         private const String User = "admin";
 
         #endregion
@@ -34,25 +34,23 @@ namespace Stomp.Net.Example.SendReceiveCore
         {
             // Create a connection factory
             var brokerUri = "tcp://" + Host + ":" + Port;
-            //var brokerUri = "ssl://" + Host + ":" + Port;
+            //brokerUri = "ssl://" + Host + ":" + Port;
 
             var factory = new ConnectionFactory( brokerUri,
                                                  new StompConnectionSettings
                                                  {
                                                      UserName = User,
-                                                     Password = Password
-                                                     /*
-                                                     ,TransportSettings =
+                                                     Password = Password,
+                                                     TransportSettings =
                                                      {
                                                          SslSettings =
                                                          {
-                                                             ServerName = "ServerName",
-                                                             ClientCertSubject = "ClientCertSubject",
+                                                             ServerName = "",
+                                                             ClientCertSubject = "",
                                                              KeyStoreName = "My",
                                                              KeyStoreLocation = "LocalMachine"
                                                          }
                                                      }
-                                                     */
                                                  } );
 
             // Create connection for both requests and responses

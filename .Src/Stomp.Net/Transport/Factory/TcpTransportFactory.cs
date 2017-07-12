@@ -37,7 +37,7 @@ namespace Stomp.Net.Transport
         /// <param name="stompConnectionSettings">Some STOMP settings.</param>
         public TcpTransportFactory( [NotNull] StompConnectionSettings stompConnectionSettings )
         {
-            stompConnectionSettings.ThrowIfNull( nameof( stompConnectionSettings ) );
+            stompConnectionSettings.ThrowIfNull( nameof(stompConnectionSettings) );
 
             _stompConnectionSettings = stompConnectionSettings;
         }
@@ -96,7 +96,7 @@ namespace Stomp.Net.Transport
         [NotNull]
         private static Socket Connect( [NotNull] String host, Int32 port )
         {
-            host.ThrowIfNull( nameof( host ) );
+            host.ThrowIfNull( nameof(host) );
 
             try
             {
@@ -192,12 +192,14 @@ namespace Stomp.Net.Transport
             try
             {
                 //return Dns.GetHostEntry( host );
-                
-                // TODO: Review
-                return Task.Run( () => Dns.GetHostEntryAsync( host ) )
-                    .ConfigureAwait( false )
-                    .GetAwaiter()
-                    .GetResult();
+                return Task.Run( async () =>
+                           {
+                               Tracer.Info( "Start resolving DNS." );
+                               return await Dns.GetHostEntryAsync( host );
+                           } )
+                           .ConfigureAwait( false )
+                           .GetAwaiter()
+                           .GetResult();
             }
             catch
             {
