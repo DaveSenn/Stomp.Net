@@ -110,12 +110,14 @@ namespace Stomp.Net.Transport
                     if ( socket != null )
                         return socket;
                 }
+                else
+                    Tracer.Info( "Could not parse IPAddress, try resolve host name." );
 
                 // host must be a host name
                 // Try to get the DNS entry of the host
                 var hostEntry = GetHostEntry( host );
                 if ( null == hostEntry )
-                    throw new SocketException();
+                    throw new Exception( "DNS resolving failed." );
 
                 // Looping through the AddressList allows different type of connections to be tried (IPv6, IPv4 and whatever else may be available).
                 // Prefer IPv6 first.
@@ -139,7 +141,7 @@ namespace Stomp.Net.Transport
                         return socket;
                 }
 
-                throw new SocketException();
+                throw new Exception( "General connection error." );
             }
             catch ( Exception ex )
             {
@@ -174,9 +176,9 @@ namespace Stomp.Net.Transport
                 if ( socket.Connected )
                     return socket;
             }
-            catch
+            catch ( Exception ex )
             {
-                // ignored
+                Tracer.Warn( $"Connect socket failed: {ex}." );
             }
             return null;
         }
@@ -201,8 +203,9 @@ namespace Stomp.Net.Transport
                            .GetAwaiter()
                            .GetResult();
             }
-            catch
+            catch ( Exception ex )
             {
+                Tracer.Warn( $"Error during DNS resolving: {ex}." );
                 return null;
             }
         }
