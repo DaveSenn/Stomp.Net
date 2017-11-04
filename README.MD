@@ -12,4 +12,4 @@ Stomp.Net is a .Net (C#) [STOMP](https://stomp.github.io) client implementaion.
 Stomp.Net is based on the [Apache.NMS.Stomp](http://activemq.apache.org/nms/apachenmsstomp.html) project
 
 ### Usage:
-Install [Stomp.Net](https://www.nuget.org/packages/Stomp.Net/) as NuGet package Install-Package Stomp.Net
+Install [Stomp.Net](https://www.nuget.org/packages/Stomp.Net/) as NuGet package __Install-Package Stomp.Net__
