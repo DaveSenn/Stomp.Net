@@ -13,3 +13,6 @@ Stomp.Net is based on the [Apache.NMS.Stomp](http://activemq.apache.org/nms/apac
 
 ### Usage:
 Install [Stomp.Net](https://www.nuget.org/packages/Stomp.Net/) as NuGet package __Install-Package Stomp.Net__
+
+### License
+Licensed under the [MIT License](https://raw.githubusercontent.com/DaveSenn/Stomp.Net/master/License.txt).
