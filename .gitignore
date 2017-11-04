@@ -207,3 +207,4 @@ Output
 /.Tools/Cake/Roslyn.Compilers.CSharp.dll
 /.Tools/Cake/Roslyn.Compilers.dll
 /.Output
+.vs

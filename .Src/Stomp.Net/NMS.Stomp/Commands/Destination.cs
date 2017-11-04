@@ -248,24 +248,19 @@ namespace Stomp.Net.Stomp.Commands
             if ( destination == null )
                 return null;
 
-            var dest = destination as Destination;
-            if ( dest != null )
+            if ( destination is Destination dest )
                 return dest;
 
-            var tempQueue = destination as ITemporaryQueue;
-            if ( tempQueue != null )
+            if ( destination is ITemporaryQueue tempQueue )
                 return new TempQueue( tempQueue.QueueName );
 
-            var tempTopic = destination as ITemporaryTopic;
-            if ( tempTopic != null )
+            if ( destination is ITemporaryTopic tempTopic )
                 return new TempTopic( tempTopic.TopicName );
 
-            var queue = destination as IQueue;
-            if ( queue != null )
+            if ( destination is IQueue queue )
                 return new Queue( queue.QueueName );
 
-            var topic = destination as ITopic;
-            return topic != null
+            return destination is ITopic topic
                 ? new Topic( topic.TopicName )
                 : null;
         }

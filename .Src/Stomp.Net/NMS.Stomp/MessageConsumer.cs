@@ -296,6 +296,7 @@ namespace Stomp.Net.Stomp
                 _session.Redispatch( _unconsumedMessages );
         }
 
+        // ReSharper disable once InconsistentNaming
         private event Action<IMessage> _listener;
 
         private void AckLater( MessageDispatch dispatch )
@@ -359,9 +360,7 @@ namespace Stomp.Net.Stomp
 
         private Message CreateStompMessage( MessageDispatch dispatch )
         {
-            var message = dispatch.Message.Clone() as Message;
-
-            if ( message == null )
+            if ( !( dispatch.Message.Clone() is Message message ) )
                 throw new Exception( $"Message was null => {dispatch.Message}" );
 
             message.Connection = _session.Connection;

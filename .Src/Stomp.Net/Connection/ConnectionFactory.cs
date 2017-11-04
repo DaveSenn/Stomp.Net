@@ -109,7 +109,7 @@ namespace Stomp.Net
         /// </summary>
         public IRedeliveryPolicy RedeliveryPolicy
         {
-            get { return _redeliveryPolicy; }
+            get => _redeliveryPolicy;
             set
             {
                 if ( value != null )

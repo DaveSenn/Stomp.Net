@@ -103,8 +103,7 @@ namespace Stomp.Net.Transport
                 Socket socket = null;
 
                 // Check if is IP address
-                IPAddress ipAddress;
-                if ( IPAddress.TryParse( host, out ipAddress ) )
+                if ( IPAddress.TryParse( host, out var ipAddress ) )
                 {
                     socket = ConnectSocket( ipAddress, port );
                     if ( socket != null )

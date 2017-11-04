@@ -101,12 +101,11 @@ namespace Stomp.Net.Stomp.Transport
 
         protected override void OnCommand( ITransport sender, ICommand command )
         {
-            if ( command is Response )
+            if ( command is Response response )
             {
-                var response = (Response) command;
                 var correlationId = response.CorrelationId;
 
-                if ( _requestMap.TryGetValue( correlationId, out FutureResponse future ) )
+                if ( _requestMap.TryGetValue( correlationId, out var future ) )
                 {
                     if ( !_requestMap.TryRemove( correlationId, out FutureResponse _ ) )
                         Tracer.Warn( $"Failed to remove future response with id: '{correlationId}'." );

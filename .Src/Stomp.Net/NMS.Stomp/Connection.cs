@@ -495,7 +495,7 @@ namespace Stomp.Net.Stomp
 
         private void DispatchMessage( MessageDispatch dispatch )
         {
-            if ( _dispatchers.TryGetValue( dispatch.ConsumerId, out IDispatcher dispatcher ) )
+            if ( _dispatchers.TryGetValue( dispatch.ConsumerId, out var dispatcher ) )
             {
                 // Can be null when a consumer has sent a MessagePull and there was
                 // no available message at the broker to dispatch.

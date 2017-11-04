@@ -10,10 +10,6 @@ namespace Stomp.Net.Stomp.Commands
     {
         #region Constants
 
-        private const Byte Begin = 0;
-        private const Byte Commit = 1;
-        private const Byte Rollback = 2;
-
         #endregion
 
         #region Properties

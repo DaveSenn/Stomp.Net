@@ -136,7 +136,7 @@ namespace Stomp.Net.Stomp
             {
                 // If the consumer is not available, just ignore the message.
                 // Otherwise, dispatch the message to the consumer.
-                if ( _consumers.TryGetValue( dispatch.ConsumerId, out MessageConsumer consumer ) )
+                if ( _consumers.TryGetValue( dispatch.ConsumerId, out var consumer ) )
                     consumer.Dispatch( dispatch );
             }
             catch ( Exception ex )

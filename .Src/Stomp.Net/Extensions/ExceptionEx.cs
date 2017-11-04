@@ -11,8 +11,7 @@ namespace Stomp.Net.Util
     {
         public static StompException Create( this Exception cause )
         {
-            var exception = cause as StompException;
-            if ( exception != null )
+            if ( cause is StompException exception )
                 return exception;
 
             var msg = cause.Message;

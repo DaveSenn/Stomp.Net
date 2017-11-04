@@ -81,7 +81,7 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         public String StompMessageId
         {
-            get { return MessageId?.ToString() ?? String.Empty; }
+            get => MessageId?.ToString() ?? String.Empty;
             set
             {
                 if ( value != null )
@@ -117,7 +117,7 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         public Boolean StompRedelivered
         {
-            get { return RedeliveryCounter > 0; }
+            get => RedeliveryCounter > 0;
 
             set
             {

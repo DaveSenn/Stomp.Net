@@ -29,7 +29,8 @@ namespace Stomp.Net
 
         // ReSharper disable once MemberCanBeProtected.Global
         public StompException( String message, String errorCode )
-            : this( message ) => ErrorCode = errorCode;
+            : this( message )
+            => ErrorCode = errorCode;
 
         public StompException( String message, Exception innerException )
             : base( message, innerException )
@@ -38,9 +39,9 @@ namespace Stomp.Net
 
         // ReSharper disable once MemberCanBeProtected.Global
         public StompException( String message, String errorCode, Exception innerException )
-            : base( message, innerException ) => ErrorCode = errorCode;
+            : base( message, innerException )
+            => ErrorCode = errorCode;
 
         #endregion
-        
     }
 }
