@@ -46,6 +46,11 @@ namespace Stomp.Net.Stomp.Commands
 
         public String PhysicalName { get; } = String.Empty;
 
+        /// <summary>
+        /// Uses physical name property as stomp destination string without adding prefixes such as
+        /// queue or topic. This to support JMS brokers listening for queue/topic names in a different format.
+        /// </summary>
+        public Boolean SkipStompStringFormatting { get; set; }
         #endregion
 
         #region Ctor
@@ -159,6 +164,9 @@ namespace Stomp.Net.Stomp.Commands
         {
             if ( destination == null )
                 return null;
+
+            if (destination.SkipStompStringFormatting)
+                return destination.PhysicalName;
 
             String result;
 
