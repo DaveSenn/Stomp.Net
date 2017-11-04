@@ -214,8 +214,9 @@ namespace Stomp.Net.Stomp.Commands
 
         public override Boolean Equals( Object that )
         {
-            if ( that is Message )
-                return Equals( (Message) that );
+            if ( that is Message message )
+                return Equals( message );
+
             return false;
         }
 

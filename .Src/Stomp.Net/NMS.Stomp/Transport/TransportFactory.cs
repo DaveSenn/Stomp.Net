@@ -32,10 +32,18 @@ namespace Stomp.Net.Stomp.Transport
         /// <param name="stompConnectionSettings">Some STOMP settings.</param>
         public TransportFactory( [NotNull] StompConnectionSettings stompConnectionSettings )
         {
-            stompConnectionSettings.ThrowIfNull( nameof( stompConnectionSettings ) );
+            stompConnectionSettings.ThrowIfNull( nameof(stompConnectionSettings) );
 
             _stompConnectionSettings = stompConnectionSettings;
         }
+
+        #endregion
+
+        #region Implementation of ITransportFactory
+
+        public ITransport CreateTransport( Uri location )
+            => CreateTransportFactory( location )
+                .CreateTransport( location );
 
         #endregion
 
@@ -82,14 +90,6 @@ namespace Stomp.Net.Stomp.Transport
 
             return factory;
         }
-
-        #endregion
-
-        #region Implementation of ITransportFactory
-        
-        public ITransport CreateTransport( Uri location )
-            => CreateTransportFactory( location )
-                .CreateTransport( location );
 
         #endregion
     }

@@ -1,6 +1,7 @@
 #region Usings
 
 using System;
+using Extend;
 
 #endregion
 
@@ -17,6 +18,19 @@ namespace Stomp.Net
         ///     Returns the error code for the exception, if one has been provided.
         /// </summary>
         private String ErrorCode { get; }
+
+        #region Overrides of Exception
+
+        /// <summary>
+        ///     Gets a message that describes the current exception.
+        /// </summary>
+        /// <returns>The error message that explains the reason for the exception, or an empty string ("").</returns>
+        public override String Message
+            => "{1}{0}ErrorCode: {2}".F( Environment.NewLine,
+                                         base.Message,
+                                         ErrorCode );
+
+        #endregion
 
         #endregion
 

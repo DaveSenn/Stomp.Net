@@ -47,10 +47,11 @@ namespace Stomp.Net.Stomp.Commands
         public String PhysicalName { get; } = String.Empty;
 
         /// <summary>
-        /// Uses physical name property as stomp destination string without adding prefixes such as
-        /// queue or topic. This to support JMS brokers listening for queue/topic names in a different format.
+        ///     Uses physical name property as stomp destination string without adding prefixes such as
+        ///     queue or topic. This to support JMS brokers listening for queue/topic names in a different format.
         /// </summary>
         public Boolean SkipStompStringFormatting { get; set; }
+
         #endregion
 
         #region Ctor
@@ -66,7 +67,7 @@ namespace Stomp.Net.Stomp.Commands
         ///     Construct the Destination with a defined physical name;
         /// </summary>
         /// <param name="name"></param>
-        protected Destination( String name ) 
+        protected Destination( String name )
             => PhysicalName = name;
 
         #endregion
@@ -102,7 +103,7 @@ namespace Stomp.Net.Stomp.Commands
                        || StompTemporaryTopic == destinationType;
             }
         }
-        
+
         public override Object Clone()
         {
             // Since we are a derived class use the base's Clone()
@@ -165,7 +166,7 @@ namespace Stomp.Net.Stomp.Commands
             if ( destination == null )
                 return null;
 
-            if (destination.SkipStompStringFormatting)
+            if ( destination.SkipStompStringFormatting )
                 return destination.PhysicalName;
 
             String result;

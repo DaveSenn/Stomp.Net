@@ -12,7 +12,7 @@ namespace Stomp.Net.Stomp.Commands
     public class Queue : Destination, IQueue
     {
         #region Ctor
-        
+
         public Queue( String name )
             : base( name )
         {
@@ -22,7 +22,7 @@ namespace Stomp.Net.Stomp.Commands
 
         #region Public Members
 
-        public override DestinationType DestinationType 
+        public override DestinationType DestinationType
             => DestinationType.Queue;
 
         #endregion
@@ -31,7 +31,6 @@ namespace Stomp.Net.Stomp.Commands
 
         public String QueueName
             => PhysicalName;
-        
 
         #endregion
 

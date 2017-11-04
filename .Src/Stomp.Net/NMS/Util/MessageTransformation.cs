@@ -18,36 +18,40 @@ namespace Stomp.Net.Util
     {
         public T TransformMessage<T>( IMessage message )
         {
-            if ( message is T )
-                return (T) message;
+            if ( message is T variable )
+                return variable;
             IMessage result;
 
-            if ( message is IBytesMessage )
+            switch ( message )
             {
-                var bytesMsg = message as IBytesMessage;
-                var msg = DoCreateBytesMessage();
-
-                try
+                case IBytesMessage bytesMsg:
                 {
-                    msg.Content = new Byte[bytesMsg.Content.Length];
-                    Array.Copy( bytesMsg.Content, msg.Content, bytesMsg.Content.Length );
-                }
-                catch
-                {
-                    // ignored
-                }
+                    var msg = DoCreateBytesMessage();
 
-                result = msg;
+                    try
+                    {
+                        msg.Content = new Byte[bytesMsg.Content.Length];
+                        Array.Copy( bytesMsg.Content, msg.Content, bytesMsg.Content.Length );
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+
+                    result = msg;
+                    break;
+                }
+                case ITextMessage textMsg:
+                {
+                    var msg = DoCreateTextMessage();
+                    msg.Text = textMsg.Text;
+                    result = msg;
+                    break;
+                }
+                default:
+                    result = DoCreateMessage();
+                    break;
             }
-            else if ( message is ITextMessage )
-            {
-                var textMsg = message as ITextMessage;
-                var msg = DoCreateTextMessage();
-                msg.Text = textMsg.Text;
-                result = msg;
-            }
-            else
-                result = DoCreateMessage();
 
             CopyProperties( message, result );
 

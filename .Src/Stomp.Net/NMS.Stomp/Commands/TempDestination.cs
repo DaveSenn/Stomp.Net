@@ -21,7 +21,7 @@ namespace Stomp.Net.Stomp.Commands
         #endregion
 
         #region Ctor
-        
+
         protected TempDestination( String name )
             : base( name )
         {

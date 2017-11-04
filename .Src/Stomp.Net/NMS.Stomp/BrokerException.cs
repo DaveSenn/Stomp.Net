@@ -2,6 +2,7 @@
 
 using System;
 using System.Text;
+using Extend;
 using Stomp.Net.Stomp.Commands;
 
 #endregion
@@ -17,6 +18,19 @@ namespace Stomp.Net.Stomp
 
         private BrokerError BrokerError { get; }
 
+        #region Overrides of Exception
+
+        /// <summary>
+        ///     Gets a message that describes the current exception.
+        /// </summary>
+        /// <returns>The error message that explains the reason for the exception, or an empty string ("").</returns>
+        public override String Message
+            => "{1}{0}BrokerError: {2}".F( Environment.NewLine,
+                                           base.Message,
+                                           BrokerError );
+
+        #endregion
+
         #endregion
 
         #region Ctor
@@ -25,15 +39,14 @@ namespace Stomp.Net.Stomp
             : base( "Broker failed with missing exception log" )
         {
         }
-        
-        public BrokerException( BrokerError brokerError, Exception innerException  = null)
+
+        public BrokerException( BrokerError brokerError, Exception innerException = null )
             : base( brokerError.ExceptionClass + " : " + brokerError.Message + "\n" + StackTraceDump( brokerError.StackTraceElements ),
-                    innerException ) 
+                    innerException )
             => BrokerError = brokerError;
 
         #endregion
 
-     
         /// <summary>
         ///     Generates a nice textual stack trace
         /// </summary>

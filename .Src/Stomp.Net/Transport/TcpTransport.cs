@@ -198,13 +198,13 @@ namespace Stomp.Net.Transport
         ///     wait for the response, instead a FutureResponse object is returned that the
         ///     caller can use to wait on the Broker's response.
         /// </summary>
-        public FutureResponse AsyncRequest( ICommand command ) => 
+        public FutureResponse AsyncRequest( ICommand command ) =>
             throw new NotImplementedException( "Use a ResponseCorrelator if you want to issue AsyncRequest calls" );
 
         /// <summary>
         ///     Sends a Command to the Broker and waits for the given TimeSpan to expire for a response before returning.
         /// </summary>
-        public Response Request( ICommand command, TimeSpan timeout ) 
+        public Response Request( ICommand command, TimeSpan timeout )
             => throw new NotImplementedException( "Use a ResponseCorrelator if you want to issue Request calls" );
 
         #endregion
@@ -233,10 +233,10 @@ namespace Stomp.Net.Transport
                 if ( !_started )
                 {
                     if ( null == Command )
-                        throw new InvalidOperationException( $"{nameof( Command )} cannot be null when Start is called." );
+                        throw new InvalidOperationException( $"{nameof(Command)} cannot be null when Start is called." );
 
                     if ( null == Exception )
-                        throw new InvalidOperationException( $"{nameof( Exception )} cannot be null when Start is called." );
+                        throw new InvalidOperationException( $"{nameof(Exception)} cannot be null when Start is called." );
 
                     // Initialize our Read and Writer instances.
                     // Its not actually necessary to have two distinct NetworkStream instances but for now the TcpTransport

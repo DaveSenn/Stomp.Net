@@ -28,10 +28,10 @@ namespace Stomp.Net.Utilities
 
         #region Ctor
 
-        public AtomicReference() 
+        public AtomicReference()
             => AtomicValue = default(T);
 
-        public AtomicReference( T defaultValue ) 
+        public AtomicReference( T defaultValue )
             => AtomicValue = defaultValue;
 
         #endregion

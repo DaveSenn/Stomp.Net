@@ -16,7 +16,7 @@ namespace Stomp.Net.Stomp.Transport
     public class ResponseCorrelator : TransportFilter
     {
         #region Fields
-        
+
         private readonly ConcurrentDictionary<Int32, FutureResponse> _requestMap = new ConcurrentDictionary<Int32, FutureResponse>();
 
         private Exception _error;

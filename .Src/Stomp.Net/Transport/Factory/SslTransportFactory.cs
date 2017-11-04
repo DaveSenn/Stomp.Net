@@ -34,7 +34,7 @@ namespace Stomp.Net.Transport
         public SslTransportFactory( [NotNull] StompConnectionSettings stompConnectionSettings )
             : base( stompConnectionSettings )
         {
-            stompConnectionSettings.ThrowIfNull( nameof( stompConnectionSettings ) );
+            stompConnectionSettings.ThrowIfNull( nameof(stompConnectionSettings) );
 
             _stompConnectionSettings = stompConnectionSettings;
         }

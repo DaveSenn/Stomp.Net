@@ -302,7 +302,7 @@ namespace Stomp.Net.Stomp.Transport
 
             if ( _inRead.Value || _failed.Value || _asyncErrorTask == null )
             {
-                Tracer.Warn($"InactivityMonitor[{_instanceId}]: A receive is in progress or already failed.");
+                Tracer.Warn( $"InactivityMonitor[{_instanceId}]: A receive is in progress or already failed." );
                 return;
             }
 

@@ -10,9 +10,9 @@ namespace Stomp.Net.Stomp.Commands
     {
         #region Properties
 
-        public String ConnectionId { get; set; }
+        public String ConnectionId { get;  }
 
-        public Int64 Value { get; set; }
+        public Int64 Value { get;  }
 
         #endregion
 
@@ -22,18 +22,12 @@ namespace Stomp.Net.Stomp.Commands
         {
         }
 
-        public SessionId( ConnectionId connectionId, Int64 sessionId )
+        public SessionId( Int64 sessionId, ConnectionId connectionId)
         {
             ConnectionId = connectionId.Value;
             Value = sessionId;
         }
-
-        public SessionId( ProducerId producerId )
-        {
-            ConnectionId = producerId.ConnectionId;
-            Value = producerId.SessionId;
-        }
-
+        
         public SessionId( ConsumerId consumerId )
         {
             ConnectionId = consumerId.ConnectionId;
@@ -44,8 +38,9 @@ namespace Stomp.Net.Stomp.Commands
 
         public override Boolean Equals( Object that )
         {
-            if ( that is SessionId )
-                return Equals( (SessionId) that );
+            if ( that is SessionId id )
+                return Equals( id );
+
             return false;
         }
 

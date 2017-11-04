@@ -30,9 +30,9 @@ namespace Stomp.Net.Stomp.Protocol
 
         public Encoding Encoding { get; } = Encoding.UTF8;
 
-        public Int32 MaxInactivityDuration { get; set; } = 30000;
+        public Int32 MaxInactivityDuration { get; } = 30000;
 
-        public Int32 MaxInactivityDurationInitialDelay { get; set; } = 0;
+        public Int32 MaxInactivityDurationInitialDelay { get; } = 0;
 
         public Int32 ReadCheckInterval => MaxInactivityDuration;
 
@@ -44,32 +44,42 @@ namespace Stomp.Net.Stomp.Protocol
 
         public void Marshal( Object o, BinaryWriter writer )
         {
-            if ( o is ConnectionInfo )
-                WriteConnectionInfo( (ConnectionInfo) o, writer );
-            else if ( o is Message )
-                WriteMessage( (Message) o, writer );
-            else if ( o is ConsumerInfo )
-                WriteConsumerInfo( (ConsumerInfo) o, writer );
-            else if ( o is MessageAck )
-                WriteMessageAck( (MessageAck) o, writer );
-            else if ( o is TransactionInfo )
-                WriteTransactionInfo( (TransactionInfo) o, writer );
-            else if ( o is ShutdownInfo )
-                WriteShutdownInfo( (ShutdownInfo) o, writer );
-            else if ( o is RemoveInfo )
-                WriteRemoveInfo( (RemoveInfo) o, writer );
-            else if ( o is KeepAliveInfo )
-                WriteKeepAliveInfo( (KeepAliveInfo) o, writer );
-            else if ( o is ICommand )
+            switch ( o )
             {
-                var command = o as ICommand;
-                if ( !command.ResponseRequired )
-                    return;
-                var response = new Response { CorrelationId = command.CommandId };
-                SendCommand( response );
+                case ConnectionInfo info:
+                    WriteConnectionInfo( info, writer );
+                    break;
+                case Message _:
+                    WriteMessage( (Message) o, writer );
+                    break;
+                case ConsumerInfo _:
+                    WriteConsumerInfo( (ConsumerInfo) o, writer );
+                    break;
+                case MessageAck _:
+                    WriteMessageAck( (MessageAck) o, writer );
+                    break;
+                case TransactionInfo _:
+                    WriteTransactionInfo( (TransactionInfo) o, writer );
+                    break;
+                case ShutdownInfo _:
+                    WriteShutdownInfo( (ShutdownInfo) o, writer );
+                    break;
+                case RemoveInfo _:
+                    WriteRemoveInfo( (RemoveInfo) o, writer );
+                    break;
+                case KeepAliveInfo _:
+                    WriteKeepAliveInfo( (KeepAliveInfo) o, writer );
+                    break;
+                case ICommand command:
+                    if ( !command.ResponseRequired )
+                        return;
+                    var response = new Response { CorrelationId = command.CommandId };
+                    SendCommand( response );
+                    break;
+                default:
+                    Tracer.Warn( $"StompWireFormat - Ignored command: {o.GetType()} => '{0}'" );
+                    break;
             }
-            else
-                Tracer.Warn( $"StompWireFormat - Ignored command: {o.GetType()} => '{0}'" );
         }
 
         public ICommand Unmarshal( BinaryReader reader )
@@ -150,8 +160,10 @@ namespace Stomp.Net.Stomp.Protocol
                     if ( hearBeats.Length != 2 )
                         throw new IoException( "Malformed heartbeat property in Connected Frame." );
 
-                    _remoteWireFormatInfo.WriteCheckInterval = Int32.Parse( hearBeats[0].Trim() );
-                    _remoteWireFormatInfo.ReadCheckInterval = Int32.Parse( hearBeats[1].Trim() );
+                    _remoteWireFormatInfo.WriteCheckInterval = Int32.Parse( hearBeats[0]
+                                                                                .Trim() );
+                    _remoteWireFormatInfo.ReadCheckInterval = Int32.Parse( hearBeats[1]
+                                                                               .Trim() );
                 }
             }
             else
@@ -223,15 +235,7 @@ namespace Stomp.Net.Stomp.Protocol
                 message.Headers[key] = value;
             }
 
-            var dispatch = new MessageDispatch
-            {
-                Message = message,
-                ConsumerId = message.TargetConsumerId,
-                Destination = message.Destination,
-                RedeliveryCounter = message.RedeliveryCounter
-            };
-
-            return dispatch;
+            return new MessageDispatch( message.TargetConsumerId, message.Destination, message, message.RedeliveryCounter );
         }
 
         protected virtual void SendCommand( ICommand command )

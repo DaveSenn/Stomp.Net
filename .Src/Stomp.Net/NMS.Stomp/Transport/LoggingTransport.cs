@@ -27,6 +27,17 @@ namespace Stomp.Net.Stomp.Transport
             Next.Oneway( command );
         }
 
+        #region Overrides of Disposable
+
+        /// <summary>
+        ///     Method invoked when the instance gets disposed.
+        /// </summary>
+        protected override void Disposed()
+        {
+        }
+
+        #endregion
+
         protected override void OnCommand( ITransport sender, ICommand command )
         {
             Tracer.Info( "RECEIVED: " + command );
@@ -38,17 +49,5 @@ namespace Stomp.Net.Stomp.Transport
             Tracer.Error( "RECEIVED Exception: " + error );
             Exception?.Invoke( sender, error );
         }
-
-        #region Overrides of Disposable
-
-        /// <summary>
-        ///     Method invoked when the instance gets disposed.
-        /// </summary>
-        protected override void Disposed()
-        {
-            
-        }
-
-        #endregion
     }
 }

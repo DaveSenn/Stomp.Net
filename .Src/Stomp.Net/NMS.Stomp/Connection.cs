@@ -252,19 +252,13 @@ namespace Stomp.Net.Stomp
         ///     Creates a new local transaction ID
         /// </summary>
         public TransactionId CreateLocalTransactionId()
-        {
-            var id = new TransactionId
-            {
-                ConnectionId = ConnectionId,
-                Value = Interlocked.Increment( ref _localTransactionCounter )
-            };
-            return id;
-        }
+            => new TransactionId( Interlocked.Increment( ref _localTransactionCounter ), ConnectionId );
 
         /// <summary>
         ///     Creates a new temporary destination name
         /// </summary>
-        public String CreateTemporaryDestinationName() => _info.ConnectionId.Value + ":" + Interlocked.Increment( ref _temporaryDestinationCounter );
+        public String CreateTemporaryDestinationName() 
+            => _info.ConnectionId.Value + ":" + Interlocked.Increment( ref _temporaryDestinationCounter );
 
         public void Oneway( ICommand command )
         {
@@ -354,7 +348,7 @@ namespace Stomp.Net.Stomp
             if ( _closing.Value )
                 return;
 
-            if ( !_sessions.TryRemove( session, out Session _) )
+            if ( !_sessions.TryRemove( session, out Session _ ) )
                 Tracer.Warn( $"Failed to remove session with session id: '{session.SessionId}'." );
         }
 
@@ -382,7 +376,7 @@ namespace Stomp.Net.Stomp
             }
             catch ( Exception ex )
             {
-                Tracer.Warn( $"Caught Exception While disposing of Transport: {ex}.");
+                Tracer.Warn( $"Caught Exception While disposing of Transport: {ex}." );
             }
 
             foreach ( var session in _sessions )
@@ -392,7 +386,7 @@ namespace Stomp.Net.Stomp
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.Warn( $"Caught Exception While disposing of Sessions: {ex}.");
+                    Tracer.Warn( $"Caught Exception While disposing of Sessions: {ex}." );
                 }
         }
 
@@ -484,11 +478,7 @@ namespace Stomp.Net.Stomp
         private SessionInfo CreateSessionInfo()
         {
             var answer = new SessionInfo();
-            var sessionId = new SessionId
-            {
-                ConnectionId = _info.ConnectionId.Value,
-                Value = Interlocked.Increment( ref _sessionCounter )
-            };
+            var sessionId = new SessionId( Interlocked.Increment( ref _sessionCounter ), ConnectionId );
             answer.SessionId = sessionId;
             return answer;
         }

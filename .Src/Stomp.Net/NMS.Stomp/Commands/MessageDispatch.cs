@@ -10,13 +10,21 @@ namespace Stomp.Net.Stomp.Commands
     {
         #region Properties
 
-        public ConsumerId ConsumerId { get; set; }
+        public ConsumerId ConsumerId { get; }
 
-        public Destination Destination { get; set; }
+        public Destination Destination { get; }
 
-        public Message Message { get; set; }
+        public Message Message { get;  }
 
-        public Int32 RedeliveryCounter { get; set; }
+        public Int32 RedeliveryCounter { get;  }
+
+        public MessageDispatch(ConsumerId consumerId, Destination destination, Message message, Int32 redeliveryCounter)
+        {
+            ConsumerId = consumerId;
+            Destination = destination;
+            Message = message;
+            RedeliveryCounter = redeliveryCounter;
+        }
 
         /// <summery>
         ///     Return an answer of true to the isMessageDispatch() query.
@@ -27,8 +35,9 @@ namespace Stomp.Net.Stomp.Commands
 
         public override Boolean Equals( Object that )
         {
-            if ( that is MessageDispatch )
-                return Equals( (MessageDispatch) that );
+            if ( that is MessageDispatch dispatch )
+                return Equals( dispatch );
+
             return false;
         }
 

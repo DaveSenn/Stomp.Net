@@ -20,21 +20,22 @@ namespace Stomp.Net.Stomp.Commands
         {
         }
 
-        public ConnectionId( SessionId sessionId ) 
+        public ConnectionId( SessionId sessionId )
             => Value = sessionId.ConnectionId;
 
-        public ConnectionId( ProducerId producerId ) 
+        public ConnectionId( ProducerId producerId )
             => Value = producerId.ConnectionId;
 
-        public ConnectionId( ConsumerId consumerId ) 
+        public ConnectionId( ConsumerId consumerId )
             => Value = consumerId.ConnectionId;
 
         #endregion
 
         public override Boolean Equals( Object that )
         {
-            if ( that is ConnectionId )
-                return Equals( (ConnectionId) that );
+            if ( that is ConnectionId id )
+                return Equals( id );
+
             return false;
         }
 

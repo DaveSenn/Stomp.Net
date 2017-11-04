@@ -68,6 +68,17 @@ namespace Stomp.Net.Stomp.Transport
             }
         }
 
+        #region Overrides of Disposable
+
+        /// <summary>
+        ///     Method invoked when the instance gets disposed.
+        /// </summary>
+        protected override void Disposed()
+        {
+        }
+
+        #endregion
+
         private void GetTransmissionLock( TimeSpan timeout )
         {
             if ( timeout > TimeSpan.Zero )
@@ -91,16 +102,5 @@ namespace Stomp.Net.Stomp.Transport
             else
                 Monitor.Enter( _transmissionLock );
         }
-
-        #region Overrides of Disposable
-
-        /// <summary>
-        ///     Method invoked when the instance gets disposed.
-        /// </summary>
-        protected override void Disposed()
-        {
-        }
-
-        #endregion
     }
 }

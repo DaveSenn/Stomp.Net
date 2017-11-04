@@ -16,18 +16,21 @@ namespace Stomp.Net.Stomp.Commands
 
         #region Properties
 
-        public String ConnectionId { get; set; }
+        public String ConnectionId { get;  }
 
-        public Int64 Value { get; set; }
+        public Int64 Value { get;  }
 
-        public Int64 SessionId { get; set; }
+        public Int64 SessionId { get;  }
 
         #endregion
 
         #region Ctor
 
-        public ProducerId()
+        public ProducerId( Int64 value, String connectionId, Int64 sessionId )
         {
+            Value = value;
+            ConnectionId = connectionId;
+            SessionId = sessionId;
         }
 
         public ProducerId( String producerKey )
@@ -60,8 +63,9 @@ namespace Stomp.Net.Stomp.Commands
 
         public override Boolean Equals( Object that )
         {
-            if ( that is ProducerId )
-                return Equals( (ProducerId) that );
+            if ( that is ProducerId id )
+                return Equals( id );
+
             return false;
         }
 

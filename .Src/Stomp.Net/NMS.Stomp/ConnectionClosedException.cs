@@ -41,7 +41,7 @@ namespace Stomp.Net.Stomp
             : base( message, errorCode, innerException )
         {
         }
-        
+
         #endregion
     }
 }

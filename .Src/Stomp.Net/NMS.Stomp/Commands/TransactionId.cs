@@ -10,16 +10,23 @@ namespace Stomp.Net.Stomp.Commands
     {
         #region Properties
 
-        public Int64 Value { get; set; }
+        public Int64 Value {get; }
 
-        public ConnectionId ConnectionId { get; set; }
+        public ConnectionId ConnectionId { get; }
 
         #endregion
 
+        public TransactionId(Int64 value, ConnectionId connectionId)
+        {
+            Value = value;
+            ConnectionId = connectionId;
+        }
+
         public override Boolean Equals( Object that )
         {
-            if ( that is TransactionId )
-                return Equals( (TransactionId) that );
+            if ( that is TransactionId id )
+                return Equals( id );
+
             return false;
         }
 

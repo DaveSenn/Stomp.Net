@@ -13,12 +13,12 @@ namespace Stomp.Net
     [DebuggerStepThrough]
     public abstract class Disposable : IDisposable
     {
-        #region Fields
+        #region Properties
 
         /// <summary>
         ///     Stores whether the instance is disposed or not.
         /// </summary>
-        private Boolean _disposed;
+        public Boolean IsDisposed { get; private set; }
 
         #endregion
 
@@ -51,10 +51,10 @@ namespace Stomp.Net
         /// <param name="disposing">A value indicating whether the dispose method or the destructor is calling.</param>
         private void Dispose( Boolean disposing )
         {
-            if ( disposing && !_disposed )
+            if ( disposing && !IsDisposed )
                 Disposed();
 
-            _disposed = true;
+            IsDisposed = true;
         }
 
         /// <summary>

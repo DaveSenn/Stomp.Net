@@ -8,10 +8,6 @@ namespace Stomp.Net.Stomp.Commands
 {
     public class TransactionInfo : BaseCommand
     {
-        #region Constants
-
-        #endregion
-
         #region Properties
 
         public ConnectionId ConnectionId { get; set; }

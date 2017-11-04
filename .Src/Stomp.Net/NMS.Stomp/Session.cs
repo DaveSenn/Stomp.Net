@@ -246,16 +246,7 @@ namespace Stomp.Net.Stomp
         }
 
         private ProducerId GetNextProducerId()
-        {
-            var id = new ProducerId
-            {
-                ConnectionId = _info.SessionId.ConnectionId,
-                SessionId = _info.SessionId.Value,
-                Value = Interlocked.Increment( ref _producerCounter )
-            };
-
-            return id;
-        }
+            => new ProducerId( Interlocked.Increment( ref _producerCounter ), _info.SessionId.ConnectionId, _info.SessionId.Value );
 
         private void RemoveConsumer( MessageConsumer consumer )
         {

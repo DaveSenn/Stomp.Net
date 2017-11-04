@@ -115,7 +115,7 @@ namespace Stomp.Net
                 if ( value != null )
                     _redeliveryPolicy = value;
                 else
-                    throw new ArgumentException( "Value can not be null", nameof( value ) );
+                    throw new ArgumentException( "Value can not be null", nameof(value) );
             }
         }
 

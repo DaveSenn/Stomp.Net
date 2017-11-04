@@ -252,43 +252,43 @@ namespace Stomp.Net.Stomp
         internal void Rollback()
         {
             lock ( _syncRoot )
-                lock ( _dispatchedMessages )
+            lock ( _dispatchedMessages )
+            {
+                if ( _dispatchedMessages.Count == 0 )
+                    return;
+
+                // Only increase the redelivery delay after the first redelivery..
+                var lastMd = _dispatchedMessages.First();
+                var currentRedeliveryCount = lastMd.Message.RedeliveryCounter;
+
+                _redeliveryDelay = RedeliveryPolicy.RedeliveryDelay( currentRedeliveryCount );
+
+                foreach ( var dispatch in _dispatchedMessages )
+                    dispatch.Message.OnMessageRollback();
+
+                if ( RedeliveryPolicy.MaximumRedeliveries >= 0 &&
+                     lastMd.Message.RedeliveryCounter > RedeliveryPolicy.MaximumRedeliveries )
+                    _redeliveryDelay = 0;
+                else
                 {
-                    if ( _dispatchedMessages.Count == 0 )
-                        return;
-
-                    // Only increase the redelivery delay after the first redelivery..
-                    var lastMd = _dispatchedMessages.First();
-                    var currentRedeliveryCount = lastMd.Message.RedeliveryCounter;
-
-                    _redeliveryDelay = RedeliveryPolicy.RedeliveryDelay( currentRedeliveryCount );
+                    // stop the delivery of messages.
+                    _unconsumedMessages.Stop();
 
                     foreach ( var dispatch in _dispatchedMessages )
-                        dispatch.Message.OnMessageRollback();
+                        _unconsumedMessages.Enqueue( dispatch, true );
 
-                    if ( RedeliveryPolicy.MaximumRedeliveries >= 0 &&
-                         lastMd.Message.RedeliveryCounter > RedeliveryPolicy.MaximumRedeliveries )
-                        _redeliveryDelay = 0;
-                    else
+                    if ( _redeliveryDelay > 0 && !_unconsumedMessages.Stopped )
                     {
-                        // stop the delivery of messages.
-                        _unconsumedMessages.Stop();
-
-                        foreach ( var dispatch in _dispatchedMessages )
-                            _unconsumedMessages.Enqueue( dispatch, true );
-
-                        if ( _redeliveryDelay > 0 && !_unconsumedMessages.Stopped )
-                        {
-                            var deadline = DateTime.Now.AddMilliseconds( _redeliveryDelay );
-                            ThreadPool.QueueUserWorkItem( RollbackHelper, deadline );
-                        }
-                        else
-                            Start();
+                        var deadline = DateTime.Now.AddMilliseconds( _redeliveryDelay );
+                        ThreadPool.QueueUserWorkItem( RollbackHelper, deadline );
                     }
-
-                    _deliveredCounter -= _dispatchedMessages.Count;
-                    _dispatchedMessages.Clear();
+                    else
+                        Start();
                 }
+
+                _deliveredCounter -= _dispatchedMessages.Count;
+                _dispatchedMessages.Clear();
+            }
 
             // Only redispatch if there's an async _listener otherwise a synchronous
             // consumer will pull them from the local queue.

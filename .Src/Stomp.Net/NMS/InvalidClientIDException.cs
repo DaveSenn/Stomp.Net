@@ -29,6 +29,7 @@ namespace Stomp.Net
             : base( message, errorCode, innerException )
         {
         }
+
         #endregion
     }
 }

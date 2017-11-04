@@ -101,11 +101,7 @@ namespace Stomp.Net.Stomp
             stompMessage.StompPriority = priority;
 
             // Always set the message Id regardless of the disable flag.
-            var id = new MessageId
-            {
-                ProducerId = _info.ProducerId,
-                ProducerSequenceId = Interlocked.Increment( ref _producerSequenceId )
-            };
+            var id = new MessageId( _info.ProducerId, Interlocked.Increment( ref _producerSequenceId ) );
             stompMessage.MessageId = id;
 
             if ( !DisableMessageTimestamp )

@@ -67,8 +67,9 @@ namespace Stomp.Net.Stomp.Commands
 
         public override Boolean Equals( Object that )
         {
-            if ( that is ConsumerId )
-                return Equals( (ConsumerId) that );
+            if ( that is ConsumerId id )
+                return Equals( id );
+
             return false;
         }
 

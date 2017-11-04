@@ -18,12 +18,6 @@ namespace Stomp.Net.Stomp.Transport
 
         #endregion
 
-        #region Properties
-
-        public Boolean IsDisposed { get; private set; }
-
-        #endregion
-
         #region Ctor
 
         protected TransportFilter( ITransport next )
@@ -36,11 +30,11 @@ namespace Stomp.Net.Stomp.Transport
         }
 
         #endregion
-       
+
         /// <summary>
         ///     Property IsStarted
         /// </summary>
-        public Boolean IsStarted 
+        public Boolean IsStarted
             => Next.IsStarted;
 
         /// <summary>
@@ -122,7 +116,6 @@ namespace Stomp.Net.Stomp.Transport
             set => Next.Timeout = value;
         }
 
-
         /// <summary>
         ///     Invokes the command delegate.
         /// </summary>
@@ -152,7 +145,6 @@ namespace Stomp.Net.Stomp.Transport
         /// <param name="sender">The sender.</param>
         private void OnResumed( ITransport sender )
             => Resumed?.Invoke( sender );
-
 
         #region Implementation of ITransport
 

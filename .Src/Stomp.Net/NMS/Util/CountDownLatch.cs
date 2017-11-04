@@ -44,7 +44,7 @@ namespace Stomp.Net.Util
         ///     Causes the current thread to wait until the latch has counted down to zero, unless
         ///     the thread is interrupted, or the specified waiting time elapses.
         /// </summary>
-        public Boolean AwaitOperation(TimeSpan timeout) 
+        public Boolean AwaitOperation( TimeSpan timeout )
             => _resetEvent.WaitOne( (Int32) timeout.TotalMilliseconds );
 
         /// <summary>

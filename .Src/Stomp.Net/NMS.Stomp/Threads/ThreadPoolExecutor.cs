@@ -28,7 +28,7 @@ namespace Stomp.Net.Stomp.Threads
 
         public void QueueUserWorkItem( WaitCallback worker, Object arg )
         {
-            worker.ThrowIfNull( nameof( worker ) );
+            worker.ThrowIfNull( nameof(worker) );
 
             lock ( _syncRoot )
             {
