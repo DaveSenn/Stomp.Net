@@ -1,6 +1,6 @@
 # Stomp.Net
 
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/DaveSenn/Stomp.Net?svg=true)](https://ci.appveyor.com/project/DaveSenn/Stomp.Net/branch/master)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/DaveSenn/Stomp.Net?svg=true)](https://ci.appveyor.com/project/DaveSenn/Stomp-Net/branch/master)
 
 [![NuGet](https://img.shields.io/nuget/v/Stomp.Net.svg)](https://www.nuget.org/packages/Stomp.Net/)
 [![NuGet](https://img.shields.io/nuget/dt/Stomp.Net.svg)](https://www.nuget.org/packages/Stomp.Net/)
