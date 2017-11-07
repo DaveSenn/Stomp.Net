@@ -228,7 +228,7 @@ namespace Stomp.Net.Stomp.Protocol
             if ( Properties.ContainsKey( "content-length" ) )
             {
                 var size = Properties["content-length"]
-                    .SaveToInt32( Int32.MinValue );
+                    .SafeToInt32( Int32.MinValue );
                 Content = dataIn.ReadBytes( size );
 
                 // Read the terminating NULL byte for this frame.                
