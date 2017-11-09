@@ -40,6 +40,13 @@ namespace Stomp.Net.Stomp.Protocol
 
         public ITransport Transport { get; set; }
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether the destination name formatting should be skipped or not.
+        ///     If set to true the physical name property will be used as stomp destination string without adding prefixes such as
+        ///     queue or topic. This to support JMS brokers listening for queue/topic names in a different format.
+        /// </summary>
+        public Boolean SkipDesinationNameFormatting { get; set; }
+
         #endregion
 
         public void Marshal( Object o, BinaryWriter writer )
@@ -204,8 +211,8 @@ namespace Stomp.Net.Stomp.Protocol
             frame.RemoveProperty( "content-length" );
 
             message.Type = frame.RemoveProperty( "type" );
-            message.Destination = Destination.ConvertToDestination( frame.RemoveProperty( "destination" ) );
-            message.ReplyTo = Destination.ConvertToDestination( frame.RemoveProperty( "reply-to" ) );
+            message.Destination = Destination.ConvertToDestination( frame.RemoveProperty( "destination" ), SkipDesinationNameFormatting );
+            message.ReplyTo = Destination.ConvertToDestination( frame.RemoveProperty( "reply-to" ), SkipDesinationNameFormatting );
             message.TargetConsumerId = new ConsumerId( frame.RemoveProperty( "subscription" ) );
             message.CorrelationId = frame.RemoveProperty( "correlation-id" );
             message.MessageId = new MessageId( frame.RemoveProperty( "message-id" ) );
@@ -274,7 +281,8 @@ namespace Stomp.Net.Stomp.Protocol
             if ( command.ResponseRequired )
                 frame.SetProperty( "receipt", command.CommandId );
 
-            frame.SetProperty( "destination", Destination.ConvertToStompString( command.Destination ) );
+            //frame.SetProperty( "destination", Destination.ConvertToStompString( command.Destination ) );
+            frame.SetProperty( "destination", command.Destination?.ConvertToStompString() );
             frame.SetProperty( "id", command.ConsumerId.ToString() );
             frame.SetProperty( "durable-subscriber-name", command.SubscriptionName );
             frame.SetProperty( "selector", command.Selector );
@@ -322,10 +330,12 @@ namespace Stomp.Net.Stomp.Protocol
             if ( command.ResponseRequired )
                 frame.SetProperty( "receipt", command.CommandId );
 
-            frame.SetProperty( "destination", Destination.ConvertToStompString( command.Destination ) );
+            //frame.SetProperty( "destination", Destination.ConvertToStompString( command.Destination ) );
+            frame.SetProperty( "destination", command.Destination.ConvertToStompString() );
 
             if ( command.ReplyTo != null )
-                frame.SetProperty( "reply-to", Destination.ConvertToStompString( command.ReplyTo ) );
+                //frame.SetProperty( "reply-to", Destination.ConvertToStompString( command.ReplyTo ) );
+                frame.SetProperty( "reply-to", command.ReplyTo.ConvertToStompString() );
             if ( command.CorrelationId != null )
                 frame.SetProperty( "correlation-id", command.CorrelationId );
             if ( command.Expiration != 0 )

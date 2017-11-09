@@ -568,23 +568,35 @@ namespace Stomp.Net.Stomp
             Connection.SyncRequest( command );
         }
 
+        /// <summary>
+        ///     Creates a new queue with the given name.
+        /// </summary>
+        /// <param name="name">The name of the queue.</param>
+        /// <returns>Returns the queue.</returns>
         public IQueue GetQueue( String name )
-            => new Queue( name );
+            => new Queue( name, _stompConnectionSettings.SkipDesinationNameFormatting );
 
+        /// <summary>
+        ///     Creates a new topic with the given name.
+        /// </summary>
+        /// <param name="name">The name of the topic.</param>
+        /// <returns>Returns the topic.</returns>
         public ITopic GetTopic( String name )
-            => new Topic( name );
+            => new Topic( name , _stompConnectionSettings.SkipDesinationNameFormatting);
 
+        /// <summary>
+        ///     Creates a new temporary queue.
+        /// </summary>
+        /// <returns>Returns the temporary queue.</returns>
         public ITemporaryQueue CreateTemporaryQueue()
-        {
-            var answer = new TempQueue( Connection.CreateTemporaryDestinationName() );
-            return answer;
-        }
+            => new TempQueue( Connection.CreateTemporaryDestinationName() , _stompConnectionSettings.SkipDesinationNameFormatting);
 
-        public ITemporaryTopic CreateTemporaryTopic()
-        {
-            var answer = new TempTopic( Connection.CreateTemporaryDestinationName() );
-            return answer;
-        }
+        /// <summary>
+        ///     Creates a new temporary topic.
+        /// </summary>
+        /// <returns>Returns the temporary topic.</returns>
+        public ITemporaryTopic CreateTemporaryTopic() 
+            => new TempTopic( Connection.CreateTemporaryDestinationName(), _stompConnectionSettings.SkipDesinationNameFormatting);
 
         public ITextMessage CreateTextMessage()
         {

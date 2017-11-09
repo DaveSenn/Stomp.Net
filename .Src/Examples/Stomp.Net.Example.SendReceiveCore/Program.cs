@@ -1,6 +1,7 @@
 ﻿#region Usings
 
 using System;
+using System.Text;
 using Extend;
 
 #endregion
@@ -12,9 +13,12 @@ namespace Stomp.Net.Example.SendReceiveCore
         #region Constants
 
         private const String Destination = "TestQ";
-        private const String Host = "atmfutura3";
+        private const String Host = "hostname";
         private const String Password = "password";
-        private const Int32 Port = 63617;
+
+        private const Int32 Port = 61613;
+
+        //private const Int32 Port = 63617;
         private const String User = "admin";
 
         #endregion
@@ -50,7 +54,8 @@ namespace Stomp.Net.Example.SendReceiveCore
                                                              KeyStoreName = "My",
                                                              KeyStoreLocation = "LocalMachine"
                                                          }
-                                                     }
+                                                     },
+                                                     SkipDesinationNameFormatting = true
                                                  } );
 
             // Create connection for both requests and responses
@@ -64,6 +69,7 @@ namespace Stomp.Net.Example.SendReceiveCore
                 {
                     // Create a message producer
                     IDestination destinationQueue = session.GetQueue( Destination );
+                    // destinationQueue.SkipStompDesinationNameFormatting = true;
                     using ( var producer = session.CreateProducer( destinationQueue ) )
                     {
                         producer.DeliveryMode = MessageDeliveryMode.Persistent;
@@ -89,8 +95,18 @@ namespace Stomp.Net.Example.SendReceiveCore
                                 Console.WriteLine( $"\t{msg.Headers[key]}" );
                         }
                         else
+                        {
                             Console.WriteLine( "Unexpected message type: " + msg.GetType()
                                                                                 .Name );
+                            var byteMessage = msg as IBytesMessage;
+
+                            var s = Encoding.UTF8.GetString( byteMessage.Content );
+                            Console.WriteLine( $"Message received: {s}" );
+
+                            msg.Acknowledge();
+                            foreach ( var key in msg.Headers.Keys )
+                                Console.WriteLine( $"\t{msg.Headers[key]}" );
+                        }
                     }
                 }
             }

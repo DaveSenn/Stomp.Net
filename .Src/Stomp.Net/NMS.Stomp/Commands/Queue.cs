@@ -13,8 +13,16 @@ namespace Stomp.Net.Stomp.Commands
     {
         #region Ctor
 
-        public Queue( String name )
-            : base( name )
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Queue" /> class with the given physical name.
+        /// </summary>
+        /// <param name="name">The physical name of the destination.</param>
+        /// <param name="skipDesinationNameFormatting">
+        ///     A value indicating whether the destination name formatting will be skipped
+        ///     or not.
+        /// </param>
+        public Queue( String name, Boolean skipDesinationNameFormatting )
+            : base( name, skipDesinationNameFormatting )
         {
         }
 
@@ -50,8 +58,8 @@ namespace Stomp.Net.Stomp.Commands
             return o;
         }
 
-        public override Destination CreateDestination( String name )
-            => new Queue( name );
+        public virtual Destination CreateDestination( String name )
+            => new Queue( name, SkipDesinationNameFormatting);
 
         public override Byte GetDataStructureType()
             => DataStructureTypes.QueueType;

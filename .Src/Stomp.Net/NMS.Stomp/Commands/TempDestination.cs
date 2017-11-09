@@ -22,8 +22,16 @@ namespace Stomp.Net.Stomp.Commands
 
         #region Ctor
 
-        protected TempDestination( String name )
-            : base( name )
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="TempDestination" /> class with the given physical name.
+        /// </summary>
+        /// <param name="name">The physical name of the destination.</param>
+        /// <param name="skipDesinationNameFormatting">
+        ///     A value indicating whether the destination name formatting will be skipped
+        ///     or not.
+        /// </param>
+        public TempDestination(String name, Boolean skipDesinationNameFormatting)
+            : base( name, skipDesinationNameFormatting )
         {
         }
 
@@ -49,7 +57,7 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         /// <returns>An Destination</returns>
         /// <param name="name">A  String</param>
-        public override Destination CreateDestination( String name )
+        public virtual Destination CreateDestination( String name )
             => null;
 
         public override Byte GetDataStructureType()
