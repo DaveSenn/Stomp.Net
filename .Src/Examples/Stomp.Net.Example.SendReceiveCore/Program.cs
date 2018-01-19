@@ -12,7 +12,7 @@ namespace Stomp.Net.Example.SendReceiveCore
         #region Constants
 
         private const String Destination = "TestQ";
-        private const String Host = "atmfutura3";
+        private const String Host = "hostName";
         private const String Password = "password";
         private const Int32 Port = 63617;
         private const String User = "admin";
@@ -70,6 +70,7 @@ namespace Stomp.Net.Example.SendReceiveCore
 
                         // Send a message to the destination
                         var message = session.CreateTextMessage( RandomValueEx.GetRandomString() );
+                        message.StompTimeToLive = TimeSpan.FromMinutes( 1 );
                         message.Headers["test"] = "test";
                         producer.Send( message );
                         Console.WriteLine( "Message sent\n" );
