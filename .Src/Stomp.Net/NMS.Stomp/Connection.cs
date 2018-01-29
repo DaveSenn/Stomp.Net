@@ -277,7 +277,8 @@ namespace Stomp.Net.Stomp
         /// <summary>
         ///     Performs a synchronous request-response with the broker
         /// </summary>
-        public Response SyncRequest( ICommand command ) => SyncRequest( command, _stompConnectionSettings.RequestTimeout );
+        public Response SyncRequest( ICommand command ) 
+            => SyncRequest( command, _stompConnectionSettings.RequestTimeout );
 
         public Response SyncRequest( ICommand command, TimeSpan requestTimeout )
         {
