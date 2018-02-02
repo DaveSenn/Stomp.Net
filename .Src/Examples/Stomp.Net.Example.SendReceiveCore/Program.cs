@@ -1,6 +1,7 @@
 ﻿#region Usings
 
 using System;
+using System.Text;
 using Extend;
 
 #endregion
@@ -14,7 +15,10 @@ namespace Stomp.Net.Example.SendReceiveCore
         private const String Destination = "TestQ";
         private const String Host = "hostName";
         private const String Password = "password";
-        private const Int32 Port = 63617;
+
+        private const Int32 Port = 61613;
+
+        //private const Int32 Port = 63617;
         private const String User = "admin";
 
         #endregion
@@ -50,7 +54,8 @@ namespace Stomp.Net.Example.SendReceiveCore
                                                              KeyStoreName = "My",
                                                              KeyStoreLocation = "LocalMachine"
                                                          }
-                                                     }
+                                                     },
+                                                     SkipDesinationNameFormatting = true
                                                  } );
 
             // Create connection for both requests and responses
@@ -64,6 +69,7 @@ namespace Stomp.Net.Example.SendReceiveCore
                 {
                     // Create a message producer
                     IDestination destinationQueue = session.GetQueue( Destination );
+                    // destinationQueue.SkipStompDesinationNameFormatting = true;
                     using ( var producer = session.CreateProducer( destinationQueue ) )
                     {
                         producer.DeliveryMode = MessageDeliveryMode.Persistent;
@@ -90,49 +96,22 @@ namespace Stomp.Net.Example.SendReceiveCore
                                 Console.WriteLine( $"\t{msg.Headers[key]}" );
                         }
                         else
+                        {
                             Console.WriteLine( "Unexpected message type: " + msg.GetType()
                                                                                 .Name );
+                            if ( !( msg is IBytesMessage byteMessage ) )
+                                throw new Exception( "Message is of unknown type." );
+
+                            var s = Encoding.UTF8.GetString( byteMessage.Content );
+                            Console.WriteLine( $"Message received: {s}" );
+
+                            msg.Acknowledge();
+                            foreach ( var key in msg.Headers.Keys )
+                                Console.WriteLine( $"\t{msg.Headers[key]}" );
+                        }
                     }
                 }
             }
         }
-    }
-
-    /// <summary>
-    ///     Console logger for Stomp.Net
-    /// </summary>
-    public class ConsoleLogger : ITrace
-    {
-        #region Implementation of ITrace
-
-        /// <summary>
-        ///     Writes a message on the error level.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        public void Error( String message )
-            => Console.WriteLine( $"[Error]\t\t{message}" );
-
-        /// <summary>
-        ///     Writes a message on the fatal level.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        public void Fatal( String message )
-            => Console.WriteLine( $"[Fatal]\t\t{message}" );
-
-        /// <summary>
-        ///     Writes a message on the info level.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        public void Info( String message )
-            => Console.WriteLine( $"[Info]\t\t{message}" );
-
-        /// <summary>
-        ///     Writes a message on the warn level.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        public void Warn( String message )
-            => Console.WriteLine( $"[Warn]\t\t{message}" );
-
-        #endregion
     }
 }

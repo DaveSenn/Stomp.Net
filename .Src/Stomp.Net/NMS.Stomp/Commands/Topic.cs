@@ -13,8 +13,16 @@ namespace Stomp.Net.Stomp.Commands
     {
         #region Ctor
 
-        public Topic( String name )
-            : base( name )
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Topic" /> class with the given physical name.
+        /// </summary>
+        /// <param name="name">The physical name of the destination.</param>
+        /// <param name="skipDesinationNameFormatting">
+        ///     A value indicating whether the destination name formatting will be skipped
+        ///     or not.
+        /// </param>
+        public Topic(String name, Boolean skipDesinationNameFormatting)
+            : base( name, skipDesinationNameFormatting )
         {
         }
 
@@ -40,8 +48,8 @@ namespace Stomp.Net.Stomp.Commands
             return o;
         }
 
-        public override Destination CreateDestination( String name )
-            => new Topic( name );
+        public virtual Destination CreateDestination( String name )
+            => new Topic( name, SkipDesinationNameFormatting );
 
         public override Byte GetDataStructureType()
             => DataStructureTypes.TopicType;

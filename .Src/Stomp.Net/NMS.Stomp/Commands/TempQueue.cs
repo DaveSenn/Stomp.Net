@@ -13,8 +13,16 @@ namespace Stomp.Net.Stomp.Commands
     {
         #region Ctor
 
-        public TempQueue( String name )
-            : base( name )
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="TempQueue" /> class with the given physical name.
+        /// </summary>
+        /// <param name="name">The physical name of the destination.</param>
+        /// <param name="skipDesinationNameFormatting">
+        ///     A value indicating whether the destination name formatting will be skipped
+        ///     or not.
+        /// </param>
+        public TempQueue(String name, Boolean skipDesinationNameFormatting)
+            : base( name, skipDesinationNameFormatting )
         {
         }
 
@@ -42,7 +50,7 @@ namespace Stomp.Net.Stomp.Commands
         }
 
         public override Destination CreateDestination( String name )
-            => new TempQueue( name );
+            => new TempQueue( name, SkipDesinationNameFormatting);
 
         public override Byte GetDataStructureType()
             => DataStructureTypes.TempQueueType;

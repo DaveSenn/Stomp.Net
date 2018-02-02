@@ -54,7 +54,10 @@ namespace Stomp.Net.Transport
             socket.ReceiveTimeout = _stompConnectionSettings.TransportSettings.ReceiveTimeout;
             socket.SendTimeout = _stompConnectionSettings.TransportSettings.SendTimeout;
 
-            var wireformat = new StompWireFormat();
+            var wireformat = new StompWireFormat
+            {
+                SkipDesinationNameFormatting = _stompConnectionSettings.SkipDesinationNameFormatting
+            };
             var transport = CreateTransport( location, socket, wireformat );
             wireformat.Transport = transport;
 

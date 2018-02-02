@@ -38,37 +38,31 @@ namespace Stomp.Net.Stomp.Commands
         #region Properties
 
         /// <summary>
-        ///     Indicates if the Desination was created by this client or was provided
-        ///     by the broker, most commonly the deinstinations provided by the broker
+        ///     Indicates if the Destination was created by this client or was provided
+        ///     by the broker, most commonly the Destinations provided by the broker
         ///     are those that appear in the ReplyTo field of a Message.
         /// </summary>
         private Boolean RemoteDestination { get; set; }
 
-        public String PhysicalName { get; } = String.Empty;
-
-        /// <summary>
-        ///     Uses physical name property as stomp destination string without adding prefixes such as
-        ///     queue or topic. This to support JMS brokers listening for queue/topic names in a different format.
-        /// </summary>
-        public Boolean SkipStompStringFormatting { get; set; }
+        public String PhysicalName { get; }
 
         #endregion
 
         #region Ctor
 
         /// <summary>
-        ///     The Default Constructor
+        ///     Initializes a new instance of the <see cref="Destination" /> class with the given physical name.
         /// </summary>
-        protected Destination()
+        /// <param name="name">The physical name of the destination.</param>
+        /// <param name="skipDesinationNameFormatting">
+        ///     A value indicating whether the destination name formatting will be skipped
+        ///     or not.
+        /// </param>
+        protected Destination( String name, Boolean skipDesinationNameFormatting )
         {
+            PhysicalName = name;
+            SkipDesinationNameFormatting = skipDesinationNameFormatting;
         }
-
-        /// <summary>
-        ///     Construct the Destination with a defined physical name;
-        /// </summary>
-        /// <param name="name"></param>
-        protected Destination( String name )
-            => PhysicalName = name;
 
         #endregion
 
@@ -104,6 +98,13 @@ namespace Stomp.Net.Stomp.Commands
             }
         }
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether the destination name formatting should be skipped or not.
+        ///     If set to true the physical name property will be used as stomp destination string without adding prefixes such as
+        ///     queue or topic. This to support JMS brokers listening for queue/topic names in a different format.
+        /// </summary>
+        public Boolean SkipDesinationNameFormatting { get; }
+
         public override Object Clone()
         {
             // Since we are a derived class use the base's Clone()
@@ -119,7 +120,15 @@ namespace Stomp.Net.Stomp.Commands
             return o;
         }
 
-        public static Destination ConvertToDestination( String text )
+        /// <summary>
+        /// </summary>
+        /// <param name="text">The name of the destination</param>
+        /// <param name="skipDesinationNameFormatting">
+        ///     A value indicating whether the destination name formatting will be skipped
+        ///     or not.
+        /// </param>
+        /// <returns></returns>
+        public static Destination ConvertToDestination( String text, Boolean skipDesinationNameFormatting )
         {
             if ( text == null )
                 return null;
@@ -158,32 +167,29 @@ namespace Stomp.Net.Stomp.Commands
                 remote = true;
             }
 
-            return CreateDestination( type, text, remote );
+            return CreateDestination( type, text, remote, skipDesinationNameFormatting );
         }
 
-        public static String ConvertToStompString( Destination destination )
+        public String ConvertToStompString()
         {
-            if ( destination == null )
-                return null;
-
-            if ( destination.SkipStompStringFormatting )
-                return destination.PhysicalName;
+            if ( SkipDesinationNameFormatting )
+                return PhysicalName;
 
             String result;
 
-            switch ( destination.DestinationType )
+            switch ( DestinationType )
             {
                 case DestinationType.Topic:
-                    result = "/topic/" + destination.PhysicalName;
+                    result = "/topic/" + PhysicalName;
                     break;
                 case DestinationType.TemporaryTopic:
-                    result = ( destination.RemoteDestination ? "/remote-temp-topic/" : "/temp-topic/" ) + destination.PhysicalName;
+                    result = ( RemoteDestination ? "/remote-temp-topic/" : "/temp-topic/" ) + PhysicalName;
                     break;
                 case DestinationType.TemporaryQueue:
-                    result = ( destination.RemoteDestination ? "/remote-temp-queue/" : "/temp-queue/" ) + destination.PhysicalName;
+                    result = ( RemoteDestination ? "/remote-temp-queue/" : "/temp-queue/" ) + PhysicalName;
                     break;
                 default:
-                    result = "/queue/" + destination.PhysicalName;
+                    result = "/queue/" + PhysicalName;
                     break;
             }
 
@@ -191,14 +197,7 @@ namespace Stomp.Net.Stomp.Commands
         }
 
         /// <summary>
-        ///     Factory method to create a child destination if this destination is a composite
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns>the created Destination</returns>
-        public abstract Destination CreateDestination( String name );
-
-        /// <summary>
-        ///     if the object passed in is equivalent, return true
+        ///     If the object passed in is equivalent, return true
         /// </summary>
         /// <param name="obj">the object to compare</param>
         /// <returns>true if this instance and obj are equivalent</returns>
@@ -254,6 +253,7 @@ namespace Stomp.Net.Stomp.Commands
         /// <returns></returns>
         public static Destination Transform( IDestination destination )
         {
+            // ReSharper disable once ConvertIfStatementToSwitchStatement
             if ( destination == null )
                 return null;
 
@@ -261,16 +261,16 @@ namespace Stomp.Net.Stomp.Commands
                 return dest;
 
             if ( destination is ITemporaryQueue tempQueue )
-                return new TempQueue( tempQueue.QueueName );
+                return new TempQueue( tempQueue.QueueName, tempQueue.SkipDesinationNameFormatting );
 
             if ( destination is ITemporaryTopic tempTopic )
-                return new TempTopic( tempTopic.TopicName );
+                return new TempTopic( tempTopic.TopicName, tempTopic.SkipDesinationNameFormatting );
 
             if ( destination is IQueue queue )
-                return new Queue( queue.QueueName );
+                return new Queue( queue.QueueName, queue.SkipDesinationNameFormatting );
 
             return destination is ITopic topic
-                ? new Topic( topic.TopicName )
+                ? new Topic( topic.TopicName, topic.SkipDesinationNameFormatting )
                 : null;
         }
 
@@ -286,25 +286,30 @@ namespace Stomp.Net.Stomp.Commands
         /// <param name="type"></param>
         /// <param name="pyhsicalName"></param>
         /// <param name="remote"></param>
+        /// <param name="skipDesinationNameFormatting">
+        ///     A value indicating whether the destination name formatting will be skipped
+        ///     or not.
+        /// </param>
         /// <returns></returns>
-        private static Destination CreateDestination( Int32 type, String pyhsicalName, Boolean remote )
+        private static Destination CreateDestination( Int32 type, String pyhsicalName, Boolean remote, Boolean skipDesinationNameFormatting )
         {
             Destination result;
             if ( pyhsicalName == null )
                 return null;
+
             switch ( type )
             {
                 case StompTopic:
-                    result = new Topic( pyhsicalName );
+                    result = new Topic( pyhsicalName, skipDesinationNameFormatting );
                     break;
                 case StompTemporaryTopic:
-                    result = new TempTopic( pyhsicalName );
+                    result = new TempTopic( pyhsicalName, skipDesinationNameFormatting );
                     break;
                 case StompQueue:
-                    result = new Queue( pyhsicalName );
+                    result = new Queue( pyhsicalName, skipDesinationNameFormatting );
                     break;
                 default:
-                    result = new TempQueue( pyhsicalName );
+                    result = new TempQueue( pyhsicalName, skipDesinationNameFormatting );
                     break;
             }
 

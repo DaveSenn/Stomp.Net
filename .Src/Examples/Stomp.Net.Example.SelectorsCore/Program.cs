@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Extend;
 
@@ -15,8 +16,11 @@ namespace Stomp.Net.Example.SelectorsCore
         #region Constants
 
         private const String Host = "hostName";
+
         private const String Password = "password";
-        private const Int32 Port = 63617;
+
+        //private const Int32 Port = 63617;
+        private const Int32 Port = 61613;
 
         private const String QueueName = "TestQ";
         private const String SelectorKey = "selectorProp";
@@ -38,8 +42,8 @@ namespace Stomp.Net.Example.SelectorsCore
 
                 // Receive the messages
                 var consumers = Selectors
-                    .Select( Receive )
-                    .ToList();
+                                .Select( Receive )
+                                .ToList();
 
                 // Wait before disposing the consumers
                 Thread.Sleep( 10000 );
@@ -167,7 +171,20 @@ namespace Stomp.Net.Example.SelectorsCore
                                 // Start receiving messages => none blocking call
                                 consumer.Listener += x =>
                                 {
-                                    Console.WriteLine( $"{selector}\t => {x.Headers[selectorKey]} => {( (ITextMessage) x ).Text}" );
+                                    switch ( x )
+                                    {
+                                        case ITextMessage msg:
+                                            Console.WriteLine( $"{selector}\t => {x.Headers[selectorKey]} => {msg.Text}" );
+                                            break;
+                                        case IBytesMessage byteMsg:
+                                            var content = Encoding.UTF8.GetString( byteMsg.Content );
+                                            Console.WriteLine( $"{selector}\t => {x.Headers[selectorKey]} => {content}" );
+                                            break;
+                                        default:
+                                            Console.WriteLine( "!!!! Received invalid message !!!" );
+                                            break;
+                                    }
+
                                     x.Acknowledge();
                                 };
 
