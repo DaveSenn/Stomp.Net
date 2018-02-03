@@ -16,9 +16,9 @@ namespace Stomp.Net.Example.SendReceiveCore
         private const String Host = "hostName";
         private const String Password = "password";
 
-        private const Int32 Port = 61613;
+        //private const Int32 Port = 61613;
+        private const Int32 Port = 63617;
 
-        //private const Int32 Port = 63617;
         private const String User = "admin";
 
         #endregion
@@ -55,7 +55,7 @@ namespace Stomp.Net.Example.SendReceiveCore
                                                              KeyStoreLocation = "LocalMachine"
                                                          }
                                                      },
-                                                     SkipDesinationNameFormatting = true
+                                                     SkipDesinationNameFormatting = false
                                                  } );
 
             // Create connection for both requests and responses
