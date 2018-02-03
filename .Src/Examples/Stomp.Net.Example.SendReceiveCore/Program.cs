@@ -2,7 +2,6 @@
 
 using System;
 using System.Text;
-using Extend;
 
 #endregion
 
@@ -13,13 +12,14 @@ namespace Stomp.Net.Example.SendReceiveCore
         #region Constants
 
         private const String Destination = "TestQ";
-        private const String Host = "hostName";
-        private const String Password = "password";
+
+        private const String Host = "atmfutura2";
 
         //private const Int32 Port = 61613;
         private const Int32 Port = 63617;
 
         private const String User = "admin";
+        private const String Password = "password";
 
         #endregion
 
@@ -55,7 +55,9 @@ namespace Stomp.Net.Example.SendReceiveCore
                                                              KeyStoreLocation = "LocalMachine"
                                                          }
                                                      },
-                                                     SkipDesinationNameFormatting = false
+                                                     SkipDesinationNameFormatting = false, // Determines whether the destination name formatting should be skipped or not.
+                                                     SetHostHeader = true, // Determines whether the host header will be added to messages or not
+                                                     HostHeaderOverride = null // Can be used to override the content of the host header
                                                  } );
 
             // Create connection for both requests and responses
@@ -75,11 +77,11 @@ namespace Stomp.Net.Example.SendReceiveCore
                         producer.DeliveryMode = MessageDeliveryMode.Persistent;
 
                         // Send a message to the destination
-                        var message = session.CreateTextMessage( RandomValueEx.GetRandomString() );
+                        var message = session.CreateTextMessage( "Hello World" );
                         message.StompTimeToLive = TimeSpan.FromMinutes( 1 );
                         message.Headers["test"] = "test";
                         producer.Send( message );
-                        Console.WriteLine( "Message sent\n" );
+                        Console.WriteLine( "\n\nMessage sent\n" );
                     }
 
                     // Create a message consumer
@@ -90,20 +92,18 @@ namespace Stomp.Net.Example.SendReceiveCore
                         var msg = consumer.Receive();
                         if ( msg is ITextMessage )
                         {
-                            Console.WriteLine( "Message received" );
+                            Console.WriteLine( "\n\nMessage received" );
                             msg.Acknowledge();
                             foreach ( var key in msg.Headers.Keys )
                                 Console.WriteLine( $"\t{msg.Headers[key]}" );
                         }
                         else
                         {
-                            Console.WriteLine( "Unexpected message type: " + msg.GetType()
-                                                                                .Name );
                             if ( !( msg is IBytesMessage byteMessage ) )
                                 throw new Exception( "Message is of unknown type." );
 
                             var s = Encoding.UTF8.GetString( byteMessage.Content );
-                            Console.WriteLine( $"Message received: {s}" );
+                            Console.WriteLine( $"\n\nMessage received: {s}" );
 
                             msg.Acknowledge();
                             foreach ( var key in msg.Headers.Keys )

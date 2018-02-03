@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
     <PackageId>Stomp.Net</PackageId>
-    <Version>1.2.0.1</Version>
+    <Version>1.2.1.0</Version>
     <Authors>Dave Senn</Authors>
     <Company>Dave Senn</Company>
     <Description>.Net STOMP client library written in C#.</Description>
@@ -12,10 +12,10 @@
     <PackageIconUrl>https://raw.githubusercontent.com/DaveSenn/Stomp.Net/master/.Art/logo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/DaveSenn/Stomp.Net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>C# STOMP</PackageTags>
+    <PackageTags>C# STOMP Apache.NMS</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <AssemblyVersion>1.2.0.1</AssemblyVersion>
-    <FileVersion>1.2.0.1</FileVersion>
+    <AssemblyVersion>1.2.1.0</AssemblyVersion>
+    <FileVersion>1.2.1.0</FileVersion>
     <RootNamespace>Stomp.Net</RootNamespace>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>StompNet.snk</AssemblyOriginatorKeyFile>

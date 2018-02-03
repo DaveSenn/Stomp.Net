@@ -23,6 +23,24 @@ namespace Stomp.Net
         public Boolean SkipDesinationNameFormatting { get; set; }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether the host header will be set or not.
+        /// </summary>
+        /// <remarks>
+        ///     Disabling the host header can make sens if you are working with a broker like RabbitMq
+        ///     which uses the host header as name of the target virtual host.
+        ///     Default is
+        ///     <value>true</value>
+        ///     .
+        /// </remarks>
+        public Boolean SetHostHeader { get; set; } = true;
+
+        /// <summary>
+        ///     Gets or sets the value used as host header.
+        ///     If set Stomp.Net will use this value as content of the host header.
+        /// </summary>
+        public String HostHeaderOverride { get; set; }
+
+        /// <summary>
         ///     Gets or sets a client id generator.
         /// </summary>
         public IdGenerator ClientIdGenerator { get; set; }

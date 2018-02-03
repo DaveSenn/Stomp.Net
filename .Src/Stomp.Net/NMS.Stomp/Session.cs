@@ -428,6 +428,7 @@ namespace Stomp.Net.Stomp
                         consumer.Value.FailureError = Connection.FirstFailureError;
                         consumer.Value.Close();
                     }
+
                     _consumers.Clear();
 
                     foreach ( var producer in _producers )
@@ -582,21 +583,21 @@ namespace Stomp.Net.Stomp
         /// <param name="name">The name of the topic.</param>
         /// <returns>Returns the topic.</returns>
         public ITopic GetTopic( String name )
-            => new Topic( name , _stompConnectionSettings.SkipDesinationNameFormatting);
+            => new Topic( name, _stompConnectionSettings.SkipDesinationNameFormatting );
 
         /// <summary>
         ///     Creates a new temporary queue.
         /// </summary>
         /// <returns>Returns the temporary queue.</returns>
         public ITemporaryQueue CreateTemporaryQueue()
-            => new TempQueue( Connection.CreateTemporaryDestinationName() , _stompConnectionSettings.SkipDesinationNameFormatting);
+            => new TempQueue( Connection.CreateTemporaryDestinationName(), _stompConnectionSettings.SkipDesinationNameFormatting );
 
         /// <summary>
         ///     Creates a new temporary topic.
         /// </summary>
         /// <returns>Returns the temporary topic.</returns>
-        public ITemporaryTopic CreateTemporaryTopic() 
-            => new TempTopic( Connection.CreateTemporaryDestinationName(), _stompConnectionSettings.SkipDesinationNameFormatting);
+        public ITemporaryTopic CreateTemporaryTopic()
+            => new TempTopic( Connection.CreateTemporaryDestinationName(), _stompConnectionSettings.SkipDesinationNameFormatting );
 
         public ITextMessage CreateTextMessage()
         {

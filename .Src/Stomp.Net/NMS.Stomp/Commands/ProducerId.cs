@@ -16,11 +16,11 @@ namespace Stomp.Net.Stomp.Commands
 
         #region Properties
 
-        public String ConnectionId { get;  }
+        public String ConnectionId { get; }
 
-        public Int64 Value { get;  }
+        public Int64 Value { get; }
 
-        public Int64 SessionId { get;  }
+        public Int64 SessionId { get; }
 
         #endregion
 
@@ -54,8 +54,9 @@ namespace Stomp.Net.Stomp.Commands
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.Warn( ex.Message );
+                    Tracer.Warn( $"Failed to parse producer id '{ex.Message}' => this could be a problem if you are working with any Apache MQ, for other brokers this error may just be ignored." );
                 }
+
             ConnectionId = producerKey;
         }
 

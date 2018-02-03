@@ -56,7 +56,9 @@ namespace Stomp.Net.Transport
 
             var wireformat = new StompWireFormat
             {
-                SkipDesinationNameFormatting = _stompConnectionSettings.SkipDesinationNameFormatting
+                SkipDesinationNameFormatting = _stompConnectionSettings.SkipDesinationNameFormatting,
+                SetHostHeader = _stompConnectionSettings.SetHostHeader,
+                HostHeaderOverride = _stompConnectionSettings.HostHeaderOverride
             };
             var transport = CreateTransport( location, socket, wireformat );
             wireformat.Transport = transport;
@@ -182,6 +184,7 @@ namespace Stomp.Net.Transport
             {
                 Tracer.Warn( $"Connect socket failed: {ex}." );
             }
+
             return null;
         }
 
