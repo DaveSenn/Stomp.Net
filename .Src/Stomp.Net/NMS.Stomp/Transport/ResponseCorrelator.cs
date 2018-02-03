@@ -101,29 +101,40 @@ namespace Stomp.Net.Stomp.Transport
 
         protected override void OnCommand( ITransport sender, ICommand command )
         {
-            if ( command is Response response )
+            if (command is Response response)
             {
                 var correlationId = response.CorrelationId;
 
-                if ( _requestMap.TryGetValue( correlationId, out var future ) )
+                if (_requestMap.TryGetValue(correlationId, out var future))
                 {
-                    if ( !_requestMap.TryRemove( correlationId, out FutureResponse _ ) )
-                        Tracer.Warn( $"Failed to remove future response with id: '{correlationId}'." );
+                    if (!_requestMap.TryRemove(correlationId, out FutureResponse _))
+                        Tracer.Warn($"Failed to remove future response with id: '{correlationId}'.");
 
                     future.Response = response;
 
-                    if ( !( response is ExceptionResponse ) )
+                    if (!(response is ExceptionResponse))
                         return;
+
                     var er = response as ExceptionResponse;
+                    Tracer.Error($"Response is exception response, exception: {er.Exception} ({er.Exception.Message})");
+
                     var brokerError = er.Exception;
-                    var exception = new BrokerException( brokerError );
-                    Exception( this, exception );
+                    var exception = new BrokerException(brokerError);
+                    Exception(this, exception);
                 }
                 else
-                    Tracer.Warn( "Unknown response ID: " + response.CommandId + " for response: " + response );
+                {
+                    Tracer.Warn($"Unknown response ID: {response.CommandId} for response: {response}");
+                    if (response is ExceptionResponse exResponse)
+                    {
+                        Tracer.Error($"Response is exception response, exception: {exResponse.Exception} ({exResponse.Exception.Message})");
+                        var exception = new BrokerException(exResponse.Exception);
+                        Exception(this, exception);
+                    }
+                }
             }
             else
-                Command( sender, command );
+                Command(sender, command);
         }
 
         protected override void OnException( ITransport sender, Exception command )
