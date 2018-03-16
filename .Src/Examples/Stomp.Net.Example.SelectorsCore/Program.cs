@@ -94,7 +94,7 @@ namespace Stomp.Net.Example.SelectorsCore
                         // Send {messageCount} messages with the given selector
                         for ( var i = 0; i < messageCount; i++ )
                         {
-                            var message = session.CreateTextMessage( $"{selectorValue} {i,0:000} => {RandomValueEx.GetRandomString()}" );
+                            var message = session.CreateBytesMessage( Encoding.UTF8.GetBytes( $"{selectorValue} {i,0:000} => {RandomValueEx.GetRandomString()}" ) );
                             // Set the selector value in the message header
                             message.Headers[SelectorKey] = selectorValue;
 
@@ -173,9 +173,6 @@ namespace Stomp.Net.Example.SelectorsCore
                                 {
                                     switch ( x )
                                     {
-                                        case ITextMessage msg:
-                                            Console.WriteLine( $"{selector}\t => {x.Headers[selectorKey]} => {msg.Text}" );
-                                            break;
                                         case IBytesMessage byteMsg:
                                             var content = Encoding.UTF8.GetString( byteMsg.Content );
                                             Console.WriteLine( $"{selector}\t => {x.Headers[selectorKey]} => {content}" );

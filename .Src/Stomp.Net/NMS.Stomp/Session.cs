@@ -598,19 +598,7 @@ namespace Stomp.Net.Stomp
         /// <returns>Returns the temporary topic.</returns>
         public ITemporaryTopic CreateTemporaryTopic()
             => new TempTopic( Connection.CreateTemporaryDestinationName(), _stompConnectionSettings.SkipDesinationNameFormatting );
-
-        public ITextMessage CreateTextMessage()
-        {
-            var answer = new TextMessage();
-            return ConfigureMessage( answer ) as ITextMessage;
-        }
-
-        public ITextMessage CreateTextMessage( String text )
-        {
-            var answer = new TextMessage( text );
-            return ConfigureMessage( answer ) as ITextMessage;
-        }
-
+        
         public IBytesMessage CreateBytesMessage()
             => ConfigureMessage( new BytesMessage() ) as IBytesMessage;
 

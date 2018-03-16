@@ -41,13 +41,6 @@ namespace Stomp.Net.Util
                     result = msg;
                     break;
                 }
-                case ITextMessage textMsg:
-                {
-                    var msg = DoCreateTextMessage();
-                    msg.Text = textMsg.Text;
-                    result = msg;
-                    break;
-                }
                 default:
                     result = DoCreateMessage();
                     break;
@@ -88,7 +81,6 @@ namespace Stomp.Net.Util
 
         protected abstract IMessage DoCreateMessage();
         protected abstract IBytesMessage DoCreateBytesMessage();
-        protected abstract ITextMessage DoCreateTextMessage();
 
         protected abstract IDestination DoTransformDestination( IDestination destination );
         protected abstract void DoPostProcessMessage( IMessage message );

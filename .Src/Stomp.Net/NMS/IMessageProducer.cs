@@ -53,17 +53,7 @@ namespace Stomp.Net
         void Send( IDestination destination, IMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive );
 
         #region Factory methods to create messages
-
-        /// <summary>
-        ///     Creates a new text message with an empty body
-        /// </summary>
-        ITextMessage CreateTextMessage();
-
-        /// <summary>
-        ///     Creates a new text message with the given body
-        /// </summary>
-        ITextMessage CreateTextMessage( String text );
-
+        
         /// <summary>
         ///     Creates a new binary message
         /// </summary>

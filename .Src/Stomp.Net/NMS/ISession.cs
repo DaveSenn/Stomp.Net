@@ -75,16 +75,6 @@ namespace Stomp.Net
         ITemporaryTopic CreateTemporaryTopic();
 
         /// <summary>
-        ///     Creates a new text message with an empty body
-        /// </summary>
-        ITextMessage CreateTextMessage();
-
-        /// <summary>
-        ///     Creates a new text message with the given body
-        /// </summary>
-        ITextMessage CreateTextMessage( String text );
-
-        /// <summary>
         ///     Deletes a durable consumer created with CreateDurableConsumer().
         /// </summary>
         /// <param name="name">Name of the durable consumer</param>

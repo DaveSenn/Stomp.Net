@@ -21,7 +21,6 @@ namespace Stomp.Net.Stomp.Commands
         public const Byte ErrorResponseType = 27;
         public const Byte ErrorType = 0;
         public const Byte KeepAliveInfoType = 28;
-        public const Byte MapMessageType = 3;
         public const Byte MessageAckType = 11;
 
         public const Byte MessageDispatchType = 9;

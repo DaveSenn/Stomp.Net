@@ -12,14 +12,13 @@ namespace Stomp.Net.Example.SendReceiveCore
         #region Constants
 
         private const String Destination = "TestQ";
-
         private const String Host = "atmfutura2";
+        private const String Password = "password";
 
         //private const Int32 Port = 61613;
         private const Int32 Port = 63617;
 
         private const String User = "admin";
-        private const String Password = "password";
 
         #endregion
 
@@ -27,6 +26,7 @@ namespace Stomp.Net.Example.SendReceiveCore
         {
             // Configure a logger to capture the output of the library
             Tracer.Trace = new ConsoleLogger();
+            Tracer.AddCallerInfo = true;
 
             SendReceiveText();
 
@@ -77,7 +77,7 @@ namespace Stomp.Net.Example.SendReceiveCore
                         producer.DeliveryMode = MessageDeliveryMode.Persistent;
 
                         // Send a message to the destination
-                        var message = session.CreateTextMessage( "Hello World" );
+                        var message = session.CreateBytesMessage( Encoding.UTF8.GetBytes( "Hello World" ) );
                         message.StompTimeToLive = TimeSpan.FromMinutes( 1 );
                         message.Headers["test"] = "test";
                         producer.Send( message );
@@ -90,25 +90,16 @@ namespace Stomp.Net.Example.SendReceiveCore
                     {
                         // Wait for a message => blocking call; use consumer.Listener to receive messages as events (none blocking call)
                         var msg = consumer.Receive();
-                        if ( msg is ITextMessage )
-                        {
-                            Console.WriteLine( "\n\nMessage received" );
-                            msg.Acknowledge();
-                            foreach ( var key in msg.Headers.Keys )
-                                Console.WriteLine( $"\t{msg.Headers[key]}" );
-                        }
-                        else
-                        {
-                            if ( !( msg is IBytesMessage byteMessage ) )
-                                throw new Exception( "Message is of unknown type." );
 
-                            var s = Encoding.UTF8.GetString( byteMessage.Content );
-                            Console.WriteLine( $"\n\nMessage received: {s}" );
+                        if ( !( msg is IBytesMessage byteMessage ) )
+                            throw new Exception( "Message is of unknown type." );
 
-                            msg.Acknowledge();
-                            foreach ( var key in msg.Headers.Keys )
-                                Console.WriteLine( $"\t{msg.Headers[key]}" );
-                        }
+                        var s = Encoding.UTF8.GetString( byteMessage.Content );
+                        Console.WriteLine( $"\n\nMessage received: {s}" );
+
+                        msg.Acknowledge();
+                        foreach ( var key in msg.Headers.Keys )
+                            Console.WriteLine( $"\t{msg.Headers[key]}" );
                     }
                 }
             }

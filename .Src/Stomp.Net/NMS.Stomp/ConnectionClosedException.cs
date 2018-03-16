@@ -1,7 +1,5 @@
 #region Usings
 
-using System;
-
 #endregion
 
 namespace Stomp.Net.Stomp
@@ -13,32 +11,11 @@ namespace Stomp.Net.Stomp
     {
         #region Ctor
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ConnectionClosedException" /> class.
+        /// </summary>
         public ConnectionClosedException()
             : base( "The connection is already closed!" )
-        {
-        }
-
-        // ReSharper disable once UnusedMember.Global
-        public ConnectionClosedException( String message )
-            : base( message )
-        {
-        }
-
-        // ReSharper disable once UnusedMember.Global
-        public ConnectionClosedException( String message, String errorCode )
-            : base( message, errorCode )
-        {
-        }
-
-        // ReSharper disable once UnusedMember.Global
-        public ConnectionClosedException( String message, Exception innerException )
-            : base( message, innerException )
-        {
-        }
-
-        // ReSharper disable once UnusedMember.Global
-        public ConnectionClosedException( String message, String errorCode, Exception innerException )
-            : base( message, errorCode, innerException )
         {
         }
 

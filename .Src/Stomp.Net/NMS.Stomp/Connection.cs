@@ -257,7 +257,7 @@ namespace Stomp.Net.Stomp
         /// <summary>
         ///     Creates a new temporary destination name
         /// </summary>
-        public String CreateTemporaryDestinationName() 
+        public String CreateTemporaryDestinationName()
             => _info.ConnectionId.Value + ":" + Interlocked.Increment( ref _temporaryDestinationCounter );
 
         public void Oneway( ICommand command )
@@ -277,7 +277,7 @@ namespace Stomp.Net.Stomp
         /// <summary>
         ///     Performs a synchronous request-response with the broker
         /// </summary>
-        public Response SyncRequest( ICommand command ) 
+        public Response SyncRequest( ICommand command )
             => SyncRequest( command, _stompConnectionSettings.RequestTimeout );
 
         public Response SyncRequest( ICommand command, TimeSpan requestTimeout )
@@ -392,8 +392,8 @@ namespace Stomp.Net.Stomp
         }
 
         /// <summary>
-        ///     Check and ensure that the connection objcet is connected.  If it is not
-        ///     connected or is closed, a ConnectionClosedException is thrown.
+        ///     Check and ensure that the connection object is connected.
+        ///     If it is not connected or is closed, a ConnectionClosedException is thrown.
         /// </summary>
         private void CheckConnected()
         {
@@ -402,6 +402,7 @@ namespace Stomp.Net.Stomp
 
             if ( _connected.Value )
                 return;
+
             var timeoutTime = DateTime.Now + _stompConnectionSettings.RequestTimeout;
             var waitCount = 1;
 

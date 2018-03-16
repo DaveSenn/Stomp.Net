@@ -34,13 +34,7 @@ namespace Stomp.Net.Stomp
             var message = new BytesMessage { Connection = _connection };
             return message;
         }
-
-        protected override ITextMessage DoCreateTextMessage()
-        {
-            var message = new TextMessage { Connection = _connection };
-            return message;
-        }
-
+        
         protected override IDestination DoTransformDestination( IDestination destination )
             => Destination.Transform( destination );
 

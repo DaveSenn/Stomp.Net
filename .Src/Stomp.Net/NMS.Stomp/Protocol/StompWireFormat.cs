@@ -14,7 +14,7 @@ using Stomp.Net.Stomp.Transport;
 namespace Stomp.Net.Stomp.Protocol
 {
     /// <summary>
-    ///     Implements the <a href="http://stomp.codehaus.org/">STOMP</a> protocol.
+    ///     Implements the STOMP protocol.
     /// </summary>
     public class StompWireFormat : IWireFormat
     {
@@ -209,13 +209,9 @@ namespace Stomp.Net.Stomp.Protocol
 
         protected virtual ICommand ReadMessage( StompFrame frame )
         {
-            Message message;
             frame.RemoveProperty( "transformation" );
 
-            if ( frame.HasProperty( "content-length" ) )
-                message = new BytesMessage { Content = frame.Content };
-            else
-                message = new TextMessage( Encoding.GetString( frame.Content, 0, frame.Content.Length ) );
+            var message = new BytesMessage { Content = frame.Content };
 
             // Remove any receipt header we might have attached if the outbound command was
             // sent with response required set to true

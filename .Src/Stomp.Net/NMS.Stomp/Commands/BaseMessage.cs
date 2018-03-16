@@ -27,7 +27,7 @@ namespace Stomp.Net.Stomp.Commands
 
         protected TransactionId OriginalTransactionId { get; set; }
 
-        protected String GroupId { get; set; }
+        public String StompGroupId { get; set; }
 
         protected Int32 GroupSequence { get; set; }
 
@@ -97,7 +97,7 @@ namespace Stomp.Net.Stomp.Commands
                "TransactionId=" + TransactionId + ", " +
                "MessageId=" + MessageId + ", " +
                "OriginalTransactionId=" + OriginalTransactionId + ", " +
-               "GroupID=" + GroupId + ", " +
+               "GroupID=" + StompGroupId + ", " +
                "GroupSequence=" + GroupSequence + ", " +
                "CorrelationId=" + CorrelationId + ", " +
                "Persistent=" + Persistent + ", " +

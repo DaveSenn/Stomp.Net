@@ -9,7 +9,7 @@ using Stomp.Net.Util;
 
 namespace Stomp.Net.Stomp.Commands
 {
-    public class Message : BaseMessage, IMessage
+    public abstract class Message : BaseMessage, IMessage
     {
         #region Fields
 
@@ -202,15 +202,8 @@ namespace Stomp.Net.Stomp.Commands
             */
         }
 
-        public override Object Clone()
-        {
-            var cloneMessage = (Message) base.Clone();
-
-            // TODO Properties
-            // cloneMessage._propertyHelper = new MessagePropertyIntercepter( cloneMessage, cloneMessage._properties, ReadOnlyProperties );
-            // cloneMessage._propertyHelper.AllowByteArrays = false;
-            return cloneMessage;
-        }
+        public override Object Clone() 
+            => (Message) base.Clone();
 
         public override Boolean Equals( Object that )
         {
@@ -235,13 +228,7 @@ namespace Stomp.Net.Stomp.Commands
                 throw new MessageNotWriteableException( "Message is in Read-Only mode." );
         }
 
-        protected void FailIfWriteOnlyBody()
-        {
-            if ( ReadOnlyBody == false )
-                throw new MessageNotReadableException( "Message is in Write-Only mode." );
-        }
-
-        private Boolean Equals( Message that )
+        private Boolean Equals( BaseMessage that )
         {
             var oMsg = that.MessageId;
             var thisMsg = MessageId;
@@ -251,6 +238,7 @@ namespace Stomp.Net.Stomp.Commands
 
         #region NMS Extension headers
 
+        /*
         /// <summary>
         ///     The Message Group ID used to group messages together to the same consumer for the same group ID value
         /// </summary>
@@ -258,7 +246,7 @@ namespace Stomp.Net.Stomp.Commands
         {
             get => GroupId;
             set => GroupId = value;
-        }
+        }*/
 
         /// <summary>
         ///     The Message Group Sequence counter to indicate the position in a group

@@ -156,13 +156,7 @@ namespace Stomp.Net.Stomp
         }
 
         #region Message Creation Factory Methods.
-
-        public ITextMessage CreateTextMessage()
-            => _session.CreateTextMessage();
-
-        public ITextMessage CreateTextMessage( String text )
-            => _session.CreateTextMessage( text );
-
+        
         public IBytesMessage CreateBytesMessage()
             => _session.CreateBytesMessage();
 
