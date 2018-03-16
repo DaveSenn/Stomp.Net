@@ -1,6 +1,7 @@
 #region Usings
 
 using System;
+using JetBrains.Annotations;
 
 #endregion
 
@@ -31,18 +32,21 @@ namespace Stomp.Net.Stomp
 
         #region Properties
 
+        [PublicAPI]
         public Int32 QueuePrefetch
         {
             get => _queuePrefetch;
             set => _queuePrefetch = RestrictToMaximum( value );
         }
 
+        [PublicAPI]
         public Int32 TopicPrefetch
         {
             get => _topicPrefetch;
             set => _topicPrefetch = RestrictToMaximum( value );
         }
 
+        [PublicAPI]
         public Int32 DurableTopicPrefetch
         {
             get => _durableTopicPrefetch;

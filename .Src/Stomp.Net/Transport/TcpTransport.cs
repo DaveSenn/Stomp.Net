@@ -371,6 +371,7 @@ namespace Stomp.Net.Transport
                         if ( !_seenShutdown )
                             Exception( this, ex );
                     }
+
                     break;
                 }
 

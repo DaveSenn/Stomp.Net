@@ -17,7 +17,6 @@ namespace Stomp.Net.Stomp.Commands
         public virtual Byte GetDataStructureType()
             => 0;
 
-        // Helper methods
         protected static Int32 HashCode( Object value )
         {
             if ( value != null )

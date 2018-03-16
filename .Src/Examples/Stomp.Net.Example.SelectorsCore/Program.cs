@@ -171,16 +171,8 @@ namespace Stomp.Net.Example.SelectorsCore
                                 // Start receiving messages => none blocking call
                                 consumer.Listener += x =>
                                 {
-                                    switch ( x )
-                                    {
-                                        case IBytesMessage byteMsg:
-                                            var content = Encoding.UTF8.GetString( byteMsg.Content );
-                                            Console.WriteLine( $"{selector}\t => {x.Headers[selectorKey]} => {content}" );
-                                            break;
-                                        default:
-                                            Console.WriteLine( "!!!! Received invalid message !!!" );
-                                            break;
-                                    }
+                                    var content = Encoding.UTF8.GetString( x.Content );
+                                    Console.WriteLine( $"{selector}\t => {x.Headers[selectorKey]} => {content}" );
 
                                     x.Acknowledge();
                                 };

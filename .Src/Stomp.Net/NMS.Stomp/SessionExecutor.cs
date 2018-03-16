@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using JetBrains.Annotations;
 using Stomp.Net.Messaging;
 using Stomp.Net.Stomp.Commands;
 using Stomp.Net.Stomp.Threads;
@@ -26,6 +27,7 @@ namespace Stomp.Net.Stomp
 
         #region Properties
 
+        [PublicAPI]
         public MessageDispatch[] UnconsumedMessages => _messageQueue.EnqueueAll();
 
         private Boolean HasUncomsumedMessages => _messageQueue.Started && _messageQueue.HasMessages;

@@ -11,16 +11,15 @@ namespace Stomp.Net.Stomp.Commands
         #region Fields
 
         private String _key;
-        //private Int64 _producerSequenceId;
 
         #endregion
 
         #region Properties
 
-        public ProducerId ProducerId { get;  }
+        public ProducerId ProducerId { get; }
 
-        public Int64 ProducerSequenceId { get;  }
-        
+        public Int64 ProducerSequenceId { get; }
+
         #endregion
 
         #region Ctor
@@ -42,17 +41,17 @@ namespace Stomp.Net.Stomp.Commands
             _key = mkey;
 
             // Parse off the sequenceId
-            var p = mkey.LastIndexOf(":", StringComparison.Ordinal);
-            if (p >= 0)
+            var p = mkey.LastIndexOf( ":", StringComparison.Ordinal );
+            if ( p >= 0 )
                 if ( Int64.TryParse( mkey.Substring( p + 1 ), out var producerSequenceId ) )
                 {
                     ProducerSequenceId = producerSequenceId;
-                    mkey = mkey.Substring(0, p);
+                    mkey = mkey.Substring( 0, p );
                 }
                 else
                     ProducerSequenceId = 0;
 
-            ProducerId = new ProducerId(mkey);
+            ProducerId = new ProducerId( mkey );
         }
 
         #endregion
@@ -91,6 +90,7 @@ namespace Stomp.Net.Stomp.Commands
         /// </summery>
         public override String ToString()
             => _key ?? ( _key = $"{ProducerId}:{ProducerSequenceId}" );
-        
+
+        //private Int64 _producerSequenceId;
     }
 }

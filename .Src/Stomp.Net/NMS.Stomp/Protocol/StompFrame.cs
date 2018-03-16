@@ -225,10 +225,9 @@ namespace Stomp.Net.Stomp.Protocol
 
         private void ReadContent( BinaryReader dataIn )
         {
-            if ( Properties.ContainsKey( "content-length" ) )
+            if ( Properties.ContainsKey( PropertyKeys.ContentLength ) )
             {
-                var size = Properties["content-length"]
-                    .SafeToInt32( Int32.MinValue );
+                var size = Properties[PropertyKeys.ContentLength].SafeToInt32( Int32.MinValue );
                 Content = dataIn.ReadBytes( size );
 
                 // Read the terminating NULL byte for this frame.                

@@ -21,7 +21,7 @@ namespace Stomp.Net.Stomp.Commands
         ///     A value indicating whether the destination name formatting will be skipped
         ///     or not.
         /// </param>
-        public TempQueue(String name, Boolean skipDesinationNameFormatting)
+        public TempQueue( String name, Boolean skipDesinationNameFormatting )
             : base( name, skipDesinationNameFormatting )
         {
         }
@@ -50,7 +50,7 @@ namespace Stomp.Net.Stomp.Commands
         }
 
         public override Destination CreateDestination( String name )
-            => new TempQueue( name, SkipDesinationNameFormatting);
+            => new TempQueue( name, SkipDesinationNameFormatting );
 
         public override Byte GetDataStructureType()
             => DataStructureTypes.TempQueueType;

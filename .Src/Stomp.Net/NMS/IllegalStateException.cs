@@ -15,21 +15,6 @@ namespace Stomp.Net
         {
         }
 
-        public IllegalStateException( String message, String errorCode )
-            : base( message, errorCode )
-        {
-        }
-
-        public IllegalStateException( String message, Exception innerException )
-            : base( message, innerException )
-        {
-        }
-
-        public IllegalStateException( String message, String errorCode, Exception innerException )
-            : base( message, errorCode, innerException )
-        {
-        }
-
         #endregion
     }
 }

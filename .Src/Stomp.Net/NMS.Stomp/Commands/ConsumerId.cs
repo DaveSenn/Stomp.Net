@@ -1,6 +1,7 @@
 #region Usings
 
 using System;
+using JetBrains.Annotations;
 
 #endregion
 
@@ -18,6 +19,7 @@ namespace Stomp.Net.Stomp.Commands
 
         #region Properties
 
+        [PublicAPI]
         public SessionId ParentId => _parentId ?? ( _parentId = new SessionId( this ) );
 
         public String ConnectionId { get; set; }
@@ -55,6 +57,7 @@ namespace Stomp.Net.Stomp.Commands
                     SessionId = Int32.Parse( consumerKey.Substring( idx + 1 ) );
                     consumerKey = consumerKey.Substring( 0, idx );
                 }
+
                 ConnectionId = consumerKey;
             }
             catch ( Exception ex )

@@ -1,6 +1,7 @@
 #region Usings
 
 using System;
+using JetBrains.Annotations;
 
 #endregion
 
@@ -13,16 +14,22 @@ namespace Stomp.Net
     {
         #region Properties
 
+        [PublicAPI]
         MessageDeliveryMode DeliveryMode { get; set; }
 
+        [PublicAPI]
         TimeSpan TimeToLive { get; set; }
 
+        [PublicAPI]
         TimeSpan RequestTimeout { get; set; }
 
+        [PublicAPI]
         MessagePriority Priority { get; set; }
 
+        [PublicAPI]
         Boolean DisableMessageId { get; set; }
 
+        [PublicAPI]
         Boolean DisableMessageTimestamp { get; set; }
 
         #endregion
@@ -30,38 +37,45 @@ namespace Stomp.Net
         /// <summary>
         ///     Close the producer.
         /// </summary>
+        [PublicAPI]
         void Close();
 
         /// <summary>
         ///     Sends the message to the default destination for this producer
         /// </summary>
-        void Send( IMessage message );
+        [PublicAPI]
+        void Send( IBytesMessage message );
 
         /// <summary>
         ///     Sends the message to the default destination with the explicit QoS configuration
         /// </summary>
-        void Send( IMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive );
+        [PublicAPI]
+        void Send( IBytesMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive );
 
         /// <summary>
         ///     Sends the message to the given destination
         /// </summary>
-        void Send( IDestination destination, IMessage message );
+        [PublicAPI]
+        void Send( IDestination destination, IBytesMessage message );
 
         /// <summary>
         ///     Sends the message to the given destination with the explicit QoS configuration
         /// </summary>
-        void Send( IDestination destination, IMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive );
+        [PublicAPI]
+        void Send( IDestination destination, IBytesMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive );
 
         #region Factory methods to create messages
-        
+
         /// <summary>
         ///     Creates a new binary message
         /// </summary>
+        [PublicAPI]
         IBytesMessage CreateBytesMessage();
 
         /// <summary>
         ///     Creates a new binary message with the given body
         /// </summary>
+        [PublicAPI]
         IBytesMessage CreateBytesMessage( Byte[] body );
 
         #endregion

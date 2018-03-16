@@ -1,6 +1,7 @@
 #region Usings
 
 using System;
+using JetBrains.Annotations;
 
 #endregion
 
@@ -14,33 +15,39 @@ namespace Stomp.Net
         /// <summary>
         ///     Closes the connection.
         /// </summary>
+        [PublicAPI]
         void Close();
 
         /// <summary>
         ///     An asynchronous listener that is notified when a Fault tolerant connection
         ///     has been interrupted.
         /// </summary>
+        [PublicAPI]
         event ConnectionInterruptedListener ConnectionInterruptedListener;
 
         /// <summary>
         ///     An asynchronous listener that is notified when a Fault tolerant connection
         ///     has been resumed.
         /// </summary>
+        [PublicAPI]
         event ConnectionResumedListener ConnectionResumedListener;
 
         /// <summary>
         ///     Creates a new session to work on this connection
         /// </summary>
+        [PublicAPI]
         ISession CreateSession();
 
         /// <summary>
         ///     Creates a new session to work on this connection
         /// </summary>
+        [PublicAPI]
         ISession CreateSession( AcknowledgementMode acknowledgementMode );
 
         /// <summary>
         ///     An asynchronous listener which can be notified if an error occurs
         /// </summary>
+        [PublicAPI]
         event Action<Exception> ExceptionListener;
 
         #region Connection Management methods
@@ -56,6 +63,7 @@ namespace Stomp.Net
         ///     do not support this functionality the method should just return
         ///     without throwing any exceptions.
         /// </summary>
+        [PublicAPI]
         void PurgeTempDestinations();
 
         #endregion
@@ -66,11 +74,13 @@ namespace Stomp.Net
         ///     Sets the unique client ID for this connection before Start() or returns the
         ///     unique client ID after the connection has started
         /// </summary>
+        [PublicAPI]
         String ClientId { get; set; }
 
         /// <summary>
         ///     Get/or set the redelivery policy for this connection.
         /// </summary>
+        [PublicAPI]
         IRedeliveryPolicy RedeliveryPolicy { get; set; }
 
         #endregion

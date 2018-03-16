@@ -1,6 +1,7 @@
 #region Usings
 
 using System;
+using JetBrains.Annotations;
 
 #endregion
 
@@ -10,10 +11,13 @@ namespace Stomp.Net.Stomp.Commands
     {
         #region Properties
 
+        [PublicAPI]
         public virtual Boolean IsMessage => false;
 
+        [PublicAPI]
         public virtual Boolean IsMessageAck => false;
 
+        [PublicAPI]
         public virtual Boolean IsRemoveSubscriptionInfo => false;
 
         #endregion
@@ -59,7 +63,9 @@ namespace Stomp.Net.Stomp.Commands
                    && CommandId == thatCommand.CommandId;
         }
 
-        public override Int32 GetHashCode() => CommandId * 37 + GetDataStructureType();
+        public override Int32 GetHashCode()
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
+            => CommandId * 37 + GetDataStructureType();
 
         public override String ToString()
         {

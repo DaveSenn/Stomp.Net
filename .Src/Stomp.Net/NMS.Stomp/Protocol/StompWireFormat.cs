@@ -71,8 +71,8 @@ namespace Stomp.Net.Stomp.Protocol
                 case ConnectionInfo info:
                     WriteConnectionInfo( info, writer );
                     break;
-                case Message _:
-                    WriteMessage( (Message) o, writer );
+                case BytesMessage _:
+                    WriteMessage( (BytesMessage) o, writer );
                     break;
                 case ConsumerInfo _:
                     WriteConsumerInfo( (ConsumerInfo) o, writer );
@@ -121,7 +121,7 @@ namespace Stomp.Net.Stomp.Protocol
             {
                 case "RECEIPT":
                 {
-                    var text = frame.RemoveProperty( "receipt-id" );
+                    var text = frame.RemoveProperty( PropertyKeys.ReceiptId );
                     if ( text != null )
                     {
                         var answer = new Response();
@@ -137,7 +137,7 @@ namespace Stomp.Net.Stomp.Protocol
                     return ReadConnected( frame );
                 case "ERROR":
                 {
-                    var text = frame.RemoveProperty( "receipt-id" );
+                    var text = frame.RemoveProperty( PropertyKeys.ReceiptId );
 
                     if ( text != null && text.StartsWith( "ignore:", StringComparison.Ordinal ) )
                         return new Response { CorrelationId = Int32.Parse( text.Substring( "ignore:".Length ) ) };
@@ -146,7 +146,7 @@ namespace Stomp.Net.Stomp.Protocol
                     if ( text != null )
                         answer.CorrelationId = Int32.Parse( text );
 
-                    var error = new BrokerError { Message = frame.RemoveProperty( "message" ) };
+                    var error = new BrokerError { Message = frame.RemoveProperty( PropertyKeys.Message ) };
                     answer.Exception = error;
                     return answer;
                 }
@@ -165,19 +165,18 @@ namespace Stomp.Net.Stomp.Protocol
         {
             _remoteWireFormatInfo = new WireFormatInfo();
 
-            if ( frame.HasProperty( "version" ) )
+            if ( frame.HasProperty( PropertyKeys.Version ) )
             {
-                _remoteWireFormatInfo.Version = Single.Parse( frame.RemoveProperty( "version" ),
-                                                              CultureInfo.InvariantCulture );
+                _remoteWireFormatInfo.Version = Single.Parse( frame.RemoveProperty( PropertyKeys.Version ), CultureInfo.InvariantCulture );
                 if ( _remoteWireFormatInfo.Version > 1.0f )
                     _encodeHeaders = true;
 
-                if ( frame.HasProperty( "session" ) )
-                    _remoteWireFormatInfo.Session = frame.RemoveProperty( "session" );
+                if ( frame.HasProperty( PropertyKeys.Session ) )
+                    _remoteWireFormatInfo.Session = frame.RemoveProperty( PropertyKeys.Session );
 
-                if ( frame.HasProperty( "heart-beat" ) )
+                if ( frame.HasProperty( PropertyKeys.HartBeat ) )
                 {
-                    var hearBeats = frame.RemoveProperty( "heart-beat" )
+                    var hearBeats = frame.RemoveProperty( PropertyKeys.HartBeat )
                                          .Split( ",".ToCharArray() );
                     if ( hearBeats.Length != 2 )
                         throw new IoException( "Malformed heartbeat property in Connected Frame." );
@@ -209,41 +208,41 @@ namespace Stomp.Net.Stomp.Protocol
 
         protected virtual ICommand ReadMessage( StompFrame frame )
         {
-            frame.RemoveProperty( "transformation" );
+            frame.RemoveProperty( PropertyKeys.Transformation );
 
             var message = new BytesMessage { Content = frame.Content };
 
             // Remove any receipt header we might have attached if the outbound command was
             // sent with response required set to true
-            frame.RemoveProperty( "receipt" );
+            frame.RemoveProperty( PropertyKeys.Receipt );
 
             // Clear any attached content length headers as they aren't needed anymore and can
             // clutter the Message Properties.
-            frame.RemoveProperty( "content-length" );
+            frame.RemoveProperty( PropertyKeys.ContentLength );
 
-            message.Type = frame.RemoveProperty( "type" );
-            message.Destination = Destination.ConvertToDestination( frame.RemoveProperty( "destination" ), SkipDesinationNameFormatting );
-            message.ReplyTo = Destination.ConvertToDestination( frame.RemoveProperty( "reply-to" ), SkipDesinationNameFormatting );
-            message.TargetConsumerId = new ConsumerId( frame.RemoveProperty( "subscription" ) );
-            message.CorrelationId = frame.RemoveProperty( "correlation-id" );
-            message.MessageId = new MessageId( frame.RemoveProperty( "message-id" ) );
-            message.Persistent = StompHelper.ToBool( frame.RemoveProperty( "persistent" ), false );
+            message.Type = frame.RemoveProperty( PropertyKeys.Type );
+            message.Destination = Destination.ConvertToDestination( frame.RemoveProperty( PropertyKeys.Destination ), SkipDesinationNameFormatting );
+            message.ReplyTo = Destination.ConvertToDestination( frame.RemoveProperty( PropertyKeys.ReplyTo ), SkipDesinationNameFormatting );
+            message.TargetConsumerId = new ConsumerId( frame.RemoveProperty( PropertyKeys.Subscription ) );
+            message.CorrelationId = frame.RemoveProperty( PropertyKeys.CorrelationId );
+            message.MessageId = new MessageId( frame.RemoveProperty( PropertyKeys.MessageId ) );
+            message.Persistent = StompHelper.ToBool( frame.RemoveProperty( PropertyKeys.Persistent ), false );
 
             // If it came from NMS.Stomp we added this header to ensure its reported on the
             // receiver side.
-            if ( frame.HasProperty( "NMSXDeliveryMode" ) )
-                message.Persistent = StompHelper.ToBool( frame.RemoveProperty( "NMSXDeliveryMode" ), false );
+            if ( frame.HasProperty( PropertyKeys.NmsxDeliveryMode ) )
+                message.Persistent = StompHelper.ToBool( frame.RemoveProperty( PropertyKeys.NmsxDeliveryMode ), false );
 
-            if ( frame.HasProperty( "priority" ) )
-                message.Priority = Byte.Parse( frame.RemoveProperty( "priority" ) );
+            if ( frame.HasProperty( PropertyKeys.Priority ) )
+                message.Priority = Byte.Parse( frame.RemoveProperty( PropertyKeys.Priority ) );
 
-            if ( frame.HasProperty( "timestamp" ) )
-                message.Timestamp = Int64.Parse( frame.RemoveProperty( "timestamp" ) );
+            if ( frame.HasProperty( PropertyKeys.TimeStamp ) )
+                message.Timestamp = Int64.Parse( frame.RemoveProperty( PropertyKeys.TimeStamp ) );
 
-            if ( frame.HasProperty( "expires" ) )
-                message.Expiration = Int64.Parse( frame.RemoveProperty( "expires" ) );
+            if ( frame.HasProperty( PropertyKeys.Expires ) )
+                message.Expiration = Int64.Parse( frame.RemoveProperty( PropertyKeys.Expires ) );
 
-            if ( frame.RemoveProperty( "redelivered" ) != null )
+            if ( frame.RemoveProperty( PropertyKeys.Redelivered ) != null )
                 message.RedeliveryCounter = 1;
 
             // now lets add the generic headers
@@ -269,19 +268,19 @@ namespace Stomp.Net.Stomp.Protocol
             // lets force a receipt for the Connect Frame.
             var frame = new StompFrame( "CONNECT", _encodeHeaders );
 
-            frame.SetProperty( "client-id", command.ClientId );
+            frame.SetProperty( PropertyKeys.ClientId, command.ClientId );
             if ( command.UserName.IsNotEmpty() )
-                frame.SetProperty( "login", command.UserName );
+                frame.SetProperty( PropertyKeys.Login, command.UserName );
             if ( command.Password.IsNotEmpty() )
-                frame.SetProperty( "passcode", command.Password );
+                frame.SetProperty( PropertyKeys.Passcode, command.Password );
 
             if ( SetHostHeader )
-                frame.SetProperty( "host", HostHeaderOverride ?? command.Host );
+                frame.SetProperty( PropertyKeys.Host, HostHeaderOverride ?? command.Host );
 
-            frame.SetProperty( "accept-version", "1.0,1.1" );
+            frame.SetProperty( PropertyKeys.AcceptVersion, "1.0,1.1" );
 
             if ( MaxInactivityDuration != 0 )
-                frame.SetProperty( "heart-beat", WriteCheckInterval + "," + ReadCheckInterval );
+                frame.SetProperty( PropertyKeys.HartBeat, WriteCheckInterval + "," + ReadCheckInterval );
 
             _connectedResponseId = command.CommandId;
 
@@ -293,40 +292,39 @@ namespace Stomp.Net.Stomp.Protocol
             var frame = new StompFrame( "SUBSCRIBE", _encodeHeaders );
 
             if ( command.ResponseRequired )
-                frame.SetProperty( "receipt", command.CommandId );
+                frame.SetProperty( PropertyKeys.Receipt, command.CommandId );
 
-            //frame.SetProperty( "destination", Destination.ConvertToStompString( command.Destination ) );
-            frame.SetProperty( "destination", command.Destination?.ConvertToStompString() );
-            frame.SetProperty( "id", command.ConsumerId.ToString() );
-            frame.SetProperty( "durable-subscriber-name", command.SubscriptionName );
-            frame.SetProperty( "selector", command.Selector );
-            frame.SetProperty( "ack", StompHelper.ToStomp( command.AckMode ) );
+            frame.SetProperty( PropertyKeys.Destination, command.Destination?.ConvertToStompString() );
+            frame.SetProperty( PropertyKeys.Id, command.ConsumerId.ToString() );
+            frame.SetProperty( PropertyKeys.DurableSubscriberName, command.SubscriptionName );
+            frame.SetProperty( PropertyKeys.Selector, command.Selector );
+            frame.SetProperty( PropertyKeys.Ack, StompHelper.ToStomp( command.AckMode ) );
 
             if ( command.NoLocal )
-                frame.SetProperty( "no-local", command.NoLocal.ToString() );
+                frame.SetProperty( PropertyKeys.NoLocal, command.NoLocal.ToString() );
 
             // ActiveMQ extensions to STOMP
-            frame.SetProperty( "transformation", command.Transformation ?? "jms-xml" );
+            frame.SetProperty( PropertyKeys.Transformation, command.Transformation ?? "jms-xml" );
 
-            frame.SetProperty( "activemq.dispatchAsync", command.DispatchAsync );
+            frame.SetProperty( PropertyKeys.ActivemqDispatchAsync, command.DispatchAsync );
 
             if ( command.Exclusive )
-                frame.SetProperty( "activemq.exclusive", command.Exclusive );
+                frame.SetProperty( PropertyKeys.ActivemqExclusive, command.Exclusive );
 
             if ( command.SubscriptionName != null )
             {
-                frame.SetProperty( "activemq.subscriptionName", command.SubscriptionName );
+                frame.SetProperty( PropertyKeys.ActivemqSubscriptionName, command.SubscriptionName );
                 // For an older 4.0 broker we need to set this header so they get the
                 // subscription as well..
-                frame.SetProperty( "activemq.subcriptionName", command.SubscriptionName );
+                frame.SetProperty( PropertyKeys.ActivemqSubcriptionName, command.SubscriptionName );
             }
 
-            frame.SetProperty( "activemq.maximumPendingMessageLimit", command.MaximumPendingMessageLimit );
-            frame.SetProperty( "activemq.prefetchSize", command.PrefetchSize );
-            frame.SetProperty( "activemq.priority", command.Priority );
+            frame.SetProperty( PropertyKeys.ActivemqMaximumPendingMessageLimit, command.MaximumPendingMessageLimit );
+            frame.SetProperty( PropertyKeys.ActivemqPrefetchSize, command.PrefetchSize );
+            frame.SetProperty( PropertyKeys.ActivemqPriority, command.Priority );
 
             if ( command.Retroactive )
-                frame.SetProperty( "activemq.retroactive", command.Retroactive );
+                frame.SetProperty( PropertyKeys.ActivemqRetroactive, command.Retroactive );
 
             frame.ToStream( dataOut );
         }
@@ -338,44 +336,42 @@ namespace Stomp.Net.Stomp.Protocol
             frame.ToStream( dataOut );
         }
 
-        protected virtual void WriteMessage( Message command, BinaryWriter dataOut )
+        protected virtual void WriteMessage( BytesMessage command, BinaryWriter dataOut )
         {
             var frame = new StompFrame( "SEND", _encodeHeaders );
             if ( command.ResponseRequired )
-                frame.SetProperty( "receipt", command.CommandId );
+                frame.SetProperty( PropertyKeys.Receipt, command.CommandId );
 
-            //frame.SetProperty( "destination", Destination.ConvertToStompString( command.Destination ) );
-            frame.SetProperty( "destination", command.Destination.ConvertToStompString() );
+            frame.SetProperty( PropertyKeys.Destination, command.Destination.ConvertToStompString() );
 
             if ( command.ReplyTo != null )
-                //frame.SetProperty( "reply-to", Destination.ConvertToStompString( command.ReplyTo ) );
-                frame.SetProperty( "reply-to", command.ReplyTo.ConvertToStompString() );
+                frame.SetProperty( PropertyKeys.ReplyTo, command.ReplyTo.ConvertToStompString() );
             if ( command.CorrelationId != null )
-                frame.SetProperty( "correlation-id", command.CorrelationId );
+                frame.SetProperty( PropertyKeys.CorrelationId, command.CorrelationId );
             if ( command.Expiration != 0 )
-                frame.SetProperty( "expires", command.Expiration );
+                frame.SetProperty( PropertyKeys.Expires, command.Expiration );
             if ( command.Timestamp != 0 )
-                frame.SetProperty( "timestamp", command.Timestamp );
+                frame.SetProperty( PropertyKeys.TimeStamp, command.Timestamp );
             if ( command.Priority != 4 )
-                frame.SetProperty( "priority", command.Priority );
+                frame.SetProperty( PropertyKeys.Priority, command.Priority );
             if ( command.Type != null )
-                frame.SetProperty( "type", command.Type );
+                frame.SetProperty( PropertyKeys.Type, command.Type );
             if ( command.TransactionId != null )
-                frame.SetProperty( "transaction", command.TransactionId.ToString() );
+                frame.SetProperty( PropertyKeys.Transaction, command.TransactionId.ToString() );
 
-            frame.SetProperty( "persistent",
+            frame.SetProperty( PropertyKeys.Persistent,
                                command.Persistent.ToString()
                                       .ToLower() );
-            frame.SetProperty( "NMSXDeliveryMode",
+            frame.SetProperty( PropertyKeys.NmsxDeliveryMode,
                                command.Persistent.ToString()
                                       .ToLower() );
 
             if ( command.StompGroupId != null )
             {
-                frame.SetProperty( "JMSXGroupID", command.StompGroupId );
-                frame.SetProperty( "NMSXGroupID", command.StompGroupId );
-                frame.SetProperty( "JMSXGroupSeq", command.StompGroupSeq );
-                frame.SetProperty( "NMSXGroupSeq", command.StompGroupSeq );
+                frame.SetProperty( PropertyKeys.JmsxGroupId, command.StompGroupId );
+                frame.SetProperty( PropertyKeys.NmsxGroupId, command.StompGroupId );
+                frame.SetProperty( PropertyKeys.JmsxGroupSeq, command.StompGroupSeq );
+                frame.SetProperty( PropertyKeys.NmsxGroupSeq, command.StompGroupSeq );
             }
 
             // Perform any Content Marshaling.
@@ -384,13 +380,10 @@ namespace Stomp.Net.Stomp.Protocol
             // Store the Marshaled Content.
             frame.Content = command.Content;
 
-            if ( command is BytesMessage )
-            {
-                if ( command.Content != null && command.Content.Length > 0 )
-                    frame.SetProperty( "content-length", command.Content.Length );
+            if ( command.Content != null && command.Content.Length > 0 )
+                frame.SetProperty( PropertyKeys.ContentLength, command.Content.Length );
 
-                frame.SetProperty( "transformation", "jms-byte" );
-            }
+            frame.SetProperty( PropertyKeys.Transformation, "jms-byte" );
 
             // Marshal all properties to the Frame.
             var map = command.Headers;
@@ -404,13 +397,13 @@ namespace Stomp.Net.Stomp.Protocol
         {
             var frame = new StompFrame( "ACK", _encodeHeaders );
             if ( command.ResponseRequired )
-                frame.SetProperty( "receipt", "ignore:" + command.CommandId );
+                frame.SetProperty( PropertyKeys.Receipt, "ignore:" + command.CommandId );
 
-            frame.SetProperty( "message-id", command.LastMessageId.ToString() );
-            frame.SetProperty( "subscription", command.ConsumerId.ToString() );
+            frame.SetProperty( PropertyKeys.MessageId, command.LastMessageId.ToString() );
+            frame.SetProperty( PropertyKeys.Subscription, command.ConsumerId.ToString() );
 
             if ( command.TransactionId != null )
-                frame.SetProperty( "transaction", command.TransactionId.ToString() );
+                frame.SetProperty( PropertyKeys.Transaction, command.TransactionId.ToString() );
 
             frame.ToStream( dataOut );
         }
@@ -424,8 +417,8 @@ namespace Stomp.Net.Stomp.Protocol
                 return;
             var consumerId = id as ConsumerId;
             if ( command.ResponseRequired )
-                frame.SetProperty( "receipt", command.CommandId );
-            frame.SetProperty( "id", consumerId.ToString() );
+                frame.SetProperty( PropertyKeys.Receipt, command.CommandId );
+            frame.SetProperty( PropertyKeys.Id, consumerId.ToString() );
 
             frame.ToStream( dataOut );
         }
@@ -461,9 +454,9 @@ namespace Stomp.Net.Stomp.Protocol
 
             var frame = new StompFrame( type, _encodeHeaders );
             if ( command.ResponseRequired )
-                frame.SetProperty( "receipt", command.CommandId );
+                frame.SetProperty( PropertyKeys.Receipt, command.CommandId );
 
-            frame.SetProperty( "transaction", command.TransactionId.ToString() );
+            frame.SetProperty( PropertyKeys.Transaction, command.TransactionId.ToString() );
 
             frame.ToStream( dataOut );
         }

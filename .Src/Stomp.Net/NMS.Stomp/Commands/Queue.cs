@@ -1,6 +1,7 @@
 #region Usings
 
 using System;
+using JetBrains.Annotations;
 
 #endregion
 
@@ -58,8 +59,9 @@ namespace Stomp.Net.Stomp.Commands
             return o;
         }
 
+        [PublicAPI]
         public virtual Destination CreateDestination( String name )
-            => new Queue( name, SkipDesinationNameFormatting);
+            => new Queue( name, SkipDesinationNameFormatting );
 
         public override Byte GetDataStructureType()
             => DataStructureTypes.QueueType;

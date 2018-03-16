@@ -16,43 +16,31 @@ namespace Stomp.Net.Util
     /// </summary>
     public abstract class MessageTransformation
     {
-        public T TransformMessage<T>( IMessage message )
+        public T TransformMessage<T>( IBytesMessage message )
         {
             if ( message is T variable )
                 return variable;
-            IMessage result;
 
-            switch ( message )
+            var msg = DoCreateBytesMessage();
+
+            try
             {
-                case IBytesMessage bytesMsg:
-                {
-                    var msg = DoCreateBytesMessage();
-
-                    try
-                    {
-                        msg.Content = new Byte[bytesMsg.Content.Length];
-                        Array.Copy( bytesMsg.Content, msg.Content, bytesMsg.Content.Length );
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
-
-                    result = msg;
-                    break;
-                }
-                default:
-                    result = DoCreateMessage();
-                    break;
+                // ReSharper disable once PossibleNullReferenceException
+                msg.Content = new Byte[message.Content.Length];
+                Array.Copy( message.Content, msg.Content, message.Content.Length );
+            }
+            catch
+            {
+                // ignored
             }
 
-            CopyProperties( message, result );
+            CopyProperties( message, msg );
 
             // Let the subclass have a chance to do any last minute configurations
             // on the newly converted message.
-            DoPostProcessMessage( result );
+            DoPostProcessMessage( msg );
 
-            return (T) result;
+            return (T) msg;
         }
 
         /// <summary>
@@ -60,7 +48,7 @@ namespace Stomp.Net.Util
         ///     message to the specified message, the class version transforms the
         ///     Destination instead of just doing a straight copy.
         /// </summary>
-        private void CopyProperties( IMessage fromMessage, IMessage toMessage )
+        private void CopyProperties( IBytesMessage fromMessage, IBytesMessage toMessage )
         {
             toMessage.StompMessageId = fromMessage.StompMessageId;
             toMessage.StompCorrelationId = fromMessage.StompCorrelationId;
@@ -79,11 +67,10 @@ namespace Stomp.Net.Util
 
         #region Creation Methods and Conversion Support Methods
 
-        protected abstract IMessage DoCreateMessage();
         protected abstract IBytesMessage DoCreateBytesMessage();
 
         protected abstract IDestination DoTransformDestination( IDestination destination );
-        protected abstract void DoPostProcessMessage( IMessage message );
+        protected abstract void DoPostProcessMessage( IBytesMessage message );
 
         #endregion
     }

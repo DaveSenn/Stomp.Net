@@ -247,10 +247,6 @@ namespace Stomp.Net.Stomp.Commands
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="destination"></param>
-        /// <returns></returns>
         public static Destination Transform( IDestination destination )
         {
             // ReSharper disable once ConvertIfStatementToSwitchStatement

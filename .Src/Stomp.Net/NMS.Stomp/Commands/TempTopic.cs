@@ -50,7 +50,7 @@ namespace Stomp.Net.Stomp.Commands
         }
 
         public override Destination CreateDestination( String name )
-            => new TempTopic( name, SkipDesinationNameFormatting);
+            => new TempTopic( name, SkipDesinationNameFormatting );
 
         public override Byte GetDataStructureType()
             => DataStructureTypes.TempTopicType;

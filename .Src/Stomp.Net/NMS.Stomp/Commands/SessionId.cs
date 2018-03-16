@@ -10,24 +10,20 @@ namespace Stomp.Net.Stomp.Commands
     {
         #region Properties
 
-        public String ConnectionId { get;  }
+        public String ConnectionId { get; }
 
-        public Int64 Value { get;  }
+        public Int64 Value { get; }
 
         #endregion
 
         #region Ctor
 
-        public SessionId()
-        {
-        }
-
-        public SessionId( Int64 sessionId, ConnectionId connectionId)
+        public SessionId( Int64 sessionId, ConnectionId connectionId )
         {
             ConnectionId = connectionId.Value;
             Value = sessionId;
         }
-        
+
         public SessionId( ConsumerId consumerId )
         {
             ConnectionId = consumerId.ConnectionId;

@@ -145,14 +145,15 @@ namespace Stomp.Net.Transport
                 Tracer.Info( "Found only one matching cert. skip CE compare" );
                 return localCertificates[0];
             }
+
             if ( localCertificates.Count <= 1 || _stompConnectionSettings.TransportSettings.SslSettings.ClientCertSubject == null )
                 return null;
 
             var match = localCertificates
-                .Cast<X509Certificate2>()
-                .FirstOrDefault(
-                    certificate =>
-                        String.Compare( certificate.Subject, _stompConnectionSettings.TransportSettings.SslSettings.ClientCertSubject, StringComparison.OrdinalIgnoreCase ) == 0 );
+                        .Cast<X509Certificate2>()
+                        .FirstOrDefault(
+                            certificate =>
+                                String.Compare( certificate.Subject, _stompConnectionSettings.TransportSettings.SslSettings.ClientCertSubject, StringComparison.OrdinalIgnoreCase ) == 0 );
 
             if ( match == null )
                 Tracer.Warn( $"Found no matching cert. with Subject '{_stompConnectionSettings.TransportSettings.SslSettings.ClientCertSubject}'" );
@@ -176,6 +177,7 @@ namespace Stomp.Net.Transport
                         Tracer.Error( "Chain Status error: " + status.Status );
                         Tracer.Error( "Chain Status information: " + status.StatusInformation );
                     }
+
                     break;
                 case SslPolicyErrors.RemoteCertificateNameMismatch:
                     Tracer.Error( "Mismatch between Remote Cert Name." );

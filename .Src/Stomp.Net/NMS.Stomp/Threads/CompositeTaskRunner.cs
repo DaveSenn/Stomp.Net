@@ -124,6 +124,7 @@ namespace Stomp.Net.Stomp.Threads
                         _waiter.WaitOne();
                         Monitor.Enter( _mutex );
                     }
+
                     Monitor.Exit( _mutex );
                 }
             }

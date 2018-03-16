@@ -18,21 +18,6 @@ namespace Stomp.Net
         {
         }
 
-        public InvalidDestinationException( String message, String errorCode )
-            : base( message, errorCode )
-        {
-        }
-
-        public InvalidDestinationException( String message, Exception innerException )
-            : base( message, innerException )
-        {
-        }
-
-        public InvalidDestinationException( String message, String errorCode, Exception innerException )
-            : base( message, errorCode, innerException )
-        {
-        }
-
         #endregion
     }
 }

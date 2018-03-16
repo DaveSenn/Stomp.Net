@@ -1,6 +1,7 @@
 #region Usings
 
 using System;
+using JetBrains.Annotations;
 
 #endregion
 
@@ -14,6 +15,7 @@ namespace Stomp.Net
     {
         #region Properties
 
+        [PublicAPI]
         String QueueName { get; }
 
         #endregion

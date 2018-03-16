@@ -297,7 +297,7 @@ namespace Stomp.Net.Stomp
         }
 
         // ReSharper disable once InconsistentNaming
-        private event Action<IMessage> _listener;
+        private event Action<IBytesMessage> _listener;
 
         private void AckLater( MessageDispatch dispatch )
         {
@@ -358,9 +358,9 @@ namespace Stomp.Net.Stomp
             _redeliveryDelay = 0;
         }
 
-        private Message CreateStompMessage( MessageDispatch dispatch )
+        private BytesMessage CreateStompMessage( MessageDispatch dispatch )
         {
-            if ( !( dispatch.Message.Clone() is Message message ) )
+            if ( !( dispatch.Message.Clone() is BytesMessage message ) )
                 throw new Exception( $"Message was null => {dispatch.Message}" );
 
             message.Connection = _session.Connection;
@@ -375,13 +375,13 @@ namespace Stomp.Net.Stomp
             return message;
         }
 
-        private void DoClientAcknowledge( Message message )
+        private void DoClientAcknowledge( BytesMessage message )
         {
             CheckClosed();
             _session.Acknowledge();
         }
 
-        private void DoIndividualAcknowledge( Message message )
+        private void DoIndividualAcknowledge( BytesMessage message )
         {
             MessageDispatch dispatch = null;
 
@@ -411,7 +411,7 @@ namespace Stomp.Net.Stomp
             _session.SendAck( ack );
         }
 
-        private static void DoNothingAcknowledge( Message message )
+        private static void DoNothingAcknowledge( BytesMessage message )
         {
         }
 
@@ -472,7 +472,7 @@ namespace Stomp.Net.Stomp
 
         #region IMessageConsumer Members
 
-        public event Action<IMessage> Listener
+        public event Action<IBytesMessage> Listener
         {
             add
             {
@@ -500,7 +500,7 @@ namespace Stomp.Net.Stomp
         /// </summary>
         /// <param name="timeout">An optimal timeout, if not specified infinity will be used.</param>
         /// <returns>Returns the received message, or null in case of a timeout.</returns>
-        public IMessage Receive( TimeSpan? timeout = null )
+        public IBytesMessage Receive( TimeSpan? timeout = null )
         {
             timeout = timeout ?? TimeSpan.FromMilliseconds( Timeout.Infinite );
 
@@ -572,6 +572,7 @@ namespace Stomp.Net.Stomp
                         throw FailureError.Create();
                     return null;
                 }
+
                 if ( dispatch.Message == null )
                     return null;
 

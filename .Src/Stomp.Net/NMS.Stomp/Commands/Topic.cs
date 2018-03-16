@@ -1,6 +1,7 @@
 #region Usings
 
 using System;
+using JetBrains.Annotations;
 
 #endregion
 
@@ -21,7 +22,7 @@ namespace Stomp.Net.Stomp.Commands
         ///     A value indicating whether the destination name formatting will be skipped
         ///     or not.
         /// </param>
-        public Topic(String name, Boolean skipDesinationNameFormatting)
+        public Topic( String name, Boolean skipDesinationNameFormatting )
             : base( name, skipDesinationNameFormatting )
         {
         }
@@ -48,6 +49,7 @@ namespace Stomp.Net.Stomp.Commands
             return o;
         }
 
+        [PublicAPI]
         public virtual Destination CreateDestination( String name )
             => new Topic( name, SkipDesinationNameFormatting );
 

@@ -23,22 +23,16 @@ namespace Stomp.Net.Stomp
 
         #region Creation Methods and Conversion Support Methods
 
-        protected override IMessage DoCreateMessage()
-        {
-            var message = new Message { Connection = _connection };
-            return message;
-        }
-
         protected override IBytesMessage DoCreateBytesMessage()
         {
             var message = new BytesMessage { Connection = _connection };
             return message;
         }
-        
+
         protected override IDestination DoTransformDestination( IDestination destination )
             => Destination.Transform( destination );
 
-        protected override void DoPostProcessMessage( IMessage message )
+        protected override void DoPostProcessMessage( IBytesMessage message )
         {
         }
 

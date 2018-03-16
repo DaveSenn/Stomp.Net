@@ -1,6 +1,7 @@
 #region Usings
 
 using System;
+using JetBrains.Annotations;
 
 #endregion
 
@@ -18,14 +19,19 @@ namespace Stomp.Net
         ///     If set to true the physical name property will be used as stomp destination string without adding prefixes such as
         ///     queue or topic. This to support JMS brokers listening for queue/topic names in a different format.
         /// </summary>
+        [PublicAPI]
         Boolean SkipDesinationNameFormatting { get; }
 
+        [PublicAPI]
         DestinationType DestinationType { get; }
 
+        [PublicAPI]
         Boolean IsTopic { get; }
 
+        [PublicAPI]
         Boolean IsQueue { get; }
 
+        [PublicAPI]
         Boolean IsTemporary { get; }
 
         #endregion

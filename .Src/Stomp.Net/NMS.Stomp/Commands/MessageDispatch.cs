@@ -14,22 +14,26 @@ namespace Stomp.Net.Stomp.Commands
 
         public Destination Destination { get; }
 
-        public Message Message { get;  }
+        public BytesMessage Message { get; }
 
-        public Int32 RedeliveryCounter { get;  }
+        public Int32 RedeliveryCounter { get; }
 
-        public MessageDispatch(ConsumerId consumerId, Destination destination, Message message, Int32 redeliveryCounter)
+        /// <summery>
+        ///     Return an answer of true to the isMessageDispatch() query.
+        /// </summery>
+        public override Boolean IsMessageDispatch => true;
+
+        #endregion
+
+        #region Ctor
+
+        public MessageDispatch( ConsumerId consumerId, Destination destination, BytesMessage message, Int32 redeliveryCounter )
         {
             ConsumerId = consumerId;
             Destination = destination;
             Message = message;
             RedeliveryCounter = redeliveryCounter;
         }
-
-        /// <summery>
-        ///     Return an answer of true to the isMessageDispatch() query.
-        /// </summery>
-        public override Boolean IsMessageDispatch => true;
 
         #endregion
 

@@ -94,7 +94,7 @@ namespace Stomp.Net.Stomp
                 Tracer.Warn( $"Failed to remove message producer with producer id: '{producerId}'." );
         }
 
-        public void DoSend( Message message, TimeSpan sendTimeout )
+        public void DoSend( BytesMessage message, TimeSpan sendTimeout )
         {
             var msg = message;
 
@@ -107,7 +107,7 @@ namespace Stomp.Net.Stomp
             msg.RedeliveryCounter = 0;
 
             if ( _stompConnectionSettings.CopyMessageOnSend )
-                msg = (Message) msg.Clone();
+                msg = (BytesMessage) msg.Clone();
 
             msg.OnSend();
             msg.ProducerId = msg.MessageId.ProducerId;
@@ -210,7 +210,7 @@ namespace Stomp.Net.Stomp
             consumer?.ClearMessagesInProgress();
         }
 
-        private Message ConfigureMessage( Message message )
+        private BytesMessage ConfigureMessage( BytesMessage message )
         {
             message.Connection = Connection;
 
@@ -227,9 +227,9 @@ namespace Stomp.Net.Stomp
         ///     if the message is in a transaction.
         /// </summary>
         /// <param name="message">
-        ///     A <see cref="Message" />
+        ///     A <see cref="BytesMessage" />
         /// </param>
-        private void DoNothingAcknowledge( Message message )
+        private void DoNothingAcknowledge( BytesMessage message )
         {
         }
 
@@ -297,6 +297,7 @@ namespace Stomp.Net.Stomp
         ///     Sets the prefetch size, the maximum number of messages a broker will dispatch to consumers
         ///     until acknowledgements are received.
         /// </summary>
+        [PublicAPI]
         public Int32 PrefetchSize
         {
             set => Connection.PrefetchPolicy.SetAll( value );
@@ -308,6 +309,7 @@ namespace Stomp.Net.Stomp
         ///     will start to be evicted for slow consumers.
         ///     Must be > 0 to enable this feature
         /// </summary>
+        [PublicAPI]
         public Int32 MaximumPendingMessageLimit
         {
             set => Connection.PrefetchPolicy.MaximumPendingMessageLimit = value;
@@ -354,6 +356,7 @@ namespace Stomp.Net.Stomp
 
         public Boolean IsAutoAcknowledge => AcknowledgementMode == AcknowledgementMode.AutoAcknowledge;
 
+        [PublicAPI]
         public Boolean IsDupsOkAcknowledge => AcknowledgementMode == AcknowledgementMode.DupsOkAcknowledge;
 
         public Boolean IsIndividualAcknowledge => AcknowledgementMode == AcknowledgementMode.IndividualAcknowledge;
@@ -362,6 +365,7 @@ namespace Stomp.Net.Stomp
 
         public SessionExecutor Executor { get; }
 
+        [PublicAPI]
         public Int64 NextDeliveryId => Interlocked.Increment( ref _nextDeliveryId );
 
         #endregion
@@ -598,14 +602,14 @@ namespace Stomp.Net.Stomp
         /// <returns>Returns the temporary topic.</returns>
         public ITemporaryTopic CreateTemporaryTopic()
             => new TempTopic( Connection.CreateTemporaryDestinationName(), _stompConnectionSettings.SkipDesinationNameFormatting );
-        
+
         public IBytesMessage CreateBytesMessage()
-            => ConfigureMessage( new BytesMessage() ) as IBytesMessage;
+            => ConfigureMessage( new BytesMessage() );
 
         public IBytesMessage CreateBytesMessage( Byte[] body )
         {
             var answer = new BytesMessage { Content = body };
-            return ConfigureMessage( answer ) as IBytesMessage;
+            return ConfigureMessage( answer );
         }
 
         public void CommitTransaction()

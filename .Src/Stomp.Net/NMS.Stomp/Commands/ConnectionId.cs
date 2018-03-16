@@ -14,23 +14,6 @@ namespace Stomp.Net.Stomp.Commands
 
         #endregion
 
-        #region Ctor
-
-        public ConnectionId()
-        {
-        }
-
-        public ConnectionId( SessionId sessionId )
-            => Value = sessionId.ConnectionId;
-
-        public ConnectionId( ProducerId producerId )
-            => Value = producerId.ConnectionId;
-
-        public ConnectionId( ConsumerId consumerId )
-            => Value = consumerId.ConnectionId;
-
-        #endregion
-
         public override Boolean Equals( Object that )
         {
             if ( that is ConnectionId id )

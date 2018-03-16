@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using JetBrains.Annotations;
 using Stomp.Net.Stomp.Commands;
 using Stomp.Net.Util;
 
@@ -27,6 +28,7 @@ namespace Stomp.Net.Stomp
 
         #region Properties
 
+        [PublicAPI]
         public ProducerId ProducerId => _info.ProducerId;
 
         #endregion
@@ -65,14 +67,14 @@ namespace Stomp.Net.Stomp
 
         public TimeSpan RequestTimeout { get; set; }
 
-        public void Send( IMessage message ) => Send( _info.Destination, message, DeliveryMode, Priority, TimeToLive );
+        public void Send( IBytesMessage message ) => Send( _info.Destination, message, DeliveryMode, Priority, TimeToLive );
 
-        public void Send( IDestination destination, IMessage message ) => Send( destination, message, DeliveryMode, Priority, TimeToLive );
+        public void Send( IDestination destination, IBytesMessage message ) => Send( destination, message, DeliveryMode, Priority, TimeToLive );
 
-        public void Send( IMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive )
+        public void Send( IBytesMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive )
             => Send( _info.Destination, message, deliveryMode, priority, timeToLive );
 
-        public void Send( IDestination destination, IMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive )
+        public void Send( IDestination destination, IBytesMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive )
         {
             if ( null == destination )
             {
@@ -93,7 +95,7 @@ namespace Stomp.Net.Stomp
             else
                 throw new NotSupportedException( "This producer can only send messages to: " + _info.Destination.PhysicalName );
 
-            var stompMessage = _messageTransformation.TransformMessage<Message>( message );
+            var stompMessage = _messageTransformation.TransformMessage<BytesMessage>( message );
 
             stompMessage.ProducerId = _info.ProducerId;
             stompMessage.FromDestination = dest;
@@ -156,7 +158,7 @@ namespace Stomp.Net.Stomp
         }
 
         #region Message Creation Factory Methods.
-        
+
         public IBytesMessage CreateBytesMessage()
             => _session.CreateBytesMessage();
 

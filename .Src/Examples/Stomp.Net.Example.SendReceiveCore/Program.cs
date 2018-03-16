@@ -91,10 +91,7 @@ namespace Stomp.Net.Example.SendReceiveCore
                         // Wait for a message => blocking call; use consumer.Listener to receive messages as events (none blocking call)
                         var msg = consumer.Receive();
 
-                        if ( !( msg is IBytesMessage byteMessage ) )
-                            throw new Exception( "Message is of unknown type." );
-
-                        var s = Encoding.UTF8.GetString( byteMessage.Content );
+                        var s = Encoding.UTF8.GetString( msg.Content );
                         Console.WriteLine( $"\n\nMessage received: {s}" );
 
                         msg.Acknowledge();

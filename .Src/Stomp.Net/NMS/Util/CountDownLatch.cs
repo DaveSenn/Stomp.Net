@@ -30,8 +30,6 @@ namespace Stomp.Net.Util
             }
         }
 
-        public WaitHandle AsyncWaitHandle => _resetEvent;
-
         #endregion
 
         #region Ctor
