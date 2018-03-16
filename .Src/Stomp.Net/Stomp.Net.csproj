@@ -11,7 +11,7 @@
     <PackageIconUrl>https://raw.githubusercontent.com/DaveSenn/Stomp.Net/master/.Art/logo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/DaveSenn/Stomp.Net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>C# STOMP Apache.NMS</PackageTags>
+    <PackageTags>STOMP Apache.NMS Mq</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyVersion>2.0.0</AssemblyVersion>
     <FileVersion>2.0.0</FileVersion>
@@ -20,6 +20,7 @@
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>StompNet.snk</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
+    <PackageReleaseNotes>Improve compatibility with non Apache MQ brokers by dropping support for text-messages (marked as such by the ‘content-length’ header)</PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <LangVersion>7.2</LangVersion>
