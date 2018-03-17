@@ -127,16 +127,6 @@ namespace Stomp.Net.Transport
         public Action<ITransport, Exception> Exception { get; set; }
 
         /// <summary>
-        ///     TODO: not implemented
-        /// </summary>
-        public Action<ITransport> Interrupted { get; set; }
-
-        /// <summary>
-        ///     TODO: not implemented
-        /// </summary>
-        public Action<ITransport> Resumed { get; set; }
-
-        /// <summary>
         ///     Gets or sets the timeout for sending synchronous messages or commands.
         /// </summary>
         public TimeSpan Timeout { get; set; } = TimeSpan.Zero;

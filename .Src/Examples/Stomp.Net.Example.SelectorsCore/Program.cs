@@ -15,12 +15,12 @@ namespace Stomp.Net.Example.SelectorsCore
     {
         #region Constants
 
-        private const String Host = "hostName";
+        private const String Host = "atmfutura2";
 
         private const String Password = "password";
 
-        //private const Int32 Port = 63617;
-        private const Int32 Port = 61613;
+        private const Int32 Port = 63617;
+        //private const Int32 Port = 61613;
 
         private const String QueueName = "TestQ";
         private const String SelectorKey = "selectorProp";

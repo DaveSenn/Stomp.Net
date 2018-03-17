@@ -25,8 +25,6 @@ namespace Stomp.Net.Stomp.Transport
             Next = next;
             Next.Command = OnCommand;
             Next.Exception = OnException;
-            Next.Interrupted = OnInterrupted;
-            Next.Resumed = OnResumed;
         }
 
         #endregion
@@ -71,11 +69,6 @@ namespace Stomp.Net.Stomp.Transport
             set => Next.AsyncTimeout = value;
         }
 
-        /// <summary>
-        ///     Delegate invoked when the connection is interrupted.
-        /// </summary>
-        public Action<ITransport> Interrupted { get; set; }
-
         public Boolean IsConnected
             => Next.IsConnected;
 
@@ -103,11 +96,6 @@ namespace Stomp.Net.Stomp.Transport
             => Next.Request( command, timeout );
 
         /// <summary>
-        ///     Delegate invoked when the connection is resumed.
-        /// </summary>
-        public Action<ITransport> Resumed { get; set; }
-
-        /// <summary>
         ///     Gets or sets the timeout for sending synchronous messages or commands.
         /// </summary>
         public TimeSpan Timeout
@@ -131,20 +119,6 @@ namespace Stomp.Net.Stomp.Transport
         /// <param name="command">The command.</param>
         protected virtual void OnException( ITransport sender, Exception command )
             => Exception( sender, command );
-
-        /// <summary>
-        ///     Invokes the interrupted delegate.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        private void OnInterrupted( ITransport sender )
-            => Interrupted?.Invoke( sender );
-
-        /// <summary>
-        ///     Invokes the resumed delegate.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        private void OnResumed( ITransport sender )
-            => Resumed?.Invoke( sender );
 
         #region Implementation of ITransport
 

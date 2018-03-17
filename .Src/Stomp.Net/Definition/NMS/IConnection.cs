@@ -19,20 +19,6 @@ namespace Stomp.Net
         void Close();
 
         /// <summary>
-        ///     An asynchronous listener that is notified when a Fault tolerant connection
-        ///     has been interrupted.
-        /// </summary>
-        [PublicAPI]
-        event ConnectionInterruptedListener ConnectionInterruptedListener;
-
-        /// <summary>
-        ///     An asynchronous listener that is notified when a Fault tolerant connection
-        ///     has been resumed.
-        /// </summary>
-        [PublicAPI]
-        event ConnectionResumedListener ConnectionResumedListener;
-
-        /// <summary>
         ///     Creates a new session to work on this connection
         /// </summary>
         [PublicAPI]

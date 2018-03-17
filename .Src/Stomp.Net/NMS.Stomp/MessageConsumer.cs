@@ -237,7 +237,6 @@ namespace Stomp.Net.Stomp
                     _synchronizationRegistered = false;
 
                     // allow dispatch on this connection to resume
-                    _session.Connection.TransportInterruptionProcessingComplete();
                     _inProgressClearRequiredFlag = false;
                 }
         }

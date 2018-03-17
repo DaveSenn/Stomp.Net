@@ -51,7 +51,6 @@ namespace Stomp.Net.Stomp
         private Int32 _localTransactionCounter;
         private Int32 _sessionCounter;
         private Int32 _temporaryDestinationCounter;
-        private CountDownLatch _transportInterruptionProcessingComplete;
         private Boolean _userSpecifiedClientId;
 
         #endregion
@@ -163,18 +162,6 @@ namespace Stomp.Net.Stomp
                 }
             }
         }
-
-        /// <summary>
-        ///     An asynchronous listener that is notified when a Fault tolerant connection
-        ///     has been interrupted.
-        /// </summary>
-        public event ConnectionInterruptedListener ConnectionInterruptedListener;
-
-        /// <summary>
-        ///     An asynchronous listener that is notified when a Fault tolerant connection
-        ///     has been resumed.
-        /// </summary>
-        public event ConnectionResumedListener ConnectionResumedListener;
 
         /// <summary>
         ///     Creates a new session to work on this connection
@@ -351,12 +338,6 @@ namespace Stomp.Net.Stomp
 
             if ( !_sessions.TryRemove( session, out Session _ ) )
                 Tracer.Warn( $"Failed to remove session with session id: '{session.SessionId}'." );
-        }
-
-        internal void TransportInterruptionProcessingComplete()
-        {
-            var cdl = _transportInterruptionProcessingComplete;
-            cdl?.CountDown();
         }
 
         private void AsyncCallExceptionListener( Object error )
@@ -538,12 +519,7 @@ namespace Stomp.Net.Stomp
         private void OnCommand( ITransport commandTransport, ICommand command )
         {
             if ( command.IsMessageDispatch )
-            {
-                // We wait if the Connection is still processing interruption
-                // code to reset the MessageConsumers.
-                WaitForTransportInterruptionProcessingToComplete();
                 DispatchMessage( (MessageDispatch) command );
-            }
             else if ( command.IsWireFormatInfo )
             {
                 // Ignore for now, might need to save if off later.
@@ -583,63 +559,14 @@ namespace Stomp.Net.Stomp
                 _executor.QueueUserWorkItem( AsyncOnExceptionHandler, error );
         }
 
-        private void OnTransportException( ITransport sender, Exception exception ) => OnException( exception );
-
-        private void OnTransportInterrupted( ITransport sender )
-        {
-            _transportInterruptionProcessingComplete = new CountDownLatch( _dispatchers.Count );
-            Tracer.Warn( $"Transport interrupted, dispatchers: '{_dispatchers.Count}'" );
-
-            foreach ( var session in _sessions )
-                session.Value.ClearMessagesInProgress();
-
-            if ( ConnectionInterruptedListener == null || _closing.Value )
-                return;
-            try
-            {
-                ConnectionInterruptedListener();
-            }
-            catch
-            {
-                // ignored
-            }
-        }
-
-        private void OnTransportResumed( ITransport sender )
-        {
-            if ( ConnectionResumedListener == null || _closing.Value )
-                return;
-
-            try
-            {
-                ConnectionResumedListener();
-            }
-            catch
-            {
-                // ignored
-            }
-        }
+        private void OnTransportException( ITransport sender, Exception exception )
+            => OnException( exception );
 
         private void SetTransport( ITransport newTransport )
         {
             Transport = newTransport;
             Transport.Command = OnCommand;
             Transport.Exception = OnTransportException;
-            Transport.Interrupted = OnTransportInterrupted;
-            Transport.Resumed = OnTransportResumed;
-        }
-
-        private void WaitForTransportInterruptionProcessingToComplete()
-        {
-            var cdl = _transportInterruptionProcessingComplete;
-            if ( cdl == null )
-                return;
-
-            if ( _closed.Value || cdl.Remaining <= 0 )
-                return;
-
-            Tracer.Warn( $"Dispatch paused, waiting for outstanding dispatch interruption processing ({cdl.Remaining}) to complete.." );
-            cdl.AwaitOperation( 10.ToSeconds() );
         }
     }
 }

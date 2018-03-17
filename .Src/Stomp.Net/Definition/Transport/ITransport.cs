@@ -39,16 +39,6 @@ namespace Stomp.Net
         /// </summary>
         Action<ITransport, Exception> Exception { get; set; }
 
-        /// <summary>
-        ///     Delegate invoked when the connection is interrupted.
-        /// </summary>
-        Action<ITransport> Interrupted { get; set; }
-
-        /// <summary>
-        ///     Delegate invoked when the connection is resumed.
-        /// </summary>
-        Action<ITransport> Resumed { get; set; }
-
         /// <value>
         ///     Indicates if this Transport is Fault Tolerant or not.
         ///     A fault Tolerant Transport handles low level connection errors internally allowing a client to remain unaware of
