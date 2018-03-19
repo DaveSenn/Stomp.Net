@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using Stomp.Net.Stomp.Protocol;
 using Stomp.Net.Util;
 
 #endregion
@@ -252,17 +251,7 @@ namespace Stomp.Net.Stomp.Commands
         }
 
         public event Action<BytesMessage> Acknowledger;
-
-        public virtual void BeforeMarshall( StompWireFormat wireFormat )
-        {
-            /*
-             * TODO: Properties
-            MarshalledProperties = null;
-            if ( _properties != null )
-                MarshalledProperties = _properties.Marshal();
-            */
-        }
-
+        
         /// <summery>
         ///     Clone this object and return a new instance that the caller now owns.
         /// </summery>
@@ -293,6 +282,7 @@ namespace Stomp.Net.Stomp.Commands
 
         public override Int32 GetHashCode()
         {
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
             var id = MessageId;
 
             return id?.GetHashCode() ?? base.GetHashCode();

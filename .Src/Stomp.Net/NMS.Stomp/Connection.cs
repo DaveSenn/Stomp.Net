@@ -532,9 +532,9 @@ namespace Stomp.Net.Stomp
             {
                 if ( _closing.Value || _closed.Value )
                     return;
-                var connectionError = (ConnectionError) command;
-                var brokerError = connectionError.Exception;
-                var message = "Broker connection error.";
+                var connectionError = (BrokerError) command;
+                var brokerError = connectionError.Cause;
+                var message = "Broker error.";
                 var cause = "";
 
                 if ( null != brokerError )

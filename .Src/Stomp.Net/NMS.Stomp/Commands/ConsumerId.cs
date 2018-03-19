@@ -86,9 +86,11 @@ namespace Stomp.Net.Stomp.Commands
         {
             var answer = 0;
 
+            // ReSharper disable NonReadonlyMemberInGetHashCode
             answer = answer * 37 + HashCode( ConnectionId );
             answer = answer * 37 + HashCode( SessionId );
             answer = answer * 37 + HashCode( Value );
+            // ReSharper restore NonReadonlyMemberInGetHashCode
 
             return answer;
         }

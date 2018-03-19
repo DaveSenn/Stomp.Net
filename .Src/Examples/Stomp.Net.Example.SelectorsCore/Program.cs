@@ -15,7 +15,7 @@ namespace Stomp.Net.Example.SelectorsCore
     {
         #region Constants
 
-        private const String Host = "atmfutura2";
+        private const String Host = "host";
 
         private const String Password = "password";
 

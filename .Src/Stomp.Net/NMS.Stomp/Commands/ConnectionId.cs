@@ -33,6 +33,7 @@ namespace Stomp.Net.Stomp.Commands
         {
             var answer = 0;
 
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
             answer = answer * 37 + HashCode( Value );
 
             return answer;

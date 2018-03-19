@@ -12,7 +12,7 @@ namespace Stomp.Net.Example.SendReceiveCore
         #region Constants
 
         private const String Destination = "TestQ";
-        private const String Host = "atmfutura2";
+        private const String Host = "host";
         private const String Password = "password";
 
         //private const Int32 Port = 61613;
@@ -38,7 +38,7 @@ namespace Stomp.Net.Example.SendReceiveCore
         {
             // Create a connection factory
             var brokerUri = "tcp://" + Host + ":" + Port;
-            //brokerUri = "ssl://" + Host + ":" + Port;
+            // SSL: brokerUri = "ssl://" + Host + ":" + Port;
 
             var factory = new ConnectionFactory( brokerUri,
                                                  new StompConnectionSettings
@@ -71,7 +71,6 @@ namespace Stomp.Net.Example.SendReceiveCore
                 {
                     // Create a message producer
                     IDestination destinationQueue = session.GetQueue( Destination );
-                    // destinationQueue.SkipStompDesinationNameFormatting = true;
                     using ( var producer = session.CreateProducer( destinationQueue ) )
                     {
                         producer.DeliveryMode = MessageDeliveryMode.Persistent;
@@ -92,7 +91,7 @@ namespace Stomp.Net.Example.SendReceiveCore
                         var msg = consumer.Receive();
 
                         var s = Encoding.UTF8.GetString( msg.Content );
-                        Console.WriteLine( $"\n\nMessage received: {s}" );
+                        Console.WriteLine( $"\n\nMessage received: {s} from destination: {msg.FromDestination.PhysicalName}" );
 
                         msg.Acknowledge();
                         foreach ( var key in msg.Headers.Keys )

@@ -26,7 +26,7 @@ notifications:
 #---------------------------------
 
 # Version format
-version: 2.1.0.{build}
+version: 2.2.0.{build}
 
 pull_requests:
   # Do not increment build number for pull requests

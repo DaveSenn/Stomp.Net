@@ -4,7 +4,6 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using Extend;
 using Stomp.Net.Stomp.Commands;
 using Stomp.Net.Stomp.Transport;
@@ -27,8 +26,6 @@ namespace Stomp.Net.Stomp.Protocol
         #endregion
 
         #region Properties
-
-        public Encoding Encoding { get; } = Encoding.UTF8;
 
         public Int32 MaxInactivityDuration { get; } = 30000;
 
@@ -373,9 +370,6 @@ namespace Stomp.Net.Stomp.Protocol
                 frame.SetProperty( PropertyKeys.JmsxGroupSeq, command.StompGroupSeq );
                 frame.SetProperty( PropertyKeys.NmsxGroupSeq, command.StompGroupSeq );
             }
-
-            // Perform any Content Marshaling.
-            command.BeforeMarshall( this );
 
             // Store the Marshaled Content.
             frame.Content = command.Content;

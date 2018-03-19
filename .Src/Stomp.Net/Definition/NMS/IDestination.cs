@@ -34,6 +34,13 @@ namespace Stomp.Net
         [PublicAPI]
         Boolean IsTemporary { get; }
 
+        /// <summary>
+        ///     Gets the name of the destination.
+        /// </summary>
+        /// <value>The name of the destination.</value>
+        [PublicAPI]
+        String PhysicalName { get; }
+
         #endregion
     }
 }
