@@ -44,8 +44,6 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         private Boolean RemoteDestination { get; set; }
 
-        public String PhysicalName { get; }
-
         #endregion
 
         #region Ctor
@@ -97,6 +95,8 @@ namespace Stomp.Net.Stomp.Commands
                        || StompTemporaryTopic == destinationType;
             }
         }
+
+        public String PhysicalName { get; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether the destination name formatting should be skipped or not.

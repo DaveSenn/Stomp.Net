@@ -1,4 +1,8 @@
+#region Usings
+
 using JetBrains.Annotations;
+
+#endregion
 
 namespace Stomp.Net
 {

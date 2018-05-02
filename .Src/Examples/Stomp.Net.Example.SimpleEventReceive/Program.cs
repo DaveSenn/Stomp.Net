@@ -15,6 +15,8 @@ namespace Stomp.Net.Example.SelectorsCore
 
         private const String Host = "host";
 
+        private const Int32 NoOfMessages = 30;
+
         private const String Password = "password";
 
         private const Int32 Port = 63617;
@@ -24,9 +26,7 @@ namespace Stomp.Net.Example.SelectorsCore
         private const String SelectorKey = "selectorProp";
         private const String User = "admin";
 
-        private const Int32 NoOfMessages = 30;
-
-        private static readonly ManualResetEventSlim _resetEvent = new ManualResetEventSlim(  );
+        private static readonly ManualResetEventSlim _resetEvent = new ManualResetEventSlim();
 
         #endregion
 
@@ -41,7 +41,7 @@ namespace Stomp.Net.Example.SelectorsCore
                 {
                     SendMessages();
 
-                    Console.WriteLine($" [{Thread.CurrentThread.ManagedThreadId}] Start receiving messages.");
+                    Console.WriteLine( $" [{Thread.CurrentThread.ManagedThreadId}] Start receiving messages." );
 
                     subscriber.Start();
 
@@ -57,6 +57,31 @@ namespace Stomp.Net.Example.SelectorsCore
             Console.ReadLine();
         }
 
+        private static ConnectionFactory GetConnectionFactory()
+        {
+            // Create a connection factory
+            var brokerUri = "tcp://" + Host + ":" + Port;
+
+            return new ConnectionFactory( brokerUri,
+                                          new StompConnectionSettings
+                                          {
+                                              UserName = User,
+                                              Password = Password,
+                                              TransportSettings =
+                                              {
+                                                  SslSettings =
+                                                  {
+                                                      ServerName = "",
+                                                      ClientCertSubject = "",
+                                                      KeyStoreName = "My",
+                                                      KeyStoreLocation = "LocalMachine"
+                                                  }
+                                              },
+                                              SkipDesinationNameFormatting = false, // Determines whether the destination name formatting should be skipped or not.
+                                              SetHostHeader = true, // Determines whether the host header will be added to messages or not
+                                              HostHeaderOverride = null // Can be used to override the content of the host header
+                                          } );
+        }
 
         private static void SendMessages()
         {
@@ -85,48 +110,39 @@ namespace Stomp.Net.Example.SelectorsCore
                             message.Headers["test"] = $"test {i}";
                             producer.Send( message );
 
-                            Console.WriteLine($"Message sent {i}");
+                            Console.WriteLine( $"Message sent {i}" );
                         }
                     }
                 }
             }
         }
 
-        private static ConnectionFactory GetConnectionFactory()
-        {
-            // Create a connection factory
-            var brokerUri = "tcp://" + Host + ":" + Port;
-
-            return new ConnectionFactory( brokerUri,
-                                                 new StompConnectionSettings
-                                                 {
-                                                     UserName = User,
-                                                     Password = Password,
-                                                     TransportSettings =
-                                                     {
-                                                         SslSettings =
-                                                         {
-                                                             ServerName = "",
-                                                             ClientCertSubject = "",
-                                                             KeyStoreName = "My",
-                                                             KeyStoreLocation = "LocalMachine"
-                                                         }
-                                                     },
-                                                     SkipDesinationNameFormatting = false, // Determines whether the destination name formatting should be skipped or not.
-                                                     SetHostHeader = true, // Determines whether the host header will be added to messages or not
-                                                     HostHeaderOverride = null // Can be used to override the content of the host header
-                                                 } );
-
-        }
+        #region Nested Types
 
         private class Subscriber : IDisposable
         {
+            #region Fields
+
+            private readonly Object _sync = new Object();
             private IConnection _connection;
-            private ISession _session;
             private IMessageConsumer _consumer;
 
             private Int32 _noOfreceivedMessages;
-            private readonly Object _sync = new Object();
+            private ISession _session;
+
+            #endregion
+
+            #region IDisposable
+
+            /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+            public void Dispose()
+            {
+                _connection?.Dispose();
+                _session?.Dispose();
+                _consumer?.Dispose();
+            }
+
+            #endregion
 
             public void Start()
             {
@@ -163,19 +179,9 @@ namespace Stomp.Net.Example.SelectorsCore
                     }
                 };
             }
-
-            #region IDisposable
-
-            /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-            public void Dispose()
-            {
-                _connection?.Dispose();
-                _session?.Dispose();
-                _consumer?.Dispose();
-            }
-
-            #endregion
         }
+
+        #endregion
     }
 
     /// <summary>

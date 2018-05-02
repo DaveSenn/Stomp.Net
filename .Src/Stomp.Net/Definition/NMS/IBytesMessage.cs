@@ -35,7 +35,7 @@ namespace Stomp.Net
         #region Properties
 
         /// <summary>
-        /// Gets the destination from which the message was received.
+        ///     Gets the destination from which the message was received.
         /// </summary>
         /// <value>The destination from which the message was received.</value>
         IDestination FromDestination { get; }

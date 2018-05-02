@@ -21,13 +21,6 @@ namespace Stomp.Net.Stomp.Commands
 
         #region Properties
 
-        public IDestination FromDestination
-        {
-            // ReSharper disable once UnusedMember.Global
-            get => Destination;
-            set => Destination = Destination.Transform( value );
-        }
-
         public Connection Connection { get; set; }
 
         /// <summary>
@@ -102,6 +95,13 @@ namespace Stomp.Net.Stomp.Commands
         /// </summary>
         /// <value>The length of the message content.</value>
         public Int64 ContentLength => Content.Length;
+
+        public IDestination FromDestination
+        {
+            // ReSharper disable once UnusedMember.Global
+            get => Destination;
+            set => Destination = Destination.Transform( value );
+        }
 
         /// <summary>
         ///     Gets or sets the message headers.
@@ -251,7 +251,7 @@ namespace Stomp.Net.Stomp.Commands
         }
 
         public event Action<BytesMessage> Acknowledger;
-        
+
         /// <summery>
         ///     Clone this object and return a new instance that the caller now owns.
         /// </summery>

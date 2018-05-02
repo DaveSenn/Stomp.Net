@@ -2,7 +2,11 @@
 
 #endregion
 
+#region Usings
+
 using System;
+
+#endregion
 
 namespace Stomp.Net
 {

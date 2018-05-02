@@ -25,6 +25,11 @@ namespace Stomp.Net.Transport
         private readonly Atomic<Boolean> _closed = new Atomic<Boolean>( false );
 
         /// <summary>
+        ///     Timeout for closing the connection.
+        /// </summary>
+        private readonly TimeSpan _maxThreadWait = TimeSpan.FromMilliseconds( 30000 );
+
+        /// <summary>
         ///     Object used to synchronize threads for start and stop logic.
         /// </summary>
         private readonly Object _startStopLock = new Object();
@@ -33,11 +38,6 @@ namespace Stomp.Net.Transport
         ///     The socket used for the network communication.
         /// </summary>
         protected readonly Socket Socket;
-
-        /// <summary>
-        ///     Timeout for closing the connection.
-        /// </summary>
-        private readonly TimeSpan _maxThreadWait = TimeSpan.FromMilliseconds( 30000 );
 
         /// <summary>
         ///     Reading thread (background).
