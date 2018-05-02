@@ -81,7 +81,7 @@ namespace Stomp.Net.Stomp
             if ( _closing )
                 return;
 
-            if ( !_consumers.TryRemove( consumerId, out MessageConsumer _ ) )
+            if ( !_consumers.TryRemove( consumerId, out _ ) )
                 Tracer.Warn( $"Failed to remove message consumer with consumer id: '{consumerId}'." );
         }
 
@@ -90,7 +90,7 @@ namespace Stomp.Net.Stomp
             if ( _closing )
                 return;
 
-            if ( !_producers.TryRemove( producerId, out MessageProducer _ ) )
+            if ( !_producers.TryRemove( producerId, out _ ) )
                 Tracer.Warn( $"Failed to remove message producer with producer id: '{producerId}'." );
         }
 
@@ -254,7 +254,7 @@ namespace Stomp.Net.Stomp
             if ( _closing )
                 return;
 
-            if ( !_consumers.TryRemove( consumer.ConsumerId, out MessageConsumer _ ) )
+            if ( !_consumers.TryRemove( consumer.ConsumerId, out _ ) )
                 Tracer.Warn( $"Failed to remove consumer with consumer id: '{consumer.ConsumerId}'." );
         }
 

@@ -327,7 +327,7 @@ namespace Stomp.Net.Stomp
 
         internal void RemoveDispatcher( ConsumerId id )
         {
-            if ( !_dispatchers.TryRemove( id, out IDispatcher _ ) )
+            if ( !_dispatchers.TryRemove( id, out _ ) )
                 Tracer.Warn( $"Failed to remove dispatcher with id '{id}'." );
         }
 
@@ -336,7 +336,7 @@ namespace Stomp.Net.Stomp
             if ( _closing.Value )
                 return;
 
-            if ( !_sessions.TryRemove( session, out Session _ ) )
+            if ( !_sessions.TryRemove( session, out _ ) )
                 Tracer.Warn( $"Failed to remove session with session id: '{session.SessionId}'." );
         }
 

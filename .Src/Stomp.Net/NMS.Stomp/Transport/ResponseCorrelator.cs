@@ -107,7 +107,7 @@ namespace Stomp.Net.Stomp.Transport
 
                 if ( _requestMap.TryGetValue( correlationId, out var future ) )
                 {
-                    if ( !_requestMap.TryRemove( correlationId, out FutureResponse _ ) )
+                    if ( !_requestMap.TryRemove( correlationId, out _ ) )
                         Tracer.Warn( $"Failed to remove future response with id: '{correlationId}'." );
 
                     future.Response = response;

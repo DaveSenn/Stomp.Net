@@ -37,7 +37,7 @@ namespace Stomp.Net.Transport
         /// <summary>
         ///     Timeout for closing the connection.
         /// </summary>
-        private TimeSpan _maxThreadWait = TimeSpan.FromMilliseconds( 30000 );
+        private readonly TimeSpan _maxThreadWait = TimeSpan.FromMilliseconds( 30000 );
 
         /// <summary>
         ///     Reading thread (background).
