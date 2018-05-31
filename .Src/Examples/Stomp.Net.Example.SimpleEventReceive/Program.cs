@@ -3,6 +3,7 @@
 using System;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Extend;
 
 #endregion
@@ -23,7 +24,6 @@ namespace Stomp.Net.Example.SelectorsCore
         //private const Int32 Port = 61613;
 
         private const String QueueName = "TestQ";
-        private const String SelectorKey = "selectorProp";
         private const String User = "admin";
 
         private static readonly ManualResetEventSlim _resetEvent = new ManualResetEventSlim();
@@ -161,12 +161,12 @@ namespace Stomp.Net.Example.SelectorsCore
                 IDestination sourceQueue = _session.GetQueue( QueueName );
                 _consumer = _session.CreateConsumer( sourceQueue );
 
-                _consumer.Listener += message =>
+                _consumer.Listener += async message =>
                 {
+                    await Task.Delay( 500 );
+
                     var content = Encoding.UTF8.GetString( message.Content );
                     Console.WriteLine( $" [{Thread.CurrentThread.ManagedThreadId}] {content}" );
-
-                    Thread.Sleep( 500 );
 
                     message.Acknowledge();
 
