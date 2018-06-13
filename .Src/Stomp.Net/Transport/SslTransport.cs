@@ -7,7 +7,7 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
+using System.Threading;
 using Extend;
 using JetBrains.Annotations;
 using Stomp.Net.Stomp.Transport;
@@ -72,14 +72,12 @@ namespace Stomp.Net.Transport
             {
                 var remoteCertName = _stompConnectionSettings.TransportSettings.SslSettings.ServerName ?? RemoteAddress.Host;
 
-                Task.Run( async () =>
-                    {
-                        Tracer.Info( "Start creating SSL connection." );
-                        await _sslStream.AuthenticateAsClientAsync( remoteCertName, LoadCertificates(), SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12, false );
-                    } )
-                    .ConfigureAwait( false )
-                    .GetAwaiter()
-                    .GetResult();
+                var authThread = new Thread( () => _sslStream.AuthenticateAsClientAsync( remoteCertName, LoadCertificates(), SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12, false )
+                                                             .ConfigureAwait( false )
+                                                             .GetAwaiter()
+                                                             .GetResult() );
+                authThread.Start();
+                authThread.Join();
 
                 Tracer.Info( "SSL connection established." );
             }

@@ -1,10 +1,7 @@
 #region Usings
 
 using System;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using Extend;
 using JetBrains.Annotations;
 using Stomp.Net.Stomp.Protocol;
@@ -105,45 +102,9 @@ namespace Stomp.Net.Transport
 
             try
             {
-                Socket socket = null;
-
-                // Check if is IP address
-                if ( IPAddress.TryParse( host, out var ipAddress ) )
-                {
-                    socket = ConnectSocket( ipAddress, port );
-                    if ( socket != null )
-                        return socket;
-                }
-                else
-                    Tracer.Info( "Could not parse IPAddress, try resolve host name." );
-
-                // host must be a host name
-                // Try to get the DNS entry of the host
-                var hostEntry = GetHostEntry( host );
-                if ( null == hostEntry )
-                    throw new Exception( "DNS resolving failed." );
-
-                // Looping through the AddressList allows different type of connections to be tried (IPv6, IPv4 and whatever else may be available).
-                // Prefer IPv6 first.
-                ipAddress = GetIpAddress( hostEntry, AddressFamily.InterNetworkV6 );
-                if ( ipAddress != null )
-                    socket = ConnectSocket( ipAddress, port );
+                var socket = ConnectSocket( host, port );
                 if ( socket != null )
                     return socket;
-
-                // Try IPv4 next.
-                ipAddress = GetIpAddress( hostEntry, AddressFamily.InterNetwork );
-                if ( ipAddress != null )
-                    socket = ConnectSocket( ipAddress, port );
-                if ( socket != null )
-                    return socket;
-
-                foreach ( var address in hostEntry.AddressList.Where( x => AddressFamily.InterNetworkV6 != x.AddressFamily && AddressFamily.InterNetwork != x.AddressFamily ) )
-                {
-                    socket = ConnectSocket( address, port );
-                    if ( null != socket )
-                        return socket;
-                }
 
                 throw new Exception( "General connection error." );
             }
@@ -154,65 +115,28 @@ namespace Stomp.Net.Transport
         }
 
         /// <summary>
-        ///     Gets the first address in the address list of the given host entry of the specified address family.
-        /// </summary>
-        /// <param name="hostEntry">The host entry.</param>
-        /// <param name="addressFamily">The address family.</param>
-        /// <returns>Returns the first matching address, or null if none was found.</returns>
-        [CanBeNull]
-        private static IPAddress GetIpAddress( [CanBeNull] IPHostEntry hostEntry, AddressFamily addressFamily )
-            => hostEntry?.AddressList.FirstOrDefault( address => address.AddressFamily == addressFamily );
-
-        /// <summary>
         ///     Creates and connects a new socket to the given endpoint.
         /// </summary>
-        /// <param name="address">The endpoint address.</param>
+        /// <param name="host">The name of the host.</param>
         /// <param name="port">The endpoint port.</param>
         /// <returns>Returns the connected socket, or null if the connection failed.</returns>
         [CanBeNull]
-        private static Socket ConnectSocket( [NotNull] IPAddress address, Int32 port )
+        private static Socket ConnectSocket( [NotNull] String host, Int32 port )
         {
             try
             {
-                var socket = new Socket( address.AddressFamily, SocketType.Stream, ProtocolType.Tcp );
-                socket.Connect( new IPEndPoint( address, port ) );
+                var socket = new Socket( SocketType.Stream, ProtocolType.Tcp );
+                socket.Connect( host, port );
 
                 if ( socket.Connected )
                     return socket;
             }
             catch ( Exception ex )
             {
-                Tracer.Warn( $"Connect socket failed: {ex}." );
+                Tracer.Error( $"Connect socket failed: {ex}." );
             }
 
             return null;
-        }
-
-        /// <summary>
-        ///     Gets the DNS entry of the host with the given name.
-        /// </summary>
-        /// <param name="host">The name of the host.</param>
-        /// <returns>returns the DNS entry, or null if not found.</returns>
-        [CanBeNull]
-        private static IPHostEntry GetHostEntry( [NotNull] String host )
-        {
-            try
-            {
-                //return Dns.GetHostEntry( host );
-                return Task.Run( async () =>
-                           {
-                               Tracer.Info( "Start resolving DNS." );
-                               return await Dns.GetHostEntryAsync( host );
-                           } )
-                           .ConfigureAwait( false )
-                           .GetAwaiter()
-                           .GetResult();
-            }
-            catch ( Exception ex )
-            {
-                Tracer.Warn( $"Error during DNS resolving: {ex}." );
-                return null;
-            }
         }
 
         #endregion

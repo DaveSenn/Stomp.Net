@@ -278,7 +278,7 @@ namespace Stomp.Net.Stomp.Transport
 
             if ( !_commandSent.Value )
             {
-                Tracer.Warn( $"InactivityMonitor[{_instanceId}]: No Message sent since last write check. Sending a KeepAliveInfo." );
+                Tracer.Info( $"InactivityMonitor[{_instanceId}]: No Message sent since last write check. Sending a KeepAliveInfo." );
                 _asyncWriteTask.IsPending = true;
                 _asyncTasks.Wakeup();
             }

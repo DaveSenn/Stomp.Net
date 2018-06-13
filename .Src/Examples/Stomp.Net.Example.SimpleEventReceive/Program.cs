@@ -26,7 +26,7 @@ namespace Stomp.Net.Example.SelectorsCore
         private const String QueueName = "TestQ";
         private const String User = "admin";
 
-        private static readonly ManualResetEventSlim _resetEvent = new ManualResetEventSlim();
+        private static readonly ManualResetEventSlim ResetEvent = new ManualResetEventSlim();
 
         #endregion
 
@@ -45,7 +45,7 @@ namespace Stomp.Net.Example.SelectorsCore
 
                     subscriber.Start();
 
-                    Console.WriteLine( _resetEvent.Wait( 1.ToMinutes() ) ? "All messages received" : "Timeout :(" );
+                    Console.WriteLine( ResetEvent.Wait( 1.ToMinutes() ) ? "All messages received" : "Timeout :(" );
                 }
             }
             catch ( Exception ex )
@@ -175,7 +175,7 @@ namespace Stomp.Net.Example.SelectorsCore
                         _noOfreceivedMessages++;
 
                         if ( _noOfreceivedMessages >= NoOfMessages )
-                            _resetEvent.Set();
+                            ResetEvent.Set();
                     }
                 };
             }

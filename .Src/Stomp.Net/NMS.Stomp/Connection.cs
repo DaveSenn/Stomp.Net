@@ -6,7 +6,6 @@ using System.Threading;
 using Extend;
 using JetBrains.Annotations;
 using Stomp.Net.Stomp.Commands;
-using Stomp.Net.Stomp.Threads;
 using Stomp.Net.Stomp.Transport;
 using Stomp.Net.Stomp.Util;
 using Stomp.Net.Util;
@@ -35,9 +34,14 @@ namespace Stomp.Net.Stomp
         private readonly Atomic<Boolean> _connected = new Atomic<Boolean>( false );
         private readonly Object _connectedLock = new Object();
         private readonly ConcurrentDictionary<ConsumerId, IDispatcher> _dispatchers = new ConcurrentDictionary<ConsumerId, IDispatcher>();
-        private readonly ThreadPoolExecutor _executor = new ThreadPoolExecutor();
         private readonly ConnectionInfo _info;
         private readonly Object _myLock = new Object();
+
+        /// <summary>
+        ///     Object used to synchronize access to the exception handling.
+        /// </summary>
+        private readonly Object _onErrorLock = new Object();
+
         private readonly ConcurrentDictionary<Session, Session> _sessions = new ConcurrentDictionary<Session, Session>();
         private readonly Atomic<Boolean> _started = new Atomic<Boolean>( false );
 
@@ -340,12 +344,6 @@ namespace Stomp.Net.Stomp
                 Tracer.Warn( $"Failed to remove session with session id: '{session.SessionId}'." );
         }
 
-        private void AsyncCallExceptionListener( Object error )
-        {
-            var exception = error as StompException;
-            ExceptionListener?.Invoke( exception );
-        }
-
         private void AsyncOnExceptionHandler( Object error )
         {
             var cause = error as Exception;
@@ -493,24 +491,6 @@ namespace Stomp.Net.Stomp
                 FirstFailureError = error;
         }
 
-        private void OnAsyncException( Exception error )
-        {
-            if ( _closed.Value || _closing.Value )
-                return;
-            if ( ExceptionListener != null )
-            {
-                if ( !( error is StompException ) )
-                    error = error.Create();
-                var e = (StompException) error;
-
-                // Called in another thread so that processing can continue
-                // here, ensures no lock contention.
-                _executor.QueueUserWorkItem( AsyncCallExceptionListener, e );
-            }
-            else
-                Tracer.Warn( $"Async exception with no exception listener: {error}" );
-        }
-
         /// <summary>
         ///     Handle incoming commands
         /// </summary>
@@ -552,11 +532,18 @@ namespace Stomp.Net.Stomp
 
         private void OnException( Exception error )
         {
-            // Will fire an exception listener callback if there's any set.
-            OnAsyncException( error );
+            if ( _transportFailed.Value )
+                return;
 
-            if ( !_closing.Value && !_closed.Value )
-                _executor.QueueUserWorkItem( AsyncOnExceptionHandler, error );
+            lock ( _onErrorLock )
+            {
+                if ( _transportFailed.Value )
+                    return;
+
+                AsyncOnExceptionHandler( error );
+                var exception = error as StompException;
+                ExceptionListener?.Invoke( exception );
+            }
         }
 
         private void OnTransportException( ITransport sender, Exception exception )
