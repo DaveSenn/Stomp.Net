@@ -1,9 +1,5 @@
 ﻿#region Usings
 
-#endregion
-
-#region Usings
-
 using System;
 
 #endregion
@@ -11,7 +7,7 @@ using System;
 namespace Stomp.Net
 {
     /// <summary>
-    ///     Class containing the proeprty keys.
+    ///     Class containing the property keys.
     /// </summary>
     internal static class PropertyKeys
     {

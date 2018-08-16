@@ -223,7 +223,6 @@ namespace Stomp.Net.Stomp.Commands
         public TimeSpan StompTimeToLive
         {
             get => _timeToLive;
-
             set
             {
                 _timeToLive = value;
