@@ -26,6 +26,11 @@ namespace Stomp.Net
         /// <value>The default connection timeout.</value>
         public static TimeSpan RequestTimeout { get; set; } = TimeSpan.FromMilliseconds( Timeout.Infinite );
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether a content-length header will be added to messages during sending or not.
+        /// </summary>
+        public static Boolean AddContentLengthHeader { get; set; } = true;
+
         #endregion
     }
 }

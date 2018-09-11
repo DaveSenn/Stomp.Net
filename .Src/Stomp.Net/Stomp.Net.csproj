@@ -13,9 +13,9 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>STOMP Apache.NMS Mq</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <AssemblyVersion>2.0.1.0</AssemblyVersion>
-    <FileVersion>2.0.1.0</FileVersion>
-    <Version>2.0.1.0</Version>
+    <AssemblyVersion>2.0.2.0</AssemblyVersion>
+    <FileVersion>2.0.2.0</FileVersion>
+    <Version>2.0.2.0</Version>
     <RootNamespace>Stomp.Net</RootNamespace>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>StompNet.snk</AssemblyOriginatorKeyFile>

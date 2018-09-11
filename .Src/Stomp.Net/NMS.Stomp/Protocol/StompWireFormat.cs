@@ -374,7 +374,7 @@ namespace Stomp.Net.Stomp.Protocol
             // Store the Marshaled Content.
             frame.Content = command.Content;
 
-            if ( command.Content != null && command.Content.Length > 0 )
+            if ( command.Content != null && command.Content.Length > 0 && StompNetConfiguration.AddContentLengthHeader )
                 frame.SetProperty( PropertyKeys.ContentLength, command.Content.Length );
 
             frame.SetProperty( PropertyKeys.Transformation, "jms-byte" );
