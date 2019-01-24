@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stomp.Net.Example.Selectors
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stomp.Net.Example.SimpleEventReceive", "Examples\Stomp.Net.Example.SimpleEventReceive\Stomp.Net.Example.SimpleEventReceive.csproj", "{40546821-3104-4EDC-90F3-95AE70975AB7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stomp.Net.Example.ReconnectOnConnectionError", "Examples\Stomp.Net.Example.ReconnectOnConnectionError\Stomp.Net.Example.ReconnectOnConnectionError.csproj", "{F5206F27-B59C-4D37-B59B-C8BFF9E25D42}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{40546821-3104-4EDC-90F3-95AE70975AB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40546821-3104-4EDC-90F3-95AE70975AB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40546821-3104-4EDC-90F3-95AE70975AB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5206F27-B59C-4D37-B59B-C8BFF9E25D42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5206F27-B59C-4D37-B59B-C8BFF9E25D42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5206F27-B59C-4D37-B59B-C8BFF9E25D42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5206F27-B59C-4D37-B59B-C8BFF9E25D42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -43,6 +49,7 @@ Global
 		{DA9362AA-2A1A-48C0-B969-1AABBE18AEED} = {7767F6AF-0AB9-4131-BD5B-37368DAB40C3}
 		{89254E05-3BC6-4E33-BB15-4B3FE35E47CE} = {7767F6AF-0AB9-4131-BD5B-37368DAB40C3}
 		{40546821-3104-4EDC-90F3-95AE70975AB7} = {7767F6AF-0AB9-4131-BD5B-37368DAB40C3}
+		{F5206F27-B59C-4D37-B59B-C8BFF9E25D42} = {7767F6AF-0AB9-4131-BD5B-37368DAB40C3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {461AC20D-B4A7-45CA-91E6-49BD89C159C8}
