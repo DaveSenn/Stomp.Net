@@ -23,7 +23,9 @@ namespace Stomp.Net.Stomp.Transport
 
         public override void Oneway( ICommand command )
         {
-            Tracer.Info( "SENDING: " + command );
+            if ( Tracer.IsInfoEnabled )
+                Tracer.Info( "SENDING: " + command );
+
             Next.Oneway( command );
         }
 
@@ -40,13 +42,17 @@ namespace Stomp.Net.Stomp.Transport
 
         protected override void OnCommand( ITransport sender, ICommand command )
         {
-            Tracer.Info( "RECEIVED: " + command );
+            if ( Tracer.IsInfoEnabled )
+                Tracer.Info( "RECEIVED: " + command );
+
             Command?.Invoke( sender, command );
         }
 
         protected override void OnException( ITransport sender, Exception error )
         {
-            Tracer.Error( "RECEIVED Exception: " + error );
+            if ( Tracer.IsErrorEnabled )
+                Tracer.Error( "RECEIVED Exception: " + error );
+
             Exception?.Invoke( sender, error );
         }
     }

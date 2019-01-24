@@ -11,30 +11,6 @@ namespace Stomp.Net.Stomp.Commands
     /// </summary>
     public abstract class Destination : BaseDataStructure, IDestination
     {
-        #region Constants
-
-        /// <summary>
-        ///     Queue Destination object
-        /// </summary>
-        protected const Int32 StompQueue = 3;
-
-        /// <summary>
-        ///     Temporary Queue Destination object
-        /// </summary>
-        protected const Int32 StompTemporaryQueue = 4;
-
-        /// <summary>
-        ///     Temporary Topic Destination object
-        /// </summary>
-        protected const Int32 StompTemporaryTopic = 2;
-
-        /// <summary>
-        ///     Topic Destination object
-        /// </summary>
-        protected const Int32 StompTopic = 1;
-
-        #endregion
-
         #region Properties
 
         /// <summary>
@@ -313,5 +289,29 @@ namespace Stomp.Net.Stomp.Commands
 
             return result;
         }
+
+        #region Constants
+
+        /// <summary>
+        ///     Queue Destination object
+        /// </summary>
+        protected const Int32 StompQueue = 3;
+
+        /// <summary>
+        ///     Temporary Queue Destination object
+        /// </summary>
+        protected const Int32 StompTemporaryQueue = 4;
+
+        /// <summary>
+        ///     Temporary Topic Destination object
+        /// </summary>
+        protected const Int32 StompTemporaryTopic = 2;
+
+        /// <summary>
+        ///     Topic Destination object
+        /// </summary>
+        protected const Int32 StompTopic = 1;
+
+        #endregion
     }
 }

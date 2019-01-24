@@ -11,6 +11,21 @@ namespace Stomp.Net.Util
     /// </summary>
     public class DateUtils
     {
+        #region Ctor
+
+        static DateUtils() => EpochDiff = ( JavaEpoch.ToFileTimeUtc() - WindowsEpoch.ToFileTimeUtc() ) / TimeSpan.TicksPerMillisecond;
+
+        #endregion
+
+        public static DateTime ToDateTime( Int64 javaTime )
+            => DateTime.FromFileTime( ( javaTime + EpochDiff ) * TimeSpan.TicksPerMillisecond );
+
+        public static DateTime ToDateTimeUtc( Int64 javaTime )
+            => DateTime.FromFileTimeUtc( ( javaTime + EpochDiff ) * TimeSpan.TicksPerMillisecond );
+
+        public static Int64 ToJavaTimeUtc( DateTime dateTime )
+            => dateTime.ToFileTimeUtc() / TimeSpan.TicksPerMillisecond - EpochDiff;
+
         #region Constants
 
         /// <summary>
@@ -30,20 +45,5 @@ namespace Stomp.Net.Util
         private static readonly DateTime WindowsEpoch = new DateTime( 1601, 1, 1, 0, 0, 0, 0 );
 
         #endregion
-
-        #region Ctor
-
-        static DateUtils() => EpochDiff = ( JavaEpoch.ToFileTimeUtc() - WindowsEpoch.ToFileTimeUtc() ) / TimeSpan.TicksPerMillisecond;
-
-        #endregion
-
-        public static DateTime ToDateTime( Int64 javaTime )
-            => DateTime.FromFileTime( ( javaTime + EpochDiff ) * TimeSpan.TicksPerMillisecond );
-
-        public static DateTime ToDateTimeUtc( Int64 javaTime )
-            => DateTime.FromFileTimeUtc( ( javaTime + EpochDiff ) * TimeSpan.TicksPerMillisecond );
-
-        public static Int64 ToJavaTimeUtc( DateTime dateTime )
-            => dateTime.ToFileTimeUtc() / TimeSpan.TicksPerMillisecond - EpochDiff;
     }
 }

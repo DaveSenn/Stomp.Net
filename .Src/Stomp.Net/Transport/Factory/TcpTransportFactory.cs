@@ -51,20 +51,21 @@ namespace Stomp.Net.Transport
             socket.ReceiveTimeout = _stompConnectionSettings.TransportSettings.ReceiveTimeout;
             socket.SendTimeout = _stompConnectionSettings.TransportSettings.SendTimeout;
 
-            var wireformat = new StompWireFormat
+            var wireFormat = new StompWireFormat
             {
-                SkipDesinationNameFormatting = _stompConnectionSettings.SkipDesinationNameFormatting,
+                SkipDestinationNameFormatting = _stompConnectionSettings.SkipDestinationNameFormatting,
                 SetHostHeader = _stompConnectionSettings.SetHostHeader,
                 HostHeaderOverride = _stompConnectionSettings.HostHeaderOverride
             };
-            var transport = CreateTransport( location, socket, wireformat );
-            wireformat.Transport = transport;
+
+            var transport = CreateTransport( location, socket, wireFormat );
+            wireFormat.Transport = transport;
 
             if ( _stompConnectionSettings.TransportSettings.UseLogging )
                 transport = new LoggingTransport( transport );
 
             if ( _stompConnectionSettings.TransportSettings.UseInactivityMonitor )
-                transport = new InactivityMonitor( transport, wireformat );
+                transport = new InactivityMonitor( transport, wireFormat );
 
             transport = new MutexTransport( transport );
             transport = new ResponseCorrelator( transport );
@@ -129,11 +130,16 @@ namespace Stomp.Net.Transport
                 socket.Connect( host, port );
 
                 if ( socket.Connected )
+                {
+                    if ( Tracer.IsDebugEnabled )
+                        Tracer.Debug( $"Socket connected {host}:{port}." );
                     return socket;
+                }
             }
             catch ( Exception ex )
             {
-                Tracer.Error( $"Connect socket failed: {ex}." );
+                if ( Tracer.IsErrorEnabled )
+                    Tracer.Error( $"Connect socket failed: {ex}." );
             }
 
             return null;

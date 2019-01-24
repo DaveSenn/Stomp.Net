@@ -17,50 +17,6 @@ namespace Stomp.Net.Stomp.Protocol
     /// </summary>
     public class StompWireFormat : IWireFormat
     {
-        #region Fields
-
-        private Int32 _connectedResponseId = -1;
-        private Boolean _encodeHeaders;
-        private WireFormatInfo _remoteWireFormatInfo;
-
-        #endregion
-
-        #region Properties
-
-        public Int32 MaxInactivityDuration { get; } = 30000;
-
-        public Int32 MaxInactivityDurationInitialDelay { get; } = 0;
-
-        public Int32 ReadCheckInterval => MaxInactivityDuration;
-
-        public Int32 WriteCheckInterval => MaxInactivityDuration > 3 ? MaxInactivityDuration / 3 : MaxInactivityDuration;
-
-        public ITransport Transport { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether the destination name formatting should be skipped or not.
-        ///     If set to true the physical name property will be used as stomp destination string without adding prefixes such as
-        ///     queue or topic. This to support JMS brokers listening for queue/topic names in a different format.
-        /// </summary>
-        public Boolean SkipDesinationNameFormatting { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether the host header will be set or not.
-        /// </summary>
-        /// <remarks>
-        ///     Disabling the host header can make sens if you are working with a broker like RabbitMq
-        ///     which uses the host header as name of the target virtual host.
-        /// </remarks>
-        public Boolean SetHostHeader { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the value used as host header.
-        ///     If set Stomp.Net will use this value as content of the host header.
-        /// </summary>
-        public String HostHeaderOverride { get; set; }
-
-        #endregion
-
         public void Marshal( Object o, BinaryWriter writer )
         {
             switch ( o )
@@ -68,35 +24,45 @@ namespace Stomp.Net.Stomp.Protocol
                 case ConnectionInfo info:
                     WriteConnectionInfo( info, writer );
                     break;
-                case BytesMessage _:
-                    WriteMessage( (BytesMessage) o, writer );
+
+                case BytesMessage message:
+                    WriteMessage( message, writer );
                     break;
-                case ConsumerInfo _:
-                    WriteConsumerInfo( (ConsumerInfo) o, writer );
+
+                case ConsumerInfo info:
+                    WriteConsumerInfo( info, writer );
                     break;
-                case MessageAck _:
-                    WriteMessageAck( (MessageAck) o, writer );
+
+                case MessageAck ack:
+                    WriteMessageAck( ack, writer );
                     break;
-                case TransactionInfo _:
-                    WriteTransactionInfo( (TransactionInfo) o, writer );
+
+                case TransactionInfo info:
+                    WriteTransactionInfo( info, writer );
                     break;
-                case ShutdownInfo _:
-                    WriteShutdownInfo( (ShutdownInfo) o, writer );
+
+                case ShutdownInfo info:
+                    WriteShutdownInfo( info, writer );
                     break;
-                case RemoveInfo _:
-                    WriteRemoveInfo( (RemoveInfo) o, writer );
+
+                case RemoveInfo info:
+                    WriteRemoveInfo( info, writer );
                     break;
-                case KeepAliveInfo _:
-                    WriteKeepAliveInfo( (KeepAliveInfo) o, writer );
+
+                case KeepAliveInfo info:
+                    WriteKeepAliveInfo( info, writer );
                     break;
+
                 case ICommand command:
                     if ( !command.ResponseRequired )
                         return;
                     var response = new Response { CorrelationId = command.CommandId };
                     SendCommand( response );
                     break;
+
                 default:
-                    Tracer.Warn( $"StompWireFormat - Ignored command: {o.GetType()} => '{0}'" );
+                    if ( Tracer.IsWarnEnabled )
+                        Tracer.Warn( $"StompWireFormat - Ignored command: {o.GetType()} => '{0}'" );
                     break;
             }
         }
@@ -153,7 +119,8 @@ namespace Stomp.Net.Stomp.Protocol
                     return ReadMessage( frame );
             }
 
-            Tracer.Error( "Unknown command: " + frame.Command + " headers: " + frame.Properties );
+            if ( Tracer.IsErrorEnabled )
+                Tracer.Error( "Unknown command: " + frame.Command + " headers: " + frame.Properties );
 
             return null;
         }
@@ -218,8 +185,8 @@ namespace Stomp.Net.Stomp.Protocol
             frame.RemoveProperty( PropertyKeys.ContentLength );
 
             message.Type = frame.RemoveProperty( PropertyKeys.Type );
-            message.Destination = Destination.ConvertToDestination( frame.RemoveProperty( PropertyKeys.Destination ), SkipDesinationNameFormatting );
-            message.ReplyTo = Destination.ConvertToDestination( frame.RemoveProperty( PropertyKeys.ReplyTo ), SkipDesinationNameFormatting );
+            message.Destination = Destination.ConvertToDestination( frame.RemoveProperty( PropertyKeys.Destination ), SkipDestinationNameFormatting );
+            message.ReplyTo = Destination.ConvertToDestination( frame.RemoveProperty( PropertyKeys.ReplyTo ), SkipDestinationNameFormatting );
             message.TargetConsumerId = new ConsumerId( frame.RemoveProperty( PropertyKeys.Subscription ) );
             message.CorrelationId = frame.RemoveProperty( PropertyKeys.CorrelationId );
             message.MessageId = new MessageId( frame.RemoveProperty( PropertyKeys.MessageId ) );
@@ -255,7 +222,10 @@ namespace Stomp.Net.Stomp.Protocol
         protected virtual void SendCommand( ICommand command )
         {
             if ( Transport == null )
-                Tracer.Fatal( "No transport configured so cannot return command: " + command );
+            {
+                if ( Tracer.IsFatalEnabled )
+                    Tracer.Fatal( "No transport configured so cannot return command: " + command );
+            }
             else
                 Transport.Command( Transport, command );
         }
@@ -435,13 +405,16 @@ namespace Stomp.Net.Stomp.Protocol
                     command.ResponseRequired = true;
                     type = "COMMIT";
                     break;
+
                 case TransactionType.Rollback:
                     command.ResponseRequired = true;
                     type = "ABORT";
                     break;
+
                 case TransactionType.Begin:
                     type = "BEGIN";
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -454,5 +427,49 @@ namespace Stomp.Net.Stomp.Protocol
 
             frame.ToStream( dataOut );
         }
+
+        #region Fields
+
+        private Int32 _connectedResponseId = -1;
+        private Boolean _encodeHeaders;
+        private WireFormatInfo _remoteWireFormatInfo;
+
+        #endregion
+
+        #region Properties
+
+        public Int32 MaxInactivityDuration { get; } = 30000;
+
+        public Int32 MaxInactivityDurationInitialDelay { get; } = 0;
+
+        public Int32 ReadCheckInterval => MaxInactivityDuration;
+
+        public Int32 WriteCheckInterval => MaxInactivityDuration > 3 ? MaxInactivityDuration / 3 : MaxInactivityDuration;
+
+        public ITransport Transport { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether the destination name formatting should be skipped or not.
+        ///     If set to true the physical name property will be used as stomp destination string without adding prefixes such as
+        ///     queue or topic. This to support JMS brokers listening for queue/topic names in a different format.
+        /// </summary>
+        public Boolean SkipDestinationNameFormatting { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether the host header will be set or not.
+        /// </summary>
+        /// <remarks>
+        ///     Disabling the host header can make sens if you are working with a broker like RabbitMq
+        ///     which uses the host header as name of the target virtual host.
+        /// </remarks>
+        public Boolean SetHostHeader { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the value used as host header.
+        ///     If set Stomp.Net will use this value as content of the host header.
+        /// </summary>
+        public String HostHeaderOverride { get; set; }
+
+        #endregion
     }
 }

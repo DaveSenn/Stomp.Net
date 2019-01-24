@@ -9,6 +9,14 @@ namespace Stomp.Net
 {
     public interface IRedeliveryPolicy : ICloneable
     {
+        /// <summary>
+        ///     The time in milliseconds to delay a redelivery
+        /// </summary>
+        /// <param name="redeliveredCounter">The redelivered counter.</param>
+        /// <returns></returns>
+        [PublicAPI]
+        Int32 RedeliveryDelay( Int32 redeliveredCounter );
+
         #region Properties
 
         /// <summary>
@@ -61,13 +69,5 @@ namespace Stomp.Net
         Int32 BackOffMultiplier { get; set; }
 
         #endregion
-
-        /// <summary>
-        ///     The time in milliseconds to delay a redelivery
-        /// </summary>
-        /// <param name="redeliveredCounter">The redelivered counter.</param>
-        /// <returns></returns>
-        [PublicAPI]
-        Int32 RedeliveryDelay( Int32 redeliveredCounter );
     }
 }

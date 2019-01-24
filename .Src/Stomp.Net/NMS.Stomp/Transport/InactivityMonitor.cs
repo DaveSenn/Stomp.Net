@@ -24,46 +24,6 @@ namespace Stomp.Net.Stomp.Transport
 
         #endregion
 
-        #region Fields
-
-        private readonly Atomic<Boolean> _commandReceived = new Atomic<Boolean>( false );
-
-        private readonly Atomic<Boolean> _commandSent = new Atomic<Boolean>( false );
-
-        private readonly Atomic<Boolean> _failed = new Atomic<Boolean>( false );
-        private readonly Atomic<Boolean> _inRead = new Atomic<Boolean>( false );
-        private readonly Int32 _instanceId;
-        private readonly Atomic<Boolean> _inWrite = new Atomic<Boolean>( false );
-
-        private readonly Mutex _monitor = new Mutex();
-        private readonly Atomic<Boolean> _monitorStarted = new Atomic<Boolean>( false );
-        private AsyncSignalReadErrorkTask _asyncErrorTask;
-
-        private CompositeTaskRunner _asyncTasks;
-        private AsyncWriteTask _asyncWriteTask;
-
-        private Timer _connectionCheckTimer;
-        private Boolean _disposing;
-
-        private DateTime _lastReadCheckTime;
-
-        // Local and remote Wire Format Information
-        private StompWireFormat _localWireFormatInfo;
-
-        private WireFormatInfo _remoteWireFormatInfo;
-
-        #endregion
-
-        #region Properties
-
-        public Int32 ReadCheckTime { get; set; } = 30000;
-
-        public Int32 WriteCheckTime { get; set; } = 10000;
-
-        public Int32 InitialDelayTime { get; set; }
-
-        #endregion
-
         #region Ctor
 
         /// <summary>
@@ -163,7 +123,8 @@ namespace Stomp.Net.Stomp.Transport
             if ( !_failed.CompareAndSet( false, true ) || _disposing )
                 return;
 
-            Tracer.Warn( $"Exception received in the Inactivity Monitor: {command.Message}" );
+            if ( Tracer.IsWarnEnabled )
+                Tracer.Warn( $"Exception received in the Inactivity Monitor: {command.Message}" );
             StopMonitorThreads();
             base.OnException( sender, command );
         }
@@ -228,14 +189,16 @@ namespace Stomp.Net.Stomp.Transport
 
                 if ( _asyncWriteTask != null )
                 {
-                    Tracer.Warn( $"InactivityMonitor[{_instanceId}]: Write Check time interval: {WriteCheckTime}" );
+                    if ( Tracer.IsInfoEnabled )
+                        Tracer.Info( $"InactivityMonitor[{_instanceId}]: Write Check time interval: {WriteCheckTime}" );
                     _asyncTasks.AddTask( _asyncWriteTask );
                 }
 
                 if ( _asyncErrorTask == null && _asyncWriteTask == null )
                     return;
 
-                Tracer.Warn( $"InactivityMonitor[{_instanceId}]: Starting the Monitor Timer." );
+                if ( Tracer.IsInfoEnabled )
+                    Tracer.Info( $"InactivityMonitor[{_instanceId}]: Starting the Monitor Timer." );
                 _monitorStarted.Value = true;
 
                 _connectionCheckTimer = new Timer(
@@ -272,19 +235,61 @@ namespace Stomp.Net.Stomp.Transport
         {
             if ( _inWrite.Value || _failed.Value )
             {
-                Tracer.Warn( $"InactivityMonitor[{_instanceId}]: is in write or already failed." );
+                if ( Tracer.IsWarnEnabled )
+                    Tracer.Warn( $"InactivityMonitor[{_instanceId}]: is in write or already failed." );
                 return;
             }
 
             if ( !_commandSent.Value )
             {
-                Tracer.Info( $"InactivityMonitor[{_instanceId}]: No Message sent since last write check. Sending a KeepAliveInfo." );
+                if ( Tracer.IsInfoEnabled )
+                    Tracer.Info( $"InactivityMonitor[{_instanceId}]: No Message sent since last write check. Sending a KeepAliveInfo." );
                 _asyncWriteTask.IsPending = true;
                 _asyncTasks.Wakeup();
             }
 
             _commandSent.Value = false;
         }
+
+        #endregion
+
+        #region Fields
+
+        private readonly Atomic<Boolean> _commandReceived = new Atomic<Boolean>( false );
+
+        private readonly Atomic<Boolean> _commandSent = new Atomic<Boolean>( false );
+
+        private readonly Atomic<Boolean> _failed = new Atomic<Boolean>( false );
+        private readonly Atomic<Boolean> _inRead = new Atomic<Boolean>( false );
+        private readonly Int32 _instanceId;
+        private readonly Atomic<Boolean> _inWrite = new Atomic<Boolean>( false );
+
+        private readonly Mutex _monitor = new Mutex();
+        private readonly Atomic<Boolean> _monitorStarted = new Atomic<Boolean>( false );
+        private AsyncSignalReadErrorkTask _asyncErrorTask;
+
+        private CompositeTaskRunner _asyncTasks;
+        private AsyncWriteTask _asyncWriteTask;
+
+        private Timer _connectionCheckTimer;
+        private Boolean _disposing;
+
+        private DateTime _lastReadCheckTime;
+
+        // Local and remote Wire Format Information
+        private StompWireFormat _localWireFormatInfo;
+
+        private WireFormatInfo _remoteWireFormatInfo;
+
+        #endregion
+
+        #region Properties
+
+        public Int32 ReadCheckTime { get; set; } = 30000;
+
+        public Int32 WriteCheckTime { get; set; } = 10000;
+
+        public Int32 InitialDelayTime { get; set; }
 
         #endregion
 
@@ -302,13 +307,15 @@ namespace Stomp.Net.Stomp.Transport
 
             if ( _inRead.Value || _failed.Value || _asyncErrorTask == null )
             {
-                Tracer.Warn( $"InactivityMonitor[{_instanceId}]: A receive is in progress or already failed." );
+                if ( Tracer.IsWarnEnabled )
+                    Tracer.Warn( $"InactivityMonitor[{_instanceId}]: A receive is in progress or already failed." );
                 return;
             }
 
             if ( !_commandReceived.Value )
             {
-                Tracer.Warn( "InactivityMonitor[{_instanceId}]: No message received since last read check! Sending an InactivityException!" );
+                if ( Tracer.IsWarnEnabled )
+                    Tracer.Warn( $"InactivityMonitor[{_instanceId}]: No message received since last read check! Sending an InactivityException!" );
                 _asyncErrorTask.IsPending = true;
                 _asyncTasks.Wakeup();
             }
@@ -331,14 +338,6 @@ namespace Stomp.Net.Stomp.Transport
         // Task that fires when the TaskRunner is signaled by the ReadCheck Timer Task.
         private class AsyncSignalReadErrorkTask : ICompositeTask
         {
-            #region Fields
-
-            private readonly InactivityMonitor _parent;
-            private readonly Atomic<Boolean> _pending = new Atomic<Boolean>( false );
-            private readonly Uri _remote;
-
-            #endregion
-
             #region Ctor
 
             public AsyncSignalReadErrorkTask( InactivityMonitor parent, Uri remote )
@@ -365,18 +364,19 @@ namespace Stomp.Net.Stomp.Transport
 
                 return _pending.Value;
             }
+
+            #region Fields
+
+            private readonly InactivityMonitor _parent;
+            private readonly Atomic<Boolean> _pending = new Atomic<Boolean>( false );
+            private readonly Uri _remote;
+
+            #endregion
         }
 
         // Task that fires when the TaskRunner is signaled by the WriteCheck Timer Task.
         private class AsyncWriteTask : ICompositeTask
         {
-            #region Fields
-
-            private readonly InactivityMonitor _parent;
-            private readonly Atomic<Boolean> _pending = new Atomic<Boolean>( false );
-
-            #endregion
-
             #region Ctor
 
             public AsyncWriteTask( InactivityMonitor parent ) => _parent = parent;
@@ -406,6 +406,13 @@ namespace Stomp.Net.Stomp.Transport
 
                 return _pending.Value;
             }
+
+            #region Fields
+
+            private readonly InactivityMonitor _parent;
+            private readonly Atomic<Boolean> _pending = new Atomic<Boolean>( false );
+
+            #endregion
         }
 
         #endregion

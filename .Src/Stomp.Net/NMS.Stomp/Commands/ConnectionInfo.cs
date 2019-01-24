@@ -8,25 +8,6 @@ namespace Stomp.Net.Stomp.Commands
 {
     public class ConnectionInfo : BaseCommand
     {
-        #region Properties
-
-        public ConnectionId ConnectionId { get; set; }
-
-        public String Host { get; set; }
-
-        public String ClientId { get; set; }
-
-        public String Password { get; set; }
-
-        public String UserName { get; set; }
-
-        /// <summery>
-        ///     Return an answer of true to the isConnectionInfo() query.
-        /// </summery>
-        public override Boolean IsConnectionInfo => true;
-
-        #endregion
-
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
@@ -47,5 +28,24 @@ namespace Stomp.Net.Stomp.Commands
                "Password=" + Password + ", " +
                "UserName=" + UserName +
                "]";
+
+        #region Properties
+
+        public ConnectionId ConnectionId { get; set; }
+
+        public String Host { get; set; }
+
+        public String ClientId { get; set; }
+
+        public String Password { get; set; }
+
+        public String UserName { get; set; }
+
+        /// <summery>
+        ///     Return an answer of true to the isConnectionInfo() query.
+        /// </summery>
+        public override Boolean IsConnectionInfo => true;
+
+        #endregion
     }
 }

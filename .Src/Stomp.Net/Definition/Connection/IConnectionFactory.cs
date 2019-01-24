@@ -11,6 +11,11 @@ namespace Stomp.Net
     /// </summary>
     public interface IConnectionFactory
     {
+        /// <summary>
+        ///     Creates a new connection
+        /// </summary>
+        IConnection CreateConnection();
+
         #region Properties
 
         /// <summary>
@@ -24,10 +29,5 @@ namespace Stomp.Net
         IRedeliveryPolicy RedeliveryPolicy { get; set; }
 
         #endregion
-
-        /// <summary>
-        ///     Creates a new connection
-        /// </summary>
-        IConnection CreateConnection();
     }
 }

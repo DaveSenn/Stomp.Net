@@ -11,21 +11,6 @@ namespace Stomp.Net.Stomp.Commands
     /// </summary>
     public class RemoveSubscriptionInfo : BaseCommand
     {
-        #region Properties
-
-        public ConnectionId ConnectionId { get; set; }
-
-        public String SubscriptionName { get; set; }
-
-        public String ClientId { get; set; }
-
-        /// <summery>
-        ///     Return an answer of true to the isRemoveSubscriptionInfo() query.
-        /// </summery>
-        public override Boolean IsRemoveSubscriptionInfo => true;
-
-        #endregion
-
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
@@ -44,5 +29,20 @@ namespace Stomp.Net.Stomp.Commands
                "SubscriptionName=" + SubscriptionName + ", " +
                "ClientId=" + ClientId +
                "]";
+
+        #region Properties
+
+        public ConnectionId ConnectionId { get; set; }
+
+        public String SubscriptionName { get; set; }
+
+        public String ClientId { get; set; }
+
+        /// <summery>
+        ///     Return an answer of true to the isRemoveSubscriptionInfo() query.
+        /// </summery>
+        public override Boolean IsRemoveSubscriptionInfo => true;
+
+        #endregion
     }
 }

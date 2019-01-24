@@ -12,28 +12,6 @@ namespace Stomp.Net
     /// </summary>
     public interface IMessageProducer : IDisposable
     {
-        #region Properties
-
-        [PublicAPI]
-        MessageDeliveryMode DeliveryMode { get; set; }
-
-        [PublicAPI]
-        TimeSpan TimeToLive { get; set; }
-
-        [PublicAPI]
-        TimeSpan RequestTimeout { get; set; }
-
-        [PublicAPI]
-        MessagePriority Priority { get; set; }
-
-        [PublicAPI]
-        Boolean DisableMessageId { get; set; }
-
-        [PublicAPI]
-        Boolean DisableMessageTimestamp { get; set; }
-
-        #endregion
-
         /// <summary>
         ///     Close the producer.
         /// </summary>
@@ -63,6 +41,28 @@ namespace Stomp.Net
         /// </summary>
         [PublicAPI]
         void Send( IDestination destination, IBytesMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive );
+
+        #region Properties
+
+        [PublicAPI]
+        MessageDeliveryMode DeliveryMode { get; set; }
+
+        [PublicAPI]
+        TimeSpan TimeToLive { get; set; }
+
+        [PublicAPI]
+        TimeSpan RequestTimeout { get; set; }
+
+        [PublicAPI]
+        MessagePriority Priority { get; set; }
+
+        [PublicAPI]
+        Boolean DisableMessageId { get; set; }
+
+        [PublicAPI]
+        Boolean DisableMessageTimestamp { get; set; }
+
+        #endregion
 
         #region Factory methods to create messages
 

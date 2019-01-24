@@ -8,23 +8,6 @@ namespace Stomp.Net.Stomp.Commands
 {
     public class WireFormatInfo : BaseCommand
     {
-        #region Properties
-
-        public Int32 WriteCheckInterval { get; set; }
-
-        public Int32 ReadCheckInterval { get; set; }
-
-        public Single Version { get; set; } = 1.0f;
-
-        public String Session { get; set; }
-
-        /// <summery>
-        ///     Return an answer of true to the IsWireFormatInfo() query.
-        /// </summery>
-        public override Boolean IsWireFormatInfo => true;
-
-        #endregion
-
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
@@ -44,5 +27,22 @@ namespace Stomp.Net.Stomp.Commands
                "Session=" + Session + ", " +
                "Version=" + Version +
                "]";
+
+        #region Properties
+
+        public Int32 WriteCheckInterval { get; set; }
+
+        public Int32 ReadCheckInterval { get; set; }
+
+        public Single Version { get; set; } = 1.0f;
+
+        public String Session { get; set; }
+
+        /// <summery>
+        ///     Return an answer of true to the IsWireFormatInfo() query.
+        /// </summery>
+        public override Boolean IsWireFormatInfo => true;
+
+        #endregion
     }
 }

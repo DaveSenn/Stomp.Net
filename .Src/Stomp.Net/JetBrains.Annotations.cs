@@ -1215,13 +1215,6 @@ namespace JetBrains.Annotations
     [AttributeUsage( AttributeTargets.Class, AllowMultiple = true )]
     internal sealed class AspChildControlTypeAttribute : Attribute
     {
-        #region Properties
-
-        public String TagName { get; private set; }
-        public Type ControlType { get; private set; }
-
-        #endregion
-
         #region Ctor
 
         public AspChildControlTypeAttribute( String tagName, Type controlType )
@@ -1229,6 +1222,13 @@ namespace JetBrains.Annotations
             TagName = tagName;
             ControlType = controlType;
         }
+
+        #endregion
+
+        #region Properties
+
+        public String TagName { get; private set; }
+        public Type ControlType { get; private set; }
 
         #endregion
     }
@@ -1299,13 +1299,6 @@ namespace JetBrains.Annotations
     [AttributeUsage( AttributeTargets.Assembly, AllowMultiple = true )]
     internal sealed class RazorInjectionAttribute : Attribute
     {
-        #region Properties
-
-        public String Type { get; private set; }
-        public String FieldName { get; private set; }
-
-        #endregion
-
         #region Ctor
 
         public RazorInjectionAttribute( String type, String fieldName )
@@ -1313,6 +1306,13 @@ namespace JetBrains.Annotations
             Type = type;
             FieldName = fieldName;
         }
+
+        #endregion
+
+        #region Properties
+
+        public String Type { get; private set; }
+        public String FieldName { get; private set; }
 
         #endregion
     }

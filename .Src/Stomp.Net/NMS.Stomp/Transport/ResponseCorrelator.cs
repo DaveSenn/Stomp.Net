@@ -15,15 +15,6 @@ namespace Stomp.Net.Stomp.Transport
     /// </summary>
     public class ResponseCorrelator : TransportFilter
     {
-        #region Fields
-
-        private readonly ConcurrentDictionary<Int32, FutureResponse> _requestMap = new ConcurrentDictionary<Int32, FutureResponse>();
-
-        private Exception _error;
-        private Int32 _nextCommandId;
-
-        #endregion
-
         #region Ctor
 
         public ResponseCorrelator( ITransport next )
@@ -107,7 +98,7 @@ namespace Stomp.Net.Stomp.Transport
 
                 if ( _requestMap.TryGetValue( correlationId, out var future ) )
                 {
-                    if ( !_requestMap.TryRemove( correlationId, out _ ) )
+                    if ( !_requestMap.TryRemove( correlationId, out _ ) && Tracer.IsWarnEnabled )
                         Tracer.Warn( $"Failed to remove future response with id: '{correlationId}'." );
 
                     future.Response = response;
@@ -116,7 +107,8 @@ namespace Stomp.Net.Stomp.Transport
                         return;
 
                     var er = response as ExceptionResponse;
-                    Tracer.Error( $"Response is exception response, exception: {er.Exception} ({er.Exception.Message})" );
+                    if ( Tracer.IsErrorEnabled )
+                        Tracer.Error( $"Response is exception response, exception: {er.Exception} ({er.Exception.Message})" );
 
                     var brokerError = er.Exception;
                     var exception = new BrokerException( brokerError );
@@ -124,11 +116,13 @@ namespace Stomp.Net.Stomp.Transport
                 }
                 else
                 {
-                    Tracer.Warn( $"Unknown response ID: {response.CommandId} for response: {response}" );
+                    if ( Tracer.IsWarnEnabled )
+                        Tracer.Warn( $"Unknown response ID: {response.CommandId} for response: {response}" );
                     if ( !( response is ExceptionResponse exResponse ) )
                         return;
 
-                    Tracer.Error( $"Response is exception response, exception: {exResponse.Exception} ({exResponse.Exception.Message})" );
+                    if ( Tracer.IsErrorEnabled )
+                        Tracer.Error( $"Response is exception response, exception: {exResponse.Exception} ({exResponse.Exception.Message})" );
                     var exception = new BrokerException( exResponse.Exception );
                     Exception( this, exception );
                 }
@@ -163,5 +157,14 @@ namespace Stomp.Net.Stomp.Transport
 
         private Int32 GetNextCommandId()
             => Interlocked.Increment( ref _nextCommandId );
+
+        #region Fields
+
+        private readonly ConcurrentDictionary<Int32, FutureResponse> _requestMap = new ConcurrentDictionary<Int32, FutureResponse>();
+
+        private Exception _error;
+        private Int32 _nextCommandId;
+
+        #endregion
     }
 }

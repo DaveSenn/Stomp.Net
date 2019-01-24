@@ -9,23 +9,38 @@ namespace Stomp.Net
 {
     public static class Tracer
     {
-        #region Properties
+        /// <summary>
+        ///     Gets a value indicating whether the error level is enabled or not.
+        /// </summary>
+        public static Boolean IsErrorEnabled => Trace.IsErrorEnabled;
 
         /// <summary>
-        ///     Gets or sets a <see cref="ITrace" />.
+        ///     Gets a value indicating whether the warn level is enabled or not.
         /// </summary>
-        /// <value>A <see cref="ITrace" />.</value>
-        // ReSharper disable once MemberCanBePrivate.Global
-        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
-        public static ITrace Trace { get; set; }
+        public static Boolean IsWarnEnabled => Trace.IsWarnEnabled;
 
         /// <summary>
-        ///     Gets or sets a value determining whether the caller info will be added to the log output or not.
+        ///     Gets a value indicating whether the info level is enabled or not.
         /// </summary>
-        /// <value>A value determining whether the caller info will be added to the log output or not.</value>
-        public static Boolean AddCallerInfo { get; set; } = true;
+        public static Boolean IsInfoEnabled => Trace.IsInfoEnabled;
 
-        #endregion
+        /// <summary>
+        ///     Gets a value indicating whether the fatal level is enabled or not.
+        /// </summary>
+        public static Boolean IsFatalEnabled => Trace.IsFatalEnabled;
+
+        /// <summary>
+        ///     Gets a value indicating whether the debug level is enabled or not.
+        /// </summary>
+        public static Boolean IsDebugEnabled => Trace.IsDebugEnabled;
+
+        public static void Debug( String message, [CallerMemberName] String callerName = "", [CallerFilePath] String callerFilePath = "", [CallerLineNumber] Int32 callerLineNumber = 0 )
+        {
+            if ( AddCallerInfo )
+                Trace?.Debug( message + $"    ({callerName} Ln {callerLineNumber} [{callerFilePath}])" );
+            else
+                Trace?.Debug( message );
+        }
 
         public static void Error( String message, [CallerMemberName] String callerName = "", [CallerFilePath] String callerFilePath = "", [CallerLineNumber] Int32 callerLineNumber = 0 )
         {
@@ -58,5 +73,23 @@ namespace Stomp.Net
             else
                 Trace?.Warn( message );
         }
+
+        #region Properties
+
+        /// <summary>
+        ///     Gets or sets a <see cref="ITrace" />.
+        /// </summary>
+        /// <value>A <see cref="ITrace" />.</value>
+        // ReSharper disable once MemberCanBePrivate.Global
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
+        public static ITrace Trace { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value determining whether the caller info will be added to the log output or not.
+        /// </summary>
+        /// <value>A value determining whether the caller info will be added to the log output or not.</value>
+        public static Boolean AddCallerInfo { get; set; } = true;
+
+        #endregion
     }
 }

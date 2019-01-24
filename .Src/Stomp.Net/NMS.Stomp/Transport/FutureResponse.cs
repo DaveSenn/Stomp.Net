@@ -41,12 +41,14 @@ namespace Stomp.Net.Stomp.Transport
                 }
                 catch ( RequestTimedOutException e )
                 {
-                    Tracer.Error( "Caught Timeout Exception while waiting on monitor: " + e );
+                    if ( Tracer.IsErrorEnabled )
+                        Tracer.Error( "Caught Timeout Exception while waiting on monitor: " + e );
                     throw;
                 }
                 catch ( Exception e )
                 {
-                    Tracer.Error( "Caught Exception while waiting on monitor: " + e );
+                    if ( Tracer.IsErrorEnabled )
+                        Tracer.Error( "Caught Exception while waiting on monitor: " + e );
                 }
 
                 lock ( _latch )

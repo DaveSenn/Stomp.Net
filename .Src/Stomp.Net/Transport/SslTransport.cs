@@ -21,20 +21,6 @@ namespace Stomp.Net.Transport
     /// </summary>
     public class SslTransport : TcpTransport
     {
-        #region Fields
-
-        /// <summary>
-        ///     Stores the STOMP connections settings.
-        /// </summary>
-        private readonly StompConnectionSettings _stompConnectionSettings;
-
-        /// <summary>
-        ///     The SSL stream.
-        /// </summary>
-        private SslStream _sslStream;
-
-        #endregion
-
         #region Ctor
 
         /// <summary>
@@ -83,13 +69,31 @@ namespace Stomp.Net.Transport
             }
             catch ( Exception ex )
             {
-                Tracer.Error( "Authentication failed - closing the connection." );
-                Tracer.Error( $"Exception: {ex}" );
+                if ( Tracer.IsErrorEnabled )
+                {
+                    Tracer.Error( "Authentication failed - closing the connection." );
+                    Tracer.Error( $"Exception: {ex}" );
+                }
+
                 throw;
             }
 
             return _sslStream;
         }
+
+        #endregion
+
+        #region Fields
+
+        /// <summary>
+        ///     Stores the STOMP connections settings.
+        /// </summary>
+        private readonly StompConnectionSettings _stompConnectionSettings;
+
+        /// <summary>
+        ///     The SSL stream.
+        /// </summary>
+        private SslStream _sslStream;
 
         #endregion
 
@@ -153,7 +157,7 @@ namespace Stomp.Net.Transport
                             certificate =>
                                 String.Compare( certificate.Subject, _stompConnectionSettings.TransportSettings.SslSettings.ClientCertSubject, StringComparison.OrdinalIgnoreCase ) == 0 );
 
-            if ( match == null )
+            if ( match == null && Tracer.IsWarnEnabled )
                 Tracer.Warn( $"Found no matching cert. with Subject '{_stompConnectionSettings.TransportSettings.SslSettings.ClientCertSubject}'" );
 
             return match;
@@ -168,21 +172,26 @@ namespace Stomp.Net.Transport
             {
                 case SslPolicyErrors.None:
                     return true;
+
                 case SslPolicyErrors.RemoteCertificateChainErrors:
                     Tracer.Error( "Chain Status errors: " );
-                    foreach ( var status in chain.ChainStatus )
-                    {
-                        Tracer.Error( "Chain Status error: " + status.Status );
-                        Tracer.Error( "Chain Status information: " + status.StatusInformation );
-                    }
+                    if ( Tracer.IsErrorEnabled )
+                        foreach ( var status in chain.ChainStatus )
+                        {
+                            Tracer.Error( "Chain Status error: " + status.Status );
+                            Tracer.Error( "Chain Status information: " + status.StatusInformation );
+                        }
 
                     break;
+
                 case SslPolicyErrors.RemoteCertificateNameMismatch:
                     Tracer.Error( "Mismatch between Remote Cert Name." );
                     break;
+
                 case SslPolicyErrors.RemoteCertificateNotAvailable:
                     Tracer.Error( "The Remote Certificate was not Available." );
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException( nameof(sslPolicyErrors), sslPolicyErrors, $"Policy '{sslPolicyErrors}' is not supported." );
             }

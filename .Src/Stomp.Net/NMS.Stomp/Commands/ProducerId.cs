@@ -14,6 +14,46 @@ namespace Stomp.Net.Stomp.Commands
 
         #endregion
 
+        public override Boolean Equals( Object that )
+        {
+            if ( that is ProducerId id )
+                return Equals( id );
+
+            return false;
+        }
+
+        /// <summery>
+        ///     Get the unique identifier that this object and its own
+        ///     Marshaler share.
+        /// </summery>
+        public override Byte GetDataStructureType() => DataStructureTypes.ProducerIdType;
+
+        public override Int32 GetHashCode()
+        {
+            var answer = 0;
+
+            answer = answer * 37 + HashCode( ConnectionId );
+            answer = answer * 37 + HashCode( Value );
+            answer = answer * 37 + HashCode( SessionId );
+
+            return answer;
+        }
+
+        /// <summery>
+        ///     Returns a string containing the information for this DataStructure
+        ///     such as its type and value of its elements.
+        /// </summery>
+        public override String ToString()
+            => _key ?? ( _key = ConnectionId + ":" + SessionId + ":" + Value );
+
+        protected virtual Boolean Equals( ProducerId that )
+        {
+            if ( !Equals( ConnectionId, that.ConnectionId ) )
+                return false;
+
+            return Equals( Value, that.Value ) && Equals( SessionId, that.SessionId );
+        }
+
         #region Properties
 
         public String ConnectionId { get; }
@@ -54,52 +94,13 @@ namespace Stomp.Net.Stomp.Commands
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.Warn( $"Failed to parse producer id '{ex.Message}' => this could be a problem if you are working with any Apache MQ, for other brokers this error may just be ignored." );
+                    if ( Tracer.IsWarnEnabled )
+                        Tracer.Warn( $"Failed to parse producer id '{ex.Message}' => this could be a problem if you are working with any Apache MQ, for other brokers this error may just be ignored." );
                 }
 
             ConnectionId = producerKey;
         }
 
         #endregion
-
-        public override Boolean Equals( Object that )
-        {
-            if ( that is ProducerId id )
-                return Equals( id );
-
-            return false;
-        }
-
-        /// <summery>
-        ///     Get the unique identifier that this object and its own
-        ///     Marshaler share.
-        /// </summery>
-        public override Byte GetDataStructureType() => DataStructureTypes.ProducerIdType;
-
-        public override Int32 GetHashCode()
-        {
-            var answer = 0;
-
-            answer = answer * 37 + HashCode( ConnectionId );
-            answer = answer * 37 + HashCode( Value );
-            answer = answer * 37 + HashCode( SessionId );
-
-            return answer;
-        }
-
-        /// <summery>
-        ///     Returns a string containing the information for this DataStructure
-        ///     such as its type and value of its elements.
-        /// </summery>
-        public override String ToString()
-            => _key ?? ( _key = ConnectionId + ":" + SessionId + ":" + Value );
-
-        protected virtual Boolean Equals( ProducerId that )
-        {
-            if ( !Equals( ConnectionId, that.ConnectionId ) )
-                return false;
-
-            return Equals( Value, that.Value ) && Equals( SessionId, that.SessionId );
-        }
     }
 }

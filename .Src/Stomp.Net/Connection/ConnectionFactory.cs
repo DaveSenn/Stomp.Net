@@ -16,6 +16,36 @@ namespace Stomp.Net
     /// </summary>
     public class ConnectionFactory : IConnectionFactory
     {
+        #region Ctor
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ConnectionFactory" /> class.
+        /// </summary>
+        /// <param name="brokerUri">The broker URI.</param>
+        /// <param name="stompConnectionSettings">The STOM connection settings.</param>
+        public ConnectionFactory( String brokerUri, StompConnectionSettings stompConnectionSettings )
+        {
+            BrokerUri = new Uri( brokerUri );
+            StompConnectionSettings = stompConnectionSettings;
+            _transportFactory = new TransportFactory( StompConnectionSettings );
+        }
+
+        #endregion
+
+        #region Private Members
+
+        /// <summary>
+        ///     Configures the given connection.
+        /// </summary>
+        /// <param name="connection">The connection to configure.</param>
+        private void ConfigureConnection( Connection connection )
+        {
+            connection.RedeliveryPolicy = _redeliveryPolicy.Clone() as IRedeliveryPolicy;
+            connection.PrefetchPolicy = StompConnectionSettings.PrefetchPolicy.Clone() as PrefetchPolicy;
+        }
+
+        #endregion
+
         #region Fields
 
         /// <summary>
@@ -63,36 +93,6 @@ namespace Stomp.Net
                         : new IdGenerator();
                 }
             }
-        }
-
-        #endregion
-
-        #region Ctor
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ConnectionFactory" /> class.
-        /// </summary>
-        /// <param name="brokerUri">The broker URI.</param>
-        /// <param name="stompConnectionSettings">The STOM connection settings.</param>
-        public ConnectionFactory( String brokerUri, StompConnectionSettings stompConnectionSettings )
-        {
-            BrokerUri = new Uri( brokerUri );
-            StompConnectionSettings = stompConnectionSettings;
-            _transportFactory = new TransportFactory( StompConnectionSettings );
-        }
-
-        #endregion
-
-        #region Private Members
-
-        /// <summary>
-        ///     Configures the given connection.
-        /// </summary>
-        /// <param name="connection">The connection to configure.</param>
-        private void ConfigureConnection( Connection connection )
-        {
-            connection.RedeliveryPolicy = _redeliveryPolicy.Clone() as IRedeliveryPolicy;
-            connection.PrefetchPolicy = StompConnectionSettings.PrefetchPolicy.Clone() as PrefetchPolicy;
         }
 
         #endregion

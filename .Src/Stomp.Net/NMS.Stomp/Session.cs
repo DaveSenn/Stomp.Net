@@ -17,33 +17,6 @@ namespace Stomp.Net.Stomp
     /// </summary>
     public class Session : Disposable, ISession, IDispatcher
     {
-        #region Fields
-
-        private readonly ConcurrentDictionary<ConsumerId, MessageConsumer> _consumers = new ConcurrentDictionary<ConsumerId, MessageConsumer>();
-
-        private readonly SessionInfo _info;
-
-        /// <summary>
-        ///     Private object used for synchronization, instead of public "this"
-        /// </summary>
-        private readonly Object _myLock = new Object();
-
-        private readonly ConcurrentDictionary<ProducerId, MessageProducer> _producers = new ConcurrentDictionary<ProducerId, MessageProducer>();
-
-        /// <summary>
-        ///     Stores the STOMP connections settings.
-        /// </summary>
-        private readonly StompConnectionSettings _stompConnectionSettings;
-
-        private Boolean _closed;
-        private Boolean _closing;
-        private Int32 _consumerCounter;
-
-        private Int32 _nextDeliveryId;
-        private Int32 _producerCounter;
-
-        #endregion
-
         #region Properties
 
         public Boolean Started => Executor != null && Executor.Running;
@@ -81,7 +54,7 @@ namespace Stomp.Net.Stomp
             if ( _closing )
                 return;
 
-            if ( !_consumers.TryRemove( consumerId, out _ ) )
+            if ( !_consumers.TryRemove( consumerId, out _ ) && Tracer.IsWarnEnabled )
                 Tracer.Warn( $"Failed to remove message consumer with consumer id: '{consumerId}'." );
         }
 
@@ -90,7 +63,7 @@ namespace Stomp.Net.Stomp
             if ( _closing )
                 return;
 
-            if ( !_producers.TryRemove( producerId, out _ ) )
+            if ( !_producers.TryRemove( producerId, out _ ) && Tracer.IsWarnEnabled )
                 Tracer.Warn( $"Failed to remove message producer with producer id: '{producerId}'." );
         }
 
@@ -179,7 +152,8 @@ namespace Stomp.Net.Stomp
 
             foreach ( var message in messages )
             {
-                Tracer.Warn( $"Resending Message Dispatch: {message}" );
+                if ( Tracer.IsWarnEnabled )
+                    Tracer.Warn( $"Resending Message Dispatch: {message}" );
                 Executor.ExecuteFirst( message );
             }
         }
@@ -254,7 +228,7 @@ namespace Stomp.Net.Stomp
             if ( _closing )
                 return;
 
-            if ( !_consumers.TryRemove( consumer.ConsumerId, out _ ) )
+            if ( !_consumers.TryRemove( consumer.ConsumerId, out _ ) && Tracer.IsWarnEnabled )
                 Tracer.Warn( $"Failed to remove consumer with consumer id: '{consumer.ConsumerId}'." );
         }
 
@@ -265,6 +239,33 @@ namespace Stomp.Net.Stomp
             else
                 Connection.SyncRequest( ack );
         }
+
+        #region Fields
+
+        private readonly ConcurrentDictionary<ConsumerId, MessageConsumer> _consumers = new ConcurrentDictionary<ConsumerId, MessageConsumer>();
+
+        private readonly SessionInfo _info;
+
+        /// <summary>
+        ///     Private object used for synchronization, instead of public "this"
+        /// </summary>
+        private readonly Object _myLock = new Object();
+
+        private readonly ConcurrentDictionary<ProducerId, MessageProducer> _producers = new ConcurrentDictionary<ProducerId, MessageProducer>();
+
+        /// <summary>
+        ///     Stores the STOMP connections settings.
+        /// </summary>
+        private readonly StompConnectionSettings _stompConnectionSettings;
+
+        private Boolean _closed;
+        private Boolean _closing;
+        private Int32 _consumerCounter;
+
+        private Int32 _nextDeliveryId;
+        private Int32 _producerCounter;
+
+        #endregion
 
         #region Session Transaction Events
 
@@ -396,13 +397,16 @@ namespace Stomp.Net.Stomp
 
                 try
                 {
-                    Tracer.Info( $"Closing The Session with Id {_info.SessionId}" );
+                    if ( Tracer.IsInfoEnabled )
+                        Tracer.Info( $"Closing The Session with Id {_info.SessionId}" );
                     DoClose();
-                    Tracer.Info( $"Stopped The Session with Id {_info.SessionId}" );
+                    if ( Tracer.IsInfoEnabled )
+                        Tracer.Info( $"Stopped The Session with Id {_info.SessionId}" );
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.Error( $"Error during session close: {ex}" );
+                    if ( Tracer.IsErrorEnabled )
+                        Tracer.Error( $"Error during session close: {ex}" );
                 }
                 finally
                 {
@@ -454,7 +458,8 @@ namespace Stomp.Net.Stomp
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.Error( $"Error during session close: {ex}" );
+                    if ( Tracer.IsErrorEnabled )
+                        Tracer.Error( $"Error during session close: {ex}" );
                 }
                 finally
                 {
@@ -579,7 +584,7 @@ namespace Stomp.Net.Stomp
         /// <param name="name">The name of the queue.</param>
         /// <returns>Returns the queue.</returns>
         public IQueue GetQueue( String name )
-            => new Queue( name, _stompConnectionSettings.SkipDesinationNameFormatting );
+            => new Queue( name, _stompConnectionSettings.SkipDestinationNameFormatting );
 
         /// <summary>
         ///     Creates a new topic with the given name.
@@ -587,21 +592,21 @@ namespace Stomp.Net.Stomp
         /// <param name="name">The name of the topic.</param>
         /// <returns>Returns the topic.</returns>
         public ITopic GetTopic( String name )
-            => new Topic( name, _stompConnectionSettings.SkipDesinationNameFormatting );
+            => new Topic( name, _stompConnectionSettings.SkipDestinationNameFormatting );
 
         /// <summary>
         ///     Creates a new temporary queue.
         /// </summary>
         /// <returns>Returns the temporary queue.</returns>
         public ITemporaryQueue CreateTemporaryQueue()
-            => new TempQueue( Connection.CreateTemporaryDestinationName(), _stompConnectionSettings.SkipDesinationNameFormatting );
+            => new TempQueue( Connection.CreateTemporaryDestinationName(), _stompConnectionSettings.SkipDestinationNameFormatting );
 
         /// <summary>
         ///     Creates a new temporary topic.
         /// </summary>
         /// <returns>Returns the temporary topic.</returns>
         public ITemporaryTopic CreateTemporaryTopic()
-            => new TempTopic( Connection.CreateTemporaryDestinationName(), _stompConnectionSettings.SkipDesinationNameFormatting );
+            => new TempTopic( Connection.CreateTemporaryDestinationName(), _stompConnectionSettings.SkipDestinationNameFormatting );
 
         public IBytesMessage CreateBytesMessage()
             => ConfigureMessage( new BytesMessage() );

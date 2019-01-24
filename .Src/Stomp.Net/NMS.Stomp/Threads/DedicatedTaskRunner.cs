@@ -13,20 +13,6 @@ namespace Stomp.Net.Stomp.Threads
     /// </summary>
     public class DedicatedTaskRunner : ITaskRunner
     {
-        #region Fields
-
-        private readonly ManualResetEvent _isShutdown = new ManualResetEvent( true );
-        private readonly Mutex _mutex = new Mutex();
-        private readonly ITask _task;
-        private readonly Thread _theThread;
-        private readonly AutoResetEvent _waiter = new AutoResetEvent( false );
-        private Boolean _pending;
-        private Boolean _shutdown;
-
-        private Boolean _terminated;
-
-        #endregion
-
         #region Ctor
 
         public DedicatedTaskRunner( ITask task )
@@ -121,5 +107,19 @@ namespace Stomp.Net.Stomp.Threads
                 _isShutdown.Set();
             }
         }
+
+        #region Fields
+
+        private readonly ManualResetEvent _isShutdown = new ManualResetEvent( true );
+        private readonly Mutex _mutex = new Mutex();
+        private readonly ITask _task;
+        private readonly Thread _theThread;
+        private readonly AutoResetEvent _waiter = new AutoResetEvent( false );
+        private Boolean _pending;
+        private Boolean _shutdown;
+
+        private Boolean _terminated;
+
+        #endregion
     }
 }

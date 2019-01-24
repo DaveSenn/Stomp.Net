@@ -26,67 +26,6 @@ namespace Stomp.Net.Stomp
 
         #endregion
 
-        #region Fields
-
-        private readonly IdGenerator _clientIdGenerator;
-        private readonly Atomic<Boolean> _closed = new Atomic<Boolean>( false );
-        private readonly Atomic<Boolean> _closing = new Atomic<Boolean>( false );
-        private readonly Atomic<Boolean> _connected = new Atomic<Boolean>( false );
-        private readonly Object _connectedLock = new Object();
-        private readonly ConcurrentDictionary<ConsumerId, IDispatcher> _dispatchers = new ConcurrentDictionary<ConsumerId, IDispatcher>();
-        private readonly ConnectionInfo _info;
-        private readonly Object _myLock = new Object();
-
-        /// <summary>
-        ///     Object used to synchronize access to the exception handling.
-        /// </summary>
-        private readonly Object _onErrorLock = new Object();
-
-        private readonly ConcurrentDictionary<Session, Session> _sessions = new ConcurrentDictionary<Session, Session>();
-        private readonly Atomic<Boolean> _started = new Atomic<Boolean>( false );
-
-        /// <summary>
-        ///     The STOMP connection settings.
-        /// </summary>
-        private readonly StompConnectionSettings _stompConnectionSettings;
-
-        private readonly ITransportFactory _transportFactory;
-        private readonly Atomic<Boolean> _transportFailed = new Atomic<Boolean>( false );
-        private Int32 _localTransactionCounter;
-        private Int32 _sessionCounter;
-        private Int32 _temporaryDestinationCounter;
-        private Boolean _userSpecifiedClientId;
-
-        #endregion
-
-        #region Properties
-
-        private Uri BrokerUri { get; }
-
-        private ITransport Transport { get; set; }
-
-        public Exception FirstFailureError { get; private set; }
-
-        /// <summary>
-        ///     The Default Client Id used if the ClientId property is not set explicit.
-        /// </summary>
-        public String DefaultClientId
-        {
-            set
-            {
-                _info.ClientId = value;
-                _userSpecifiedClientId = true;
-            }
-        }
-
-        public ConnectionId ConnectionId => _info.ConnectionId;
-
-        public PrefetchPolicy PrefetchPolicy { get; set; } = new PrefetchPolicy();
-
-        internal MessageTransformation MessageTransformation { get; }
-
-        #endregion
-
         #region Ctor
 
         public Connection( Uri connectionUri, ITransport transport, IdGenerator clientIdGenerator, [NotNull] StompConnectionSettings stompConnectionSettings )
@@ -155,7 +94,8 @@ namespace Stomp.Net.Stomp
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.Error( $"Error during connection close: {ex}" );
+                    if ( Tracer.IsErrorEnabled )
+                        Tracer.Error( $"Error during connection close: {ex}" );
                 }
                 finally
                 {
@@ -184,7 +124,7 @@ namespace Stomp.Net.Stomp
             if ( IsStarted )
                 session.Start();
 
-            if ( !_sessions.TryAdd( session, session ) )
+            if ( !_sessions.TryAdd( session, session ) && Tracer.IsWarnEnabled )
                 Tracer.Warn( $"Failed to add session with id: '{session.SessionId}'." );
 
             return session;
@@ -311,7 +251,7 @@ namespace Stomp.Net.Stomp
 
         internal void AddDispatcher( ConsumerId id, IDispatcher dispatcher )
         {
-            if ( !_dispatchers.TryAdd( id, dispatcher ) )
+            if ( !_dispatchers.TryAdd( id, dispatcher ) && Tracer.IsWarnEnabled )
                 Tracer.Warn( $"Failed to add dispatcher with id '{id}'." );
         }
 
@@ -331,7 +271,7 @@ namespace Stomp.Net.Stomp
 
         internal void RemoveDispatcher( ConsumerId id )
         {
-            if ( !_dispatchers.TryRemove( id, out _ ) )
+            if ( !_dispatchers.TryRemove( id, out _ ) && Tracer.IsWarnEnabled )
                 Tracer.Warn( $"Failed to remove dispatcher with id '{id}'." );
         }
 
@@ -340,7 +280,7 @@ namespace Stomp.Net.Stomp
             if ( _closing.Value )
                 return;
 
-            if ( !_sessions.TryRemove( session, out _ ) )
+            if ( !_sessions.TryRemove( session, out _ ) && Tracer.IsWarnEnabled )
                 Tracer.Warn( $"Failed to remove session with session id: '{session.SessionId}'." );
         }
 
@@ -356,7 +296,8 @@ namespace Stomp.Net.Stomp
             }
             catch ( Exception ex )
             {
-                Tracer.Warn( $"Caught Exception While disposing of Transport: {ex}." );
+                if ( Tracer.IsWarnEnabled )
+                    Tracer.Warn( $"Caught Exception While disposing of Transport: {ex}." );
             }
 
             foreach ( var session in _sessions )
@@ -366,7 +307,8 @@ namespace Stomp.Net.Stomp
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.Warn( $"Caught Exception While disposing of Sessions: {ex}." );
+                    if ( Tracer.IsWarnEnabled )
+                        Tracer.Warn( $"Caught Exception While disposing of Sessions: {ex}." );
                 }
         }
 
@@ -425,7 +367,8 @@ namespace Stomp.Net.Stomp
                             }
                             catch ( Exception ex )
                             {
-                                Tracer.Error( ex.ToString() );
+                                if ( Tracer.IsErrorEnabled )
+                                    Tracer.Error( ex.ToString() );
                             }
                         }
                     }
@@ -481,7 +424,8 @@ namespace Stomp.Net.Stomp
                 return;
             }
 
-            Tracer.Error( $"No such consumer active: {dispatch.ConsumerId}." );
+            if ( Tracer.IsErrorEnabled )
+                Tracer.Error( $"No such consumer active: {dispatch.ConsumerId}." );
         }
 
         private void MarkTransportFailed( Exception error )
@@ -526,7 +470,7 @@ namespace Stomp.Net.Stomp
 
                 OnException( new StompConnectionException( message, cause ) );
             }
-            else
+            else if ( Tracer.IsErrorEnabled )
                 Tracer.Error( $"Unknown command: {command}" );
         }
 
@@ -555,5 +499,66 @@ namespace Stomp.Net.Stomp
             Transport.Command = OnCommand;
             Transport.Exception = OnTransportException;
         }
+
+        #region Fields
+
+        private readonly IdGenerator _clientIdGenerator;
+        private readonly Atomic<Boolean> _closed = new Atomic<Boolean>( false );
+        private readonly Atomic<Boolean> _closing = new Atomic<Boolean>( false );
+        private readonly Atomic<Boolean> _connected = new Atomic<Boolean>( false );
+        private readonly Object _connectedLock = new Object();
+        private readonly ConcurrentDictionary<ConsumerId, IDispatcher> _dispatchers = new ConcurrentDictionary<ConsumerId, IDispatcher>();
+        private readonly ConnectionInfo _info;
+        private readonly Object _myLock = new Object();
+
+        /// <summary>
+        ///     Object used to synchronize access to the exception handling.
+        /// </summary>
+        private readonly Object _onErrorLock = new Object();
+
+        private readonly ConcurrentDictionary<Session, Session> _sessions = new ConcurrentDictionary<Session, Session>();
+        private readonly Atomic<Boolean> _started = new Atomic<Boolean>( false );
+
+        /// <summary>
+        ///     The STOMP connection settings.
+        /// </summary>
+        private readonly StompConnectionSettings _stompConnectionSettings;
+
+        private readonly ITransportFactory _transportFactory;
+        private readonly Atomic<Boolean> _transportFailed = new Atomic<Boolean>( false );
+        private Int32 _localTransactionCounter;
+        private Int32 _sessionCounter;
+        private Int32 _temporaryDestinationCounter;
+        private Boolean _userSpecifiedClientId;
+
+        #endregion
+
+        #region Properties
+
+        private Uri BrokerUri { get; }
+
+        private ITransport Transport { get; set; }
+
+        public Exception FirstFailureError { get; private set; }
+
+        /// <summary>
+        ///     The Default Client Id used if the ClientId property is not set explicit.
+        /// </summary>
+        public String DefaultClientId
+        {
+            set
+            {
+                _info.ClientId = value;
+                _userSpecifiedClientId = true;
+            }
+        }
+
+        public ConnectionId ConnectionId => _info.ConnectionId;
+
+        public PrefetchPolicy PrefetchPolicy { get; set; } = new PrefetchPolicy();
+
+        internal MessageTransformation MessageTransformation { get; }
+
+        #endregion
     }
 }

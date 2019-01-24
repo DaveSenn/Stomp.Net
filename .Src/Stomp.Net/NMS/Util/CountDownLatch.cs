@@ -9,13 +9,6 @@ namespace Stomp.Net.Util
 {
     public class CountDownLatch
     {
-        #region Fields
-
-        private readonly ManualResetEvent _resetEvent = new ManualResetEvent( false );
-        private Int32 _remaining;
-
-        #endregion
-
         #region Properties
 
         /// <summary>
@@ -58,5 +51,12 @@ namespace Stomp.Net.Util
                         _resetEvent.Set();
                 }
         }
+
+        #region Fields
+
+        private readonly ManualResetEvent _resetEvent = new ManualResetEvent( false );
+        private Int32 _remaining;
+
+        #endregion
     }
 }

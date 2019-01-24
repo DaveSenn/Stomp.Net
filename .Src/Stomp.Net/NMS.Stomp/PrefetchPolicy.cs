@@ -13,6 +13,30 @@ namespace Stomp.Net.Stomp
     /// </summary>
     public class PrefetchPolicy : ICloneable
     {
+        #region Ctor
+
+        public PrefetchPolicy()
+        {
+            _queuePrefetch = DefaultQueuePrefetch;
+            _topicPrefetch = DefaultTopicPrefetch;
+            _durableTopicPrefetch = DefaultDurableTopicPrefetch;
+        }
+
+        #endregion
+
+        public Object Clone()
+            => MemberwiseClone();
+
+        public void SetAll( Int32 value )
+        {
+            _queuePrefetch = value;
+            _topicPrefetch = value;
+            _durableTopicPrefetch = value;
+        }
+
+        private static Int32 RestrictToMaximum( Int32 value )
+            => Math.Min( value, MaxPrefetchSize );
+
         #region Constants
 
         private const Int32 DefaultDurableTopicPrefetch = 100;
@@ -56,29 +80,5 @@ namespace Stomp.Net.Stomp
         public Int32 MaximumPendingMessageLimit { get; set; }
 
         #endregion
-
-        #region Ctor
-
-        public PrefetchPolicy()
-        {
-            _queuePrefetch = DefaultQueuePrefetch;
-            _topicPrefetch = DefaultTopicPrefetch;
-            _durableTopicPrefetch = DefaultDurableTopicPrefetch;
-        }
-
-        #endregion
-
-        public Object Clone()
-            => MemberwiseClone();
-
-        public void SetAll( Int32 value )
-        {
-            _queuePrefetch = value;
-            _topicPrefetch = value;
-            _durableTopicPrefetch = value;
-        }
-
-        private static Int32 RestrictToMaximum( Int32 value )
-            => Math.Min( value, MaxPrefetchSize );
     }
 }

@@ -9,19 +9,6 @@ namespace Stomp.Net.Stomp.Commands
 {
     public abstract class BaseCommand : BaseDataStructure, ICommand
     {
-        #region Properties
-
-        [PublicAPI]
-        public virtual Boolean IsMessage => false;
-
-        [PublicAPI]
-        public virtual Boolean IsMessageAck => false;
-
-        [PublicAPI]
-        public virtual Boolean IsRemoveSubscriptionInfo => false;
-
-        #endregion
-
         public override Object Clone()
         {
             // Since we are a derived class use the base's Clone()
@@ -75,5 +62,18 @@ namespace Stomp.Net.Stomp.Commands
 
             return answer + ": id = " + CommandId;
         }
+
+        #region Properties
+
+        [PublicAPI]
+        public virtual Boolean IsMessage => false;
+
+        [PublicAPI]
+        public virtual Boolean IsMessageAck => false;
+
+        [PublicAPI]
+        public virtual Boolean IsRemoveSubscriptionInfo => false;
+
+        #endregion
     }
 }

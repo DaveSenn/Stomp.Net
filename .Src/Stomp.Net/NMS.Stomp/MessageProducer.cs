@@ -15,17 +15,6 @@ namespace Stomp.Net.Stomp
     /// </summary>
     public class MessageProducer : Disposable, IMessageProducer
     {
-        #region Fields
-
-        private readonly Object _closedLock = new Object();
-        private readonly ProducerInfo _info;
-        private readonly MessageTransformation _messageTransformation;
-        private Boolean _closed;
-        private Int32 _producerSequenceId;
-        private Session _session;
-
-        #endregion
-
         #region Properties
 
         [PublicAPI]
@@ -150,12 +139,24 @@ namespace Stomp.Net.Stomp
                 }
                 catch ( Exception ex )
                 {
-                    Tracer.Error( $"Error during producer close: {ex}" );
+                    if ( Tracer.IsErrorEnabled )
+                        Tracer.Error( $"Error during producer close: {ex}" );
                 }
 
                 _closed = true;
             }
         }
+
+        #region Fields
+
+        private readonly Object _closedLock = new Object();
+        private readonly ProducerInfo _info;
+        private readonly MessageTransformation _messageTransformation;
+        private Boolean _closed;
+        private Int32 _producerSequenceId;
+        private Session _session;
+
+        #endregion
 
         #region Message Creation Factory Methods.
 

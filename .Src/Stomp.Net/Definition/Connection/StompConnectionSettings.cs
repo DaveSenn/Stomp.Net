@@ -20,7 +20,7 @@ namespace Stomp.Net
         ///     If set to true the physical name property will be used as stomp destination string without adding prefixes such as
         ///     queue or topic. This to support JMS brokers listening for queue/topic names in a different format.
         /// </summary>
-        public Boolean SkipDesinationNameFormatting { get; set; }
+        public Boolean SkipDestinationNameFormatting { get; set; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether the host header will be set or not.

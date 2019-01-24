@@ -18,25 +18,6 @@ namespace Stomp.Net.Stomp
     /// </summary>
     public class MessageConsumer : Disposable, IMessageConsumer, IDispatcher
     {
-        #region Fields
-
-        private readonly Atomic<Boolean> _deliveringAcks = new Atomic<Boolean>();
-        private readonly List<MessageDispatch> _dispatchedMessages = new List<MessageDispatch>();
-        private readonly Atomic<Boolean> _started = new Atomic<Boolean>();
-        private readonly Object _syncRoot = new Object();
-        private readonly MessageDispatchChannel _unconsumedMessages = new MessageDispatchChannel();
-        private Int32 _additionalWindowSize;
-        private Boolean _clearDispatchList;
-        private Int32 _deliveredCounter;
-        private Int32 _dispatchedCount;
-        private Boolean _inProgressClearRequiredFlag;
-        private MessageAck _pendingAck;
-        private Int64 _redeliveryDelay;
-        private Session _session;
-        private volatile Boolean _synchronizationRegistered;
-
-        #endregion
-
         #region Properties
 
         public Exception FailureError { get; set; }
@@ -124,7 +105,8 @@ namespace Stomp.Net.Stomp
                                     // Transacted or Client ACK: Deliver the next message.
                                     AfterMessageIsConsumed( dispatch, false );
 
-                                Tracer.Error( ConsumerInfo.ConsumerId + " Exception while processing message: " + e );
+                                if ( Tracer.IsErrorEnabled )
+                                    Tracer.Error( ConsumerInfo.ConsumerId + " Exception while processing message: " + e );
                             }
                         }
                         else
@@ -394,7 +376,8 @@ namespace Stomp.Net.Stomp
 
             if ( dispatch == null )
             {
-                Tracer.Warn( $"Attempt to Ack MessageId[{message.MessageId}] failed because the original dispatch is not in the Dispatch List" );
+                if ( Tracer.IsWarnEnabled )
+                    Tracer.Warn( $"Attempt to Ack MessageId[{message.MessageId}] failed because the original dispatch is not in the Dispatch List" );
                 return;
             }
 
@@ -454,6 +437,25 @@ namespace Stomp.Net.Stomp
                     _session.Connection.OnSessionException( _session, e );
             }
         }
+
+        #region Fields
+
+        private readonly Atomic<Boolean> _deliveringAcks = new Atomic<Boolean>();
+        private readonly List<MessageDispatch> _dispatchedMessages = new List<MessageDispatch>();
+        private readonly Atomic<Boolean> _started = new Atomic<Boolean>();
+        private readonly Object _syncRoot = new Object();
+        private readonly MessageDispatchChannel _unconsumedMessages = new MessageDispatchChannel();
+        private Int32 _additionalWindowSize;
+        private Boolean _clearDispatchList;
+        private Int32 _deliveredCounter;
+        private Int32 _dispatchedCount;
+        private Boolean _inProgressClearRequiredFlag;
+        private MessageAck _pendingAck;
+        private Int64 _redeliveryDelay;
+        private Session _session;
+        private volatile Boolean _synchronizationRegistered;
+
+        #endregion
 
         #region Property Accessors
 
@@ -578,7 +580,9 @@ namespace Stomp.Net.Stomp
                 if ( IgnoreExpiration || !dispatch.Message.IsExpired() )
                     return dispatch;
 
-                Tracer.Warn( $"{ConsumerInfo.ConsumerId} received expired message: {dispatch.Message.MessageId}" );
+                if ( Tracer.IsWarnEnabled )
+                    Tracer.Warn( $"{ConsumerInfo.ConsumerId} received expired message: {dispatch.Message.MessageId}" );
+
                 BeforeMessageIsConsumed( dispatch );
                 AfterMessageIsConsumed( dispatch, true );
                 return null;

@@ -8,16 +8,6 @@ namespace Stomp.Net.Stomp.Commands
 {
     public class ProducerInfo : BaseCommand
     {
-        #region Properties
-
-        public ProducerId ProducerId { get; set; }
-
-        public Destination Destination { get; set; }
-
-        public Boolean DispatchAsync { get; set; }
-
-        #endregion
-
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
@@ -36,5 +26,15 @@ namespace Stomp.Net.Stomp.Commands
                "Destination=" + Destination + ", " +
                "DispatchAsync=" + DispatchAsync +
                "]";
+
+        #region Properties
+
+        public ProducerId ProducerId { get; set; }
+
+        public Destination Destination { get; set; }
+
+        public Boolean DispatchAsync { get; set; }
+
+        #endregion
     }
 }

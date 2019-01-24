@@ -14,28 +14,6 @@ namespace Stomp.Net.Stomp
 {
     public class SessionExecutor : ITask
     {
-        #region Fields
-
-        private readonly ConcurrentDictionary<ConsumerId, MessageConsumer> _consumers;
-        private readonly MessageDispatchChannel _messageQueue = new MessageDispatchChannel();
-
-        private readonly Session _session;
-        private readonly Object _syncRoot = new Object();
-        private ITaskRunner _taskRunner;
-
-        #endregion
-
-        #region Properties
-
-        [PublicAPI]
-        public MessageDispatch[] UnconsumedMessages => _messageQueue.EnqueueAll();
-
-        private Boolean HasUncomsumedMessages => _messageQueue.Started && _messageQueue.HasMessages;
-
-        public Boolean Running => _messageQueue.Started;
-
-        #endregion
-
         #region Ctor
 
         public SessionExecutor( Session session, ConcurrentDictionary<ConsumerId, MessageConsumer> consumers )
@@ -65,7 +43,8 @@ namespace Stomp.Net.Stomp
             }
             catch ( Exception ex )
             {
-                Tracer.Warn( $"Caught Exception While Dispatching: {ex}" );
+                if ( Tracer.IsWarnEnabled )
+                    Tracer.Warn( $"Caught Exception While Dispatching: {ex}" );
                 _session.Connection.OnSessionException( _session, ex );
             }
 
@@ -143,7 +122,8 @@ namespace Stomp.Net.Stomp
             }
             catch ( Exception ex )
             {
-                Tracer.Warn( $"Caught Exception While Dispatching: {ex}" );
+                if ( Tracer.IsWarnEnabled )
+                    Tracer.Warn( $"Caught Exception While Dispatching: {ex}" );
             }
         }
 
@@ -160,5 +140,27 @@ namespace Stomp.Net.Stomp
                 // ignored
             }
         }
+
+        #region Fields
+
+        private readonly ConcurrentDictionary<ConsumerId, MessageConsumer> _consumers;
+        private readonly MessageDispatchChannel _messageQueue = new MessageDispatchChannel();
+
+        private readonly Session _session;
+        private readonly Object _syncRoot = new Object();
+        private ITaskRunner _taskRunner;
+
+        #endregion
+
+        #region Properties
+
+        [PublicAPI]
+        public MessageDispatch[] UnconsumedMessages => _messageQueue.EnqueueAll();
+
+        private Boolean HasUncomsumedMessages => _messageQueue.Started && _messageQueue.HasMessages;
+
+        public Boolean Running => _messageQueue.Started;
+
+        #endregion
     }
 }

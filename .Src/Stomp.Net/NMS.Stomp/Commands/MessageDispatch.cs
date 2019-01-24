@@ -8,23 +8,6 @@ namespace Stomp.Net.Stomp.Commands
 {
     public class MessageDispatch : BaseCommand
     {
-        #region Properties
-
-        public ConsumerId ConsumerId { get; }
-
-        public Destination Destination { get; }
-
-        public BytesMessage Message { get; }
-
-        public Int32 RedeliveryCounter { get; }
-
-        /// <summery>
-        ///     Return an answer of true to the isMessageDispatch() query.
-        /// </summery>
-        public override Boolean IsMessageDispatch => true;
-
-        #endregion
-
         #region Ctor
 
         public MessageDispatch( ConsumerId consumerId, Destination destination, BytesMessage message, Int32 redeliveryCounter )
@@ -86,5 +69,22 @@ namespace Stomp.Net.Stomp.Commands
 
             return Equals( Message, that.Message ) && Equals( RedeliveryCounter, that.RedeliveryCounter );
         }
+
+        #region Properties
+
+        public ConsumerId ConsumerId { get; }
+
+        public Destination Destination { get; }
+
+        public BytesMessage Message { get; }
+
+        public Int32 RedeliveryCounter { get; }
+
+        /// <summery>
+        ///     Return an answer of true to the isMessageDispatch() query.
+        /// </summery>
+        public override Boolean IsMessageDispatch => true;
+
+        #endregion
     }
 }

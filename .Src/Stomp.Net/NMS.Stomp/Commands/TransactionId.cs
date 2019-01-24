@@ -8,14 +8,6 @@ namespace Stomp.Net.Stomp.Commands
 {
     public class TransactionId : BaseDataStructure
     {
-        #region Properties
-
-        public Int64 Value { get; }
-
-        public ConnectionId ConnectionId { get; }
-
-        #endregion
-
         #region Ctor
 
         public TransactionId( Int64 value, ConnectionId connectionId )
@@ -60,5 +52,13 @@ namespace Stomp.Net.Stomp.Commands
 
         protected virtual Boolean Equals( TransactionId that )
             => Equals( Value, that.Value ) && Equals( ConnectionId, that.ConnectionId );
+
+        #region Properties
+
+        public Int64 Value { get; }
+
+        public ConnectionId ConnectionId { get; }
+
+        #endregion
     }
 }

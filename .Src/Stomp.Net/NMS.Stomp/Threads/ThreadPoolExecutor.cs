@@ -17,15 +17,6 @@ namespace Stomp.Net.Stomp.Threads
     /// </summary>
     public class ThreadPoolExecutor
     {
-        #region Fields
-
-        private readonly ManualResetEvent _executionComplete = new ManualResetEvent( true );
-        private readonly Mutex _syncRoot = new Mutex();
-        private readonly Queue<Future> _workQueue = new Queue<Future>();
-        private Boolean _running;
-
-        #endregion
-
         public void QueueUserWorkItem( WaitCallback worker, Object arg )
         {
             worker.ThrowIfNull( nameof(worker) );
@@ -76,13 +67,6 @@ namespace Stomp.Net.Stomp.Threads
         /// </summary>
         private class Future
         {
-            #region Fields
-
-            private readonly WaitCallback _callback;
-            private readonly Object _callbackArg;
-
-            #endregion
-
             #region Ctor
 
             public Future( WaitCallback callback, Object arg )
@@ -107,7 +91,23 @@ namespace Stomp.Net.Stomp.Threads
                     // ignored
                 }
             }
+
+            #region Fields
+
+            private readonly WaitCallback _callback;
+            private readonly Object _callbackArg;
+
+            #endregion
         }
+
+        #endregion
+
+        #region Fields
+
+        private readonly ManualResetEvent _executionComplete = new ManualResetEvent( true );
+        private readonly Mutex _syncRoot = new Mutex();
+        private readonly Queue<Future> _workQueue = new Queue<Future>();
+        private Boolean _running;
 
         #endregion
     }

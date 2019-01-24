@@ -8,29 +8,6 @@ namespace Stomp.Net.Stomp.Commands
 {
     public class MessageAck : BaseCommand
     {
-        #region Properties
-
-        public Destination Destination { get; set; }
-
-        public TransactionId TransactionId { get; set; }
-
-        public ConsumerId ConsumerId { get; set; }
-
-        public Byte AckType { get; set; }
-
-        public MessageId FirstMessageId { get; set; }
-
-        public MessageId LastMessageId { get; set; }
-
-        public Int32 MessageCount { get; set; }
-
-        /// <summery>
-        ///     Return an answer of true to the isMessageAck() query.
-        /// </summery>
-        public override Boolean IsMessageAck => true;
-
-        #endregion
-
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
@@ -53,5 +30,28 @@ namespace Stomp.Net.Stomp.Commands
                "LastMessageId=" + LastMessageId + ", " +
                "MessageCount=" + MessageCount +
                "]";
+
+        #region Properties
+
+        public Destination Destination { get; set; }
+
+        public TransactionId TransactionId { get; set; }
+
+        public ConsumerId ConsumerId { get; set; }
+
+        public Byte AckType { get; set; }
+
+        public MessageId FirstMessageId { get; set; }
+
+        public MessageId LastMessageId { get; set; }
+
+        public Int32 MessageCount { get; set; }
+
+        /// <summery>
+        ///     Return an answer of true to the isMessageAck() query.
+        /// </summery>
+        public override Boolean IsMessageAck => true;
+
+        #endregion
     }
 }

@@ -12,59 +12,6 @@ namespace Stomp.Net.Stomp.Protocol
 {
     public class StompFrame
     {
-        #region Constants
-
-        private const Byte Break = (Byte) '\n';
-        private const Byte Colon = (Byte) ':';
-        private const Byte Escape = (Byte) '\\';
-
-        /// Used to mark the End of the Frame.
-        private const Byte FrameTerminus = 0;
-
-        /// Used to denote a Special KeepAlive command that consists of a single newline.
-        public const String Keepalive = "KEEPALIVE";
-
-        /// Used to terminate a header line or end of a headers section of the Frame.
-        private const String Newline = "\n";
-
-        /// Used to separate the Key / Value pairing in Frame Headers
-        private const String Separator = ":";
-
-        #endregion
-
-        #region Fields
-
-        private readonly Byte[] _colonEscapeSeq = { 92, 99 };
-        private readonly Encoding _encoding = Encoding.UTF8;
-        private readonly Byte[] _escapeEscapeSeq = { 92, 92 };
-        private readonly Byte[] _newlineEscapeSeq = { 92, 110 };
-
-        #endregion
-
-        #region Properties
-
-        private Boolean EncodingEnabled { get; }
-
-        public Byte[] Content { get; set; }
-
-        public String Command { get; set; }
-
-        public Dictionary<String, String> Properties { get; } = new Dictionary<String, String>();
-
-        #endregion
-
-        #region Ctor
-
-        public StompFrame( Boolean encodingEnabled ) => EncodingEnabled = encodingEnabled;
-
-        public StompFrame( String command, Boolean encodingEnabled )
-        {
-            Command = command;
-            EncodingEnabled = encodingEnabled;
-        }
-
-        #endregion
-
         public void FromStream( BinaryReader dataIn )
         {
             ReadCommandHeader( dataIn );
@@ -270,7 +217,7 @@ namespace Stomp.Net.Stomp.Protocol
                     if ( !Properties.ContainsKey( key ) )
                         Properties[key] = DecodeHeader( value );
                 }
-                else
+                else if ( Tracer.IsWarnEnabled )
                     Tracer.Warn( "StompFrame - Read Malformed Header: " + line );
             }
         }
@@ -294,5 +241,58 @@ namespace Stomp.Net.Stomp.Protocol
             var data = ms.ToArray();
             return _encoding.GetString( data, 0, data.Length );
         }
+
+        #region Constants
+
+        private const Byte Break = (Byte) '\n';
+        private const Byte Colon = (Byte) ':';
+        private const Byte Escape = (Byte) '\\';
+
+        /// Used to mark the End of the Frame.
+        private const Byte FrameTerminus = 0;
+
+        /// Used to denote a Special KeepAlive command that consists of a single newline.
+        public const String Keepalive = "KEEPALIVE";
+
+        /// Used to terminate a header line or end of a headers section of the Frame.
+        private const String Newline = "\n";
+
+        /// Used to separate the Key / Value pairing in Frame Headers
+        private const String Separator = ":";
+
+        #endregion
+
+        #region Fields
+
+        private readonly Byte[] _colonEscapeSeq = { 92, 99 };
+        private readonly Encoding _encoding = Encoding.UTF8;
+        private readonly Byte[] _escapeEscapeSeq = { 92, 92 };
+        private readonly Byte[] _newlineEscapeSeq = { 92, 110 };
+
+        #endregion
+
+        #region Properties
+
+        private Boolean EncodingEnabled { get; }
+
+        public Byte[] Content { get; set; }
+
+        public String Command { get; set; }
+
+        public Dictionary<String, String> Properties { get; } = new Dictionary<String, String>();
+
+        #endregion
+
+        #region Ctor
+
+        public StompFrame( Boolean encodingEnabled ) => EncodingEnabled = encodingEnabled;
+
+        public StompFrame( String command, Boolean encodingEnabled )
+        {
+            Command = command;
+            EncodingEnabled = encodingEnabled;
+        }
+
+        #endregion
     }
 }

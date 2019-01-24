@@ -8,30 +8,6 @@ namespace Stomp.Net.Stomp.Commands
 {
     public class SessionId : BaseDataStructure
     {
-        #region Properties
-
-        public String ConnectionId { get; }
-
-        public Int64 Value { get; }
-
-        #endregion
-
-        #region Ctor
-
-        public SessionId( Int64 sessionId, ConnectionId connectionId )
-        {
-            ConnectionId = connectionId.Value;
-            Value = sessionId;
-        }
-
-        public SessionId( ConsumerId consumerId )
-        {
-            ConnectionId = consumerId.ConnectionId;
-            Value = consumerId.SessionId;
-        }
-
-        #endregion
-
         public override Boolean Equals( Object that )
         {
             if ( that is SessionId id )
@@ -65,5 +41,29 @@ namespace Stomp.Net.Stomp.Commands
 
         protected virtual Boolean Equals( SessionId that )
             => Equals( ConnectionId, that.ConnectionId ) && Equals( Value, that.Value );
+
+        #region Properties
+
+        public String ConnectionId { get; }
+
+        public Int64 Value { get; }
+
+        #endregion
+
+        #region Ctor
+
+        public SessionId( Int64 sessionId, ConnectionId connectionId )
+        {
+            ConnectionId = connectionId.Value;
+            Value = sessionId;
+        }
+
+        public SessionId( ConsumerId consumerId )
+        {
+            ConnectionId = consumerId.ConnectionId;
+            Value = consumerId.SessionId;
+        }
+
+        #endregion
     }
 }

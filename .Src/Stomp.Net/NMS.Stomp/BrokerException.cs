@@ -14,6 +14,20 @@ namespace Stomp.Net.Stomp
     /// </summary>
     public class BrokerException : StompException
     {
+        /// <summary>
+        ///     Generates a nice textual stack trace
+        /// </summary>
+        private static String StackTraceDump( StackTraceElement[] elements )
+        {
+            var builder = new StringBuilder();
+            if ( elements == null )
+                return builder.ToString();
+
+            foreach ( var e in elements )
+                builder.Append( "\n " + e.ClassName + "." + e.MethodName + "(" + e.FileName + ":" + e.LineNumber + ")" );
+            return builder.ToString();
+        }
+
         #region Properties
 
         private BrokerError BrokerError { get; }
@@ -46,19 +60,5 @@ namespace Stomp.Net.Stomp
             => BrokerError = brokerError;
 
         #endregion
-
-        /// <summary>
-        ///     Generates a nice textual stack trace
-        /// </summary>
-        private static String StackTraceDump( StackTraceElement[] elements )
-        {
-            var builder = new StringBuilder();
-            if ( elements == null )
-                return builder.ToString();
-
-            foreach ( var e in elements )
-                builder.Append( "\n " + e.ClassName + "." + e.MethodName + "(" + e.FileName + ":" + e.LineNumber + ")" );
-            return builder.ToString();
-        }
     }
 }

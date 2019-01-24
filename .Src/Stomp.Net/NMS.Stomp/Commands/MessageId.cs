@@ -14,6 +14,41 @@ namespace Stomp.Net.Stomp.Commands
 
         #endregion
 
+        public override Boolean Equals( Object that )
+        {
+            if ( that is MessageId id )
+                return Equals( id );
+
+            return false;
+        }
+
+        public virtual Boolean Equals( MessageId that )
+            => Equals( ProducerId, that.ProducerId )
+               && Equals( ProducerSequenceId, that.ProducerSequenceId );
+
+        /// <summery>
+        ///     Get the unique identifier that this object and its own
+        ///     Marshaler share.
+        /// </summery>
+        public override Byte GetDataStructureType() => DataStructureTypes.MessageIdType;
+
+        public override Int32 GetHashCode()
+        {
+            var answer = 0;
+
+            answer = answer * 37 + HashCode( ProducerId );
+            answer = answer * 37 + HashCode( ProducerSequenceId );
+
+            return answer;
+        }
+
+        /// <summery>
+        ///     Returns a string containing the information for this DataStructure
+        ///     such as its type and value of its elements.
+        /// </summery>
+        public override String ToString()
+            => _key ?? ( _key = $"{ProducerId}:{ProducerSequenceId}" );
+
         #region Properties
 
         public ProducerId ProducerId { get; }
@@ -55,41 +90,6 @@ namespace Stomp.Net.Stomp.Commands
         }
 
         #endregion
-
-        public override Boolean Equals( Object that )
-        {
-            if ( that is MessageId id )
-                return Equals( id );
-
-            return false;
-        }
-
-        public virtual Boolean Equals( MessageId that )
-            => Equals( ProducerId, that.ProducerId )
-               && Equals( ProducerSequenceId, that.ProducerSequenceId );
-
-        /// <summery>
-        ///     Get the unique identifier that this object and its own
-        ///     Marshaler share.
-        /// </summery>
-        public override Byte GetDataStructureType() => DataStructureTypes.MessageIdType;
-
-        public override Int32 GetHashCode()
-        {
-            var answer = 0;
-
-            answer = answer * 37 + HashCode( ProducerId );
-            answer = answer * 37 + HashCode( ProducerSequenceId );
-
-            return answer;
-        }
-
-        /// <summery>
-        ///     Returns a string containing the information for this DataStructure
-        ///     such as its type and value of its elements.
-        /// </summery>
-        public override String ToString()
-            => _key ?? ( _key = $"{ProducerId}:{ProducerSequenceId}" );
 
         //private Int64 _producerSequenceId;
     }

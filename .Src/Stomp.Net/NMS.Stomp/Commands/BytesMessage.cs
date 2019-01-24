@@ -19,61 +19,6 @@ namespace Stomp.Net.Stomp.Commands
 
         #endregion
 
-        #region Properties
-
-        public Connection Connection { get; set; }
-
-        /// <summary>
-        ///     The Message Group Sequence counter to indicate the position in a group
-        /// </summary>
-        public Int32 StompGroupSeq
-        {
-            get => GroupSequence;
-            // ReSharper disable once UnusedMember.Global
-            set => GroupSequence = value;
-        }
-
-        public ProducerId ProducerId { get; set; }
-
-        public Destination Destination { get; set; }
-
-        public TransactionId TransactionId { get; set; }
-
-        public MessageId MessageId { get; set; }
-
-        protected TransactionId OriginalTransactionId { get; set; }
-
-        public String StompGroupId { get; set; }
-
-        protected Int32 GroupSequence { get; set; }
-
-        public String CorrelationId { get; set; }
-
-        public Boolean Persistent { get; set; }
-
-        public Int64 Expiration { get; set; }
-
-        public Byte Priority { get; set; }
-
-        public Destination ReplyTo { get; set; }
-
-        public Int64 Timestamp { get; set; }
-
-        public String Type { get; set; }
-
-        public ConsumerId TargetConsumerId { get; set; }
-
-        public Int32 RedeliveryCounter { get; set; }
-
-        public virtual Boolean ReadOnlyBody { get; set; }
-
-        /// <summery>
-        ///     Return an answer of true to the isMessage() query.
-        /// </summery>
-        public override Boolean IsMessage => true;
-
-        #endregion
-
         public void Acknowledge()
         {
             if ( null == Acknowledger )
@@ -328,5 +273,60 @@ namespace Stomp.Net.Stomp.Commands
 
             return thisMsg != null && oMsg != null && oMsg.Equals( thisMsg );
         }
+
+        #region Properties
+
+        public Connection Connection { get; set; }
+
+        /// <summary>
+        ///     The Message Group Sequence counter to indicate the position in a group
+        /// </summary>
+        public Int32 StompGroupSeq
+        {
+            get => GroupSequence;
+            // ReSharper disable once UnusedMember.Global
+            set => GroupSequence = value;
+        }
+
+        public ProducerId ProducerId { get; set; }
+
+        public Destination Destination { get; set; }
+
+        public TransactionId TransactionId { get; set; }
+
+        public MessageId MessageId { get; set; }
+
+        protected TransactionId OriginalTransactionId { get; set; }
+
+        public String StompGroupId { get; set; }
+
+        protected Int32 GroupSequence { get; set; }
+
+        public String CorrelationId { get; set; }
+
+        public Boolean Persistent { get; set; }
+
+        public Int64 Expiration { get; set; }
+
+        public Byte Priority { get; set; }
+
+        public Destination ReplyTo { get; set; }
+
+        public Int64 Timestamp { get; set; }
+
+        public String Type { get; set; }
+
+        public ConsumerId TargetConsumerId { get; set; }
+
+        public Int32 RedeliveryCounter { get; set; }
+
+        public virtual Boolean ReadOnlyBody { get; set; }
+
+        /// <summery>
+        ///     Return an answer of true to the isMessage() query.
+        /// </summery>
+        public override Boolean IsMessage => true;
+
+        #endregion
     }
 }

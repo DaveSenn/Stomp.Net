@@ -14,6 +14,33 @@ namespace Stomp.Net.Stomp.Commands
 
         #endregion
 
+        /// <summery>
+        ///     Get the unique identifier that this object and its own
+        ///     Marshaler share.
+        /// </summery>
+        public override Byte GetDataStructureType() => IdConsumerinfo;
+
+        /// <summery>
+        ///     Returns a string containing the information for this DataStructure
+        ///     such as its type and value of its elements.
+        /// </summery>
+        public override String ToString() => GetType()
+                                                 .Name + "[" +
+                                             "ConsumerId=" + ConsumerId + ", " +
+                                             "Destination=" + Destination + ", " +
+                                             "Ack Mode=" + AckMode + ", " +
+                                             "PrefetchSize=" + PrefetchSize + ", " +
+                                             "MaximumPendingMessageLimit=" + MaximumPendingMessageLimit + ", " +
+                                             "DispatchAsync=" + DispatchAsync + ", " +
+                                             "Selector=" + Selector + ", " +
+                                             "SubscriptionName=" + SubscriptionName + ", " +
+                                             "NoLocal=" + NoLocal + ", " +
+                                             "Exclusive=" + Exclusive + ", " +
+                                             "Retroactive=" + Retroactive + ", " +
+                                             "Priority=" + Priority + ", " +
+                                             "Transformation" + Transformation +
+                                             "]";
+
         #region Properties
 
         public ConsumerId ConsumerId { get; set; }
@@ -43,32 +70,5 @@ namespace Stomp.Net.Stomp.Commands
         public String Transformation { get; set; }
 
         #endregion
-
-        /// <summery>
-        ///     Get the unique identifier that this object and its own
-        ///     Marshaler share.
-        /// </summery>
-        public override Byte GetDataStructureType() => IdConsumerinfo;
-
-        /// <summery>
-        ///     Returns a string containing the information for this DataStructure
-        ///     such as its type and value of its elements.
-        /// </summery>
-        public override String ToString() => GetType()
-                                                 .Name + "[" +
-                                             "ConsumerId=" + ConsumerId + ", " +
-                                             "Destination=" + Destination + ", " +
-                                             "Ack Mode=" + AckMode + ", " +
-                                             "PrefetchSize=" + PrefetchSize + ", " +
-                                             "MaximumPendingMessageLimit=" + MaximumPendingMessageLimit + ", " +
-                                             "DispatchAsync=" + DispatchAsync + ", " +
-                                             "Selector=" + Selector + ", " +
-                                             "SubscriptionName=" + SubscriptionName + ", " +
-                                             "NoLocal=" + NoLocal + ", " +
-                                             "Exclusive=" + Exclusive + ", " +
-                                             "Retroactive=" + Retroactive + ", " +
-                                             "Priority=" + Priority + ", " +
-                                             "Transformation" + Transformation +
-                                             "]";
     }
 }

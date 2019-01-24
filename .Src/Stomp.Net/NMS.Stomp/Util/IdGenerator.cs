@@ -11,6 +11,25 @@ namespace Stomp.Net.Stomp.Util
 {
     public class IdGenerator
     {
+        #region Properties
+
+        /// <summary>
+        ///     As we have to find the hostname as a side-affect of generating a unique
+        ///     stub, we allow it's easy retrevial here
+        /// </summary>
+        public static String HostName { get; }
+
+        #endregion
+
+        /// <summary>
+        ///     Generate a Unique Id
+        /// </summary>
+        public String GenerateId()
+        {
+            lock ( UniqueStub )
+                return _seed + _sequence++;
+        }
+
         #region Constants
 
         private static Int32 _instanceCount;
@@ -22,16 +41,6 @@ namespace Stomp.Net.Stomp.Util
 
         private readonly String _seed;
         private Int64 _sequence;
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        ///     As we have to find the hostname as a side-affect of generating a unique
-        ///     stub, we allow it's easy retrevial here
-        /// </summary>
-        public static String HostName { get; }
 
         #endregion
 
@@ -55,7 +64,8 @@ namespace Stomp.Net.Stomp.Util
             }
             catch ( Exception ioe )
             {
-                Tracer.Warn( "could not generate unique stub: " + ioe.Message );
+                if ( Tracer.IsWarnEnabled )
+                    Tracer.Warn( "could not generate unique stub: " + ioe.Message );
             }
 
             UniqueStub = stub;
@@ -77,14 +87,5 @@ namespace Stomp.Net.Stomp.Util
         }
 
         #endregion
-
-        /// <summary>
-        ///     Generate a Unique Id
-        /// </summary>
-        public String GenerateId()
-        {
-            lock ( UniqueStub )
-                return _seed + _sequence++;
-        }
     }
 }

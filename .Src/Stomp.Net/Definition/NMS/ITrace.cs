@@ -20,6 +20,37 @@ namespace Stomp.Net
     public interface ITrace
     {
         /// <summary>
+        ///     Gets a value indicating whether the error level is enabled or not.
+        /// </summary>
+        Boolean IsErrorEnabled { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the warn level is enabled or not.
+        /// </summary>
+        Boolean IsWarnEnabled { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the info level is enabled or not.
+        /// </summary>
+        Boolean IsInfoEnabled { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the fatal level is enabled or not.
+        /// </summary>
+        Boolean IsFatalEnabled { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the debug level is enabled or not.
+        /// </summary>
+        Boolean IsDebugEnabled { get; }
+
+        /// <summary>
+        ///     Writes a message on the debug level.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        void Debug( String message );
+
+        /// <summary>
         ///     Writes a message on the error level.
         /// </summary>
         /// <param name="message">The message.</param>

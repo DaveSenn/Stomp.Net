@@ -11,17 +11,23 @@ namespace Stomp.Net.Policies
     /// </summary>
     public class RedeliveryPolicy : IRedeliveryPolicy
     {
+        #region Fields
+
+        private Double _collisionAvoidanceFactor = .15;
+
+        #endregion
+
+        /// <summery>
+        ///     Clone this object and return a new instance that the caller now owns.
+        /// </summery>
+        public Object Clone()
+            => MemberwiseClone();
+
         #region Constants
 
         private static Boolean _nextBool;
         private static Random _randomNumberGenerator;
         private static readonly Object SyncObject = new Object();
-
-        #endregion
-
-        #region Fields
-
-        private Double _collisionAvoidanceFactor = .15;
 
         #endregion
 
@@ -66,12 +72,6 @@ namespace Stomp.Net.Policies
         }
 
         #endregion
-
-        /// <summery>
-        ///     Clone this object and return a new instance that the caller now owns.
-        /// </summery>
-        public Object Clone()
-            => MemberwiseClone();
 
         #region IRedeliveryPolicy Members
 

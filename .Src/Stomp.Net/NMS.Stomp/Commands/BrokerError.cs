@@ -11,6 +11,8 @@ namespace Stomp.Net.Stomp.Commands
     /// </summary>
     public class BrokerError : BaseCommand
     {
+        public override Byte GetDataStructureType() => DataStructureTypes.ErrorType;
+
         #region Properties
 
         public String Message { get; set; }
@@ -22,7 +24,5 @@ namespace Stomp.Net.Stomp.Commands
         public BrokerError Cause { get; set; }
 
         #endregion
-
-        public override Byte GetDataStructureType() => DataStructureTypes.ErrorType;
     }
 }

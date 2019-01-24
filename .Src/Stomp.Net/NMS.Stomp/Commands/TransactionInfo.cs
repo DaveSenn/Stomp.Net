@@ -8,16 +8,6 @@ namespace Stomp.Net.Stomp.Commands
 {
     public class TransactionInfo : BaseCommand
     {
-        #region Properties
-
-        public ConnectionId ConnectionId { get; set; }
-
-        public TransactionId TransactionId { get; set; }
-
-        public Byte Type { get; set; }
-
-        #endregion
-
         /// <summery>
         ///     Get the unique identifier that this object and its own
         ///     Marshaler share.
@@ -36,5 +26,15 @@ namespace Stomp.Net.Stomp.Commands
                "TransactionId=" + TransactionId + ", " +
                "Type=" + Type +
                "]";
+
+        #region Properties
+
+        public ConnectionId ConnectionId { get; set; }
+
+        public TransactionId TransactionId { get; set; }
+
+        public Byte Type { get; set; }
+
+        #endregion
     }
 }

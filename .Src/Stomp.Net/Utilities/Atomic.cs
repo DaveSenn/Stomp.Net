@@ -8,19 +8,6 @@ namespace Stomp.Net.Utilities
 {
     public class Atomic<T> : AtomicReference<T> where T : IComparable
     {
-        #region Ctor
-
-        public Atomic()
-        {
-        }
-
-        public Atomic( T defaultValue )
-            : base( defaultValue )
-        {
-        }
-
-        #endregion
-
         /// <summary>
         ///     Compares the current value with the expected value.
         ///     If it matches the value will be updated to <paramref name="newValue" />.
@@ -39,5 +26,18 @@ namespace Stomp.Net.Utilities
                 return true;
             }
         }
+
+        #region Ctor
+
+        public Atomic()
+        {
+        }
+
+        public Atomic( T defaultValue )
+            : base( defaultValue )
+        {
+        }
+
+        #endregion
     }
 }

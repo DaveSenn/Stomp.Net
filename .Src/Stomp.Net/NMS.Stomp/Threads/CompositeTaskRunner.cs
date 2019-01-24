@@ -14,19 +14,6 @@ namespace Stomp.Net.Stomp.Threads
     /// </summary>
     public class CompositeTaskRunner : ITaskRunner
     {
-        #region Fields
-
-        private readonly ManualResetEvent _isShutdown = new ManualResetEvent( true );
-        private readonly Mutex _mutex = new Mutex();
-        private readonly LinkedList<ICompositeTask> _tasks = new LinkedList<ICompositeTask>();
-        private readonly Thread _theThread;
-        private readonly AutoResetEvent _waiter = new AutoResetEvent( false );
-        private Boolean _pending;
-        private Boolean _shutdown;
-        private Boolean _terminated;
-
-        #endregion
-
         #region Ctor
 
         public CompositeTaskRunner()
@@ -142,5 +129,18 @@ namespace Stomp.Net.Stomp.Threads
                 _isShutdown.Set();
             }
         }
+
+        #region Fields
+
+        private readonly ManualResetEvent _isShutdown = new ManualResetEvent( true );
+        private readonly Mutex _mutex = new Mutex();
+        private readonly LinkedList<ICompositeTask> _tasks = new LinkedList<ICompositeTask>();
+        private readonly Thread _theThread;
+        private readonly AutoResetEvent _waiter = new AutoResetEvent( false );
+        private Boolean _pending;
+        private Boolean _shutdown;
+        private Boolean _terminated;
+
+        #endregion
     }
 }

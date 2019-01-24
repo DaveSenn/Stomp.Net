@@ -17,6 +17,54 @@ namespace Stomp.Net.Transport
     /// </summary>
     public class TcpTransport : Disposable, ITransport
     {
+        #region Properties
+
+        /// <summary>
+        ///     Gets or sets a <see cref="IWireFormat" />.
+        /// </summary>
+        /// <value>A <see cref="IWireFormat" />.</value>
+        private IWireFormat Wireformat { get; }
+
+        #endregion
+
+        #region Ctor
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="TcpTransport" /> class.
+        /// </summary>
+        /// <param name="uri">The URI.</param>
+        /// <param name="socket">The socket to use.</param>
+        /// <param name="wireformat">A <see cref="IWireFormat" />.</param>
+        public TcpTransport( Uri uri, Socket socket, IWireFormat wireformat )
+        {
+            RemoteAddress = uri;
+            Socket = socket;
+            Wireformat = wireformat;
+        }
+
+        #endregion
+
+        #region Protected Members
+
+        /// <summary>
+        ///     Creates a stream for the transport socket.
+        /// </summary>
+        /// <returns>Returns the newly created stream.</returns>
+        protected virtual Stream CreateSocketStream()
+            => new NetworkStream( Socket );
+
+        #endregion
+
+        #region Override of Disposable
+
+        /// <summary>
+        ///     Method invoked when the instance gets disposed.
+        /// </summary>
+        protected override void Disposed()
+            => Close();
+
+        #endregion
+
         #region Fields
 
         /// <summary>
@@ -63,54 +111,6 @@ namespace Stomp.Net.Transport
         ///     Stores whether the connection is started or not.
         /// </summary>
         private Boolean _started;
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        ///     Gets or sets a <see cref="IWireFormat" />.
-        /// </summary>
-        /// <value>A <see cref="IWireFormat" />.</value>
-        private IWireFormat Wireformat { get; }
-
-        #endregion
-
-        #region Ctor
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="TcpTransport" /> class.
-        /// </summary>
-        /// <param name="uri">The URI.</param>
-        /// <param name="socket">The socket to use.</param>
-        /// <param name="wireformat">A <see cref="IWireFormat" />.</param>
-        public TcpTransport( Uri uri, Socket socket, IWireFormat wireformat )
-        {
-            RemoteAddress = uri;
-            Socket = socket;
-            Wireformat = wireformat;
-        }
-
-        #endregion
-
-        #region Protected Members
-
-        /// <summary>
-        ///     Creates a stream for the transport socket.
-        /// </summary>
-        /// <returns>Returns the newly created stream.</returns>
-        protected virtual Stream CreateSocketStream()
-            => new NetworkStream( Socket );
-
-        #endregion
-
-        #region Override of Disposable
-
-        /// <summary>
-        ///     Method invoked when the instance gets disposed.
-        /// </summary>
-        protected override void Disposed()
-            => Close();
 
         #endregion
 

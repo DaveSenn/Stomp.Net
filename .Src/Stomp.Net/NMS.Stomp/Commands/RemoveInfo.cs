@@ -8,17 +8,6 @@ namespace Stomp.Net.Stomp.Commands
 {
     public class RemoveInfo : BaseCommand
     {
-        #region Properties
-
-        public IDataStructure ObjectId { get; set; }
-
-        /// <summery>
-        ///     Return an answer of true to the isRemoveInfo() query.
-        /// </summery>
-        public override Boolean IsRemoveInfo => true;
-
-        #endregion
-
         public override Byte GetDataStructureType()
             => DataStructureTypes.RemoveInfoType;
 
@@ -31,5 +20,16 @@ namespace Stomp.Net.Stomp.Commands
                    .Name + "[" +
                "ObjectId=" + ObjectId +
                "]";
+
+        #region Properties
+
+        public IDataStructure ObjectId { get; set; }
+
+        /// <summery>
+        ///     Return an answer of true to the isRemoveInfo() query.
+        /// </summery>
+        public override Boolean IsRemoveInfo => true;
+
+        #endregion
     }
 }

@@ -10,21 +10,6 @@ namespace Stomp.Net.Stomp
 {
     public class TransactionContext
     {
-        #region Fields
-
-        private readonly Session _session;
-        private readonly ConcurrentDictionary<ISynchronization, ISynchronization> _synchronizations = new ConcurrentDictionary<ISynchronization, ISynchronization>();
-
-        #endregion
-
-        #region Properties
-
-        public Boolean InTransaction => TransactionId != null;
-
-        public TransactionId TransactionId { get; private set; }
-
-        #endregion
-
         #region Ctor
 
         public TransactionContext( Session session ) => _session = session;
@@ -130,6 +115,21 @@ namespace Stomp.Net.Stomp
             foreach ( var synchronization in _synchronizations )
                 synchronization.Value.BeforeEnd();
         }
+
+        #region Fields
+
+        private readonly Session _session;
+        private readonly ConcurrentDictionary<ISynchronization, ISynchronization> _synchronizations = new ConcurrentDictionary<ISynchronization, ISynchronization>();
+
+        #endregion
+
+        #region Properties
+
+        public Boolean InTransaction => TransactionId != null;
+
+        public TransactionId TransactionId { get; private set; }
+
+        #endregion
 
         #region Transaction State Events
 

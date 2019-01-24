@@ -8,17 +8,6 @@ namespace Stomp.Net.Stomp.Commands
 {
     public class Response : BaseCommand
     {
-        #region Properties
-
-        public Int32 CorrelationId { get; set; }
-
-        /// <summery>
-        ///     Return an answer of true to the isResponse() query.
-        /// </summery>
-        public override Boolean IsResponse => true;
-
-        #endregion
-
         public override Byte GetDataStructureType()
             => DataStructureTypes.ResponseType;
 
@@ -31,5 +20,16 @@ namespace Stomp.Net.Stomp.Commands
                    .Name + "[" +
                "CorrelationId=" + CorrelationId +
                "]";
+
+        #region Properties
+
+        public Int32 CorrelationId { get; set; }
+
+        /// <summery>
+        ///     Return an answer of true to the isResponse() query.
+        /// </summery>
+        public override Boolean IsResponse => true;
+
+        #endregion
     }
 }
