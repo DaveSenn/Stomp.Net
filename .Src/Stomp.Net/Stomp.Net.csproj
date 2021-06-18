@@ -6,7 +6,7 @@
     <Company>Dave Senn</Company>
     <Description>.Net STOMP client library written in C#.</Description>
     <Copyright>Copyright © Dave Senn 2018</Copyright>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/DaveSenn/Stomp.Net/master/License.txt</PackageLicenseUrl>
+    <PackageLicense>https://raw.githubusercontent.com/DaveSenn/Stomp.Net/master/License.txt</PackageLicense>
     <PackageProjectUrl>https://github.com/DaveSenn/Stomp.Net</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/DaveSenn/Stomp.Net/master/.Art/logo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/DaveSenn/Stomp.Net</RepositoryUrl>
