@@ -70,7 +70,7 @@ namespace Stomp.Net.Transport
         /// <summary>
         ///     Stores whether the connection is closed or not.
         /// </summary>
-        private readonly Atomic<Boolean> _closed = new Atomic<Boolean>( false );
+        private readonly Atomic<Boolean> _closed = new(false);
 
         /// <summary>
         ///     Timeout for closing the connection.
@@ -80,7 +80,7 @@ namespace Stomp.Net.Transport
         /// <summary>
         ///     Object used to synchronize threads for start and stop logic.
         /// </summary>
-        private readonly Object _startStopLock = new Object();
+        private readonly Object _startStopLock = new();
 
         /// <summary>
         ///     The socket used for the network communication.
@@ -231,11 +231,11 @@ namespace Stomp.Net.Transport
                     // Initialize our Read and Writer instances.
                     // Its not actually necessary to have two distinct NetworkStream instances but for now the TcpTransport
                     // will continue to do so for legacy reasons.
-                    _socketWriter = new BinaryWriter( CreateSocketStream() );
-                    _socketReader = new BinaryReader( CreateSocketStream() );
+                    _socketWriter = new(CreateSocketStream());
+                    _socketReader = new(CreateSocketStream());
 
                     // Now lets create the background read thread
-                    _readThread = new Thread( ReadLoop ) { IsBackground = true };
+                    _readThread = new(ReadLoop) { IsBackground = true };
                     _readThread.Start();
 
                     _started = true;

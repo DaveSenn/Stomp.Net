@@ -54,7 +54,7 @@ namespace Stomp.Net.Util
 
         #region Fields
 
-        private readonly ManualResetEvent _resetEvent = new ManualResetEvent( false );
+        private readonly ManualResetEvent _resetEvent = new(false);
         private Int32 _remaining;
 
         #endregion

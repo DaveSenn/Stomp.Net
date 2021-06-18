@@ -279,7 +279,7 @@ namespace Stomp.Net.Stomp.Protocol
 
         public String Command { get; set; }
 
-        public Dictionary<String, String> Properties { get; } = new Dictionary<String, String>();
+        public Dictionary<String, String> Properties { get; } = new();
 
         #endregion
 

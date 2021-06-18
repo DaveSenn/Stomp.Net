@@ -64,17 +64,12 @@ namespace Stomp.Net.Stomp.Transport
 
             try
             {
-                switch ( location.Scheme.ToLower() )
+                factory = location.Scheme.ToLower() switch
                 {
-                    case "tcp":
-                        factory = new TcpTransportFactory( _stompConnectionSettings );
-                        break;
-                    case "ssl":
-                        factory = new SslTransportFactory( _stompConnectionSettings );
-                        break;
-                    default:
-                        throw new StompConnectionException( $"The transport {location.Scheme} is not supported." );
-                }
+                    "tcp" => new TcpTransportFactory( _stompConnectionSettings ),
+                    "ssl" => new SslTransportFactory( _stompConnectionSettings ),
+                    _ => throw new StompConnectionException( $"The transport {location.Scheme} is not supported." )
+                };
             }
             catch ( StompConnectionException )
             {

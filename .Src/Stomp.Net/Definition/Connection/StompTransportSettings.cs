@@ -71,7 +71,7 @@ namespace Stomp.Net
         ///     Gets the SSL settings.
         /// </summary>
         /// <value>The SSL settings.</value>
-        public StompSslSettings SslSettings { get; } = new StompSslSettings();
+        public StompSslSettings SslSettings { get; } = new();
 
         #endregion
     }

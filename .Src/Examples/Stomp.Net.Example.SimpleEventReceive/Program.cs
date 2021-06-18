@@ -19,16 +19,14 @@ namespace Stomp.Net.Example.SelectorsCore
 
             try
             {
-                using ( var subscriber = new Subscriber() )
-                {
-                    SendMessages();
+                using var subscriber = new Subscriber();
+                SendMessages();
 
-                    Console.WriteLine( $" [{Thread.CurrentThread.ManagedThreadId}] Start receiving messages." );
+                Console.WriteLine( $" [{Thread.CurrentThread.ManagedThreadId}] Start receiving messages." );
 
-                    subscriber.Start();
+                subscriber.Start();
 
-                    Console.WriteLine( ResetEvent.Wait( 1.ToMinutes() ) ? "All messages received" : "Timeout :(" );
-                }
+                Console.WriteLine( ResetEvent.Wait( 1.ToMinutes() ) ? "All messages received" : "Timeout :(" );
             }
             catch ( Exception ex )
             {
@@ -44,25 +42,25 @@ namespace Stomp.Net.Example.SelectorsCore
             // Create a connection factory
             var brokerUri = "tcp://" + Host + ":" + Port;
 
-            return new ConnectionFactory( brokerUri,
-                                          new StompConnectionSettings
-                                          {
-                                              UserName = User,
-                                              Password = Password,
-                                              TransportSettings =
-                                              {
-                                                  SslSettings =
-                                                  {
-                                                      ServerName = "",
-                                                      ClientCertSubject = "",
-                                                      KeyStoreName = "My",
-                                                      KeyStoreLocation = "LocalMachine"
-                                                  }
-                                              },
-                                              SkipDestinationNameFormatting = false, // Determines whether the destination name formatting should be skipped or not.
-                                              SetHostHeader = true, // Determines whether the host header will be added to messages or not
-                                              HostHeaderOverride = null // Can be used to override the content of the host header
-                                          } );
+            return new(brokerUri,
+                       new()
+                       {
+                           UserName = User,
+                           Password = Password,
+                           TransportSettings =
+                           {
+                               SslSettings =
+                               {
+                                   ServerName = "",
+                                   ClientCertSubject = "",
+                                   KeyStoreName = "My",
+                                   KeyStoreLocation = "LocalMachine"
+                               }
+                           },
+                           SkipDestinationNameFormatting = false, // Determines whether the destination name formatting should be skipped or not.
+                           SetHostHeader = true, // Determines whether the host header will be added to messages or not
+                           HostHeaderOverride = null // Can be used to override the content of the host header
+                       });
         }
 
         private static void SendMessages()
@@ -70,32 +68,26 @@ namespace Stomp.Net.Example.SelectorsCore
             var factory = GetConnectionFactory();
 
             // Create connection for both requests and responses
-            using ( var connection = factory.CreateConnection() )
+            using var connection = factory.CreateConnection();
+            // Open the connection
+            connection.Start();
+
+            // Create session for both requests and responses
+            using var session = connection.CreateSession( AcknowledgementMode.IndividualAcknowledge );
+            // Create a message producer
+            IDestination destinationQueue = session.GetQueue( QueueName );
+            using var producer = session.CreateProducer( destinationQueue );
+            producer.DeliveryMode = MessageDeliveryMode.Persistent;
+
+            for ( var i = 0; i < NoOfMessages; i++ )
             {
-                // Open the connection
-                connection.Start();
+                // Send a message to the destination
+                var message = session.CreateBytesMessage( Encoding.UTF8.GetBytes( $"Hello World {i}" ) );
+                message.StompTimeToLive = TimeSpan.FromMinutes( 1 );
+                message.Headers["test"] = $"test {i}";
+                producer.Send( message );
 
-                // Create session for both requests and responses
-                using ( var session = connection.CreateSession( AcknowledgementMode.IndividualAcknowledge ) )
-                {
-                    // Create a message producer
-                    IDestination destinationQueue = session.GetQueue( QueueName );
-                    using ( var producer = session.CreateProducer( destinationQueue ) )
-                    {
-                        producer.DeliveryMode = MessageDeliveryMode.Persistent;
-
-                        for ( var i = 0; i < NoOfMessages; i++ )
-                        {
-                            // Send a message to the destination
-                            var message = session.CreateBytesMessage( Encoding.UTF8.GetBytes( $"Hello World {i}" ) );
-                            message.StompTimeToLive = TimeSpan.FromMinutes( 1 );
-                            message.Headers["test"] = $"test {i}";
-                            producer.Send( message );
-
-                            Console.WriteLine( $"Message sent {i}" );
-                        }
-                    }
-                }
+                Console.WriteLine( $"Message sent {i}" );
             }
         }
 
@@ -153,7 +145,7 @@ namespace Stomp.Net.Example.SelectorsCore
 
             #region Fields
 
-            private readonly Object _sync = new Object();
+            private readonly Object _sync = new();
             private IConnection _connection;
             private IMessageConsumer _consumer;
 
@@ -179,7 +171,7 @@ namespace Stomp.Net.Example.SelectorsCore
         private const String QueueName = "TestQ";
         private const String User = "admin";
 
-        private static readonly ManualResetEventSlim ResetEvent = new ManualResetEventSlim();
+        private static readonly ManualResetEventSlim ResetEvent = new();
 
         #endregion
     }

@@ -10,100 +10,40 @@ namespace Stomp.Net.Stomp.Commands
     {
         public static String GetDataStructureTypeAsString( Int32 type )
         {
-            var packetTypeStr = "UnknownType";
-            switch ( type )
+            var packetTypeStr = type switch
             {
-                case ErrorType:
-                    packetTypeStr = "ErrorType";
-                    break;
-                case MessageType:
-                    packetTypeStr = "MessageType";
-                    break;
-                case BytesMessageType:
-                    packetTypeStr = "BytesMessageType";
-                    break;
-                case StreamMessageType:
-                    packetTypeStr = "StreamMessageType";
-                    break;
-                case TextMessageType:
-                    packetTypeStr = "TextMessageType";
-                    break;
-                case MessageDispatchType:
-                    packetTypeStr = "MessageDispatchType";
-                    break;
-                case MessageIdType:
-                    packetTypeStr = "MessageIdType";
-                    break;
-                case MessageAckType:
-                    packetTypeStr = "MessageAckType";
-                    break;
-                case ConnectionInfoType:
-                    packetTypeStr = "ConnectionInfoType";
-                    break;
-                case ConnectionIdType:
-                    packetTypeStr = "ConnectionIdType";
-                    break;
-                case ConsumerInfoType:
-                    packetTypeStr = "ConsumerInfoType";
-                    break;
-                case ConsumerIdType:
-                    packetTypeStr = "ConsumerIdType";
-                    break;
-                case ProducerInfoType:
-                    packetTypeStr = "ProducerInfoType";
-                    break;
-                case ProducerIdType:
-                    packetTypeStr = "ProducerIdType";
-                    break;
-                case SessionInfoType:
-                    packetTypeStr = "SessionInfoType";
-                    break;
-                case TransactionInfoType:
-                    packetTypeStr = "TransactionInfoType";
-                    break;
-                case TransactionIdType:
-                    packetTypeStr = "TransactionIdType";
-                    break;
-                case SubscriptionInfoType:
-                    packetTypeStr = "SubscriptionInfoType";
-                    break;
-                case ShutdownInfoType:
-                    packetTypeStr = "ShutdownInfoType";
-                    break;
-                case ResponseType:
-                    packetTypeStr = "ResponseType";
-                    break;
-                case RemoveInfoType:
-                    packetTypeStr = "RemoveInfoType";
-                    break;
-                case ErrorResponseType:
-                    packetTypeStr = "ErrorResponseType";
-                    break;
-                case KeepAliveInfoType:
-                    packetTypeStr = "KeepAliveInfoType";
-                    break;
-                case WireFormatInfoType:
-                    packetTypeStr = "WireFormatInfoType";
-                    break;
-                case DestinationType:
-                    packetTypeStr = "DestinationType";
-                    break;
-                case TempDestinationType:
-                    packetTypeStr = "TempDestinationType";
-                    break;
-                case TopicType:
-                    packetTypeStr = "TopicType";
-                    break;
-                case TempTopicType:
-                    packetTypeStr = "TempTopicType";
-                    break;
-                case QueueType:
-                    packetTypeStr = "QueueType";
-                    break;
-                case TempQueueType:
-                    packetTypeStr = "TempQueueType";
-                    break;
-            }
+                ErrorType => "ErrorType",
+                MessageType => "MessageType",
+                BytesMessageType => "BytesMessageType",
+                StreamMessageType => "StreamMessageType",
+                TextMessageType => "TextMessageType",
+                MessageDispatchType => "MessageDispatchType",
+                MessageIdType => "MessageIdType",
+                MessageAckType => "MessageAckType",
+                ConnectionInfoType => "ConnectionInfoType",
+                ConnectionIdType => "ConnectionIdType",
+                ConsumerInfoType => "ConsumerInfoType",
+                ConsumerIdType => "ConsumerIdType",
+                ProducerInfoType => "ProducerInfoType",
+                ProducerIdType => "ProducerIdType",
+                SessionInfoType => "SessionInfoType",
+                TransactionInfoType => "TransactionInfoType",
+                TransactionIdType => "TransactionIdType",
+                SubscriptionInfoType => "SubscriptionInfoType",
+                ShutdownInfoType => "ShutdownInfoType",
+                ResponseType => "ResponseType",
+                RemoveInfoType => "RemoveInfoType",
+                ErrorResponseType => "ErrorResponseType",
+                KeepAliveInfoType => "KeepAliveInfoType",
+                WireFormatInfoType => "WireFormatInfoType",
+                DestinationType => "DestinationType",
+                TempDestinationType => "TempDestinationType",
+                TopicType => "TopicType",
+                TempTopicType => "TempTopicType",
+                QueueType => "QueueType",
+                TempQueueType => "TempQueueType",
+                _ => "UnknownType"
+            };
 
             return packetTypeStr;
         }

@@ -52,12 +52,12 @@ namespace Stomp.Net.Example.ReconnectOnConnectionError
 
         private static void Connect()
         {
-            _consumers = new List<IMessageConsumer>();
-            _sourceQueues = new List<IDestination>();
+            _consumers = new();
+            _sourceQueues = new();
 
             var brokerUri = "tcp://" + Host + ":" + Port;
             var factory = new ConnectionFactory( brokerUri,
-                                                 new StompConnectionSettings
+                                                 new()
                                                  {
                                                      UserName = User,
                                                      Password = Password,

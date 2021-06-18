@@ -52,7 +52,7 @@ namespace Stomp.Net.Transport
             if ( _sslStream != null )
                 return _sslStream;
 
-            _sslStream = new SslStream( new NetworkStream( Socket ), false, ValidateServerCertificate, SelectLocalCertificate );
+            _sslStream = new(new NetworkStream( Socket ), false, ValidateServerCertificate, SelectLocalCertificate);
 
             try
             {
@@ -126,11 +126,9 @@ namespace Stomp.Net.Transport
                     else
                         throw new StompException( "Invalid StoreLocation given on URI" );
 
-                using ( var store = new X509Store( name, location ) )
-                {
-                    store.Open( OpenFlags.ReadOnly );
-                    collection = store.Certificates;
-                }
+                using var store = new X509Store( name, location );
+                store.Open( OpenFlags.ReadOnly );
+                collection = store.Certificates;
             }
 
             return collection;

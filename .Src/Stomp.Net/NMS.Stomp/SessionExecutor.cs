@@ -96,8 +96,7 @@ namespace Stomp.Net.Stomp
 
             lock ( _syncRoot )
             {
-                if ( _taskRunner == null )
-                    _taskRunner = new DedicatedTaskRunner( this );
+                _taskRunner ??= new DedicatedTaskRunner( this );
 
                 taskRunner = _taskRunner;
             }
@@ -144,10 +143,10 @@ namespace Stomp.Net.Stomp
         #region Fields
 
         private readonly ConcurrentDictionary<ConsumerId, MessageConsumer> _consumers;
-        private readonly MessageDispatchChannel _messageQueue = new MessageDispatchChannel();
+        private readonly MessageDispatchChannel _messageQueue = new();
 
         private readonly Session _session;
-        private readonly Object _syncRoot = new Object();
+        private readonly Object _syncRoot = new();
         private ITaskRunner _taskRunner;
 
         #endregion

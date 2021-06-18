@@ -63,9 +63,8 @@ namespace Stomp.Net.Stomp.Transport
             future.ResponseTimeout = timeout;
             var response = future.Response;
 
-            if ( !( response is ExceptionResponse ) )
+            if ( response is not ExceptionResponse er )
                 return response;
-            var er = response as ExceptionResponse;
             var brokerError = er.Exception;
 
             if ( brokerError == null )
@@ -103,10 +102,9 @@ namespace Stomp.Net.Stomp.Transport
 
                     future.Response = response;
 
-                    if ( !( response is ExceptionResponse ) )
+                    if ( response is not ExceptionResponse er )
                         return;
 
-                    var er = response as ExceptionResponse;
                     if ( Tracer.IsErrorEnabled )
                         Tracer.Error( $"Response is exception response, exception: {er.Exception} ({er.Exception.Message})" );
 
@@ -118,7 +116,7 @@ namespace Stomp.Net.Stomp.Transport
                 {
                     if ( Tracer.IsWarnEnabled )
                         Tracer.Warn( $"Unknown response ID: {response.CommandId} for response: {response}" );
-                    if ( !( response is ExceptionResponse exResponse ) )
+                    if ( response is not ExceptionResponse exResponse )
                         return;
 
                     if ( Tracer.IsErrorEnabled )
@@ -160,7 +158,7 @@ namespace Stomp.Net.Stomp.Transport
 
         #region Fields
 
-        private readonly ConcurrentDictionary<Int32, FutureResponse> _requestMap = new ConcurrentDictionary<Int32, FutureResponse>();
+        private readonly ConcurrentDictionary<Int32, FutureResponse> _requestMap = new();
 
         private Exception _error;
         private Int32 _nextCommandId;

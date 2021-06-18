@@ -52,7 +52,7 @@ namespace Stomp.Net.Stomp.Commands
         ///     Gets or sets the message headers.
         /// </summary>
         /// <value>The message headers.</value>
-        public Dictionary<String, String> Headers { get; } = new Dictionary<String, String>();
+        public Dictionary<String, String> Headers { get; } = new();
 
         /// <summary>
         ///     The correlation ID used to correlate messages with conversations or long running business processes
@@ -171,17 +171,8 @@ namespace Stomp.Net.Stomp.Commands
             set
             {
                 _timeToLive = value;
-                if ( _timeToLive.TotalMilliseconds > 0 )
-                {
-                    var timeStamp = Timestamp;
-
-                    if ( timeStamp == 0 )
-                        timeStamp = DateUtils.ToJavaTimeUtc( DateTime.UtcNow );
-
-                    Expiration = timeStamp + (Int64) _timeToLive.TotalMilliseconds;
-                }
-                else
-                    Expiration = 0;
+                Expiration = DateTimeOffset.Now.Add( value )
+                                           .ToUnixTimeSeconds();
             }
         }
 
@@ -271,7 +262,7 @@ namespace Stomp.Net.Stomp.Commands
             var oMsg = that.MessageId;
             var thisMsg = MessageId;
 
-            return thisMsg != null && oMsg != null && oMsg.Equals( thisMsg );
+            return thisMsg != null && oMsg?.Equals( thisMsg ) == true;
         }
 
         #region Properties

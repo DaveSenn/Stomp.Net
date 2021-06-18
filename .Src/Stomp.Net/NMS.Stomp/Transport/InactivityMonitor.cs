@@ -163,7 +163,7 @@ namespace Stomp.Net.Stomp.Transport
                             _localWireFormatInfo.ReadCheckInterval,
                             _remoteWireFormatInfo.WriteCheckInterval );
 
-                    _asyncErrorTask = new AsyncSignalReadErrorkTask( this, Next.RemoteAddress );
+                    _asyncErrorTask = new(this, Next.RemoteAddress);
                 }
 
                 if ( _localWireFormatInfo.MaxInactivityDuration != 0 )
@@ -175,14 +175,14 @@ namespace Stomp.Net.Stomp.Transport
                     else
                         WriteCheckTime = _localWireFormatInfo.WriteCheckInterval;
 
-                    _asyncWriteTask = new AsyncWriteTask( this );
+                    _asyncWriteTask = new(this);
                 }
 
                 InitialDelayTime = _localWireFormatInfo.MaxInactivityDurationInitialDelay > 0
                     ? _localWireFormatInfo.MaxInactivityDurationInitialDelay
                     : WriteCheckTime;
 
-                _asyncTasks = new CompositeTaskRunner();
+                _asyncTasks = new();
 
                 if ( _asyncErrorTask != null )
                     _asyncTasks.AddTask( _asyncErrorTask );
@@ -201,7 +201,7 @@ namespace Stomp.Net.Stomp.Transport
                     Tracer.Info( $"InactivityMonitor[{_instanceId}]: Starting the Monitor Timer." );
                 _monitorStarted.Value = true;
 
-                _connectionCheckTimer = new Timer(
+                _connectionCheckTimer = new(
                     CheckConnection,
                     null,
                     InitialDelayTime,
@@ -255,17 +255,17 @@ namespace Stomp.Net.Stomp.Transport
 
         #region Fields
 
-        private readonly Atomic<Boolean> _commandReceived = new Atomic<Boolean>( false );
+        private readonly Atomic<Boolean> _commandReceived = new(false);
 
-        private readonly Atomic<Boolean> _commandSent = new Atomic<Boolean>( false );
+        private readonly Atomic<Boolean> _commandSent = new(false);
 
-        private readonly Atomic<Boolean> _failed = new Atomic<Boolean>( false );
-        private readonly Atomic<Boolean> _inRead = new Atomic<Boolean>( false );
+        private readonly Atomic<Boolean> _failed = new(false);
+        private readonly Atomic<Boolean> _inRead = new(false);
         private readonly Int32 _instanceId;
-        private readonly Atomic<Boolean> _inWrite = new Atomic<Boolean>( false );
+        private readonly Atomic<Boolean> _inWrite = new(false);
 
-        private readonly Mutex _monitor = new Mutex();
-        private readonly Atomic<Boolean> _monitorStarted = new Atomic<Boolean>( false );
+        private readonly Mutex _monitor = new();
+        private readonly Atomic<Boolean> _monitorStarted = new(false);
         private AsyncSignalReadErrorkTask _asyncErrorTask;
 
         private CompositeTaskRunner _asyncTasks;
@@ -368,7 +368,7 @@ namespace Stomp.Net.Stomp.Transport
             #region Fields
 
             private readonly InactivityMonitor _parent;
-            private readonly Atomic<Boolean> _pending = new Atomic<Boolean>( false );
+            private readonly Atomic<Boolean> _pending = new(false);
             private readonly Uri _remote;
 
             #endregion
@@ -410,7 +410,7 @@ namespace Stomp.Net.Stomp.Transport
             #region Fields
 
             private readonly InactivityMonitor _parent;
-            private readonly Atomic<Boolean> _pending = new Atomic<Boolean>( false );
+            private readonly Atomic<Boolean> _pending = new(false);
 
             #endregion
         }

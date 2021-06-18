@@ -30,6 +30,6 @@ namespace Stomp.Net.Stomp.Commands
         /// </summery>
         public override String ToString()
             => GetType()
-                   .Name + "[" + "]";
+                .Name + "[" + "]";
     }
 }

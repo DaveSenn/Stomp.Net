@@ -22,7 +22,7 @@ namespace Stomp.Net.Stomp
     {
         #region Constants
 
-        private static readonly IdGenerator ConnectionIdGenerator = new IdGenerator();
+        private static readonly IdGenerator ConnectionIdGenerator = new();
 
         #endregion
 
@@ -39,9 +39,9 @@ namespace Stomp.Net.Stomp
 
             SetTransport( transport );
 
-            _info = new ConnectionInfo
+            _info = new()
             {
-                ConnectionId = new ConnectionId { Value = ConnectionIdGenerator.GenerateId() },
+                ConnectionId = new() { Value = ConnectionIdGenerator.GenerateId() },
                 Host = BrokerUri.Host,
                 UserName = _stompConnectionSettings.UserName,
                 Password = _stompConnectionSettings.Password
@@ -183,7 +183,7 @@ namespace Stomp.Net.Stomp
         ///     Creates a new local transaction ID
         /// </summary>
         public TransactionId CreateLocalTransactionId()
-            => new TransactionId( Interlocked.Increment( ref _localTransactionCounter ), ConnectionId );
+            => new(Interlocked.Increment( ref _localTransactionCounter ), ConnectionId);
 
         /// <summary>
         ///     Creates a new temporary destination name
@@ -218,10 +218,9 @@ namespace Stomp.Net.Stomp
             try
             {
                 var response = Transport.Request( command, requestTimeout );
-                if ( !( response is ExceptionResponse ) )
+                if ( response is not ExceptionResponse exceptionResponse )
                     return response;
 
-                var exceptionResponse = (ExceptionResponse) response;
                 var brokerError = exceptionResponse.Exception;
                 throw new BrokerException( brokerError );
             }
@@ -349,11 +348,10 @@ namespace Stomp.Net.Stomp
 
                                     // Send the connection and see if an ack/nak is returned.
                                     var response = Transport.Request( _info, _stompConnectionSettings.RequestTimeout );
-                                    if ( !( response is ExceptionResponse ) )
+                                    if ( response is not ExceptionResponse error )
                                         _connected.Value = true;
                                     else
                                     {
-                                        var error = response as ExceptionResponse;
                                         var exception = CreateExceptionFromBrokerError( error.Exception );
                                         // This is non-recoverable.
                                         // Shutdown the transport connection, and re-create it, but don't start it.
@@ -431,8 +429,7 @@ namespace Stomp.Net.Stomp
         private void MarkTransportFailed( Exception error )
         {
             _transportFailed.Value = true;
-            if ( FirstFailureError == null )
-                FirstFailureError = error;
+            FirstFailureError ??= error;
         }
 
         /// <summary>
@@ -503,21 +500,21 @@ namespace Stomp.Net.Stomp
         #region Fields
 
         private readonly IdGenerator _clientIdGenerator;
-        private readonly Atomic<Boolean> _closed = new Atomic<Boolean>( false );
-        private readonly Atomic<Boolean> _closing = new Atomic<Boolean>( false );
-        private readonly Atomic<Boolean> _connected = new Atomic<Boolean>( false );
-        private readonly Object _connectedLock = new Object();
-        private readonly ConcurrentDictionary<ConsumerId, IDispatcher> _dispatchers = new ConcurrentDictionary<ConsumerId, IDispatcher>();
+        private readonly Atomic<Boolean> _closed = new(false);
+        private readonly Atomic<Boolean> _closing = new(false);
+        private readonly Atomic<Boolean> _connected = new(false);
+        private readonly Object _connectedLock = new();
+        private readonly ConcurrentDictionary<ConsumerId, IDispatcher> _dispatchers = new();
         private readonly ConnectionInfo _info;
-        private readonly Object _myLock = new Object();
+        private readonly Object _myLock = new();
 
         /// <summary>
         ///     Object used to synchronize access to the exception handling.
         /// </summary>
-        private readonly Object _onErrorLock = new Object();
+        private readonly Object _onErrorLock = new();
 
-        private readonly ConcurrentDictionary<Session, Session> _sessions = new ConcurrentDictionary<Session, Session>();
-        private readonly Atomic<Boolean> _started = new Atomic<Boolean>( false );
+        private readonly ConcurrentDictionary<Session, Session> _sessions = new();
+        private readonly Atomic<Boolean> _started = new(false);
 
         /// <summary>
         ///     The STOMP connection settings.
@@ -525,7 +522,7 @@ namespace Stomp.Net.Stomp
         private readonly StompConnectionSettings _stompConnectionSettings;
 
         private readonly ITransportFactory _transportFactory;
-        private readonly Atomic<Boolean> _transportFailed = new Atomic<Boolean>( false );
+        private readonly Atomic<Boolean> _transportFailed = new(false);
         private Int32 _localTransactionCounter;
         private Int32 _sessionCounter;
         private Int32 _temporaryDestinationCounter;
@@ -555,7 +552,7 @@ namespace Stomp.Net.Stomp
 
         public ConnectionId ConnectionId => _info.ConnectionId;
 
-        public PrefetchPolicy PrefetchPolicy { get; set; } = new PrefetchPolicy();
+        public PrefetchPolicy PrefetchPolicy { get; set; } = new();
 
         internal MessageTransformation MessageTransformation { get; }
 

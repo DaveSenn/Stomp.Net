@@ -25,7 +25,7 @@ namespace Stomp.Net
         /// <param name="stompConnectionSettings">The STOM connection settings.</param>
         public ConnectionFactory( String brokerUri, StompConnectionSettings stompConnectionSettings )
         {
-            BrokerUri = new Uri( brokerUri );
+            BrokerUri = new(brokerUri);
             StompConnectionSettings = stompConnectionSettings;
             _transportFactory = new TransportFactory( StompConnectionSettings );
         }
@@ -51,7 +51,7 @@ namespace Stomp.Net
         /// <summary>
         ///     Object used to synchronize threads to create a client id generator.
         /// </summary>
-        private readonly Object _syncCreateClientIdGenerator = new Object();
+        private readonly Object _syncCreateClientIdGenerator = new();
 
         /// <summary>
         ///     Stores the transport factory.
@@ -89,7 +89,7 @@ namespace Stomp.Net
                         return StompConnectionSettings.ClientIdGenerator;
 
                     return StompConnectionSettings.ClientIdGenerator = StompConnectionSettings.ClientIdPrefix.IsNotEmpty()
-                        ? new IdGenerator( StompConnectionSettings.ClientIdPrefix )
+                        ? new(StompConnectionSettings.ClientIdPrefix)
                         : new IdGenerator();
                 }
             }
@@ -129,7 +129,7 @@ namespace Stomp.Net
             try
             {
                 var transport = _transportFactory.CreateTransport( BrokerUri );
-                connection = new Connection( BrokerUri, transport, ClientIdGenerator, StompConnectionSettings );
+                connection = new(BrokerUri, transport, ClientIdGenerator, StompConnectionSettings);
 
                 ConfigureConnection( connection );
 

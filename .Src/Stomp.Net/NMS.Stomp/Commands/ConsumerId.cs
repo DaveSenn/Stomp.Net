@@ -40,7 +40,7 @@ namespace Stomp.Net.Stomp.Commands
         ///     Returns a string containing the information for this DataStructure
         ///     such as its type and value of its elements.
         /// </summery>
-        public override String ToString() => _key ?? ( _key = ConnectionId + ":" + SessionId + ":" + Value );
+        public override String ToString() => _key ??= ConnectionId + ":" + SessionId + ":" + Value;
 
         protected virtual Boolean Equals( ConsumerId that )
         {
@@ -63,7 +63,7 @@ namespace Stomp.Net.Stomp.Commands
         #region Properties
 
         [PublicAPI]
-        public SessionId ParentId => _parentId ?? ( _parentId = new SessionId( this ) );
+        public SessionId ParentId => _parentId ??= new(this);
 
         public String ConnectionId { get; set; }
 

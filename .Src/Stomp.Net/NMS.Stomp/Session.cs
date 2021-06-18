@@ -19,7 +19,7 @@ namespace Stomp.Net.Stomp
     {
         #region Properties
 
-        public Boolean Started => Executor != null && Executor.Running;
+        public Boolean Started => Executor?.Running == true;
 
         #endregion
 
@@ -35,11 +35,11 @@ namespace Stomp.Net.Stomp
             AcknowledgementMode = acknowledgementMode;
 
             if ( acknowledgementMode == AcknowledgementMode.Transactional )
-                TransactionContext = new TransactionContext( this );
+                TransactionContext = new(this);
             else if ( acknowledgementMode == AcknowledgementMode.DupsOkAcknowledge )
                 AcknowledgementMode = AcknowledgementMode.AutoAcknowledge;
 
-            Executor = new SessionExecutor( this, _consumers );
+            Executor = new(this, _consumers);
         }
 
         #endregion
@@ -118,7 +118,7 @@ namespace Stomp.Net.Stomp
             => Executor?.Stop();
 
         protected virtual ProducerInfo CreateProducerInfo( IDestination destination )
-            => new ProducerInfo
+            => new()
             {
                 ProducerId = GetNextProducerId(),
                 Destination = Destination.Transform( destination ),
@@ -220,7 +220,7 @@ namespace Stomp.Net.Stomp
         }
 
         private ProducerId GetNextProducerId()
-            => new ProducerId( Interlocked.Increment( ref _producerCounter ), _info.SessionId.ConnectionId, _info.SessionId.Value );
+            => new(Interlocked.Increment( ref _producerCounter ), _info.SessionId.ConnectionId, _info.SessionId.Value);
 
         private void RemoveConsumer( MessageConsumer consumer )
         {
@@ -242,16 +242,16 @@ namespace Stomp.Net.Stomp
 
         #region Fields
 
-        private readonly ConcurrentDictionary<ConsumerId, MessageConsumer> _consumers = new ConcurrentDictionary<ConsumerId, MessageConsumer>();
+        private readonly ConcurrentDictionary<ConsumerId, MessageConsumer> _consumers = new();
 
         private readonly SessionInfo _info;
 
         /// <summary>
         ///     Private object used for synchronization, instead of public "this"
         /// </summary>
-        private readonly Object _myLock = new Object();
+        private readonly Object _myLock = new();
 
-        private readonly ConcurrentDictionary<ProducerId, MessageProducer> _producers = new ConcurrentDictionary<ProducerId, MessageProducer>();
+        private readonly ConcurrentDictionary<ProducerId, MessageProducer> _producers = new();
 
         /// <summary>
         ///     Stores the STOMP connections settings.
@@ -479,7 +479,7 @@ namespace Stomp.Net.Stomp
 
             try
             {
-                producer = new MessageProducer( this, command );
+                producer = new(this, command);
                 _producers.AddOrUpdate( producerId, producer, ( k, v ) => producer );
             }
             catch ( Exception )
@@ -515,7 +515,7 @@ namespace Stomp.Net.Stomp
             try
             {
                 var dest = destination as Destination;
-                consumer = new MessageConsumer( this, GetNextConsumerId(), dest, null, selector, prefetchSize, noLocal );
+                consumer = new(this, GetNextConsumerId(), dest, null, selector, prefetchSize, noLocal);
                 AddConsumer( consumer );
 
                 // lets register the consumer first in case we start dispatching messages immediately
@@ -547,7 +547,7 @@ namespace Stomp.Net.Stomp
             try
             {
                 var dest = destination as Destination;
-                consumer = new MessageConsumer( this, GetNextConsumerId(), dest, name, selector, Connection.PrefetchPolicy.DurableTopicPrefetch, noLocal );
+                consumer = new(this, GetNextConsumerId(), dest, name, selector, Connection.PrefetchPolicy.DurableTopicPrefetch, noLocal);
                 AddConsumer( consumer );
                 Connection.SyncRequest( consumer.ConsumerInfo );
 
@@ -609,7 +609,7 @@ namespace Stomp.Net.Stomp
             => new TempTopic( Connection.CreateTemporaryDestinationName(), _stompConnectionSettings.SkipDestinationNameFormatting );
 
         public IBytesMessage CreateBytesMessage()
-            => ConfigureMessage( new BytesMessage() );
+            => ConfigureMessage( new() );
 
         public IBytesMessage CreateBytesMessage( Byte[] body )
         {

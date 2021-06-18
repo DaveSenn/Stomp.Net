@@ -23,7 +23,7 @@ namespace Stomp.Net.Stomp.Threads
 
             lock ( _syncRoot )
             {
-                _workQueue.Enqueue( new Future( worker, arg ) );
+                _workQueue.Enqueue( new(worker, arg) );
 
                 if ( _running )
                     return;
@@ -80,7 +80,7 @@ namespace Stomp.Net.Stomp.Threads
             public void Run()
             {
                 if ( _callback == null )
-                    throw new Exception( "Future executed with null WaitCallback" );
+                    throw new("Future executed with null WaitCallback");
 
                 try
                 {
@@ -104,9 +104,9 @@ namespace Stomp.Net.Stomp.Threads
 
         #region Fields
 
-        private readonly ManualResetEvent _executionComplete = new ManualResetEvent( true );
-        private readonly Mutex _syncRoot = new Mutex();
-        private readonly Queue<Future> _workQueue = new Queue<Future>();
+        private readonly ManualResetEvent _executionComplete = new(true);
+        private readonly Mutex _syncRoot = new();
+        private readonly Queue<Future> _workQueue = new();
         private Boolean _running;
 
         #endregion

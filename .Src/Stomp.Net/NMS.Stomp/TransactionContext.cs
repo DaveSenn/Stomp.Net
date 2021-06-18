@@ -119,7 +119,7 @@ namespace Stomp.Net.Stomp
         #region Fields
 
         private readonly Session _session;
-        private readonly ConcurrentDictionary<ISynchronization, ISynchronization> _synchronizations = new ConcurrentDictionary<ISynchronization, ISynchronization>();
+        private readonly ConcurrentDictionary<ISynchronization, ISynchronization> _synchronizations = new();
 
         #endregion
 

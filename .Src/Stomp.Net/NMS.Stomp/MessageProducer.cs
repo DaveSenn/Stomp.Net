@@ -149,7 +149,7 @@ namespace Stomp.Net.Stomp
 
         #region Fields
 
-        private readonly Object _closedLock = new Object();
+        private readonly Object _closedLock = new();
         private readonly ProducerInfo _info;
         private readonly MessageTransformation _messageTransformation;
         private Boolean _closed;

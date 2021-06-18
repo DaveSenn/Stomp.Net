@@ -107,7 +107,7 @@ namespace Stomp.Net.Transport
                 if ( socket != null )
                     return socket;
 
-                throw new Exception( "General connection error." );
+                throw new("General connection error.");
             }
             catch ( Exception ex )
             {

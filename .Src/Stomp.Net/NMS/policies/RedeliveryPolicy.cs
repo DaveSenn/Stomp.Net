@@ -27,7 +27,7 @@ namespace Stomp.Net.Policies
 
         private static Boolean _nextBool;
         private static Random _randomNumberGenerator;
-        private static readonly Object SyncObject = new Object();
+        private static readonly Object SyncObject = new();
 
         #endregion
 
@@ -50,7 +50,7 @@ namespace Stomp.Net.Policies
                         return _randomNumberGenerator;
 
                     // ReSharper disable once PossibleMultipleWriteAccessInDoubleCheckLocking
-                    return _randomNumberGenerator = new Random( DateTime.Now.Second );
+                    return _randomNumberGenerator = new(DateTime.Now.Second);
                 }
             }
         }

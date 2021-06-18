@@ -12,27 +12,27 @@ namespace Stomp.Net
         /// <summary>
         ///     Gets a value indicating whether the error level is enabled or not.
         /// </summary>
-        public static Boolean IsErrorEnabled => Trace != null && Trace.IsErrorEnabled;
+        public static Boolean IsErrorEnabled => Trace?.IsErrorEnabled == true;
 
         /// <summary>
         ///     Gets a value indicating whether the warn level is enabled or not.
         /// </summary>
-        public static Boolean IsWarnEnabled => Trace != null && Trace.IsWarnEnabled;
+        public static Boolean IsWarnEnabled => Trace?.IsWarnEnabled == true;
 
         /// <summary>
         ///     Gets a value indicating whether the info level is enabled or not.
         /// </summary>
-        public static Boolean IsInfoEnabled => Trace != null && Trace.IsInfoEnabled;
+        public static Boolean IsInfoEnabled => Trace?.IsInfoEnabled == true;
 
         /// <summary>
         ///     Gets a value indicating whether the fatal level is enabled or not.
         /// </summary>
-        public static Boolean IsFatalEnabled => Trace != null && Trace.IsFatalEnabled;
+        public static Boolean IsFatalEnabled => Trace?.IsFatalEnabled == true;
 
         /// <summary>
         ///     Gets a value indicating whether the debug level is enabled or not.
         /// </summary>
-        public static Boolean IsDebugEnabled => Trace != null && Trace.IsDebugEnabled;
+        public static Boolean IsDebugEnabled => Trace?.IsDebugEnabled == true;
 
         public static void Debug( String message, [CallerMemberName] String callerName = "", [CallerFilePath] String callerFilePath = "", [CallerLineNumber] Int32 callerLineNumber = 0 )
         {

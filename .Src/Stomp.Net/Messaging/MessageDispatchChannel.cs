@@ -22,12 +22,12 @@ namespace Stomp.Net.Messaging
         /// <summary>
         ///     The message queue.
         /// </summary>
-        private readonly List<MessageDispatch> _channel = new List<MessageDispatch>();
+        private readonly List<MessageDispatch> _channel = new();
 
         /// <summary>
         ///     Object used to synchronize the access to the message queue.
         /// </summary>
-        private readonly Object _syncRoot = new Object();
+        private readonly Object _syncRoot = new();
 
         /// <summary>
         ///     Stores whether the channel is running or not.

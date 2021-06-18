@@ -55,12 +55,10 @@ namespace Stomp.Net.Stomp.Util
             {
                 HostName = Dns.GetHostName();
                 var endPoint = new IPEndPoint( IPAddress.Any, 0 );
-                using ( var tempSocket = new Socket( endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp ) )
-                {
-                    tempSocket.Bind( endPoint );
-                    stub = "-" + ( (IPEndPoint) tempSocket.LocalEndPoint ).Port + "-" + DateTime.Now.Ticks + "-";
-                    Thread.Sleep( 100 );
-                }
+                using var tempSocket = new Socket( endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp );
+                tempSocket.Bind( endPoint );
+                stub = "-" + ( (IPEndPoint) tempSocket.LocalEndPoint ).Port + "-" + DateTime.Now.Ticks + "-";
+                Thread.Sleep( 100 );
             }
             catch ( Exception ioe )
             {
@@ -74,7 +72,6 @@ namespace Stomp.Net.Stomp.Util
         /**
          * Construct an IdGenerator
          */
-
         public IdGenerator( String prefix )
         {
             lock ( UniqueStub )

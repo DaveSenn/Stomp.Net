@@ -15,7 +15,7 @@ namespace Stomp.Net.Stomp.Transport
     {
         #region Fields
 
-        private readonly Object _transmissionLock = new Object();
+        private readonly Object _transmissionLock = new();
 
         #endregion
 

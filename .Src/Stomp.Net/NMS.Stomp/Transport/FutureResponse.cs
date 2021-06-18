@@ -16,7 +16,7 @@ namespace Stomp.Net.Stomp.Transport
     {
         #region Fields
 
-        private readonly CountDownLatch _latch = new CountDownLatch( 1 );
+        private readonly CountDownLatch _latch = new(1);
         private Response _response;
 
         #endregion

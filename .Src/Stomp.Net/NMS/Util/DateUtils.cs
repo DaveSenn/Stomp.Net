@@ -37,12 +37,12 @@ namespace Stomp.Net.Util
         /// <summary>
         ///     The start of the Java epoch
         /// </summary>
-        private static readonly DateTime JavaEpoch = new DateTime( 1970, 1, 1, 0, 0, 0, 0 );
+        private static readonly DateTime JavaEpoch = new(1970, 1, 1, 0, 0, 0, 0);
 
         /// <summary>
         ///     The start of the Windows epoch
         /// </summary>
-        private static readonly DateTime WindowsEpoch = new DateTime( 1601, 1, 1, 0, 0, 0, 0 );
+        private static readonly DateTime WindowsEpoch = new(1601, 1, 1, 0, 0, 0, 0);
 
         #endregion
     }

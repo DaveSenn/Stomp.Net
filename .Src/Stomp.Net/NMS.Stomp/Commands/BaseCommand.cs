@@ -42,10 +42,9 @@ namespace Stomp.Net.Stomp.Commands
 
         public override Boolean Equals( Object that )
         {
-            if ( !( that is BaseCommand ) )
+            if ( that is not BaseCommand thatCommand )
                 return false;
 
-            var thatCommand = (BaseCommand) that;
             return GetDataStructureType() == thatCommand.GetDataStructureType()
                    && CommandId == thatCommand.CommandId;
         }

@@ -18,7 +18,7 @@ namespace Stomp.Net.Util
             if ( msg.IsEmpty() )
                 msg = cause.ToString();
 
-            return new StompException( msg, cause );
+            return new(msg, cause);
         }
     }
 }

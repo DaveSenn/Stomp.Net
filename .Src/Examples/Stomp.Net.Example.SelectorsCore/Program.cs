@@ -43,14 +43,14 @@ namespace Stomp.Net.Example.SelectorsCore
         }
 
         private static Consumer Receive( String selectorValue )
-            => new Consumer( SelectorKey, selectorValue );
+            => new(SelectorKey, selectorValue);
 
         private static void Send( String selectorValue, Int32 messageCount )
         {
             // Create a connection factory
             var brokerUri = "tcp://" + Host + ":" + Port;
             var factory = new ConnectionFactory( brokerUri,
-                                                 new StompConnectionSettings
+                                                 new()
                                                  {
                                                      UserName = User,
                                                      Password = Password,
@@ -61,32 +61,26 @@ namespace Stomp.Net.Example.SelectorsCore
                                                  } );
 
             // Create connection for both requests and responses
-            using ( var connection = factory.CreateConnection() )
+            using var connection = factory.CreateConnection();
+            // Open the connection
+            connection.Start();
+
+            // Create session for both requests and responses
+            using var session = connection.CreateSession( AcknowledgementMode.IndividualAcknowledge );
+            // Create a message producer
+            IDestination destinationQueue = session.GetQueue( QueueName );
+            using var producer = session.CreateProducer( destinationQueue );
+            producer.DeliveryMode = MessageDeliveryMode.NonPersistent;
+
+            // Send {messageCount} messages with the given selector
+            for ( var i = 0; i < messageCount; i++ )
             {
-                // Open the connection
-                connection.Start();
+                var message = session.CreateBytesMessage( Encoding.UTF8.GetBytes( $"{selectorValue} {i,0:000} => {RandomValueEx.GetRandomString()}" ) );
+                // Set the selector value in the message header
+                message.Headers[SelectorKey] = selectorValue;
 
-                // Create session for both requests and responses
-                using ( var session = connection.CreateSession( AcknowledgementMode.IndividualAcknowledge ) )
-                {
-                    // Create a message producer
-                    IDestination destinationQueue = session.GetQueue( QueueName );
-                    using ( var producer = session.CreateProducer( destinationQueue ) )
-                    {
-                        producer.DeliveryMode = MessageDeliveryMode.NonPersistent;
-
-                        // Send {messageCount} messages with the given selector
-                        for ( var i = 0; i < messageCount; i++ )
-                        {
-                            var message = session.CreateBytesMessage( Encoding.UTF8.GetBytes( $"{selectorValue} {i,0:000} => {RandomValueEx.GetRandomString()}" ) );
-                            // Set the selector value in the message header
-                            message.Headers[SelectorKey] = selectorValue;
-
-                            // Send the message
-                            producer.Send( message );
-                        }
-                    }
-                }
+                // Send the message
+                producer.Send( message );
             }
         }
 
@@ -127,7 +121,7 @@ namespace Stomp.Net.Example.SelectorsCore
                     // Create a connection factory
                     var brokerUri = "tcp://" + Host + ":" + Port;
                     var factory = new ConnectionFactory( brokerUri,
-                                                         new StompConnectionSettings
+                                                         new()
                                                          {
                                                              UserName = User,
                                                              Password = Password,
@@ -138,35 +132,29 @@ namespace Stomp.Net.Example.SelectorsCore
                                                          } );
 
                     // Create connection for both requests and responses
-                    using ( var connection = factory.CreateConnection() )
+                    using var connection = factory.CreateConnection();
+                    connection.Start();
+
+                    // Create session for both requests and responses
+                    using var session = connection.CreateSession( AcknowledgementMode.IndividualAcknowledge );
+                    var selectorString = $"{selectorKey} = '{selector}'";
+                    Console.WriteLine( $"Create consumer with selector {selectorString}" );
+
+                    // Create a message consumer with the given selector
+                    IDestination responseQ = session.GetQueue( QueueName );
+                    using var consumer = session.CreateConsumer( responseQ, selectorString );
+                    // Start receiving messages => none blocking call
+                    consumer.Listener += x =>
                     {
-                        connection.Start();
+                        var content = Encoding.UTF8.GetString( x.Content );
+                        Console.WriteLine( $"{selector}\t => {x.Headers[selectorKey]} => {content}" );
 
-                        // Create session for both requests and responses
-                        using ( var session = connection.CreateSession( AcknowledgementMode.IndividualAcknowledge ) )
-                        {
-                            var selectorString = $"{selectorKey} = '{selector}'";
-                            Console.WriteLine( $"Create consumer with selector {selectorString}" );
+                        x.Acknowledge();
+                    };
 
-                            // Create a message consumer with the given selector
-                            IDestination responseQ = session.GetQueue( QueueName );
-                            using ( var consumer = session.CreateConsumer( responseQ, selectorString ) )
-                            {
-                                // Start receiving messages => none blocking call
-                                consumer.Listener += x =>
-                                {
-                                    var content = Encoding.UTF8.GetString( x.Content );
-                                    Console.WriteLine( $"{selector}\t => {x.Headers[selectorKey]} => {content}" );
-
-                                    x.Acknowledge();
-                                };
-
-                                // Keep the thread alive
-                                while ( _running )
-                                    Thread.Sleep( 1000 );
-                            }
-                        }
-                    }
+                    // Keep the thread alive
+                    while ( _running )
+                        Thread.Sleep( 1000 );
                 } ).Start();
 
             #endregion
@@ -186,7 +174,7 @@ namespace Stomp.Net.Example.SelectorsCore
         private const String QueueName = "TestQ";
         private const String SelectorKey = "selectorProp";
         private const String User = "admin";
-        private static readonly List<String> Selectors = new List<String> { "s1", "s2", "s3" };
+        private static readonly List<String> Selectors = new() { "s1", "s2", "s3" };
 
         #endregion
     }

@@ -47,7 +47,7 @@ namespace Stomp.Net.Stomp.Commands
         ///     such as its type and value of its elements.
         /// </summery>
         public override String ToString()
-            => _key ?? ( _key = $"{ProducerId}:{ProducerSequenceId}" );
+            => _key ??= $"{ProducerId}:{ProducerSequenceId}";
 
         #region Properties
 
@@ -86,7 +86,7 @@ namespace Stomp.Net.Stomp.Commands
                 else
                     ProducerSequenceId = 0;
 
-            ProducerId = new ProducerId( mkey );
+            ProducerId = new(mkey);
         }
 
         #endregion

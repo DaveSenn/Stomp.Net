@@ -102,7 +102,7 @@ namespace Stomp.Net.Stomp.Protocol
                 {
                     var text = frame.RemoveProperty( PropertyKeys.ReceiptId );
 
-                    if ( text != null && text.StartsWith( "ignore:", StringComparison.Ordinal ) )
+                    if ( text?.StartsWith( "ignore:", StringComparison.Ordinal ) == true )
                         return new Response { CorrelationId = Int32.Parse( text.Substring( "ignore:".Length ) ) };
 
                     var answer = new ExceptionResponse();
@@ -127,7 +127,7 @@ namespace Stomp.Net.Stomp.Protocol
 
         protected virtual ICommand ReadConnected( StompFrame frame )
         {
-            _remoteWireFormatInfo = new WireFormatInfo();
+            _remoteWireFormatInfo = new();
 
             if ( frame.HasProperty( PropertyKeys.Version ) )
             {
@@ -187,9 +187,9 @@ namespace Stomp.Net.Stomp.Protocol
             message.Type = frame.RemoveProperty( PropertyKeys.Type );
             message.Destination = Destination.ConvertToDestination( frame.RemoveProperty( PropertyKeys.Destination ), SkipDestinationNameFormatting );
             message.ReplyTo = Destination.ConvertToDestination( frame.RemoveProperty( PropertyKeys.ReplyTo ), SkipDestinationNameFormatting );
-            message.TargetConsumerId = new ConsumerId( frame.RemoveProperty( PropertyKeys.Subscription ) );
+            message.TargetConsumerId = new(frame.RemoveProperty( PropertyKeys.Subscription ));
             message.CorrelationId = frame.RemoveProperty( PropertyKeys.CorrelationId );
-            message.MessageId = new MessageId( frame.RemoveProperty( PropertyKeys.MessageId ) );
+            message.MessageId = new(frame.RemoveProperty( PropertyKeys.MessageId ));
             message.Persistent = StompHelper.ToBool( frame.RemoveProperty( PropertyKeys.Persistent ), false );
 
             // If it came from NMS.Stomp we added this header to ensure its reported on the
@@ -344,7 +344,7 @@ namespace Stomp.Net.Stomp.Protocol
             // Store the Marshaled Content.
             frame.Content = command.Content;
 
-            if ( command.Content != null && command.Content.Length > 0 && StompNetConfiguration.AddContentLengthHeader )
+            if ( command.Content?.Length > 0 && StompNetConfiguration.AddContentLengthHeader )
                 frame.SetProperty( PropertyKeys.ContentLength, command.Content.Length );
 
             frame.SetProperty( PropertyKeys.Transformation, "jms-byte" );
@@ -377,9 +377,8 @@ namespace Stomp.Net.Stomp.Protocol
             var frame = new StompFrame( "UNSUBSCRIBE", _encodeHeaders );
             Object id = command.ObjectId;
 
-            if ( !( id is ConsumerId ) )
+            if ( id is not ConsumerId consumerId )
                 return;
-            var consumerId = id as ConsumerId;
             if ( command.ResponseRequired )
                 frame.SetProperty( PropertyKeys.Receipt, command.CommandId );
             frame.SetProperty( PropertyKeys.Id, consumerId.ToString() );

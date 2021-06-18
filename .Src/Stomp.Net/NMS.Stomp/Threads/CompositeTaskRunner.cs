@@ -18,7 +18,7 @@ namespace Stomp.Net.Stomp.Threads
 
         public CompositeTaskRunner()
         {
-            _theThread = new Thread( Run ) { IsBackground = true };
+            _theThread = new(Run) { IsBackground = true };
             _theThread.Start();
         }
 
@@ -132,11 +132,11 @@ namespace Stomp.Net.Stomp.Threads
 
         #region Fields
 
-        private readonly ManualResetEvent _isShutdown = new ManualResetEvent( true );
-        private readonly Mutex _mutex = new Mutex();
-        private readonly LinkedList<ICompositeTask> _tasks = new LinkedList<ICompositeTask>();
+        private readonly ManualResetEvent _isShutdown = new(true);
+        private readonly Mutex _mutex = new();
+        private readonly LinkedList<ICompositeTask> _tasks = new();
         private readonly Thread _theThread;
-        private readonly AutoResetEvent _waiter = new AutoResetEvent( false );
+        private readonly AutoResetEvent _waiter = new(false);
         private Boolean _pending;
         private Boolean _shutdown;
         private Boolean _terminated;

@@ -20,7 +20,7 @@ namespace Stomp.Net.Stomp.Threads
             task.ThrowIfNull( nameof(task) );
 
             _task = task;
-            _theThread = new Thread( Run ) { IsBackground = true };
+            _theThread = new(Run) { IsBackground = true };
             _theThread.Start();
         }
 
@@ -110,11 +110,11 @@ namespace Stomp.Net.Stomp.Threads
 
         #region Fields
 
-        private readonly ManualResetEvent _isShutdown = new ManualResetEvent( true );
-        private readonly Mutex _mutex = new Mutex();
+        private readonly ManualResetEvent _isShutdown = new(true);
+        private readonly Mutex _mutex = new();
         private readonly ITask _task;
         private readonly Thread _theThread;
-        private readonly AutoResetEvent _waiter = new AutoResetEvent( false );
+        private readonly AutoResetEvent _waiter = new(false);
         private Boolean _pending;
         private Boolean _shutdown;
 

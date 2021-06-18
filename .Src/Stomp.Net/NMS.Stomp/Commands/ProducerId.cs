@@ -44,7 +44,7 @@ namespace Stomp.Net.Stomp.Commands
         ///     such as its type and value of its elements.
         /// </summery>
         public override String ToString()
-            => _key ?? ( _key = ConnectionId + ":" + SessionId + ":" + Value );
+            => _key ??= ConnectionId + ":" + SessionId + ":" + Value;
 
         protected virtual Boolean Equals( ProducerId that )
         {

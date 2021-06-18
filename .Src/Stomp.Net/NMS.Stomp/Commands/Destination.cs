@@ -151,23 +151,13 @@ namespace Stomp.Net.Stomp.Commands
             if ( SkipDesinationNameFormatting )
                 return PhysicalName;
 
-            String result;
-
-            switch ( DestinationType )
+            var result = DestinationType switch
             {
-                case DestinationType.Topic:
-                    result = "/topic/" + PhysicalName;
-                    break;
-                case DestinationType.TemporaryTopic:
-                    result = ( RemoteDestination ? "/remote-temp-topic/" : "/temp-topic/" ) + PhysicalName;
-                    break;
-                case DestinationType.TemporaryQueue:
-                    result = ( RemoteDestination ? "/remote-temp-queue/" : "/temp-queue/" ) + PhysicalName;
-                    break;
-                default:
-                    result = "/queue/" + PhysicalName;
-                    break;
-            }
+                DestinationType.Topic => "/topic/" + PhysicalName,
+                DestinationType.TemporaryTopic => ( RemoteDestination ? "/remote-temp-topic/" : "/temp-topic/" ) + PhysicalName,
+                DestinationType.TemporaryQueue => ( RemoteDestination ? "/remote-temp-queue/" : "/temp-queue/" ) + PhysicalName,
+                _ => "/queue/" + PhysicalName
+            };
 
             return result;
         }
@@ -180,9 +170,8 @@ namespace Stomp.Net.Stomp.Commands
         public override Boolean Equals( Object obj )
         {
             var result = this == obj;
-            if ( result || !( obj is Destination ) )
+            if ( result || obj is not Destination other )
                 return result;
-            var other = (Destination) obj;
             result = GetDestinationType() == other.GetDestinationType()
                      && PhysicalName.Equals( other.PhysicalName );
             return result;
@@ -207,44 +196,24 @@ namespace Stomp.Net.Stomp.Commands
         /// <returns>string representation of this instance</returns>
         public override String ToString()
         {
-            switch ( DestinationType )
+            return DestinationType switch
             {
-                case DestinationType.Topic:
-                    return "topic://" + PhysicalName;
-
-                case DestinationType.TemporaryTopic:
-                    return "temp-topic://" + PhysicalName;
-
-                case DestinationType.TemporaryQueue:
-                    return "temp-queue://" + PhysicalName;
-
-                default:
-                    return "queue://" + PhysicalName;
-            }
+                DestinationType.Topic => "topic://" + PhysicalName,
+                DestinationType.TemporaryTopic => "temp-topic://" + PhysicalName,
+                DestinationType.TemporaryQueue => "temp-queue://" + PhysicalName,
+                _ => "queue://" + PhysicalName
+            };
         }
 
-        public static Destination Transform( IDestination destination )
-        {
-            // ReSharper disable once ConvertIfStatementToSwitchStatement
-            if ( destination == null )
-                return null;
-
-            if ( destination is Destination dest )
-                return dest;
-
-            if ( destination is ITemporaryQueue tempQueue )
-                return new TempQueue( tempQueue.QueueName, tempQueue.SkipDesinationNameFormatting );
-
-            if ( destination is ITemporaryTopic tempTopic )
-                return new TempTopic( tempTopic.TopicName, tempTopic.SkipDesinationNameFormatting );
-
-            if ( destination is IQueue queue )
-                return new Queue( queue.QueueName, queue.SkipDesinationNameFormatting );
-
-            return destination is ITopic topic
-                ? new Topic( topic.TopicName, topic.SkipDesinationNameFormatting )
-                : null;
-        }
+        public static Destination Transform( IDestination destination ) =>
+            destination switch
+            {
+                Destination dest => dest,
+                ITemporaryQueue tempQueue => new TempQueue( tempQueue.QueueName, tempQueue.SkipDesinationNameFormatting ),
+                ITemporaryTopic tempTopic => new TempTopic( tempTopic.TopicName, tempTopic.SkipDesinationNameFormatting ),
+                IQueue queue => new Queue( queue.QueueName, queue.SkipDesinationNameFormatting ),
+                _ => destination is ITopic topic ? new Topic( topic.TopicName, topic.SkipDesinationNameFormatting ) : null
+            };
 
         /// <summary>
         /// </summary>
@@ -265,25 +234,16 @@ namespace Stomp.Net.Stomp.Commands
         /// <returns></returns>
         private static Destination CreateDestination( Int32 type, String pyhsicalName, Boolean remote, Boolean skipDesinationNameFormatting )
         {
-            Destination result;
             if ( pyhsicalName == null )
                 return null;
 
-            switch ( type )
+            Destination result = type switch
             {
-                case StompTopic:
-                    result = new Topic( pyhsicalName, skipDesinationNameFormatting );
-                    break;
-                case StompTemporaryTopic:
-                    result = new TempTopic( pyhsicalName, skipDesinationNameFormatting );
-                    break;
-                case StompQueue:
-                    result = new Queue( pyhsicalName, skipDesinationNameFormatting );
-                    break;
-                default:
-                    result = new TempQueue( pyhsicalName, skipDesinationNameFormatting );
-                    break;
-            }
+                StompTopic => new Topic( pyhsicalName, skipDesinationNameFormatting ),
+                StompTemporaryTopic => new TempTopic( pyhsicalName, skipDesinationNameFormatting ),
+                StompQueue => new Queue( pyhsicalName, skipDesinationNameFormatting ),
+                _ => new TempQueue( pyhsicalName, skipDesinationNameFormatting )
+            };
 
             result.RemoteDestination = remote;
 

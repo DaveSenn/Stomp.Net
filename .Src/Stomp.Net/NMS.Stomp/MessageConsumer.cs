@@ -35,7 +35,7 @@ namespace Stomp.Net.Stomp
             _session = session;
             RedeliveryPolicy = _session.Connection.RedeliveryPolicy;
 
-            ConsumerInfo = new ConsumerInfo
+            ConsumerInfo = new()
             {
                 ConsumerId = id,
                 Destination = Destination.Transform( destination ),
@@ -299,7 +299,7 @@ namespace Stomp.Net.Stomp
 
             var oldPendingAck = _pendingAck;
 
-            _pendingAck = new MessageAck
+            _pendingAck = new()
             {
                 AckType = (Byte) AckType.ConsumedAck,
                 ConsumerId = ConsumerInfo.ConsumerId,
@@ -341,8 +341,8 @@ namespace Stomp.Net.Stomp
 
         private BytesMessage CreateStompMessage( MessageDispatch dispatch )
         {
-            if ( !( dispatch.Message.Clone() is BytesMessage message ) )
-                throw new Exception( $"Message was null => {dispatch.Message}" );
+            if ( dispatch.Message.Clone() is not BytesMessage message )
+                throw new($"Message was null => {dispatch.Message}");
 
             message.Connection = _session.Connection;
 
@@ -440,11 +440,11 @@ namespace Stomp.Net.Stomp
 
         #region Fields
 
-        private readonly Atomic<Boolean> _deliveringAcks = new Atomic<Boolean>();
-        private readonly List<MessageDispatch> _dispatchedMessages = new List<MessageDispatch>();
-        private readonly Atomic<Boolean> _started = new Atomic<Boolean>();
-        private readonly Object _syncRoot = new Object();
-        private readonly MessageDispatchChannel _unconsumedMessages = new MessageDispatchChannel();
+        private readonly Atomic<Boolean> _deliveringAcks = new();
+        private readonly List<MessageDispatch> _dispatchedMessages = new();
+        private readonly Atomic<Boolean> _started = new();
+        private readonly Object _syncRoot = new();
+        private readonly MessageDispatchChannel _unconsumedMessages = new();
         private Int32 _additionalWindowSize;
         private Boolean _clearDispatchList;
         private Int32 _deliveredCounter;
@@ -503,7 +503,7 @@ namespace Stomp.Net.Stomp
         /// <returns>Returns the received message, or null in case of a timeout.</returns>
         public IBytesMessage Receive( TimeSpan? timeout = null )
         {
-            timeout = timeout ?? TimeSpan.FromMilliseconds( Timeout.Infinite );
+            timeout ??= TimeSpan.FromMilliseconds( Timeout.Infinite );
 
             CheckClosed();
             CheckMessageListener();
