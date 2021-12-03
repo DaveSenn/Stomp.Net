@@ -44,6 +44,8 @@ namespace Stomp.Net.Stomp.Protocol
             Properties[name] = value.ToString();
         }
 
+        private static String _msg = "";
+
         public void ToStream( BinaryWriter dataOut )
         {
             if ( Command == Keepalive )
@@ -67,7 +69,9 @@ namespace Stomp.Net.Stomp.Protocol
             }
 
             builder.Append( Newline );
-            dataOut.Write( _encoding.GetBytes( builder.ToString() ) );
+            var message = builder.ToString();
+            _msg += message + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+            dataOut.Write( _encoding.GetBytes( message ) );
 
             if ( Content != null )
                 dataOut.Write( Content );
