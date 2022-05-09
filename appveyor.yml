@@ -54,7 +54,7 @@ configuration: Release
 
 # Script to build all the solution
 build_script:
-- ps: .Build\Build.ps1
+  ps: .Build\Build.ps1
 
 #---------------------------------
 # After build
