@@ -4,45 +4,44 @@ using System;
 
 #endregion
 
-namespace Stomp.Net.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands;
+
+public class WireFormatInfo : BaseCommand
 {
-    public class WireFormatInfo : BaseCommand
-    {
-        /// <summery>
-        ///     Get the unique identifier that this object and its own
-        ///     Marshaler share.
-        /// </summery>
-        public override Byte GetDataStructureType()
-            => DataStructureTypes.TransactionInfoType;
+    /// <summery>
+    ///     Get the unique identifier that this object and its own
+    ///     Marshaler share.
+    /// </summery>
+    public override Byte GetDataStructureType()
+        => DataStructureTypes.TransactionInfoType;
 
-        /// <summery>
-        ///     Returns a string containing the information for this DataStructure
-        ///     such as its type and value of its elements.
-        /// </summery>
-        public override String ToString()
-            => GetType()
-                   .Name + "[" +
-               "WriteCheckInterval=" + WriteCheckInterval + ", " +
-               "ReadCheckInterval=" + ReadCheckInterval + ", " +
-               "Session=" + Session + ", " +
-               "Version=" + Version +
-               "]";
+    /// <summery>
+    ///     Returns a string containing the information for this DataStructure
+    ///     such as its type and value of its elements.
+    /// </summery>
+    public override String ToString()
+        => GetType()
+               .Name + "[" +
+           "WriteCheckInterval=" + WriteCheckInterval + ", " +
+           "ReadCheckInterval=" + ReadCheckInterval + ", " +
+           "Session=" + Session + ", " +
+           "Version=" + Version +
+           "]";
 
-        #region Properties
+    #region Properties
 
-        public Int32 WriteCheckInterval { get; set; }
+    public Int32 WriteCheckInterval { get; set; }
 
-        public Int32 ReadCheckInterval { get; set; }
+    public Int32 ReadCheckInterval { get; set; }
 
-        public Single Version { get; set; } = 1.0f;
+    public Single Version { get; set; } = 1.0f;
 
-        public String Session { get; set; }
+    public String Session { get; set; }
 
-        /// <summery>
-        ///     Return an answer of true to the IsWireFormatInfo() query.
-        /// </summery>
-        public override Boolean IsWireFormatInfo => true;
+    /// <summery>
+    ///     Return an answer of true to the IsWireFormatInfo() query.
+    /// </summery>
+    public override Boolean IsWireFormatInfo => true;
 
-        #endregion
-    }
+    #endregion
 }

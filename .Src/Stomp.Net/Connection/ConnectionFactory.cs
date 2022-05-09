@@ -9,151 +9,150 @@ using Stomp.Net.Stomp.Util;
 
 #endregion
 
-namespace Stomp.Net
+namespace Stomp.Net;
+
+/// <summary>
+///     Represents a connection with a message broker
+/// </summary>
+public class ConnectionFactory : IConnectionFactory
 {
+    #region Ctor
+
     /// <summary>
-    ///     Represents a connection with a message broker
+    ///     Initializes a new instance of the <see cref="ConnectionFactory" /> class.
     /// </summary>
-    public class ConnectionFactory : IConnectionFactory
+    /// <param name="brokerUri">The broker URI.</param>
+    /// <param name="stompConnectionSettings">The STOM connection settings.</param>
+    public ConnectionFactory( String brokerUri, StompConnectionSettings stompConnectionSettings )
     {
-        #region Ctor
+        BrokerUri = new(brokerUri);
+        StompConnectionSettings = stompConnectionSettings;
+        _transportFactory = new TransportFactory( StompConnectionSettings );
+    }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ConnectionFactory" /> class.
-        /// </summary>
-        /// <param name="brokerUri">The broker URI.</param>
-        /// <param name="stompConnectionSettings">The STOM connection settings.</param>
-        public ConnectionFactory( String brokerUri, StompConnectionSettings stompConnectionSettings )
+    #endregion
+
+    #region Private Members
+
+    /// <summary>
+    ///     Configures the given connection.
+    /// </summary>
+    /// <param name="connection">The connection to configure.</param>
+    private void ConfigureConnection( Connection connection )
+    {
+        connection.RedeliveryPolicy = _redeliveryPolicy.Clone() as IRedeliveryPolicy;
+        connection.PrefetchPolicy = StompConnectionSettings.PrefetchPolicy.Clone() as PrefetchPolicy;
+    }
+
+    #endregion
+
+    #region Fields
+
+    /// <summary>
+    ///     Object used to synchronize threads to create a client id generator.
+    /// </summary>
+    private readonly Object _syncCreateClientIdGenerator = new();
+
+    /// <summary>
+    ///     Stores the transport factory.
+    /// </summary>
+    private readonly ITransportFactory _transportFactory;
+
+    /// <summary>
+    ///     The redelivery policy.
+    /// </summary>
+    private IRedeliveryPolicy _redeliveryPolicy = new RedeliveryPolicy();
+
+    #endregion
+
+    #region Properties
+
+    /// <summary>
+    ///     Gets the stomp connection settings.
+    /// </summary>
+    /// <value>The stomp connection settings.</value>
+    private StompConnectionSettings StompConnectionSettings { get; }
+
+    /// <summary>
+    ///     Gets a client id generator.
+    /// </summary>
+    private IdGenerator ClientIdGenerator
+    {
+        get
         {
-            BrokerUri = new(brokerUri);
-            StompConnectionSettings = stompConnectionSettings;
-            _transportFactory = new TransportFactory( StompConnectionSettings );
-        }
+            if ( StompConnectionSettings.ClientIdGenerator != null )
+                return StompConnectionSettings.ClientIdGenerator;
 
-        #endregion
-
-        #region Private Members
-
-        /// <summary>
-        ///     Configures the given connection.
-        /// </summary>
-        /// <param name="connection">The connection to configure.</param>
-        private void ConfigureConnection( Connection connection )
-        {
-            connection.RedeliveryPolicy = _redeliveryPolicy.Clone() as IRedeliveryPolicy;
-            connection.PrefetchPolicy = StompConnectionSettings.PrefetchPolicy.Clone() as PrefetchPolicy;
-        }
-
-        #endregion
-
-        #region Fields
-
-        /// <summary>
-        ///     Object used to synchronize threads to create a client id generator.
-        /// </summary>
-        private readonly Object _syncCreateClientIdGenerator = new();
-
-        /// <summary>
-        ///     Stores the transport factory.
-        /// </summary>
-        private readonly ITransportFactory _transportFactory;
-
-        /// <summary>
-        ///     The redelivery policy.
-        /// </summary>
-        private IRedeliveryPolicy _redeliveryPolicy = new RedeliveryPolicy();
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        ///     Gets the stomp connection settings.
-        /// </summary>
-        /// <value>The stomp connection settings.</value>
-        private StompConnectionSettings StompConnectionSettings { get; }
-
-        /// <summary>
-        ///     Gets a client id generator.
-        /// </summary>
-        private IdGenerator ClientIdGenerator
-        {
-            get
+            lock ( _syncCreateClientIdGenerator )
             {
                 if ( StompConnectionSettings.ClientIdGenerator != null )
                     return StompConnectionSettings.ClientIdGenerator;
 
-                lock ( _syncCreateClientIdGenerator )
-                {
-                    if ( StompConnectionSettings.ClientIdGenerator != null )
-                        return StompConnectionSettings.ClientIdGenerator;
-
-                    return StompConnectionSettings.ClientIdGenerator = StompConnectionSettings.ClientIdPrefix.IsNotEmpty()
-                        ? new(StompConnectionSettings.ClientIdPrefix)
-                        : new IdGenerator();
-                }
+                return StompConnectionSettings.ClientIdGenerator = StompConnectionSettings.ClientIdPrefix.IsNotEmpty()
+                    ? new(StompConnectionSettings.ClientIdPrefix)
+                    : new IdGenerator();
             }
         }
+    }
 
-        #endregion
+    #endregion
 
-        #region Implementation of IConnectionFactory
+    #region Implementation of IConnectionFactory
 
-        /// <summary>
-        ///     Get/or set the broker Uri.
-        /// </summary>
-        public Uri BrokerUri { get; set; }
+    /// <summary>
+    ///     Get/or set the broker Uri.
+    /// </summary>
+    public Uri BrokerUri { get; set; }
 
-        /// <summary>
-        ///     Get or set the redelivery policy that new IConnection objects are assigned upon creation.
-        /// </summary>
-        public IRedeliveryPolicy RedeliveryPolicy
+    /// <summary>
+    ///     Get or set the redelivery policy that new IConnection objects are assigned upon creation.
+    /// </summary>
+    public IRedeliveryPolicy RedeliveryPolicy
+    {
+        get => _redeliveryPolicy;
+        set
         {
-            get => _redeliveryPolicy;
-            set
-            {
-                if ( value != null )
-                    _redeliveryPolicy = value;
-                else
-                    throw new ArgumentException( "Value can not be null", nameof(value) );
-            }
+            if ( value != null )
+                _redeliveryPolicy = value;
+            else
+                throw new ArgumentException( "Value can not be null", nameof(value) );
         }
+    }
 
-        /// <summary>
-        ///     Creates a new connection with the given user name and password
-        /// </summary>
-        public IConnection CreateConnection()
+    /// <summary>
+    ///     Creates a new connection with the given user name and password
+    /// </summary>
+    public IConnection CreateConnection()
+    {
+        Connection connection = null;
+
+        try
         {
-            Connection connection = null;
+            var transport = _transportFactory.CreateTransport( BrokerUri );
+            connection = new(BrokerUri, transport, ClientIdGenerator, StompConnectionSettings);
 
+            ConfigureConnection( connection );
+
+            // Set the client id if set
+            if ( StompConnectionSettings.ClientId.IsNotEmpty() )
+                connection.DefaultClientId = StompConnectionSettings.ClientId;
+
+            return connection;
+        }
+        catch ( Exception ex )
+        {
             try
             {
-                var transport = _transportFactory.CreateTransport( BrokerUri );
-                connection = new(BrokerUri, transport, ClientIdGenerator, StompConnectionSettings);
-
-                ConfigureConnection( connection );
-
-                // Set the client id if set
-                if ( StompConnectionSettings.ClientId.IsNotEmpty() )
-                    connection.DefaultClientId = StompConnectionSettings.ClientId;
-
-                return connection;
+                connection?.Close();
             }
-            catch ( Exception ex )
+            catch
             {
-                try
-                {
-                    connection?.Close();
-                }
-                catch
-                {
-                    // ignored
-                }
-
-                throw new StompException( $"Could not connect to broker URL: '{BrokerUri}'. See inner exception for details.", ex );
+                // ignored
             }
-        }
 
-        #endregion
+            throw new StompException( $"Could not connect to broker URL: '{BrokerUri}'. See inner exception for details.", ex );
+        }
     }
+
+    #endregion
 }

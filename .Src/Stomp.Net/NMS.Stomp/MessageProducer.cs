@@ -8,164 +8,163 @@ using Stomp.Net.Util;
 
 #endregion
 
-namespace Stomp.Net.Stomp
+namespace Stomp.Net.Stomp;
+
+/// <summary>
+///     An object capable of sending messages to some destination
+/// </summary>
+public class MessageProducer : Disposable, IMessageProducer
 {
-    /// <summary>
-    ///     An object capable of sending messages to some destination
-    /// </summary>
-    public class MessageProducer : Disposable, IMessageProducer
+    #region Properties
+
+    [PublicAPI]
+    public ProducerId ProducerId => _info.ProducerId;
+
+    #endregion
+
+    #region Ctor
+
+    public MessageProducer( Session session, ProducerInfo info )
     {
-        #region Properties
+        _session = session;
+        _info = info;
+        RequestTimeout = session.RequestTimeout;
+        _messageTransformation = session.Connection.MessageTransformation;
+    }
 
-        [PublicAPI]
-        public ProducerId ProducerId => _info.ProducerId;
+    #endregion
 
-        #endregion
-
-        #region Ctor
-
-        public MessageProducer( Session session, ProducerInfo info )
+    public void Close()
+    {
+        lock ( _closedLock )
         {
-            _session = session;
-            _info = info;
-            RequestTimeout = session.RequestTimeout;
-            _messageTransformation = session.Connection.MessageTransformation;
+            if ( _closed )
+                return;
+
+            DoClose();
+            _session = null;
+        }
+    }
+
+    public MessageDeliveryMode DeliveryMode { get; set; } = StompConstants.DefaultDeliveryMode;
+
+    public Boolean DisableMessageId { get; set; } = false;
+
+    public Boolean DisableMessageTimestamp { get; set; } = false;
+
+    public MessagePriority Priority { get; set; } = StompConstants.DefaultPriority;
+
+    public TimeSpan RequestTimeout { get; set; }
+
+    public void Send( IBytesMessage message ) => Send( _info.Destination, message, DeliveryMode, Priority, TimeToLive );
+
+    public void Send( IDestination destination, IBytesMessage message ) => Send( destination, message, DeliveryMode, Priority, TimeToLive );
+
+    public void Send( IBytesMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive )
+        => Send( _info.Destination, message, deliveryMode, priority, timeToLive );
+
+    public void Send( IDestination destination, IBytesMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive )
+    {
+        if ( null == destination )
+        {
+            // See if this producer was created without a destination.
+            if ( null == _info.Destination )
+                throw new NotSupportedException();
+
+            throw new InvalidDestinationException(
+                $"The producer was created with a destination, but an invalid destination was specified. => Destination: '{_info.Destination}'" );
         }
 
-        #endregion
+        Destination dest;
 
-        public void Close()
+        if ( Equals( destination, _info.Destination ) )
+            dest = destination as Destination;
+        else if ( _info.Destination == null )
+            dest = Destination.Transform( destination );
+        else
+            throw new NotSupportedException( "This producer can only send messages to: " + _info.Destination.PhysicalName );
+
+        var stompMessage = _messageTransformation.TransformMessage<BytesMessage>( message );
+
+        stompMessage.ProducerId = _info.ProducerId;
+        stompMessage.FromDestination = dest;
+        stompMessage.StompDeliveryMode = deliveryMode;
+        stompMessage.StompPriority = priority;
+
+        // Always set the message Id regardless of the disable flag.
+        var id = new MessageId( _info.ProducerId, Interlocked.Increment( ref _producerSequenceId ) );
+        stompMessage.MessageId = id;
+
+        if ( !DisableMessageTimestamp )
+            stompMessage.StompTimestamp = DateTime.UtcNow;
+
+        if ( timeToLive != TimeSpan.Zero )
+            stompMessage.StompTimeToLive = timeToLive;
+
+        lock ( _closedLock )
         {
-            lock ( _closedLock )
-            {
-                if ( _closed )
-                    return;
-
-                DoClose();
-                _session = null;
-            }
+            if ( _closed )
+                throw new ConnectionClosedException();
+            _session.DoSend( stompMessage, RequestTimeout );
         }
+    }
 
-        public MessageDeliveryMode DeliveryMode { get; set; } = StompConstants.DefaultDeliveryMode;
+    public TimeSpan TimeToLive { get; set; } = StompConstants.DefaultTimeToLive;
 
-        public Boolean DisableMessageId { get; set; } = false;
-
-        public Boolean DisableMessageTimestamp { get; set; } = false;
-
-        public MessagePriority Priority { get; set; } = StompConstants.DefaultPriority;
-
-        public TimeSpan RequestTimeout { get; set; }
-
-        public void Send( IBytesMessage message ) => Send( _info.Destination, message, DeliveryMode, Priority, TimeToLive );
-
-        public void Send( IDestination destination, IBytesMessage message ) => Send( destination, message, DeliveryMode, Priority, TimeToLive );
-
-        public void Send( IBytesMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive )
-            => Send( _info.Destination, message, deliveryMode, priority, timeToLive );
-
-        public void Send( IDestination destination, IBytesMessage message, MessageDeliveryMode deliveryMode, MessagePriority priority, TimeSpan timeToLive )
+    /// <summary>
+    ///     Method invoked when the instance gets disposed.
+    /// </summary>
+    protected override void Disposed()
+    {
+        try
         {
-            if ( null == destination )
-            {
-                // See if this producer was created without a destination.
-                if ( null == _info.Destination )
-                    throw new NotSupportedException();
-
-                throw new InvalidDestinationException(
-                    $"The producer was created with a destination, but an invalid destination was specified. => Destination: '{_info.Destination}'" );
-            }
-
-            Destination dest;
-
-            if ( Equals( destination, _info.Destination ) )
-                dest = destination as Destination;
-            else if ( _info.Destination == null )
-                dest = Destination.Transform( destination );
-            else
-                throw new NotSupportedException( "This producer can only send messages to: " + _info.Destination.PhysicalName );
-
-            var stompMessage = _messageTransformation.TransformMessage<BytesMessage>( message );
-
-            stompMessage.ProducerId = _info.ProducerId;
-            stompMessage.FromDestination = dest;
-            stompMessage.StompDeliveryMode = deliveryMode;
-            stompMessage.StompPriority = priority;
-
-            // Always set the message Id regardless of the disable flag.
-            var id = new MessageId( _info.ProducerId, Interlocked.Increment( ref _producerSequenceId ) );
-            stompMessage.MessageId = id;
-
-            if ( !DisableMessageTimestamp )
-                stompMessage.StompTimestamp = DateTime.UtcNow;
-
-            if ( timeToLive != TimeSpan.Zero )
-                stompMessage.StompTimeToLive = timeToLive;
-
-            lock ( _closedLock )
-            {
-                if ( _closed )
-                    throw new ConnectionClosedException();
-                _session.DoSend( stompMessage, RequestTimeout );
-            }
+            Close();
         }
-
-        public TimeSpan TimeToLive { get; set; } = StompConstants.DefaultTimeToLive;
-
-        /// <summary>
-        ///     Method invoked when the instance gets disposed.
-        /// </summary>
-        protected override void Disposed()
+        catch
         {
+            // Ignore network errors.
+        }
+    }
+
+    internal void DoClose()
+    {
+        lock ( _closedLock )
+        {
+            if ( _closed )
+                return;
+
             try
             {
-                Close();
+                _session.DisposeOf( _info.ProducerId );
             }
-            catch
+            catch ( Exception ex )
             {
-                // Ignore network errors.
+                if ( Tracer.IsErrorEnabled )
+                    Tracer.Error( $"Error during producer close: {ex}" );
             }
+
+            _closed = true;
         }
-
-        internal void DoClose()
-        {
-            lock ( _closedLock )
-            {
-                if ( _closed )
-                    return;
-
-                try
-                {
-                    _session.DisposeOf( _info.ProducerId );
-                }
-                catch ( Exception ex )
-                {
-                    if ( Tracer.IsErrorEnabled )
-                        Tracer.Error( $"Error during producer close: {ex}" );
-                }
-
-                _closed = true;
-            }
-        }
-
-        #region Fields
-
-        private readonly Object _closedLock = new();
-        private readonly ProducerInfo _info;
-        private readonly MessageTransformation _messageTransformation;
-        private Boolean _closed;
-        private Int32 _producerSequenceId;
-        private Session _session;
-
-        #endregion
-
-        #region Message Creation Factory Methods.
-
-        public IBytesMessage CreateBytesMessage()
-            => _session.CreateBytesMessage();
-
-        public IBytesMessage CreateBytesMessage( Byte[] body )
-            => _session.CreateBytesMessage( body );
-
-        #endregion
     }
+
+    #region Fields
+
+    private readonly Object _closedLock = new();
+    private readonly ProducerInfo _info;
+    private readonly MessageTransformation _messageTransformation;
+    private Boolean _closed;
+    private Int32 _producerSequenceId;
+    private Session _session;
+
+    #endregion
+
+    #region Message Creation Factory Methods.
+
+    public IBytesMessage CreateBytesMessage()
+        => _session.CreateBytesMessage();
+
+    public IBytesMessage CreateBytesMessage( Byte[] body )
+        => _session.CreateBytesMessage( body );
+
+    #endregion
 }

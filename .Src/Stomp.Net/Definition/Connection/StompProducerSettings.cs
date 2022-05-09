@@ -4,21 +4,20 @@ using System;
 
 #endregion
 
-namespace Stomp.Net
+namespace Stomp.Net;
+
+/// <summary>
+///     Class representing the STOMP producer settings.
+/// </summary>
+public class StompProducerSettings
 {
+    #region Properties
+
     /// <summary>
-    ///     Class representing the STOMP producer settings.
+    ///     Gets or sets the dispatch async option.
     /// </summary>
-    public class StompProducerSettings
-    {
-        #region Properties
+    /// <value>The dispatch async option.</value>
+    public Boolean DispatchAsync { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the dispatch async option.
-        /// </summary>
-        /// <value>The dispatch async option.</value>
-        public Boolean DispatchAsync { get; set; }
-
-        #endregion
-    }
+    #endregion
 }

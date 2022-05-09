@@ -4,19 +4,18 @@ using System;
 
 #endregion
 
-namespace Stomp.Net
+namespace Stomp.Net;
+
+/// <summary>
+///     Defines a number of constants
+/// </summary>
+public class StompConstants
 {
-    /// <summary>
-    ///     Defines a number of constants
-    /// </summary>
-    public class StompConstants
-    {
-        #region Constants
+    #region Constants
 
-        public const MessageDeliveryMode DefaultDeliveryMode = MessageDeliveryMode.Persistent;
-        public const MessagePriority DefaultPriority = MessagePriority.Normal;
-        public static readonly TimeSpan DefaultTimeToLive = TimeSpan.Zero;
+    public const MessageDeliveryMode DefaultDeliveryMode = MessageDeliveryMode.Persistent;
+    public const MessagePriority DefaultPriority = MessagePriority.Normal;
+    public static readonly TimeSpan DefaultTimeToLive = TimeSpan.Zero;
 
-        #endregion
-    }
+    #endregion
 }

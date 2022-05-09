@@ -4,18 +4,17 @@ using System;
 
 #endregion
 
-namespace Stomp.Net
+namespace Stomp.Net;
+
+/// <summary>
+///     Represents a topic in a message broker. A message sent to a topic
+///     is delivered to all consumers on the topic who are interested in the message.
+/// </summary>
+public interface ITopic : IDestination
 {
-    /// <summary>
-    ///     Represents a topic in a message broker. A message sent to a topic
-    ///     is delivered to all consumers on the topic who are interested in the message.
-    /// </summary>
-    public interface ITopic : IDestination
-    {
-        #region Properties
+    #region Properties
 
-        String TopicName { get; }
+    String TopicName { get; }
 
-        #endregion
-    }
+    #endregion
 }

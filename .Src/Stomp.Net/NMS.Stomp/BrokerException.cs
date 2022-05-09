@@ -7,58 +7,57 @@ using Stomp.Net.Stomp.Commands;
 
 #endregion
 
-namespace Stomp.Net.Stomp
+namespace Stomp.Net.Stomp;
+
+/// <summary>
+///     Exception thrown when the broker returns an error
+/// </summary>
+public class BrokerException : StompException
 {
     /// <summary>
-    ///     Exception thrown when the broker returns an error
+    ///     Generates a nice textual stack trace
     /// </summary>
-    public class BrokerException : StompException
+    private static String StackTraceDump( StackTraceElement[] elements )
     {
-        /// <summary>
-        ///     Generates a nice textual stack trace
-        /// </summary>
-        private static String StackTraceDump( StackTraceElement[] elements )
-        {
-            var builder = new StringBuilder();
-            if ( elements == null )
-                return builder.ToString();
-
-            foreach ( var e in elements )
-                builder.Append( "\n " + e.ClassName + "." + e.MethodName + "(" + e.FileName + ":" + e.LineNumber + ")" );
+        var builder = new StringBuilder();
+        if ( elements == null )
             return builder.ToString();
-        }
 
-        #region Properties
-
-        private BrokerError BrokerError { get; }
-
-        #region Overrides of Exception
-
-        /// <summary>
-        ///     Gets a message that describes the current exception.
-        /// </summary>
-        /// <returns>The error message that explains the reason for the exception, or an empty string ("").</returns>
-        public override String Message
-            => "{1}{0}BrokerError: {2}".F( Environment.NewLine,
-                                           base.Message,
-                                           BrokerError );
-
-        #endregion
-
-        #endregion
-
-        #region Ctor
-
-        public BrokerException()
-            : base( "Broker failed with missing exception log" )
-        {
-        }
-
-        public BrokerException( BrokerError brokerError, Exception innerException = null )
-            : base( brokerError.ExceptionClass + " : " + brokerError.Message + "\n" + StackTraceDump( brokerError.StackTraceElements ),
-                    innerException )
-            => BrokerError = brokerError;
-
-        #endregion
+        foreach ( var e in elements )
+            builder.Append( "\n " + e.ClassName + "." + e.MethodName + "(" + e.FileName + ":" + e.LineNumber + ")" );
+        return builder.ToString();
     }
+
+    #region Properties
+
+    private BrokerError BrokerError { get; }
+
+    #region Overrides of Exception
+
+    /// <summary>
+    ///     Gets a message that describes the current exception.
+    /// </summary>
+    /// <returns>The error message that explains the reason for the exception, or an empty string ("").</returns>
+    public override String Message
+        => "{1}{0}BrokerError: {2}".F( Environment.NewLine,
+                                       base.Message,
+                                       BrokerError );
+
+    #endregion
+
+    #endregion
+
+    #region Ctor
+
+    public BrokerException()
+        : base( "Broker failed with missing exception log" )
+    {
+    }
+
+    public BrokerException( BrokerError brokerError, Exception innerException = null )
+        : base( brokerError.ExceptionClass + " : " + brokerError.Message + "\n" + StackTraceDump( brokerError.StackTraceElements ),
+                innerException )
+        => BrokerError = brokerError;
+
+    #endregion
 }

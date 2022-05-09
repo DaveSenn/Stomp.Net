@@ -6,101 +6,100 @@ using Stomp.Net.Stomp.Commands;
 
 #endregion
 
-namespace Stomp.Net.Stomp.Transport
+namespace Stomp.Net.Stomp.Transport;
+
+/// <summary>
+///     A Transport which guards access to the next transport using a mutex.
+/// </summary>
+public class MutexTransport : TransportFilter
 {
-    /// <summary>
-    ///     A Transport which guards access to the next transport using a mutex.
-    /// </summary>
-    public class MutexTransport : TransportFilter
+    #region Fields
+
+    private readonly Object _transmissionLock = new();
+
+    #endregion
+
+    #region Ctor
+
+    public MutexTransport( ITransport next )
+        : base( next )
     {
-        #region Fields
+    }
 
-        private readonly Object _transmissionLock = new();
+    #endregion
 
-        #endregion
-
-        #region Ctor
-
-        public MutexTransport( ITransport next )
-            : base( next )
+    public override FutureResponse AsyncRequest( ICommand command )
+    {
+        GetTransmissionLock( Next.AsyncTimeout );
+        try
         {
+            return base.AsyncRequest( command );
         }
-
-        #endregion
-
-        public override FutureResponse AsyncRequest( ICommand command )
+        finally
         {
-            GetTransmissionLock( Next.AsyncTimeout );
-            try
-            {
-                return base.AsyncRequest( command );
-            }
-            finally
-            {
-                Monitor.Exit( _transmissionLock );
-            }
+            Monitor.Exit( _transmissionLock );
         }
+    }
 
-        public override void Oneway( ICommand command )
+    public override void Oneway( ICommand command )
+    {
+        GetTransmissionLock( Next.Timeout );
+        try
         {
-            GetTransmissionLock( Next.Timeout );
-            try
-            {
-                base.Oneway( command );
-            }
-            finally
-            {
-                Monitor.Exit( _transmissionLock );
-            }
+            base.Oneway( command );
         }
-
-        public override Response Request( ICommand command, TimeSpan timeout )
+        finally
         {
-            GetTransmissionLock( timeout );
-
-            try
-            {
-                return base.Request( command, timeout );
-            }
-            finally
-            {
-                Monitor.Exit( _transmissionLock );
-            }
+            Monitor.Exit( _transmissionLock );
         }
+    }
 
-        #region Overrides of Disposable
+    public override Response Request( ICommand command, TimeSpan timeout )
+    {
+        GetTransmissionLock( timeout );
 
-        /// <summary>
-        ///     Method invoked when the instance gets disposed.
-        /// </summary>
-        protected override void Disposed()
+        try
         {
+            return base.Request( command, timeout );
         }
-
-        #endregion
-
-        private void GetTransmissionLock( TimeSpan timeout )
+        finally
         {
-            if ( timeout > TimeSpan.Zero )
-            {
-                var deadline = DateTime.Now + timeout;
-                var waitCount = 1;
-
-                while ( true )
-                {
-                    if ( Monitor.TryEnter( _transmissionLock ) )
-                        break;
-
-                    if ( DateTime.Now > deadline )
-                        throw new IoException( $"Command timed out after {timeout} milliseconds." );
-
-                    // Back off from being overly aggressive.
-                    // Having too many threads aggressively trying to get the lock pegs the CPU.
-                    Thread.Sleep( 3 * waitCount++ );
-                }
-            }
-            else
-                Monitor.Enter( _transmissionLock );
+            Monitor.Exit( _transmissionLock );
         }
+    }
+
+    #region Overrides of Disposable
+
+    /// <summary>
+    ///     Method invoked when the instance gets disposed.
+    /// </summary>
+    protected override void Disposed()
+    {
+    }
+
+    #endregion
+
+    private void GetTransmissionLock( TimeSpan timeout )
+    {
+        if ( timeout > TimeSpan.Zero )
+        {
+            var deadline = DateTime.Now + timeout;
+            var waitCount = 1;
+
+            while ( true )
+            {
+                if ( Monitor.TryEnter( _transmissionLock ) )
+                    break;
+
+                if ( DateTime.Now > deadline )
+                    throw new IoException( $"Command timed out after {timeout} milliseconds." );
+
+                // Back off from being overly aggressive.
+                // Having too many threads aggressively trying to get the lock pegs the CPU.
+                Thread.Sleep( 3 * waitCount++ );
+            }
+        }
+        else
+            Monitor.Enter( _transmissionLock );
     }
 }

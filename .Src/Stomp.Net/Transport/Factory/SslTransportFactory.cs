@@ -8,40 +8,39 @@ using Stomp.Net.Stomp.Transport;
 
 #endregion
 
-namespace Stomp.Net.Transport
+namespace Stomp.Net.Transport;
+
+/// <summary>
+///     SSL transport factory.
+/// </summary>
+public class SslTransportFactory : TcpTransportFactory
 {
+    #region Fields
+
     /// <summary>
-    ///     SSL transport factory.
+    ///     Stores the STOMP connection settings.
     /// </summary>
-    public class SslTransportFactory : TcpTransportFactory
+    private readonly StompConnectionSettings _stompConnectionSettings;
+
+    #endregion
+
+    #region Ctor
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="SslTransportFactory" /> class.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">stompConnectionSettings can not be null.</exception>
+    /// <param name="stompConnectionSettings">Some STOMP settings.</param>
+    public SslTransportFactory( [NotNull] StompConnectionSettings stompConnectionSettings )
+        : base( stompConnectionSettings )
     {
-        #region Fields
+        stompConnectionSettings.ThrowIfNull( nameof(stompConnectionSettings) );
 
-        /// <summary>
-        ///     Stores the STOMP connection settings.
-        /// </summary>
-        private readonly StompConnectionSettings _stompConnectionSettings;
-
-        #endregion
-
-        #region Ctor
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SslTransportFactory" /> class.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">stompConnectionSettings can not be null.</exception>
-        /// <param name="stompConnectionSettings">Some STOMP settings.</param>
-        public SslTransportFactory( [NotNull] StompConnectionSettings stompConnectionSettings )
-            : base( stompConnectionSettings )
-        {
-            stompConnectionSettings.ThrowIfNull( nameof(stompConnectionSettings) );
-
-            _stompConnectionSettings = stompConnectionSettings;
-        }
-
-        #endregion
-
-        protected override ITransport CreateTransport( Uri location, Socket socket, IWireFormat wireFormat )
-            => new SslTransport( location, socket, wireFormat, _stompConnectionSettings );
+        _stompConnectionSettings = stompConnectionSettings;
     }
+
+    #endregion
+
+    protected override ITransport CreateTransport( Uri location, Socket socket, IWireFormat wireFormat )
+        => new SslTransport( location, socket, wireFormat, _stompConnectionSettings );
 }

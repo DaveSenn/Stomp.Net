@@ -4,17 +4,16 @@ using System;
 
 #endregion
 
-namespace Stomp.Net
+namespace Stomp.Net;
+
+public class IllegalStateException : StompException
 {
-    public class IllegalStateException : StompException
+    #region Ctor
+
+    public IllegalStateException( String message )
+        : base( message )
     {
-        #region Ctor
-
-        public IllegalStateException( String message )
-            : base( message )
-        {
-        }
-
-        #endregion
     }
+
+    #endregion
 }

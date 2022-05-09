@@ -1,8 +1,7 @@
-namespace Stomp.Net.Stomp
+namespace Stomp.Net.Stomp;
+
+public enum AckType
 {
-    public enum AckType
-    {
-        ConsumedAck = 1, // Message consumed, discard
-        IndividualAck = 2 // Only the given message is to be treated as consumed.
-    }
+    ConsumedAck = 1, // Message consumed, discard
+    IndividualAck = 2 // Only the given message is to be treated as consumed.
 }
