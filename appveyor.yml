@@ -42,8 +42,7 @@ nuget:
 
 # Set the build worker image
 image: Visual Studio 2022
-build:
-  verbosity: detailed
+# build: verbosity: detailed
   
 # Build configuration
 configuration: Release
@@ -53,7 +52,6 @@ configuration: Release
 #---------------------------------
 
 # Script to build all the solution
-build_script:
 build_script:
 - cmd: PowerShell -Version 4.0 .\.Build\Build.ps1
 
