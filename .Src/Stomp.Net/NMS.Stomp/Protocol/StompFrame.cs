@@ -67,7 +67,8 @@ public class StompFrame
         }
 
         builder.Append( Newline );
-        dataOut.Write( _encoding.GetBytes( builder.ToString() ) );
+        var message = builder.ToString();
+        dataOut.Write( _encoding.GetBytes( message ) );
 
         if ( Content != null )
             dataOut.Write( Content );
