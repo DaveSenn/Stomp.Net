@@ -26,7 +26,7 @@ notifications:
 #---------------------------------
 
 # Version format
-version: 2.2.0.{build}
+version: 2.3.0.{build}
 
 pull_requests:
   # Do not increment build number for pull requests
@@ -41,7 +41,7 @@ nuget:
 #---------------------------------
 
 # Set the build worker image
-image: Visual Studio 2019
+image: Visual Studio 2022
 build:
   verbosity: minimal
   
