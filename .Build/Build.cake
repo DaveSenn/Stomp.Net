@@ -30,7 +30,7 @@ Task("Restore")
     .IsDependentOn("Clean")
     .Does(() =>
 {
-    DotNetCoreRestore(solution);
+    DotNetRestore(solution);
 });
 
 // Patches the version of the library
@@ -70,9 +70,9 @@ Task("Build")
     .IsDependentOn("PatchVersion")
     .Does(() =>
 {	
-    DotNetCoreBuild(
+    DotNetBuild(
                 solution,
-                new DotNetCoreBuildSettings()
+                new DotNetBuildSettings()
                 {
                     Configuration = configuration
                 });
@@ -85,9 +85,9 @@ Task("Pack")
     {
         foreach (var project in GetFiles(libDirectory.ToString() + "/**/*.csproj"))
         {
-            DotNetCorePack(
+            DotNetPack(
                 project.ToString(),
-                new DotNetCorePackSettings()
+                new DotNetPackSettings()
                 {
                     Configuration = configuration,
                     OutputDirectory = outputDirectory
