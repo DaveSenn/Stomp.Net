@@ -42,7 +42,7 @@ nuget:
 
 # Set the build worker image
 image: Visual Studio 2022
-# build: verbosity: detailed
+build: off
   
 # Build configuration
 configuration: Release
