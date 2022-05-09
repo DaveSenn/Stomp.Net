@@ -4,25 +4,24 @@ using System;
 
 #endregion
 
-namespace Stomp.Net.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands;
+
+/// <summary>
+///     Represents an exception on the broker
+/// </summary>
+public class BrokerError : BaseCommand
 {
-    /// <summary>
-    ///     Represents an exception on the broker
-    /// </summary>
-    public class BrokerError : BaseCommand
-    {
-        public override Byte GetDataStructureType() => DataStructureTypes.ErrorType;
+    public override Byte GetDataStructureType() => DataStructureTypes.ErrorType;
 
-        #region Properties
+    #region Properties
 
-        public String Message { get; set; }
+    public String Message { get; set; }
 
-        public String ExceptionClass { get; set; }
+    public String ExceptionClass { get; set; }
 
-        public StackTraceElement[] StackTraceElements { get; set; }
+    public StackTraceElement[] StackTraceElements { get; set; }
 
-        public BrokerError Cause { get; set; }
+    public BrokerError Cause { get; set; }
 
-        #endregion
-    }
+    #endregion
 }

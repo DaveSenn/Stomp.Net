@@ -5,55 +5,54 @@ using Stomp.Net.Stomp.Commands;
 
 #endregion
 
-namespace Stomp.Net.Stomp.Transport
+namespace Stomp.Net.Stomp.Transport;
+
+/// <summary>
+///     A Transport filter that is used to log the commands sent and received.
+/// </summary>
+public class LoggingTransport : TransportFilter
 {
-    /// <summary>
-    ///     A Transport filter that is used to log the commands sent and received.
-    /// </summary>
-    public class LoggingTransport : TransportFilter
+    #region Ctor
+
+    public LoggingTransport( ITransport next )
+        : base( next )
     {
-        #region Ctor
+    }
 
-        public LoggingTransport( ITransport next )
-            : base( next )
-        {
-        }
+    #endregion
 
-        #endregion
+    public override void Oneway( ICommand command )
+    {
+        if ( Tracer.IsInfoEnabled )
+            Tracer.Info( "SENDING: " + command );
 
-        public override void Oneway( ICommand command )
-        {
-            if ( Tracer.IsInfoEnabled )
-                Tracer.Info( "SENDING: " + command );
+        Next.Oneway( command );
+    }
 
-            Next.Oneway( command );
-        }
+    #region Overrides of Disposable
 
-        #region Overrides of Disposable
+    /// <summary>
+    ///     Method invoked when the instance gets disposed.
+    /// </summary>
+    protected override void Disposed()
+    {
+    }
 
-        /// <summary>
-        ///     Method invoked when the instance gets disposed.
-        /// </summary>
-        protected override void Disposed()
-        {
-        }
+    #endregion
 
-        #endregion
+    protected override void OnCommand( ITransport sender, ICommand command )
+    {
+        if ( Tracer.IsInfoEnabled )
+            Tracer.Info( "RECEIVED: " + command );
 
-        protected override void OnCommand( ITransport sender, ICommand command )
-        {
-            if ( Tracer.IsInfoEnabled )
-                Tracer.Info( "RECEIVED: " + command );
+        Command?.Invoke( sender, command );
+    }
 
-            Command?.Invoke( sender, command );
-        }
+    protected override void OnException( ITransport sender, Exception error )
+    {
+        if ( Tracer.IsErrorEnabled )
+            Tracer.Error( "RECEIVED Exception: " + error );
 
-        protected override void OnException( ITransport sender, Exception error )
-        {
-            if ( Tracer.IsErrorEnabled )
-                Tracer.Error( "RECEIVED Exception: " + error );
-
-            Exception?.Invoke( sender, error );
-        }
+        Exception?.Invoke( sender, error );
     }
 }

@@ -5,14 +5,13 @@ using JetBrains.Annotations;
 
 #endregion
 
-namespace Stomp.Net.Stomp.Transport
-{
-    public interface ICompositeTransport : ITransport
-    {
-        [PublicAPI]
-        void Add( Uri[] uris );
+namespace Stomp.Net.Stomp.Transport;
 
-        [PublicAPI]
-        void Remove( Uri[] uris );
-    }
+public interface ICompositeTransport : ITransport
+{
+    [PublicAPI]
+    void Add( Uri[] uris );
+
+    [PublicAPI]
+    void Remove( Uri[] uris );
 }

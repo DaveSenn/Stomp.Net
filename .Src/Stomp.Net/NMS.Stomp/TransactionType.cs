@@ -1,9 +1,8 @@
-namespace Stomp.Net.Stomp
+namespace Stomp.Net.Stomp;
+
+public enum TransactionType
 {
-    public enum TransactionType
-    {
-        Begin = 0,
-        Commit = 1,
-        Rollback = 2
-    }
+    Begin = 0,
+    Commit = 1,
+    Rollback = 2
 }

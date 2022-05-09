@@ -4,30 +4,29 @@ using System;
 
 #endregion
 
-namespace Stomp.Net
+namespace Stomp.Net;
+
+/// <summary>
+///     A Factory of IConnection objects
+/// </summary>
+public interface IConnectionFactory
 {
     /// <summary>
-    ///     A Factory of IConnection objects
+    ///     Creates a new connection
     /// </summary>
-    public interface IConnectionFactory
-    {
-        /// <summary>
-        ///     Creates a new connection
-        /// </summary>
-        IConnection CreateConnection();
+    IConnection CreateConnection();
 
-        #region Properties
+    #region Properties
 
-        /// <summary>
-        ///     Get/or set the broker Uri.
-        /// </summary>
-        Uri BrokerUri { get; set; }
+    /// <summary>
+    ///     Get/or set the broker Uri.
+    /// </summary>
+    Uri BrokerUri { get; set; }
 
-        /// <summary>
-        ///     Get or set the redelivery policy that new IConnection objects are assigned upon creation.
-        /// </summary>
-        IRedeliveryPolicy RedeliveryPolicy { get; set; }
+    /// <summary>
+    ///     Get or set the redelivery policy that new IConnection objects are assigned upon creation.
+    /// </summary>
+    IRedeliveryPolicy RedeliveryPolicy { get; set; }
 
-        #endregion
-    }
+    #endregion
 }

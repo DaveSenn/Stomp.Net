@@ -4,71 +4,70 @@ using System;
 
 #endregion
 
-namespace Stomp.Net.Stomp.Commands
+namespace Stomp.Net.Stomp.Commands;
+
+public class ConsumerInfo : BaseCommand
 {
-    public class ConsumerInfo : BaseCommand
-    {
-        #region Constants
+    #region Constants
 
-        private const Byte IdConsumerinfo = 5;
+    private const Byte IdConsumerinfo = 5;
 
-        #endregion
+    #endregion
 
-        /// <summery>
-        ///     Get the unique identifier that this object and its own
-        ///     Marshaler share.
-        /// </summery>
-        public override Byte GetDataStructureType() => IdConsumerinfo;
+    /// <summery>
+    ///     Get the unique identifier that this object and its own
+    ///     Marshaler share.
+    /// </summery>
+    public override Byte GetDataStructureType() => IdConsumerinfo;
 
-        /// <summery>
-        ///     Returns a string containing the information for this DataStructure
-        ///     such as its type and value of its elements.
-        /// </summery>
-        public override String ToString() => GetType()
-                                                 .Name + "[" +
-                                             "ConsumerId=" + ConsumerId + ", " +
-                                             "Destination=" + Destination + ", " +
-                                             "Ack Mode=" + AckMode + ", " +
-                                             "PrefetchSize=" + PrefetchSize + ", " +
-                                             "MaximumPendingMessageLimit=" + MaximumPendingMessageLimit + ", " +
-                                             "DispatchAsync=" + DispatchAsync + ", " +
-                                             "Selector=" + Selector + ", " +
-                                             "SubscriptionName=" + SubscriptionName + ", " +
-                                             "NoLocal=" + NoLocal + ", " +
-                                             "Exclusive=" + Exclusive + ", " +
-                                             "Retroactive=" + Retroactive + ", " +
-                                             "Priority=" + Priority + ", " +
-                                             "Transformation" + Transformation +
-                                             "]";
+    /// <summery>
+    ///     Returns a string containing the information for this DataStructure
+    ///     such as its type and value of its elements.
+    /// </summery>
+    public override String ToString() => GetType()
+                                             .Name + "[" +
+                                         "ConsumerId=" + ConsumerId + ", " +
+                                         "Destination=" + Destination + ", " +
+                                         "Ack Mode=" + AckMode + ", " +
+                                         "PrefetchSize=" + PrefetchSize + ", " +
+                                         "MaximumPendingMessageLimit=" + MaximumPendingMessageLimit + ", " +
+                                         "DispatchAsync=" + DispatchAsync + ", " +
+                                         "Selector=" + Selector + ", " +
+                                         "SubscriptionName=" + SubscriptionName + ", " +
+                                         "NoLocal=" + NoLocal + ", " +
+                                         "Exclusive=" + Exclusive + ", " +
+                                         "Retroactive=" + Retroactive + ", " +
+                                         "Priority=" + Priority + ", " +
+                                         "Transformation" + Transformation +
+                                         "]";
 
-        #region Properties
+    #region Properties
 
-        public ConsumerId ConsumerId { get; set; }
+    public ConsumerId ConsumerId { get; set; }
 
-        public Destination Destination { get; set; }
+    public Destination Destination { get; set; }
 
-        public AcknowledgementMode AckMode { get; set; }
+    public AcknowledgementMode AckMode { get; set; }
 
-        public Int32 PrefetchSize { get; set; }
+    public Int32 PrefetchSize { get; set; }
 
-        public Int32 MaximumPendingMessageLimit { get; set; }
+    public Int32 MaximumPendingMessageLimit { get; set; }
 
-        public Boolean DispatchAsync { get; set; }
+    public Boolean DispatchAsync { get; set; }
 
-        public String Selector { get; set; }
+    public String Selector { get; set; }
 
-        public String SubscriptionName { get; set; }
+    public String SubscriptionName { get; set; }
 
-        public Boolean NoLocal { get; set; }
+    public Boolean NoLocal { get; set; }
 
-        public Boolean Exclusive { get; set; }
+    public Boolean Exclusive { get; set; }
 
-        public Boolean Retroactive { get; set; }
+    public Boolean Retroactive { get; set; }
 
-        public Byte Priority { get; set; }
+    public Byte Priority { get; set; }
 
-        public String Transformation { get; set; }
+    public String Transformation { get; set; }
 
-        #endregion
-    }
+    #endregion
 }

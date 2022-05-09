@@ -4,10 +4,9 @@ using System;
 
 #endregion
 
-namespace Stomp.Net
+namespace Stomp.Net;
+
+public interface ITransportFactory
 {
-    public interface ITransportFactory
-    {
-        ITransport CreateTransport( Uri location );
-    }
+    ITransport CreateTransport( Uri location );
 }

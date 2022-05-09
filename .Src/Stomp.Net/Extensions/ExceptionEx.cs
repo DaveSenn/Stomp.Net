@@ -5,20 +5,19 @@ using Extend;
 
 #endregion
 
-namespace Stomp.Net.Util
+namespace Stomp.Net.Util;
+
+public static class ExceptionEx
 {
-    public static class ExceptionEx
+    public static StompException Create( this Exception cause )
     {
-        public static StompException Create( this Exception cause )
-        {
-            if ( cause is StompException exception )
-                return exception;
+        if ( cause is StompException exception )
+            return exception;
 
-            var msg = cause.Message;
-            if ( msg.IsEmpty() )
-                msg = cause.ToString();
+        var msg = cause.Message;
+        if ( msg.IsEmpty() )
+            msg = cause.ToString();
 
-            return new(msg, cause);
-        }
+        return new(msg, cause);
     }
 }
