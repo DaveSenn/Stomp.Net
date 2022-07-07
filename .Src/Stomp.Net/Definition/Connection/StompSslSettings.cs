@@ -32,6 +32,12 @@ public class StompSslSettings
     public String ClientCertFilename { get; set; }
 
     /// <summary>
+    ///     Gets or sets the client certificate private key filename.
+    /// </summary>
+    /// <value>The client certificate private key filename.</value>
+    public String ClientCertKeyFilename { get; set; }
+
+    /// <summary>
     ///     Gets or sets the client certificate password.
     /// </summary>
     /// <value>The client certificate password.</value>

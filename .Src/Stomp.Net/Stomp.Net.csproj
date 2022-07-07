@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <PackageId>Stomp.Net</PackageId>
     <Authors>Dave Senn</Authors>
     <Company>Dave Senn</Company>
