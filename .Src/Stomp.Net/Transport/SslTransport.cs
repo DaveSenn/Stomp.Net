@@ -105,10 +105,22 @@ public class SslTransport : TcpTransport
 
         if ( _stompConnectionSettings.TransportSettings.SslSettings.ClientCertFilename.IsNotEmpty() )
         {
-            var certificate = new X509Certificate2( _stompConnectionSettings.TransportSettings.SslSettings.ClientCertFilename,
-                                                    _stompConnectionSettings.TransportSettings.SslSettings.ClientCertPassword );
-
-            collection.Add( certificate );
+            if ( _stompConnectionSettings.TransportSettings.SslSettings.ClientCertKeyFilename.IsNotEmpty() )
+            {
+                var certPem = File.ReadAllText(_stompConnectionSettings.TransportSettings.SslSettings.ClientCertFilename);
+                var eccPem = File.ReadAllText(_stompConnectionSettings.TransportSettings.SslSettings.ClientCertKeyFilename);
+            
+                var x509CertificateWithPrivateKey = X509Certificate2.CreateFromPem( certPem, eccPem );
+                
+                collection.Add( x509CertificateWithPrivateKey );
+            }
+            else
+            {
+                var certificate = new X509Certificate2( _stompConnectionSettings.TransportSettings.SslSettings.ClientCertFilename,
+                    _stompConnectionSettings.TransportSettings.SslSettings.ClientCertPassword );
+                
+                collection.Add( certificate );
+            }
         }
         else
         {
