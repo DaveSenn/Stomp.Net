@@ -42,8 +42,31 @@ public class TransportFactory : ITransportFactory
     #region Implementation of ITransportFactory
 
     public ITransport CreateTransport( Uri location )
-        => CreateTransportFactory( location )
+        => CreateTransportFactoryOrThrowStompException( location )
             .CreateTransport( location );
+
+    #endregion
+
+    #region Protected Members
+
+    /// <summary>
+    ///     Create a transport factory for the tcp ot ssl scheme.
+    ///     If we do not support the transport protocol, an StompConnectionException will be thrown.
+    /// </summary>
+    /// <param name="location">An URI.</param>
+    /// <returns>Returns a <see cref="ITransportFactory" />.</returns>
+    protected virtual ITransportFactory CreateTransportFactory( Uri location )
+    {
+        if ( location.Scheme.IsEmpty() )
+            throw new StompConnectionException( $"Transport scheme invalid: [{location}]" );
+        
+        return location.Scheme.ToLower() switch
+        {
+            "tcp" => new TcpTransportFactory( _stompConnectionSettings ),
+            "ssl" => new SslTransportFactory( _stompConnectionSettings ),
+            _ => throw new StompConnectionException( $"The transport {location.Scheme} is not supported." )
+        };
+    }
 
     #endregion
 
@@ -55,7 +78,7 @@ public class TransportFactory : ITransportFactory
     /// </summary>
     /// <param name="location">An URI.</param>
     /// <returns>Returns a <see cref="ITransportFactory" />.</returns>
-    private ITransportFactory CreateTransportFactory( Uri location )
+    private ITransportFactory CreateTransportFactoryOrThrowStompException( Uri location )
     {
         if ( location.Scheme.IsEmpty() )
             throw new StompConnectionException( $"Transport scheme invalid: [{location}]" );
@@ -64,12 +87,7 @@ public class TransportFactory : ITransportFactory
 
         try
         {
-            factory = location.Scheme.ToLower() switch
-            {
-                "tcp" => new TcpTransportFactory( _stompConnectionSettings ),
-                "ssl" => new SslTransportFactory( _stompConnectionSettings ),
-                _ => throw new StompConnectionException( $"The transport {location.Scheme} is not supported." )
-            };
+            factory = CreateTransportFactory(location);
         }
         catch ( StompConnectionException )
         {
