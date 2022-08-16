@@ -23,11 +23,12 @@ public class ConnectionFactory : IConnectionFactory
     /// </summary>
     /// <param name="brokerUri">The broker URI.</param>
     /// <param name="stompConnectionSettings">The STOM connection settings.</param>
-    public ConnectionFactory( String brokerUri, StompConnectionSettings stompConnectionSettings )
+    /// <param name="transportFactory">The transport factory. If parameter is not provided the TransportFactory is used.</param>
+    public ConnectionFactory( String brokerUri, StompConnectionSettings stompConnectionSettings, ITransportFactory transportFactory = null )
     {
         BrokerUri = new(brokerUri);
         StompConnectionSettings = stompConnectionSettings;
-        _transportFactory = new TransportFactory( StompConnectionSettings );
+        _transportFactory = transportFactory ?? new TransportFactory( StompConnectionSettings );
     }
 
     #endregion
